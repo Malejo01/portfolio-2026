@@ -13,7 +13,7 @@ const styles: Record<Surface, Record<Tone, string>> = {
     ghost: "bg-paper-2 text-ink border-hair hover:border-ink-soft",
   },
   panel: {
-    solid: "bg-accent-panel text-panel border-accent-panel font-medium hover:bg-accent-hover hover:border-accent-hover",
+    solid: "bg-accent-panel text-panel border-accent-panel font-medium hover:bg-accent-panel-hover hover:border-accent-panel-hover",
     ghost: "bg-transparent text-panel-ink border-panel-hair hover:border-panel-soft",
   },
 };

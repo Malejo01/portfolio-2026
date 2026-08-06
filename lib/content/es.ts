@@ -62,7 +62,7 @@ export const es: Content = {
         body: "Código en producción para clientes internacionales, mantenido por otros equipos.",
       },
       {
-        period: "Docencia · 13+ años",
+        period: "Docencia · 10+ años",
         title: "Profesor de Matemática",
         body: "Probabilidad y Estadística a nivel terciario. El aula es donde se prueba si un criterio es explicable.",
       },

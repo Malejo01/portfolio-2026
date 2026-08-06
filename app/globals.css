@@ -1,0 +1,205 @@
+@import "tailwindcss";
+
+/* El tema oscuro se activa con la clase .dark en <html>, no con la media query:
+   el toggle del nav tiene que poder ganarle a la preferencia del sistema. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ============================================================
+   TOKENS — modo claro (default)
+   Extraídos del diseño aprobado (design-system.md §1).
+   ============================================================ */
+:root {
+  --paper: #faf8f5;
+  --paper-2: #f1ede6;
+  --panel: #16130f;
+  --panel-2: #221d18;
+  --panel-ink: #f7f3ec;
+  --panel-soft: #b7afa4;
+  --panel-hair: #39322b;
+  --ink: #1c1917;
+  --ink-soft: #57534e;
+  --hair: #e4ded5;
+  --accent: #43613c;
+  --accent-hover: #5a7d52;
+  --accent-fill: #e8ede5;
+  --accent-ink: #faf8f5;
+  --accent-panel: #9cbc91;
+
+  color-scheme: light;
+}
+
+/* ============================================================
+   TOKENS — modo oscuro
+   ============================================================ */
+.dark {
+  --paper: #17150f;
+  --paper-2: #201d17;
+  --panel: #0e0c0a;
+  --panel-2: #1c1915;
+  --panel-ink: #f5f1ea;
+  --panel-soft: #ada69b;
+  --panel-hair: #332d26;
+  --ink: #f2ede6;
+  --ink-soft: #b0a89d;
+  --hair: #332e27;
+  --accent: #9cbc91;
+  --accent-hover: #b4cfaa;
+  --accent-fill: #232c20;
+  --accent-ink: #12100d;
+  --accent-panel: #9cbc91;
+
+  color-scheme: dark;
+}
+
+/* ============================================================
+   THEME — puente hacia las utilidades de Tailwind
+   ============================================================ */
+@theme inline {
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-panel: var(--panel);
+  --color-panel-2: var(--panel-2);
+  --color-panel-ink: var(--panel-ink);
+  --color-panel-soft: var(--panel-soft);
+  --color-panel-hair: var(--panel-hair);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-hair: var(--hair);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-fill: var(--accent-fill);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-panel: var(--accent-panel);
+
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-public-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+
+  /* Escala modular 1.25, base 17px (design-system.md §3) */
+  --text-meta: 0.8125rem; /* 13px  — mono: labels, metadatos, chips */
+  --text-body: 1.0625rem; /* 17px  — cuerpo */
+  --text-lead: 1.328rem; /* ~21px — títulos de fila, subtítulos */
+  --text-sub: 1.66rem; /* ~27px — H4 de subsección, email */
+  --text-h3: 2.075rem; /* ~33px */
+  --text-title: 2.594rem; /* ~41px — H2 de sección, H3 de caso */
+  --text-display: 3.243rem; /* ~52px — H2 de contacto */
+  --text-hero: clamp(2.4rem, 5.6vw, 4.4rem);
+  --text-decision: clamp(1.9rem, 4.6vw, 3rem);
+  --text-formula: clamp(1.6rem, 3.6vw, 2.3rem);
+  --text-formula-sm: clamp(1.4rem, 3.2vw, 2rem);
+
+  /* Spacing fluido (design-system.md §4) */
+  --spacing-gutter: clamp(16px, 4vw, 44px);
+  --spacing-gutter-sm: clamp(12px, 4vw, 44px);
+  --spacing-section: clamp(48px, 7vw, 96px);
+  --spacing-section-sm: clamp(28px, 4vw, 48px);
+  --spacing-card: clamp(14px, 3.4vw, 40px);
+  --spacing-panel: clamp(28px, 5vw, 68px);
+  --spacing-detail: clamp(22px, 4vw, 56px);
+  --spacing-aside: clamp(16px, 2.2vw, 26px);
+  --spacing-aside-lg: clamp(18px, 2.4vw, 26px);
+  --spacing-diagram: clamp(10px, 3vw, 36px);
+  --spacing-gap-main: clamp(24px, 4vw, 56px);
+  --spacing-gap-2: clamp(20px, 4vw, 48px);
+  --spacing-row: clamp(16px, 2.4vw, 24px);
+  --spacing-row-lg: clamp(18px, 2.6vw, 26px);
+  --spacing-block: clamp(36px, 5vw, 60px);
+  --spacing-lede: clamp(18px, 2.6vw, 26px);
+  --spacing-cta: clamp(20px, 3vw, 28px);
+  --spacing-hero-top: clamp(16px, 3vw, 32px);
+  --spacing-anchor: 76px;
+
+  --radius-card: 6px;
+  --radius-aside: 5px;
+  --radius-chip: 3px;
+  --radius-pill: 99px;
+}
+
+/* ============================================================
+   BASE
+   ============================================================ */
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    background: var(--paper);
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: var(--text-body);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Todo elemento con id de ancla despeja el nav sticky (58px + aire) */
+  [id] {
+    scroll-margin-top: var(--spacing-anchor);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+}
+
+/* ============================================================
+   UTILIDADES
+   ============================================================ */
+@utility hairline {
+  border-width: 0.5px;
+  border-style: solid;
+}
+
+/* Failsafe sin JavaScript.
+   Framer Motion serializa el estado inicial en el HTML del servidor, así que
+   los elementos animados llegan con `opacity:0` (y los trazos del diagrama
+   con `stroke-dasharray`). El script de <head> agrega `.js` a <html>; si no
+   corrió —JS desactivado, bloqueado por extensión o por CSP— este bloque
+   devuelve todo a su estado final. La página se lee igual, sin animación. */
+html:not(.js) [data-reveal] {
+  opacity: 1 !important;
+  transform: none !important;
+  stroke-dasharray: none !important;
+  stroke-dashoffset: 0 !important;
+}
+
+/* El eje óptico de Bricolage Grotesque se fija por nivel tipográfico:
+   opsz alto para titulares, bajo para texto de UI. Un utility por nivel
+   en vez de uno funcional: son siete valores y no crecen. */
+@utility opsz-14 {
+  font-variation-settings: "opsz" 14;
+}
+@utility opsz-18 {
+  font-variation-settings: "opsz" 18;
+}
+@utility opsz-24 {
+  font-variation-settings: "opsz" 24;
+}
+@utility opsz-36 {
+  font-variation-settings: "opsz" 36;
+}
+@utility opsz-48 {
+  font-variation-settings: "opsz" 48;
+}
+@utility opsz-60 {
+  font-variation-settings: "opsz" 60;
+}
+@utility opsz-72 {
+  font-variation-settings: "opsz" 72;
+}

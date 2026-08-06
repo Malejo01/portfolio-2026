@@ -119,18 +119,21 @@ export const es: Content = {
     note: "Tratamiento breve · no compiten con los casos",
     rows: [
       {
+        slug: "salta-pay",
         title: "Salta Pay",
         meta: "Hackathon · 2026",
         body: "Pagos con Stellar para turistas. QR que convierte moneda extranjera a la moneda del comercio en un solo paso, sin casas de cambio. MVP funcional construido en 48 horas con un equipo armado en el evento.",
         stack: "Stellar · Blockchain · TypeScript",
       },
       {
+        slug: "automotive",
         title: "Asistente conversacional automotriz",
         meta: "Desarrollo propio · 2026",
         body: "Agente LLM para concesionarias. Consultas de modelos, disponibilidad y calificación de leads en un flujo guiado. Diseñado como plantilla reutilizable: catálogo, persona y base de conocimiento son configurables.",
         stack: "LLM APIs · Next.js",
       },
       {
+        slug: "restaurant",
         title: "Sistema de gestión gastronómica",
         meta: "Proyecto personal · 2024",
         body: "Pedidos y panel de administración. Flujo de pedido para el cliente y dashboard con seguimiento de estado en tiempo real (pendiente, en cocina, entregado), filtrado por categorías y checkout.",

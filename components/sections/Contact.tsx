@@ -22,9 +22,11 @@ export function Contact({ contact }: { contact: ContactContent }) {
 
         <p className="mt-0 mb-cta text-panel-soft">{contact.body}</p>
 
+        {/* Ver Hero: el acento sobre panel no se distingue del texto del
+            cuerpo por color solo (1.03:1). El subrayado es el indicador. */}
         <a
           href={mailto("Hola Mauro")}
-          className="font-display text-sub font-medium opsz-36 tracking-[-0.01em] break-words text-accent-panel"
+          className="font-display text-sub font-medium opsz-36 tracking-[-0.01em] break-words text-accent-panel underline decoration-[0.5px] underline-offset-[6px]"
         >
           {contact.email}
         </a>

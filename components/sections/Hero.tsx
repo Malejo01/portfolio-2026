@@ -48,7 +48,13 @@ export function Hero({ hero, contactTerm }: { hero: HeroContent; contactTerm: st
         footer={
           <div>
             <span className="block font-medium text-panel-ink">{contactTerm}</span>
-            <a href={mailto()} className="break-all text-accent-panel">
+            {/* El subrayado no es decorativo: sobre panel el acento y el texto
+                del aside se separan por 1.03:1, así que el color solo no
+                alcanza para marcar que esto es un enlace (WCAG 1.4.1). */}
+            <a
+              href={mailto()}
+              className="break-all text-accent-panel underline decoration-[0.5px] underline-offset-4"
+            >
               {links.email}
             </a>
           </div>

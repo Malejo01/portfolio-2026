@@ -12,6 +12,12 @@ import type { DiagramLabels } from "@/lib/types";
  * Se renderizan las dos orientaciones y CSS elige cuál se ve (breakpoint
  * 760px del diseño). El `viewBox` de cada variante reserva la altura vía
  * aspect-ratio, así que el bloque no salta cuando cargan las fuentes.
+ *
+ * Los sublabels del carril del modelo van a `opacity: 0.9` en las dos
+ * orientaciones. El diseño aprobado traía 0.85 en la horizontal, pero
+ * mezclado sobre `--accent-fill` en modo claro eso da 4.23:1, por debajo
+ * del 4.5:1 que pide AA a 12px. 0.9 llega a 4.70:1 y ya era el valor de
+ * la vertical: unifica en vez de introducir uno nuevo.
  */
 export function ArchitectureDiagram({
   labels,
@@ -49,7 +55,7 @@ export function ArchitectureDiagram({
         <motion.g data-reveal="" variants={node(0.18)}>
           <rect x="8" y="226" width="200" height="88" rx="3" fill="var(--accent-fill)" stroke="var(--accent)" strokeWidth="0.5" />
           <text x="26" y="264" fill="var(--accent)" fontSize="13.5">{labels.instagram.title}</text>
-          <text x="26" y="288" fill="var(--accent)" fontSize="12" opacity="0.85">{labels.instagram.sub}</text>
+          <text x="26" y="288" fill="var(--accent)" fontSize="12" opacity="0.9">{labels.instagram.sub}</text>
         </motion.g>
 
         <motion.g data-reveal="" variants={node(0.5)}>
@@ -61,7 +67,7 @@ export function ArchitectureDiagram({
         <motion.g data-reveal="" variants={node(0.63)}>
           <rect x="268" y="226" width="200" height="88" rx="3" fill="var(--accent-fill)" stroke="var(--accent)" strokeWidth="0.5" />
           <text x="286" y="264" fill="var(--accent)" fontSize="13.5">{labels.model.title}</text>
-          <text x="286" y="288" fill="var(--accent)" fontSize="12" opacity="0.85">{labels.model.sub}</text>
+          <text x="286" y="288" fill="var(--accent)" fontSize="12" opacity="0.9">{labels.model.sub}</text>
         </motion.g>
 
         <motion.path data-reveal="" variants={edge(0.95, 0.45)} d="M208 110 H268" fill="none" stroke="var(--ink-soft)" strokeWidth="0.5" />

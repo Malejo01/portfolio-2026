@@ -43,7 +43,7 @@ export const en: Content = {
     aside: [
       {
         term: "I work with",
-        lines: ["TypeScript · Next.js · React", "Supabase · PostgreSQL", "Prisma · Tailwind · Vercel"],
+        lines: ["TypeScript · Next.js · React", "Node · PostgreSQL · Supabase", "Prisma · Tailwind · Vercel"],
       },
       {
         term: "Applied AI",

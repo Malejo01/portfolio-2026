@@ -36,9 +36,11 @@ export function Contact({ contact }: { contact: ContactContent }) {
           <ButtonLink href={links.github} surface="panel" external>
             {contact.ctaGithub}
           </ButtonLink>
-          <ButtonLink href={links.cv} surface="panel" external>
-            {contact.ctaCv}
-          </ButtonLink>
+          {links.cv && (
+            <ButtonLink href={links.cv} surface="panel" external>
+              {contact.ctaCv}
+            </ButtonLink>
+          )}
         </ButtonRow>
       </div>
 

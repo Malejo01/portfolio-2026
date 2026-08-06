@@ -9,8 +9,12 @@ export const links = {
   email: "lizarragamauroalejandro@gmail.com",
   github: "https://github.com/Malejo01",
   linkedin: "https://www.linkedin.com/in/mauro-alejandro-lizarraga/",
-  /** Archivo servido desde /public. Reemplazar el placeholder por el CV real. */
-  cv: "/mauro-lizarraga-cv.pdf",
+  /**
+   * Archivo servido desde /public. Vacío hasta que el PDF exista: apuntaba a
+   * `/mauro-lizarraga-cv.pdf`, que devolvía 404. Al subir el CV real, poner
+   * la ruta acá y los CTAs vuelven solos.
+   */
+  cv: "",
 
   qps: {
     live: "https://v0-que-pinta-salta.vercel.app",

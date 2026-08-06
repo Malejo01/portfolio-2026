@@ -29,9 +29,11 @@ export function Hero({ hero, contactTerm }: { hero: HeroContent; contactTerm: st
           <ButtonLink href="/#perfil" tone="solid" surface="panel">
             {hero.ctaPrimary}
           </ButtonLink>
-          <ButtonLink href={links.cv} surface="panel" external>
-            {hero.ctaCv}
-          </ButtonLink>
+          {links.cv && (
+            <ButtonLink href={links.cv} surface="panel" external>
+              {hero.ctaCv}
+            </ButtonLink>
+          )}
           <ButtonLink href={links.github} surface="panel" external>
             GitHub
           </ButtonLink>

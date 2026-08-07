@@ -29,7 +29,6 @@ export const links = {
   projects: {
     saltaPay: "https://v0-hotel-payment-mvp.vercel.app",
     automotive: "https://f-motors-showroom-prototype.vercel.app",
-    restaurant: "https://quiosco-next-steel.vercel.app",
   },
 } as const;
 

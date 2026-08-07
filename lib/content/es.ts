@@ -132,13 +132,6 @@ export const es: Content = {
         body: "Agente LLM para concesionarias. Consultas de modelos, disponibilidad y calificación de leads en un flujo guiado. Diseñado como plantilla reutilizable: catálogo, persona y base de conocimiento son configurables.",
         stack: "LLM APIs · Next.js",
       },
-      {
-        slug: "restaurant",
-        title: "Sistema de gestión gastronómica",
-        meta: "Proyecto personal · 2024",
-        body: "Pedidos y panel de administración. Flujo de pedido para el cliente y dashboard con seguimiento de estado en tiempo real (pendiente, en cocina, entregado), filtrado por categorías y checkout.",
-        stack: "Next.js · React · Vercel",
-      },
     ],
   },
 

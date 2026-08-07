@@ -132,13 +132,6 @@ export const en: Content = {
         body: "LLM agent for car dealerships. Model queries, availability and lead qualification in a guided flow. Designed as a reusable template: catalogue, persona and knowledge base are configurable.",
         stack: "LLM APIs · Next.js",
       },
-      {
-        slug: "restaurant",
-        title: "Restaurant management system",
-        meta: "Personal project · 2024",
-        body: "Orders and admin panel. Customer ordering flow plus a dashboard with real-time status tracking (pending, in the kitchen, delivered), category filtering and checkout.",
-        stack: "Next.js · React · Vercel",
-      },
     ],
   },
 

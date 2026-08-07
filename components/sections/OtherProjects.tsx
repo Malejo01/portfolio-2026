@@ -7,7 +7,6 @@ import type { ProjectRow, ProjectsContent } from "@/lib/types";
 const projectHref: Record<ProjectRow["slug"], string> = {
   "salta-pay": links.projects.saltaPay,
   automotive: links.projects.automotive,
-  restaurant: links.projects.restaurant,
 };
 
 /**

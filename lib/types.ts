@@ -79,7 +79,7 @@ export interface ProjectRow {
    * Discriminante para resolver la URL en `lib/links.ts`, igual que `slug`
    * en `CaseCard`. La URL no vive acá: la copy no guarda enlaces.
    */
-  slug: "salta-pay" | "automotive" | "restaurant";
+  slug: "salta-pay" | "automotive";
   title: string;
   meta: string;
   body: string;

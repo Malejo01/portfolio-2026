@@ -89,13 +89,26 @@ export function CaseStudies({ cases }: { cases: CasesContent }) {
 
           <p className="mt-0 mb-[18px] max-w-[56ch] text-ink-soft">{maestria.summary}</p>
 
-          <ChipRow>
-            {maestria.stack.map((line) => (
-              <Chip key={line} surface="paper-2">
-                {line}
-              </Chip>
-            ))}
-          </ChipRow>
+          {/* Highlights arriba, stack abajo: la card no tiene aside donde
+              separarlos como en Qué Pinta Salta, así que la jerarquía la da
+              el orden. */}
+          <div className="grid gap-2">
+            <ChipRow>
+              {maestria.highlights?.map((h) => (
+                <Chip key={h} surface="paper-2">
+                  {h}
+                </Chip>
+              ))}
+            </ChipRow>
+
+            <ChipRow>
+              {maestria.stack.map((line) => (
+                <Chip key={line} surface="paper-2">
+                  {line}
+                </Chip>
+              ))}
+            </ChipRow>
+          </div>
 
           <ButtonRow className="mt-cta">
             <ButtonLink href="/casos/maestria" tone="solid" surface="paper">

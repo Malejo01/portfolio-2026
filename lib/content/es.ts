@@ -112,6 +112,12 @@ export const es: Content = {
         title: "MaestrIA",
         summary:
           "Evaluaciones alineadas a tu programa, con IA que enseña en vez de resolver. La decisión central no es técnica: es didáctica.",
+        highlights: [
+          "Hasta 40 preguntas por cuestionario",
+          "4 tipos de pregunta",
+          "Exporta a Moodle (GIFT)",
+          "Probado en 3 materias con alumnos reales",
+        ],
         stack: ["Next.js · TypeScript", "Prisma · PostgreSQL", "Tailwind · LLM APIs"],
         cta: "Ver caso completo",
       },

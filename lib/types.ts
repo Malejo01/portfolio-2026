@@ -190,6 +190,12 @@ export interface CaseStudyMaestria {
   result: string;
   stackLabel: string;
   stack: string[];
+  /**
+   * Textos alternativos de las capturas, en el orden en que se muestran. Los
+   * archivos y sus dimensiones viven en el componente, igual que los nodos
+   * del diagrama: la copy no guarda rutas.
+   */
+  shots: string[];
   ctaRepo: string;
 }
 

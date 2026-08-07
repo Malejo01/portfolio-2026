@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { CaseHeader, CaseHeading } from "@/components/case-study/CaseHeader";
 import { FeedbackDiagram } from "@/components/case-study/FeedbackDiagram";
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/Reveal";
@@ -10,6 +11,17 @@ import { getLocale } from "@/lib/locale";
 
 /** Ruta del `opengraph-image` del root. `metadataBase` la vuelve absoluta. */
 const OG_IMAGE = "/opengraph-image";
+
+/**
+ * Capturas del flujo. Van acá y no en la copy por la misma razón que los
+ * nodos del diagrama: son fijas y su tamaño es un dato del archivo, no una
+ * traducción. Los alt sí viven en `caseMaestria.shots`, en este orden.
+ */
+const SHOTS = [
+  { src: "/casos/maestria/configuracion.png", width: 505, height: 595 },
+  { src: "/casos/maestria/pregunta-generada.png", width: 1347, height: 595 },
+  { src: "/casos/maestria/exportacion-gift.png", width: 1150, height: 512 },
+] as const;
 
 export async function generateMetadata(): Promise<Metadata> {
   const { meta } = getContent(await getLocale());
@@ -127,6 +139,27 @@ export default async function MaestriaPage() {
               <span className="min-w-0 max-w-[58ch] flex-1 basis-[30ch] text-panel-soft">
                 {step}
               </span>
+            </RevealItem>
+          ))}
+        </RevealGroup>
+
+        {/* Las tres capturas del flujo, en el orden en que ocurre: configurar,
+            generar, exportar. `width`/`height` son los intrínsecos del PNG, así
+            que el hueco queda reservado antes de que cargue la imagen. */}
+        <RevealGroup className="mt-[clamp(26px,3.6vw,40px)] grid gap-[clamp(12px,2vw,20px)]">
+          {SHOTS.map((shot, i) => (
+            <RevealItem
+              key={shot.src}
+              className="hairline overflow-hidden rounded-card border-panel-hair bg-panel-2 p-[clamp(10px,1.6vw,16px)]"
+            >
+              <Image
+                src={shot.src}
+                alt={c.shots[i]}
+                width={shot.width}
+                height={shot.height}
+                sizes="(min-width: 1240px) 1100px, 100vw"
+                className="block h-auto w-full rounded-[3px]"
+              />
             </RevealItem>
           ))}
         </RevealGroup>

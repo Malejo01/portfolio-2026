@@ -269,6 +269,11 @@ export const es: Content = {
       "Hoy lo uso yo, y en el proceso lo probaron mis alumnos de Análisis de Sistemas y de la carrera de Ciencia de Datos e Inteligencia Artificial, en las materias de Análisis Matemático, Álgebra y Probabilidad y Estadística. Genera cuestionarios de hasta 40 preguntas — múltiple choice, respuesta corta, verdadero/falso y numéricas con margen de aproximación — y los exporta a Moodle en formato GIFT. Los usé para armar los trabajos prácticos de esas tres materias.",
     stackLabel: "Stack",
     stack: ["Next.js", "TypeScript", "Prisma", "PostgreSQL", "Tailwind", "LLM APIs"],
+    shots: [
+      "Pantalla de configuración de MaestrIA mostrando los parámetros de un cuestionario de Matemática para 3er año de secundario, con selector de cantidad de preguntas hasta 40 y los cuatro tipos de pregunta disponibles.",
+      "Previsualización de una pregunta de Matemática generada por MaestrIA sobre semejanza de figuras geométricas.",
+      "Confirmación de exportación a Moodle: el cuestionario descargado en formato GIFT, listo para importar.",
+    ],
     ctaRepo: "Código en GitHub",
   },
 

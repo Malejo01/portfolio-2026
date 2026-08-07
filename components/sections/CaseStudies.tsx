@@ -101,6 +101,11 @@ export function CaseStudies({ cases }: { cases: CasesContent }) {
             <ButtonLink href="/casos/maestria" tone="solid" surface="paper">
               {maestria.cta}
             </ButtonLink>
+            {links.maestria.live && (
+              <ButtonLink href={links.maestria.live} surface="paper-2" external>
+                {cases.ctaLive}
+              </ButtonLink>
+            )}
             {links.maestria.repo && (
               <ButtonLink href={links.maestria.repo} surface="paper-2" external>
                 {cases.ctaRepo}

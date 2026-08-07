@@ -197,6 +197,7 @@ export interface CaseStudyMaestria {
    */
   shots: string[];
   ctaRepo: string;
+  ctaLive: string;
 }
 
 export interface MetaContent {

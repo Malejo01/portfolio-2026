@@ -275,6 +275,7 @@ export const en: Content = {
       "Moodle export confirmation: the quiz downloaded in GIFT format, ready to import.",
     ],
     ctaRepo: "Code on GitHub",
+    ctaLive: "View live",
   },
 
   meta: {

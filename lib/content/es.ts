@@ -275,6 +275,7 @@ export const es: Content = {
       "Confirmación de exportación a Moodle: el cuestionario descargado en formato GIFT, listo para importar.",
     ],
     ctaRepo: "Código en GitHub",
+    ctaLive: "Ver en producción",
   },
 
   meta: {

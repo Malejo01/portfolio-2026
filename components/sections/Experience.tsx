@@ -22,7 +22,12 @@ export function Experience({ experience }: { experience: ExperienceContent }) {
               <span className="block font-display text-lead font-semibold opsz-18 tracking-[-0.01em]">
                 {row.title}
               </span>
-              <span className="text-ink-soft">{row.body}</span>
+              {/* `body` es un string: una línea en blanco separa párrafos. */}
+              {row.body.split("\n\n").map((paragraph) => (
+                <span key={paragraph} className="mt-1.5 block text-ink-soft first:mt-0">
+                  {paragraph}
+                </span>
+              ))}
             </div>
           </RevealItem>
         ))}

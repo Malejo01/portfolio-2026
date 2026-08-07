@@ -4,8 +4,8 @@ import { cookies } from "next/headers";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { getContent } from "@/lib/content";
 import { getLocale } from "@/lib/locale";
-import { siteUrl } from "@/lib/links";
-import { THEME_COOKIE, type Theme } from "@/lib/types";
+import { links, siteUrl } from "@/lib/links";
+import { THEME_COOKIE, type Locale, type Theme } from "@/lib/types";
 import "./globals.css";
 
 const bricolage = Bricolage_Grotesque({
@@ -46,6 +46,39 @@ document.documentElement.classList.add('dark');
 document.documentElement.style.colorScheme='dark';}
 }catch(e){}})();`;
 
+/**
+ * JSON-LD de tipo Person. `sameAs` es lo que le permite a un buscador
+ * unificar el sitio con los perfiles externos, así que filtra los strings
+ * vacíos de lib/links.ts con el mismo criterio que los CTAs: un perfil que
+ * todavía no existe no se declara.
+ *
+ * Se serializa con JSON.stringify y se escapa `<` para que ningún string
+ * de la copy pueda cerrar el <script> antes de tiempo.
+ */
+function personJsonLd(locale: Locale, description: string): string {
+  const sameAs = [links.linkedin, links.github].filter(Boolean);
+
+  return JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: "Mauro Alejandro Lizárraga",
+    alternateName: "Mauro Lizárraga",
+    jobTitle: "AI Engineer & Fullstack Developer",
+    description,
+    url: siteUrl,
+    image: `${siteUrl}/opengraph-image`,
+    email: `mailto:${links.email}`,
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Salta",
+      addressCountry: "AR",
+    },
+    knowsLanguage: ["es", "en"],
+    inLanguage: locale,
+    ...(sameAs.length ? { sameAs } : {}),
+  }).replace(/</g, "\\u003c");
+}
+
 export async function generateMetadata(): Promise<Metadata> {
   const { meta } = getContent(await getLocale());
   return {
@@ -78,6 +111,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const [locale, store] = await Promise.all([getLocale(), cookies()]);
   const cookieTheme = store.get(THEME_COOKIE)?.value;
   const theme: Theme | null = cookieTheme === "dark" || cookieTheme === "light" ? cookieTheme : null;
+  const jsonLd = personJsonLd(locale, getContent(locale).meta.description);
 
   return (
     <html
@@ -89,6 +123,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: bootScript }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
       </head>
       <body>
         <ThemeProvider initialTheme={theme}>{children}</ThemeProvider>

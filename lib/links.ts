@@ -10,11 +10,11 @@ export const links = {
   github: "https://github.com/Malejo01",
   linkedin: "https://www.linkedin.com/in/mauro-alejandro-lizarraga/",
   /**
-   * Archivo servido desde /public. Vacío hasta que el PDF exista: apuntaba a
-   * `/mauro-lizarraga-cv.pdf`, que devolvía 404. Al subir el CV real, poner
-   * la ruta acá y los CTAs vuelven solos.
+   * Archivo servido desde /public. Estuvo vacío mientras el PDF no existía —
+   * la ruta devolvía 404 y los CTAs se filtraban solos. El archivo ya está en
+   * `public/mauro-lizarraga-cv.pdf`; si se borra, volver a poner "" acá.
    */
-  cv: "",
+  cv: "/mauro-lizarraga-cv.pdf",
 
   qps: {
     live: "https://quepintasalta.com.ar",

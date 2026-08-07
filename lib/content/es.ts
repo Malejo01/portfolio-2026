@@ -57,9 +57,10 @@ export const es: Content = {
     label: "Experiencia",
     rows: [
       {
-        period: "Software",
-        title: "Accenture — Desarrollo",
-        body: "Código en producción para clientes internacionales, mantenido por otros equipos.",
+        period: "Software · abr. 2025 – feb. 2026",
+        title: "Accenture — Packaged App Development Analyst",
+        body:
+          "Tres plataformas internas en once meses, cada una con un stack distinto: Vue, React y Angular sobre C# y .NET. La última la construí desde cero — un asistente conversacional para consultas internas de empleados, donde además escribí la documentación técnica y definí el alcance con product y diseño.\n\nAhí fue el primer contacto con arquitectura de agentes. Todo lo que vino después salió de esa puerta.",
       },
       {
         period: "Docencia · 10+ años",

@@ -57,9 +57,10 @@ export const en: Content = {
     label: "Experience",
     rows: [
       {
-        period: "Software",
-        title: "Accenture — Development",
-        body: "Production code for international clients, maintained by other teams.",
+        period: "Software · Apr 2025 – Feb 2026",
+        title: "Accenture — Packaged App Development Analyst",
+        body:
+          "Three internal platforms in eleven months, each on a different stack: Vue, React and Angular over C# and .NET. I built the last one from scratch — a conversational assistant for internal employee queries — writing the technical documentation and defining scope with product and design.\n\nThat was my first contact with agent architecture. Everything since came through that door.",
       },
       {
         period: "Teaching · 10+ years",

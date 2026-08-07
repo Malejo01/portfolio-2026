@@ -119,18 +119,21 @@ export const en: Content = {
     note: "Brief treatment · they don't compete with the case studies",
     rows: [
       {
+        slug: "salta-pay",
         title: "Salta Pay",
         meta: "Hackathon · 2026",
         body: "Stellar payments for tourists. A QR that converts foreign currency into the merchant's currency in a single step, no exchange bureaus. Working MVP built in 48 hours with a team formed at the event.",
         stack: "Stellar · Blockchain · TypeScript",
       },
       {
+        slug: "automotive",
         title: "Automotive conversational assistant",
         meta: "Own development · 2026",
         body: "LLM agent for car dealerships. Model queries, availability and lead qualification in a guided flow. Designed as a reusable template: catalogue, persona and knowledge base are configurable.",
         stack: "LLM APIs · Next.js",
       },
       {
+        slug: "restaurant",
         title: "Restaurant management system",
         meta: "Personal project · 2024",
         body: "Orders and admin panel. Customer ordering flow plus a dashboard with real-time status tracking (pending, in the kitchen, delivered), category filtering and checkout.",

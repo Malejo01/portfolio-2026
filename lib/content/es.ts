@@ -245,6 +245,11 @@ export const es: Content = {
     closing: "Nació como herramienta de matemática. Hoy funciona con cualquier materia y cualquier nivel.",
     stackLabel: "Stack",
     stack: ["Next.js", "TypeScript", "Prisma", "PostgreSQL", "Tailwind", "LLM APIs"],
+    shots: [
+      "Pantalla de configuración de MaestrIA mostrando los parámetros de un cuestionario de Matemática para 3er año de secundario, con selector de cantidad de preguntas hasta 40 y los cuatro tipos de pregunta disponibles.",
+      "Previsualización de una pregunta de Matemática generada por MaestrIA sobre semejanza de figuras geométricas.",
+      "Confirmación de exportación a Moodle: el cuestionario descargado en formato GIFT, listo para importar.",
+    ],
     ctaRepo: "Código en GitHub",
   },
 

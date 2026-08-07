@@ -108,7 +108,7 @@ export const es: Content = {
         title: "MaestrIA",
         summary:
           "Evaluaciones alineadas a tu programa, con IA que enseña en vez de resolver. La decisión central no es técnica: es didáctica.",
-        stack: ["Next.js · TypeScript", "Prisma · PostgreSQL", "Tailwind · LLM APIs · v0"],
+        stack: ["Next.js · TypeScript", "Prisma · PostgreSQL", "Tailwind · LLM APIs"],
         cta: "Ver caso completo",
       },
     ],
@@ -240,7 +240,7 @@ export const es: Content = {
     ],
     closing: "Nació como herramienta de matemática. Hoy funciona con cualquier materia y cualquier nivel.",
     stackLabel: "Stack",
-    stack: ["Next.js", "TypeScript", "Prisma", "PostgreSQL", "Tailwind", "LLM APIs", "v0"],
+    stack: ["Next.js", "TypeScript", "Prisma", "PostgreSQL", "Tailwind", "LLM APIs"],
     ctaRepo: "Código en GitHub",
   },
 

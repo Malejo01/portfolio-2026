@@ -37,7 +37,7 @@ export const es: Content = {
     paragraphs: [
       "Soy AI Engineer y Fullstack Developer. También soy Profesor de Matemática y Licenciado en Educación, y doy Probabilidad y Estadística a nivel terciario.",
       "No son dos carreras paralelas. Diseñar una evaluación y diseñar un sistema son el mismo ejercicio: definir qué evidencia necesitás, qué puede salir mal, y cómo distinguir un resultado correcto de uno que solo parece correcto.",
-      "Vengo de Accenture, donde escribí código que otros mantienen para clientes internacionales. Antes de eso, formé a más de 120 docentes de primaria en varias provincias del país, viajando a coordinar con supervisoras a Misiones y Corrientes.",
+      "Vengo de Accenture, donde mantuve y construí plataformas internas para una organización de escala global — el tipo de sistema donde el código que escribís lo hereda otro equipo. Antes de eso, formé a más de 120 docentes de primaria en varias provincias del país, viajando a coordinar con supervisoras a Misiones y Corrientes.",
     ],
     closing: "Hoy busco un equipo donde las dos cosas sumen.",
     aside: [

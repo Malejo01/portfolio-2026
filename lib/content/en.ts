@@ -49,7 +49,10 @@ export const en: Content = {
         term: "Applied AI",
         lines: ["Gemini · LLM APIs · structured", "extraction · pipelines with", "deterministic validation"],
       },
-      { term: "Languages", lines: ["Spanish (native)", "English (technical)"] },
+      {
+        term: "Languages",
+        lines: ["Spanish (native)", "English — technical standups", "and meetings at Accenture"],
+      },
     ],
   },
 

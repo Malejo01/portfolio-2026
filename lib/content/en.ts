@@ -37,7 +37,7 @@ export const en: Content = {
     paragraphs: [
       "I'm an AI Engineer and Fullstack Developer. I'm also a Mathematics Teacher with a BA in Education, and I teach Probability and Statistics at the tertiary level.",
       "These aren't two parallel careers. Designing an assessment and designing a system are the same exercise: define what evidence you need, what can go wrong, and how to tell a correct result from one that merely looks correct.",
-      "I come from Accenture, where I wrote code other teams maintain for international clients. Before that, I trained more than 120 primary school teachers across several Argentine provinces, travelling to coordinate with supervisors in Misiones and Corrientes.",
+      "I come from Accenture, where I maintained and built internal platforms for a globally scaled organization — the kind of system where the code you write is inherited by another team. Before that, I trained more than 120 primary school teachers across several Argentine provinces, travelling to coordinate with supervisors in Misiones and Corrientes.",
     ],
     closing: "I'm looking for a team where both sides add up.",
     aside: [

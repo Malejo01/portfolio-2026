@@ -108,7 +108,7 @@ export const en: Content = {
         title: "MaestrIA",
         summary:
           "Assessments aligned to your syllabus, with AI that teaches instead of solving. The core decision isn't technical: it's pedagogical.",
-        stack: ["Next.js · TypeScript", "Prisma · PostgreSQL", "Tailwind · LLM APIs · v0"],
+        stack: ["Next.js · TypeScript", "Prisma · PostgreSQL", "Tailwind · LLM APIs"],
         cta: "Read the full case",
       },
     ],
@@ -247,7 +247,7 @@ export const en: Content = {
     ],
     closing: "It started as a maths tool. Today it works with any subject and any level.",
     stackLabel: "Stack",
-    stack: ["Next.js", "TypeScript", "Prisma", "PostgreSQL", "Tailwind", "LLM APIs", "v0"],
+    stack: ["Next.js", "TypeScript", "Prisma", "PostgreSQL", "Tailwind", "LLM APIs"],
     ctaRepo: "Code on GitHub",
   },
 

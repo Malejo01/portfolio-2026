@@ -17,7 +17,7 @@ export const links = {
   cv: "",
 
   qps: {
-    live: "https://v0-que-pinta-salta.vercel.app",
+    live: "https://quepintasalta.com.ar",
     repo: "https://github.com/Malejo01/que-pinta-salta",
     interview: "",
   },

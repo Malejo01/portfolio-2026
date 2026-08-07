@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { CaseHeader, CaseHeading } from "@/components/case-study/CaseHeader";
 import { FeedbackDiagram } from "@/components/case-study/FeedbackDiagram";
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/Reveal";
+import { AsideNote } from "@/components/ui/Aside";
 import { ButtonLink, ButtonRow } from "@/components/ui/ButtonLink";
 import { getContent } from "@/lib/content";
 import { links } from "@/lib/links";
@@ -60,18 +61,23 @@ export default async function MaestriaPage() {
       />
 
       {/* ── El problema ──────────────────────────────────────────── */}
-      <Reveal className="mt-[clamp(40px,6vw,72px)] max-w-[62ch]">
-        <CaseHeading onPanel className="mt-0 mb-3.5">
-          {c.problemHeading}
-        </CaseHeading>
-        {c.problem.map((text, i) => (
-          <p
-            key={text.slice(0, 24)}
-            className={`mt-0 text-panel-soft ${i === c.problem.length - 1 ? "mb-0" : "mb-4"}`}
-          >
-            {text}
-          </p>
-        ))}
+      <Reveal className="mt-[clamp(40px,6vw,72px)] flex flex-wrap items-start gap-main">
+        <div className="min-w-0 max-w-[62ch] flex-1 basis-[36ch]">
+          <CaseHeading onPanel className="mt-0 mb-3.5">
+            {c.problemHeading}
+          </CaseHeading>
+          {c.problem.map((text, i) => (
+            <p
+              key={text.slice(0, 24)}
+              className={`mt-0 text-panel-soft ${i === c.problem.length - 1 ? "mb-0" : "mb-4"}`}
+            >
+              {text}
+            </p>
+          ))}
+        </div>
+        <AsideNote onPanel term={c.roleLabel}>
+          {c.role}
+        </AsideNote>
       </Reveal>
 
       {/* ── La decisión que define el sistema ────────────────────── */}
@@ -129,6 +135,14 @@ export default async function MaestriaPage() {
           {c.closing}
         </p>
       </section>
+
+      {/* ── Resultado ────────────────────────────────────────────── */}
+      <Reveal className="mt-[clamp(32px,4.6vw,56px)] max-w-[62ch]">
+        <CaseHeading onPanel className="mt-0 mb-3.5">
+          {c.resultLabel}
+        </CaseHeading>
+        <p className="m-0 text-panel-soft">{c.result}</p>
+      </Reveal>
 
       {/* ── Stack + CTAs ─────────────────────────────────────────── */}
       <Reveal className="mt-[clamp(28px,4vw,48px)] border-t-[0.5px] border-panel-hair pt-[clamp(18px,2.6vw,26px)]">

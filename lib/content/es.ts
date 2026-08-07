@@ -224,6 +224,8 @@ export const es: Content = {
     kicker: "Producto propio · EdTech",
     title: "MaestrIA",
     subtitle: "Evaluaciones alineadas a tu programa, con IA que enseña en vez de resolver",
+    roleLabel: "Rol",
+    role: "Lo diseñé y construí solo — arquitectura, prompts, backend y frontend.",
     problemHeading: "El problema",
     problem: [
       "Doy clases de matemática hace más de diez años. Sé exactamente qué pasa cuando un alumno le pregunta a un chatbot: obtiene la respuesta correcta y no aprende nada.",
@@ -256,6 +258,9 @@ export const es: Content = {
       "Módulo de planificación asistida: la IA propone actividades según grado y contexto, el docente acepta o descarta con un swipe y puede editar el prompt de cada una.",
     ],
     closing: "Nació como herramienta de matemática. Hoy funciona con cualquier materia y cualquier nivel.",
+    resultLabel: "Resultado",
+    result:
+      "Hoy lo uso yo, y en el proceso lo probaron mis alumnos de Análisis de Sistemas y de la carrera de Ciencia de Datos e Inteligencia Artificial, en las materias de Análisis Matemático, Álgebra y Probabilidad y Estadística. Genera cuestionarios de hasta 40 preguntas — múltiple choice, respuesta corta, verdadero/falso y numéricas con margen de aproximación — y los exporta a Moodle en formato GIFT. Los usé para armar los trabajos prácticos de esas tres materias.",
     stackLabel: "Stack",
     stack: ["Next.js", "TypeScript", "Prisma", "PostgreSQL", "Tailwind", "LLM APIs"],
     ctaRepo: "Código en GitHub",

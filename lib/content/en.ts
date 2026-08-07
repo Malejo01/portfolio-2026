@@ -224,6 +224,8 @@ export const en: Content = {
     kicker: "Own product · EdTech",
     title: "MaestrIA",
     subtitle: "Assessments aligned to your syllabus, with AI that teaches instead of solving",
+    roleLabel: "Role",
+    role: "I designed and built it alone — architecture, prompts, backend and frontend.",
     problemHeading: "The problem",
     problem: [
       "I've been teaching maths for more than ten years. I know exactly what happens when a student asks a chatbot: they get the right answer and learn nothing.",
@@ -256,6 +258,9 @@ export const en: Content = {
       "Assisted planning module: the AI proposes activities based on grade and context, the teacher accepts or discards with a swipe and can edit each prompt.",
     ],
     closing: "It started as a maths tool. Today it works with any subject and any level.",
+    resultLabel: "Result",
+    result:
+      "Today I use it myself, and along the way students from Systems Analysis and from the Data Science and AI program tested it across Mathematical Analysis, Algebra, and Probability and Statistics. It generates quizzes of up to 40 questions — multiple choice, short answer, true/false, and numeric with an approximation margin — and exports them to Moodle in GIFT format. I used it to build the practical assignments for those three courses.",
     stackLabel: "Stack",
     stack: ["Next.js", "TypeScript", "Prisma", "PostgreSQL", "Tailwind", "LLM APIs"],
     ctaRepo: "Code on GitHub",

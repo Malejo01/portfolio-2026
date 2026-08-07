@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { CaseHeader, CaseHeading } from "@/components/case-study/CaseHeader";
+import { FeedbackDiagram } from "@/components/case-study/FeedbackDiagram";
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/Reveal";
 import { ButtonLink, ButtonRow } from "@/components/ui/ButtonLink";
 import { getContent } from "@/lib/content";
@@ -93,8 +94,16 @@ export default async function MaestriaPage() {
         </div>
       </Reveal>
 
-      {/* ── Qué hace ─────────────────────────────────────────────── */}
+      {/* ── Cómo funciona la corrección ──────────────────────────── */}
       <section>
+        <CaseHeading onPanel className="mt-0 mb-lede">
+          {c.howHeading}
+        </CaseHeading>
+        <FeedbackDiagram labels={c.diagram} />
+      </section>
+
+      {/* ── Qué hace ─────────────────────────────────────────────── */}
+      <section className="mt-[clamp(32px,4.6vw,56px)]">
         <CaseHeading onPanel className="mt-0 mb-lede">
           {c.whatHeading}
         </CaseHeading>

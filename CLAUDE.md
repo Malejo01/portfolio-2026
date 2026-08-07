@@ -36,9 +36,10 @@ discrepancia en vez de resolverla en silencio.
 
 ### Server Components por defecto
 
-Exactamente cinco archivos son `"use client"`: `ThemeProvider`, `motion/Reveal`,
-`case-study/ArchitectureDiagram`, `ui/ThemeToggle`, `ui/LocaleToggle`. Todo lo
-demás corre en el servidor. Los wrappers de animación reciben el contenido como
+Exactamente siete archivos son `"use client"`: `ThemeProvider`, `motion/Reveal`,
+`case-study/ArchitectureDiagram`, `case-study/FeedbackDiagram`,
+`case-study/diagram-kit`, `ui/ThemeToggle`, `ui/LocaleToggle`. Todo lo demás
+corre en el servidor. Los wrappers de animación reciben el contenido como
 `children` desde Server Components, así que **la copy nunca entra al bundle del
 cliente**. Mantené esa propiedad al agregar componentes: si algo necesita estado,
 empujá el `"use client"` lo más abajo posible en el árbol.
@@ -118,6 +119,12 @@ agregás un bloque muy alto, verificá el margen antes de subir ese valor.
 
 Reglas del diseño: `once: true`, `useReducedMotion()` salta al estado final, y un
 solo momento orquestado — el diagrama de arquitectura.
+
+Los dos diagramas (`case-study/ArchitectureDiagram.tsx` y
+`case-study/FeedbackDiagram.tsx`) comparten `diagram-kit.tsx`: paleta resuelta
+por superficie (`paper` / `panel`), envoltura de figura con leyenda y el
+cableado de motion. La **geometría no se comparte** — los offsets de texto
+están ajustados a mano por nodo y una fórmula común los correría.
 
 El diagrama (`case-study/ArchitectureDiagram.tsx`) **no recibe props de data**.
 Los nodos son fijos y semánticos: el layout de los dos carriles es parte del

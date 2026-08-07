@@ -129,8 +129,13 @@ export default async function MaestriaPage() {
         </p>
 
         <ButtonRow className="mt-cta">
+          {links.maestria.live && (
+            <ButtonLink href={links.maestria.live} tone="solid" surface="panel" external>
+              {c.ctaLive}
+            </ButtonLink>
+          )}
           {links.maestria.repo && (
-            <ButtonLink href={links.maestria.repo} tone="solid" surface="panel" external>
+            <ButtonLink href={links.maestria.repo} surface="panel" external>
               {c.ctaRepo}
             </ButtonLink>
           )}

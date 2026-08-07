@@ -171,6 +171,7 @@ export interface CaseStudyMaestria {
   stackLabel: string;
   stack: string[];
   ctaRepo: string;
+  ctaLive: string;
 }
 
 export interface MetaContent {

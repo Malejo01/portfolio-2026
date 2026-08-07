@@ -246,6 +246,7 @@ export const en: Content = {
     stackLabel: "Stack",
     stack: ["Next.js", "TypeScript", "Prisma", "PostgreSQL", "Tailwind", "LLM APIs"],
     ctaRepo: "Code on GitHub",
+    ctaLive: "View live",
   },
 
   meta: {

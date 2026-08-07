@@ -8,17 +8,32 @@ import { getContent } from "@/lib/content";
 import { links } from "@/lib/links";
 import { getLocale } from "@/lib/locale";
 
+/** Ruta del `opengraph-image` del root. `metadataBase` la vuelve absoluta. */
+const OG_IMAGE = "/opengraph-image";
+
 export async function generateMetadata(): Promise<Metadata> {
   const { meta } = getContent(await getLocale());
   return {
     title: meta.caseQpsTitle,
     description: meta.caseQpsDescription,
     alternates: { canonical: "/casos/que-pinta-salta" },
+    // Declarar `openGraph` acá reemplaza el objeto heredado del root layout:
+    // no se mergea campo a campo, así que sin `images` la ruta se queda sin
+    // og:image y el convention file de app/opengraph-image.tsx no la cubre.
+    // Lo mismo con `twitter`: sin este bloque hereda el título y la
+    // descripción del home.
     openGraph: {
       type: "article",
       url: "/casos/que-pinta-salta",
       title: meta.caseQpsTitle,
       description: meta.caseQpsDescription,
+      images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: meta.caseQpsTitle }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: meta.caseQpsTitle,
+      description: meta.caseQpsDescription,
+      images: [OG_IMAGE],
     },
   };
 }

@@ -160,6 +160,8 @@ export interface CaseStudyMaestria {
   kicker: string;
   title: string;
   subtitle: string;
+  roleLabel: string;
+  role: string;
   problemHeading: string;
   problem: string[];
   decisionLabel: string;
@@ -168,6 +170,8 @@ export interface CaseStudyMaestria {
   whatHeading: string;
   steps: string[];
   closing: string;
+  resultLabel: string;
+  result: string;
   stackLabel: string;
   stack: string[];
   ctaRepo: string;

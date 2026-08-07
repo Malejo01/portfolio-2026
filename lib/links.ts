@@ -23,7 +23,8 @@ export const links = {
   },
 
   maestria: {
-    repo: "",
+    live: "https://v0-malejo-math-app.vercel.app",
+    repo: "https://github.com/Malejo01/maestria",
   },
 
   projects: {

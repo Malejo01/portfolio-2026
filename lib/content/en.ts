@@ -112,6 +112,12 @@ export const en: Content = {
         title: "MaestrIA",
         summary:
           "Assessments aligned to your syllabus, with AI that teaches instead of solving. The core decision isn't technical: it's pedagogical.",
+        highlights: [
+          "Up to 40 questions per quiz",
+          "4 question types",
+          "Exports to Moodle (GIFT)",
+          "Tested across 3 courses with real students",
+        ],
         stack: ["Next.js · TypeScript", "Prisma · PostgreSQL", "Tailwind · LLM APIs"],
         cta: "Read the full case",
       },

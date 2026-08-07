@@ -5,7 +5,9 @@ import type { ExperienceContent } from "@/lib/types";
 export function Experience({ experience }: { experience: ExperienceContent }) {
   return (
     <section id="experiencia" className="pt-section-sm pb-[clamp(40px,6vw,72px)]">
-      <SectionLabel className="mb-3.5">{experience.label}</SectionLabel>
+      <SectionLabel as="h2" className="mb-3.5">
+        {experience.label}
+      </SectionLabel>
 
       <RevealGroup className="grid border-t-[0.5px] border-hair">
         {experience.rows.map((row) => (

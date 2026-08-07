@@ -17,7 +17,7 @@ export function CaseStudies({ cases }: { cases: CasesContent }) {
   return (
     <section id="casos" className="pb-[clamp(56px,8vw,110px)]">
       <div className="mb-lede flex flex-wrap items-baseline justify-between gap-3">
-        <SectionLabel>{cases.label}</SectionLabel>
+        <SectionLabel as="h2">{cases.label}</SectionLabel>
         <SectionNote>{cases.note}</SectionNote>
       </div>
 

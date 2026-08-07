@@ -10,7 +10,7 @@ export function OtherProjects({ projects }: { projects: ProjectsContent }) {
   return (
     <section id="proyectos" className="pb-section">
       <div className="mb-lede flex flex-wrap items-baseline justify-between gap-3">
-        <SectionLabel>{projects.label}</SectionLabel>
+        <SectionLabel as="h2">{projects.label}</SectionLabel>
         <SectionNote>{projects.note}</SectionNote>
       </div>
 

@@ -49,7 +49,10 @@ export const es: Content = {
         term: "IA aplicada",
         lines: ["Gemini · LLM APIs · extracción", "estructurada · pipelines con", "validación determinista"],
       },
-      { term: "Idiomas", lines: ["Español (nativo)", "Inglés (técnico)"] },
+      {
+        term: "Idiomas",
+        lines: ["Español (nativo)", "Inglés — dailies y reuniones", "técnicas en Accenture"],
+      },
     ],
   },
 

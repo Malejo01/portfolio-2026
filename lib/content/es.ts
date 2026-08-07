@@ -47,7 +47,7 @@ export const es: Content = {
       },
       {
         term: "IA aplicada",
-        lines: ["Gemini · LLM APIs · embeddings", "extractores · agentes con", "validación determinista"],
+        lines: ["Gemini · LLM APIs · extracción", "estructurada · pipelines con", "validación determinista"],
       },
       { term: "Idiomas", lines: ["Español (nativo)", "Inglés (técnico)"] },
     ],

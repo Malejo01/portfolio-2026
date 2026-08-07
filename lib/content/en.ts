@@ -62,7 +62,7 @@ export const en: Content = {
         body: "Production code for international clients, maintained by other teams.",
       },
       {
-        period: "Teaching · 13+ years",
+        period: "Teaching · 10+ years",
         title: "Mathematics Teacher",
         body: "Probability and Statistics at the tertiary level. The classroom is where you find out whether a criterion is explainable.",
       },

@@ -153,6 +153,20 @@ export interface CaseStudyQps {
   ctaInterview: string;
 }
 
+/** Etiquetas del ciclo de corrección de MaestrIA (`FeedbackDiagram`). */
+export interface FeedbackDiagramLabels {
+  alt: string;
+  answer: string;
+  gate: string;
+  yes: string;
+  no: string;
+  confirm: string;
+  classify: string;
+  explain: string;
+  correct: string;
+  caption: string;
+}
+
 export interface CaseStudyMaestria {
   slug: "maestria";
   status: string;
@@ -165,6 +179,8 @@ export interface CaseStudyMaestria {
   decisionLabel: string;
   decisionHeadline: string;
   decisionBody: string[];
+  howHeading: string;
+  diagram: FeedbackDiagramLabels;
   whatHeading: string;
   steps: string[];
   closing: string;

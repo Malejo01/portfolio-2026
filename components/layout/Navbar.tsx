@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LocaleToggle } from "@/components/ui/LocaleToggle";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { localized } from "@/lib/routes";
 import type { Locale, NavContent } from "@/lib/types";
 
 /**
@@ -22,7 +23,7 @@ export function Navbar({ nav, locale }: { nav: NavContent; locale: Locale }) {
     <header className="sticky top-0 z-20 border-b-[0.5px] border-hair bg-paper">
       <nav className="mx-auto flex h-[58px] w-full max-w-[1240px] items-center justify-between gap-4 px-gutter">
         <Link
-          href="/"
+          href={localized("/", locale)}
           className="inline-flex min-h-[44px] items-center font-display font-bold opsz-14 text-body tracking-[-0.01em] text-ink no-underline hover:no-underline"
         >
           {nav.wordmark}
@@ -31,7 +32,7 @@ export function Navbar({ nav, locale }: { nav: NavContent; locale: Locale }) {
         <div className="flex min-w-0 flex-wrap items-center justify-end gap-[clamp(10px,2.2vw,26px)] font-mono text-meta tracking-[0.02em]">
           <div className="hidden min-w-0 flex-wrap items-center justify-end gap-[clamp(12px,2.2vw,26px)] md:flex">
             {nav.links.map((link) => (
-              <Link key={link.href} href={link.href} className={NAV_LINK}>
+              <Link key={link.href} href={localized(link.href, locale)} className={NAV_LINK}>
                 {link.label}
               </Link>
             ))}
@@ -40,7 +41,7 @@ export function Navbar({ nav, locale }: { nav: NavContent; locale: Locale }) {
 
           <div className="flex items-center gap-4 md:hidden">
             {compact.map((link) => (
-              <Link key={link.href} href={link.href} className={NAV_LINK}>
+              <Link key={link.href} href={localized(link.href, locale)} className={NAV_LINK}>
                 {link.label}
               </Link>
             ))}

@@ -36,7 +36,9 @@ discrepancia en vez de resolverla en silencio.
 
 ### Server Components por defecto
 
-Exactamente siete archivos son `"use client"`: `ThemeProvider`, `motion/Reveal`,
+Exactamente nueve archivos son `"use client"`: los dos `error.tsx` —React lo
+exige para un error boundary, y por eso su copy sale de `lib/content/errors`
+y no del diccionario grande—, `ThemeProvider`, `motion/Reveal`,
 `case-study/ArchitectureDiagram`, `case-study/FeedbackDiagram`,
 `case-study/diagram-kit`, `ui/ThemeToggle`, `ui/LocaleToggle`. Todo lo demás
 corre en el servidor. Los wrappers de animación reciben el contenido como
@@ -44,24 +46,51 @@ corre en el servidor. Los wrappers de animación reciben el contenido como
 cliente**. Mantené esa propiedad al agregar componentes: si algo necesita estado,
 empujá el `"use client"` lo más abajo posible en el árbol.
 
-### Idioma y tema: cookies leídas en el servidor
+### Idioma: por ruta, no por cookie
 
-No hay routing por locale ni copy duplicada en el cliente.
+El español vive sin prefijo (`/`, `/casos/…`) y el inglés bajo `/en`. Hay
+**dos root layouts**, `app/(es)` y `app/(en)`, y ningún `app/layout.tsx`
+arriba — es la condición que pone Next para permitir varios, junto con que
+`/` viva dentro de un grupo. Navegar entre árboles fuerza recarga completa,
+que para un cambio de idioma es lo correcto.
 
-- `lib/locale.ts` → `getLocale()` es el único punto de entrada. Lee la cookie
-  `locale`; si no está, negocia por `Accept-Language`. Cada page/layout la llama
-  y pasa el `Content` hacia abajo.
+- `lib/routes.ts` es **la única tabla de rutas**. De ahí salen los canonical,
+  los hreflang, el sitemap y el destino del toggle. Agregar una página es
+  sumar una fila; `localized()` mueve un href al árbol que toque y
+  `swapLocale()` calcula la ruta espejo preservando dónde está el visitante.
+- Los cuerpos de las páginas están en `components/pages/` y reciben `locale`.
+  Los seis archivos de `app/**/page.tsx` son cinco líneas cada uno.
+- `lib/metadata.ts` arma la metadata de cada ruta. Los layouts no declaran
+  `alternates` a propósito: si lo hicieran, una página que se olvide de
+  sobreescribirlo heredaría el canonical del home en silencio.
 - `proxy.ts` (Next 16 renombró `middleware.ts` → `proxy.ts`, y la función es
-  `proxy`, no `middleware`) persiste la negociación en la primera visita.
+  `proxy`, no `middleware`) tiene matcher `["/"]` y una sola tarea: 307 a
+  `/en` si alguien llega a la raíz sin cookie de idioma y con el navegador en
+  inglés. Con cookie presente no hace nada.
 - `lib/content/{es,en}.ts` implementan el mismo tipo `Content` de `lib/types.ts`.
   **Agregar copy es cambiar tres archivos**: el tipo y las dos traducciones. El
   tipo es lo que fuerza que no se desincronicen.
-- El tema se aplica antes del primer paint con el script inline de
-  `app/layout.tsx`. La fuente de verdad es la clase `dark` en `<html>`;
-  `ThemeProvider` la lee con `useSyncExternalStore`, no con `useState` — no
-  dupliques ese estado en React.
 
-Usar `cookies()` hace las rutas dinámicas. Es intencional.
+### Tema: solo el script inline
+
+La fuente de verdad es la clase `dark` en `<html>`, y **la escribe únicamente
+el script inline** de `SiteDocument` — las dos ramas, la cookie si existe y
+`prefers-color-scheme` si no. `ThemeProvider` la lee con
+`useSyncExternalStore`, no con `useState`.
+
+Ningún Server Component lee la cookie del tema. Eso no es un detalle: era la
+segunda llamada a `cookies()` del root layout y, junto con el locale, lo que
+volvía dinámicas las tres rutas del sitio.
+
+### Las rutas son estáticas — mantenelas así
+
+El build tiene que mostrar `○` en `/`, `/en` y las cuatro de casos. Cualquier
+Dynamic API (`cookies()`, `headers()`) en un layout o page las devuelve a `ƒ`
+y tira abajo el cacheo en CDN. Si necesitás algo por request, empujalo al
+cliente o al proxy.
+
+Las dos rutas `ƒ` que sí aparecen son los `[...notFound]` de cada árbol, que
+existen solo para llamar a `notFound()`.
 
 ### Tokens: CSS vars → utilidades de Tailwind
 

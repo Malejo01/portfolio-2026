@@ -2,19 +2,19 @@ import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
 import { Container } from "@/components/ui/Container";
 import { getContent } from "@/lib/content";
-import { getLocale } from "@/lib/locale";
+import type { Locale } from "@/lib/types";
 
 /**
  * Skip link + nav + contenedor + footer: el marco visible del sitio.
  *
- * Existe como componente y no solo como layout porque `app/not-found.tsx`
- * lo necesita. El 404 de una URL no matcheada lo resuelve Next contra el
- * root layout —un `not-found.tsx` dentro del route group nunca llega a
- * dispararse para ese caso—, así que la página de 404 no hereda el layout
- * de `(marketing)` y tiene que montar el marco por su cuenta.
+ * Existe como componente y no solo como layout porque las páginas de 404 lo
+ * necesitan por su cuenta.
+ *
+ * El locale llega por prop. Antes lo resolvía con `getLocale()`, que leía
+ * `cookies()` y volvía dinámica cualquier ruta que montara este marco — o
+ * sea, todas.
  */
-export async function SiteShell({ children }: { children: React.ReactNode }) {
-  const locale = await getLocale();
+export function SiteShell({ locale, children }: { locale: Locale; children: React.ReactNode }) {
   const content = getContent(locale);
 
   return (

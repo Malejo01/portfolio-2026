@@ -4,14 +4,15 @@ import { ButtonLink, ButtonRow } from "@/components/ui/ButtonLink";
 import { Chip, ChipRow, StatusPill } from "@/components/ui/Chip";
 import { SectionLabel, SectionNote } from "@/components/ui/SectionLabel";
 import { links } from "@/lib/links";
-import type { CasesContent } from "@/lib/types";
+import { pathFor } from "@/lib/routes";
+import type { CasesContent, Locale } from "@/lib/types";
 
 /**
  * Cada caso tiene composición propia (design-system.md §8): Qué Pinta Salta
  * lleva aside de stack sobre `paper-2`; MaestrIA va sobre `paper` con barra
  * de encabezado y sin aside. No es un componente parametrizado por data.
  */
-export function CaseStudies({ cases }: { cases: CasesContent }) {
+export function CaseStudies({ cases, locale }: { cases: CasesContent; locale: Locale }) {
   const [qps, maestria] = cases.cards;
 
   return (
@@ -46,7 +47,7 @@ export function CaseStudies({ cases }: { cases: CasesContent }) {
             </ChipRow>
 
             <ButtonRow className="mt-cta">
-              <ButtonLink href="/casos/que-pinta-salta" tone="solid" surface="paper-2">
+              <ButtonLink href={pathFor("qps", locale)} tone="solid" surface="paper-2">
                 {qps.cta}
               </ButtonLink>
               {links.qps.live && (
@@ -111,7 +112,7 @@ export function CaseStudies({ cases }: { cases: CasesContent }) {
           </div>
 
           <ButtonRow className="mt-cta">
-            <ButtonLink href="/casos/maestria" tone="solid" surface="paper">
+            <ButtonLink href={pathFor("maestria", locale)} tone="solid" surface="paper">
               {maestria.cta}
             </ButtonLink>
             {links.maestria.live && (

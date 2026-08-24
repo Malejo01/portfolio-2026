@@ -1,14 +1,23 @@
 import { Aside, AsideStatus } from "@/components/ui/Aside";
 import { ButtonLink, ButtonRow } from "@/components/ui/ButtonLink";
 import { links, mailto } from "@/lib/links";
-import type { HeroContent } from "@/lib/types";
+import { localized } from "@/lib/routes";
+import type { HeroContent, Locale } from "@/lib/types";
 
 /**
  * Uno de los tres momentos de panel oscuro del sitio (hero, MaestrIA,
  * contacto). Sin animación de entrada: es lo primero que se ve, no hay
  * scroll que la dispare y un fade en el LCP solo lo empeora.
  */
-export function Hero({ hero, contactTerm }: { hero: HeroContent; contactTerm: string }) {
+export function Hero({
+  hero,
+  contactTerm,
+  locale,
+}: {
+  hero: HeroContent;
+  contactTerm: string;
+  locale: Locale;
+}) {
   return (
     <section
       id="top"
@@ -29,7 +38,7 @@ export function Hero({ hero, contactTerm }: { hero: HeroContent; contactTerm: st
           {/* El CTA primario va a los casos, no al perfil: es la evidencia
               del trabajo, y era lo primero que una reclutadora buscaba sin
               encontrarlo desde el hero. */}
-          <ButtonLink href="/#casos" tone="solid" surface="panel">
+          <ButtonLink href={localized("/#casos", locale)} tone="solid" surface="panel">
             {hero.ctaPrimary}
           </ButtonLink>
           {links.cv && (

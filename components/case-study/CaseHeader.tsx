@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { StatusPill } from "@/components/ui/Chip";
+import { localized } from "@/lib/routes";
+import type { Locale } from "@/lib/types";
 
 /**
  * Encabezado común a las dos páginas de caso: migas + estado + título +
@@ -13,6 +15,7 @@ export function CaseHeader({
   title,
   subtitle,
   backLabel,
+  locale,
   onPanel = false,
 }: {
   status: string;
@@ -22,12 +25,13 @@ export function CaseHeader({
   title: string;
   subtitle: string;
   backLabel: string;
+  locale: Locale;
   onPanel?: boolean;
 }) {
   return (
     <header className={onPanel ? "text-panel-ink" : undefined}>
       <Link
-        href="/#casos"
+        href={localized("/#casos", locale)}
         className={`inline-flex items-center gap-2 font-mono text-meta no-underline hover:underline ${
           onPanel ? "text-panel-soft hover:text-panel-ink" : "text-ink-soft hover:text-ink"
         }`}

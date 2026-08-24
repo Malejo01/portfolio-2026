@@ -1,6 +1,5 @@
 import { ImageResponse } from "next/og";
 import { getContent } from "@/lib/content";
-import { getLocale } from "@/lib/locale";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
@@ -12,8 +11,17 @@ export const alt = "Mauro Lizárraga — AI Engineer & Fullstack Developer";
  * cargar el .ttf agrega ~300 KB al bundle de la ruta para un beneficio
  * marginal. El satori default sostiene bien la jerarquía a este tamaño.
  */
-export default async function OpengraphImage() {
-  const { hero, meta } = getContent(await getLocale());
+/**
+ * Una sola imagen para los dos idiomas, y en español.
+ *
+ * Es nombre, rol y una línea sobre fondo oscuro: duplicarla por idioma
+ * agregaría un endpoint a mantener a cambio de traducir una frase. Además
+ * leer el idioma acá significaba `getLocale()`, o sea `cookies()`, que es
+ * justo lo que sacamos del render para que las rutas vuelvan a ser
+ * estáticas.
+ */
+export default function OpengraphImage() {
+  const { hero, meta } = getContent("es");
 
   return new ImageResponse(
     (

@@ -54,17 +54,14 @@ function getSnapshot(): Theme {
  * único que hace este provider es alternar la clase en <html> y persistir la
  * elección. Ningún componente ramifica por tema en JS.
  */
-export function ThemeProvider({
-  initialTheme,
-  children,
-}: {
-  initialTheme: Theme | null;
-  children: React.ReactNode;
-}) {
-  // En SSR no hay DOM que leer: vale lo que dijo la cookie. Si no había,
-  // "light" coincide con el HTML que se envió y el snapshot del cliente
-  // corrige en el primer render si el sistema pedía oscuro.
-  const getServerSnapshot = useCallback((): Theme => initialTheme ?? "light", [initialTheme]);
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  // "light" no es un default arbitrario: es exactamente lo que dice el HTML
+  // que sale del servidor. Los tokens claros viven en `:root` y el oscuro es
+  // siempre un override por clase, y esa clase ya no la escribe el servidor
+  // —la pone el script inline antes del primer paint—, así que en SSR el
+  // documento es claro por definición. El snapshot del cliente lee el DOM ya
+  // corregido.
+  const getServerSnapshot = useCallback((): Theme => "light", []);
   const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   // Sin cookie, seguir al sistema si el usuario lo cambia con la pestaña

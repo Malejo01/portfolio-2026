@@ -44,7 +44,14 @@ export function diagramPalette(surface: DiagramSurface): DiagramPalette {
     return {
       figureClass: "border-panel-hair bg-panel-2",
       captionClass: "text-panel-soft",
-      swatchClass: "border-accent-panel bg-panel",
+      /**
+       * Relleno sólido, no el tratamiento del nodo. Sobre `panel` el nodo
+       * acentuado no lleva tinte de fondo, y copiar eso al swatch daba un
+       * cuadrado del color de la superficie con un borde fino: se leía como
+       * un checkbox sin tildar, no como una muestra de color. La leyenda
+       * tiene que nombrar el color; el nodo tiene que ser el nodo.
+       */
+      swatchClass: "border-accent-panel bg-accent-panel",
       nodeFill: "var(--panel)",
       nodeStroke: "var(--panel-hair)",
       gateStroke: "var(--panel-ink)",

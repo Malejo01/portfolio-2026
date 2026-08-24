@@ -21,7 +21,7 @@ export const es: Content = {
     eyebrow: "Mauro Alejandro Lizárraga",
     headline: "Construyo sistemas con IA que corren solos en producción.",
     lede: "AI Engineer y Fullstack Developer. Diseño pipelines donde el modelo extrae y el código decide — porque una arquitectura auditable vale más que una demo impresionante.",
-    ctaPrimary: "Ver perfil",
+    ctaPrimary: "Ver casos",
     ctaCv: "Descargar CV",
     status: "Disponible · full-time o proyecto",
     aside: [
@@ -43,7 +43,7 @@ export const es: Content = {
     aside: [
       {
         term: "Trabajo con",
-        lines: ["TypeScript · Next.js · React", "Node · PostgreSQL · Supabase", "Prisma · Tailwind · Vercel"],
+        lines: ["TypeScript · Next.js · React", "Node · PostgreSQL · Supabase", "Neon · Tailwind · Vercel"],
       },
       {
         term: "IA aplicada",
@@ -113,12 +113,12 @@ export const es: Content = {
         summary:
           "Evaluaciones alineadas a tu programa, con IA que enseña en vez de resolver. La decisión central no es técnica: es didáctica.",
         highlights: [
-          "Hasta 40 preguntas por cuestionario",
+          "De 5 a 40 preguntas por cuestionario",
           "4 tipos de pregunta",
           "Exporta a Moodle (GIFT)",
           "Probado en 3 materias con alumnos reales",
         ],
-        stack: ["Next.js · TypeScript", "Prisma · PostgreSQL", "Tailwind · LLM APIs"],
+        stack: ["Next.js · TypeScript", "Neon Postgres", "Vercel AI SDK · Zod", "NextAuth v5 · Vitest"],
         cta: "Ver caso completo",
       },
     ],
@@ -194,14 +194,14 @@ export const es: Content = {
     howHeading: "Cómo funciona",
     diagram: {
       alt: "Diagrama del pipeline: cuatro fuentes estructuradas se normalizan con código TypeScript; Instagram pasa por Gemini 2.5 Flash que extrae JSON; ambos carriles convergen en una compuerta determinista que valida cuatro campos y deriva a publicado o a revisión humana.",
-      sources: { title: "Fuentes estructuradas", a: "Vamosgob · EntradaUno", b: "Alpogo · Cines" },
+      sources: { title: "Fuentes estructuradas", a: "NorteTicket · Vamosgob", b: "EntradaUno · AlPogo" },
       instagram: { title: "Instagram", sub: "flyer + caption" },
       normalize: { title: "Normalización", sub: "código TypeScript" },
       model: { title: "Gemini 2.5 Flash", sub: "extrae JSON" },
       gate: { title: "Compuerta", sub1: "filtro determinista", sub2: "valida 4 campos" },
       published: { title: "Publicado", sub: "dedup Jaccard" },
       review: { title: "Revisión", sub: "cola humana" },
-      caption: "El color acento marca el único punto donde interviene el modelo.",
+      caption: "El color acento marca el único carril donde interviene el modelo.",
     },
     afterDiagram: [
       "Cinco fuentes activas. Cuatro devuelven datos estructurados y se normalizan con código. Solo Instagram pasa por el LLM, porque es la única donde el dato vive como imagen.",
@@ -254,21 +254,31 @@ export const es: Content = {
       classify: "Clasifica el error",
       explain: "Explica en contexto",
       correct: "Respuesta correcta",
-      caption: "El color acento marca el único punto donde interviene el modelo.",
+      caption:
+        "El color acento marca la rama del error: ahí, y solo ahí, interviene el modelo — clasifica y explica antes de que aparezca la respuesta.",
     },
     whatHeading: "Qué hace",
     steps: [
       "Roles diferenciados para docente y estudiante (historial y métricas de progreso, en desarrollo).",
       "Configurás materia, año/grado, nivel y tipo de evaluación — teórico, práctico o ambos.",
-      "Genera hasta 40 preguntas combinando opción múltiple, verdadero/falso, respuesta corta y numérica con margen de aproximación.",
+      "Genera de 5 a 40 preguntas combinando opción múltiple, verdadero/falso, respuesta corta y numérica con margen de aproximación.",
       "Exporta el cuestionario a Moodle en formato GIFT — así armé los trabajos prácticos de Análisis Matemático, Álgebra y Probabilidad y Estadística.",
     ],
     closing: "Nació como herramienta de matemática. Hoy funciona con cualquier materia y cualquier nivel.",
     resultLabel: "Resultado",
     result:
-      "Hoy lo uso yo, y en el proceso lo probaron mis alumnos de Análisis de Sistemas y de la carrera de Ciencia de Datos e Inteligencia Artificial, en las materias de Análisis Matemático, Álgebra y Probabilidad y Estadística. Genera cuestionarios de hasta 40 preguntas — múltiple choice, respuesta corta, verdadero/falso y numéricas con margen de aproximación — y los exporta a Moodle en formato GIFT. Los usé para armar los trabajos prácticos de esas tres materias.",
+      "Hoy lo uso yo, y en el proceso lo probaron mis alumnos de Análisis de Sistemas y de la carrera de Ciencia de Datos e Inteligencia Artificial, en las materias de Análisis Matemático, Álgebra y Probabilidad y Estadística. Genera cuestionarios de 5 a 40 preguntas — múltiple choice, respuesta corta, verdadero/falso y numéricas con margen de aproximación — y los exporta a Moodle en formato GIFT. Los usé para armar los trabajos prácticos de esas tres materias.",
     stackLabel: "Stack",
-    stack: ["Next.js", "TypeScript", "Prisma", "PostgreSQL", "Tailwind", "LLM APIs"],
+    stack: [
+      "Next.js",
+      "TypeScript",
+      "Neon Postgres",
+      "Vercel AI SDK (generateObject)",
+      "Zod",
+      "NextAuth v5 · invitados con cookie firmada",
+      "Vitest",
+      "Tailwind",
+    ],
     shots: [
       "Pantalla de configuración de MaestrIA mostrando los parámetros de un cuestionario de Matemática para 3er año de secundario, con selector de cantidad de preguntas hasta 40 y los cuatro tipos de pregunta disponibles.",
       "Previsualización de una pregunta de Matemática generada por MaestrIA sobre semejanza de figuras geométricas.",

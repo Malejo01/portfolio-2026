@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ArchitectureDiagram } from "@/components/case-study/ArchitectureDiagram";
 import { CaseHeader, CaseHeading } from "@/components/case-study/CaseHeader";
+import { CaseShots } from "@/components/case-study/CaseShots";
 import { Reveal } from "@/components/motion/Reveal";
 import { AsideNote } from "@/components/ui/Aside";
 import { ButtonLink, ButtonRow } from "@/components/ui/ButtonLink";
@@ -10,6 +11,25 @@ import { getLocale } from "@/lib/locale";
 
 /** Ruta del `opengraph-image` del root. `metadataBase` la vuelve absoluta. */
 const OG_IMAGE = "/opengraph-image";
+
+/**
+ * Capturas del producto, mismo contrato que MaestrIA: el archivo y sus
+ * dimensiones intrínsecas viven acá, los alt en `caseQps.shots` en este mismo
+ * orden. `width` es también el tope de render — nada se escala por encima de
+ * su resolución real.
+ *
+ * Las dos primeras son la salida del pipeline —lo que el diagrama de arriba
+ * termina produciendo— y por eso van justo después de él: la home con un
+ * evento rotulado "importado automáticamente desde entradauno" y la grilla
+ * con el toggle de flyers de redes, que es el carril de Instagram visto
+ * desde el lado del usuario. Las dos últimas son el radar por email.
+ */
+const SHOTS: readonly { src: string; width: number; height: number }[] = [
+  { src: "/casos/que-pinta-salta/home.png", width: 1808, height: 839 },
+  { src: "/casos/que-pinta-salta/grilla-categorias.png", width: 1816, height: 848 },
+  { src: "/casos/que-pinta-salta/radar-frecuencia.png", width: 1816, height: 850 },
+  { src: "/casos/que-pinta-salta/radar-organizadores.png", width: 1822, height: 843 },
+];
 
 export async function generateMetadata(): Promise<Metadata> {
   const { meta } = getContent(await getLocale());
@@ -112,6 +132,13 @@ export default async function QuePintaSaltaPage() {
       <section>
         <CaseHeading className="mt-block mb-lede">{c.howHeading}</CaseHeading>
         <ArchitectureDiagram labels={c.diagram} />
+
+        <CaseShots
+          shots={SHOTS}
+          alts={c.shots}
+          hint={c.shotsHint}
+          className="mt-[clamp(26px,3.6vw,40px)]"
+        />
       </section>
 
       {/* ── Dedup ────────────────────────────────────────────────── */}

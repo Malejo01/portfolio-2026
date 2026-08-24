@@ -16,8 +16,22 @@ export const EASE_OUT: Transition["ease"] = [0.16, 1, 0.3, 1];
  */
 export const VIEWPORT = { once: true, amount: 0.2 } as const;
 
-/** El diagrama arranca con menos superficie visible: es alto y ancho. */
-export const VIEWPORT_DIAGRAM = { once: true, amount: 0.2 } as const;
+/**
+ * El diagrama dispara antes que el resto del sitio, por dos razones que se
+ * suman: `amount` bajo (basta un borde visible) y `margin` inferior positivo,
+ * que agranda el rectángulo del IntersectionObserver 260px hacia abajo — el
+ * diagrama empieza a dibujarse mientras todavía está bajo el pliegue.
+ *
+ * Sin esto, a velocidad de scroll normal el visitante llegaba al diagrama con
+ * la secuencia recién arrancando y veía nodos vacíos. Es el mismo motivo por
+ * el que la cascada de delays de los dos diagramas se cierra antes de los 2s:
+ * el reveal tiene que estar terminado cuando el ojo llega, no empezando.
+ */
+export const VIEWPORT_DIAGRAM = {
+  once: true,
+  amount: 0.1,
+  margin: "0px 0px 260px 0px",
+} as const;
 
 export const fadeUp: Variants = {
   hidden: { opacity: 0, y: 8 },

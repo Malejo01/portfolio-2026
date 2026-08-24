@@ -39,7 +39,7 @@ export function Contact({ contact }: { contact: ContactContent }) {
             {contact.ctaGithub}
           </ButtonLink>
           {links.cv && (
-            <ButtonLink href={links.cv} surface="panel" external>
+            <ButtonLink href={links.cv} surface="panel" external newTab>
               {contact.ctaCv}
             </ButtonLink>
           )}

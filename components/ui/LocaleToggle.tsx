@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
+import { TAP_TARGET_44 } from "@/components/ui/ThemeToggle";
 import { LOCALE_COOKIE, type Locale } from "@/lib/types";
 
 /**
@@ -35,7 +36,7 @@ export function LocaleToggle({
         document.cookie = `${LOCALE_COOKIE}=${next}; path=/; max-age=31536000; samesite=lax`;
         startTransition(() => router.refresh());
       }}
-      className={`hairline h-[30px] cursor-pointer rounded-chip bg-transparent px-2.5 font-mono text-meta tracking-[0.06em] uppercase transition-colors disabled:opacity-60 ${tone}`}
+      className={`hairline h-[30px] cursor-pointer rounded-chip bg-transparent px-2.5 font-mono text-meta tracking-[0.06em] uppercase transition-colors disabled:opacity-60 ${TAP_TARGET_44} ${tone}`}
     >
       {/* El botón muestra el idioma al que lleva, no el actual. */}
       <span aria-hidden="true">{next.toUpperCase()}</span>

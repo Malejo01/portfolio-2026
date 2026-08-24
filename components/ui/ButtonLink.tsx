@@ -25,6 +25,13 @@ const base =
  * Un solo componente para todos los CTAs. `external` decide entre <a> y
  * <Link>: los anchors internos (#perfil) y las rutas usan el router;
  * los links salientes y `mailto:` no.
+ *
+ * `newTab` existe porque "sale del sitio" y "empieza con http" no son lo
+ * mismo. El CV se sirve desde /public, así que su href es relativo y la
+ * heurística de protocolo no lo alcanzaba: el PDF se abría en la misma
+ * pestaña y reemplazaba el portfolio, dejando al visitante en un visor de
+ * PDF sin forma obvia de volver. Los hrefs absolutos lo siguen infiriendo
+ * solos; `newTab` es el override para los que no.
  */
 export function ButtonLink({
   href,
@@ -32,6 +39,7 @@ export function ButtonLink({
   tone = "ghost",
   surface = "paper",
   external = false,
+  newTab = false,
   className = "",
 }: {
   href: string;
@@ -39,6 +47,7 @@ export function ButtonLink({
   tone?: Tone;
   surface?: Surface;
   external?: boolean;
+  newTab?: boolean;
   className?: string;
 }) {
   const cls = `${base} ${styles[surface][tone]} ${className}`;
@@ -48,7 +57,9 @@ export function ButtonLink({
       <a
         href={href}
         className={cls}
-        {...(href.startsWith("http") ? { target: "_blank", rel: "noreferrer noopener" } : {})}
+        {...(newTab || href.startsWith("http")
+          ? { target: "_blank", rel: "noreferrer noopener" }
+          : {})}
       >
         {children}
       </a>

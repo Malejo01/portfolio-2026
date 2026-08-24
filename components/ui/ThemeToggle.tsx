@@ -3,6 +3,17 @@
 import { useTheme } from "@/components/ThemeProvider";
 
 /**
+ * El chip mide 30px, que es el tamaño del diseño aprobado y está por debajo
+ * del mínimo táctil de 44px (WCAG 2.5.8). En vez de agrandar el botón —lo
+ * que rompería la barra de 58px y el ritmo del nav— el ::after centrado
+ * extiende solo el área de toque. Es transparente, vive dentro del botón,
+ * así que el click sigue llegando al mismo handler. Misma constante en
+ * `LocaleToggle`: si cambia una, cambia la otra.
+ */
+export const TAP_TARGET_44 =
+  "relative after:absolute after:top-1/2 after:left-1/2 after:size-[44px] after:-translate-x-1/2 after:-translate-y-1/2 after:content-['']";
+
+/**
  * Los dos íconos se renderizan siempre y la clase `dark` de <html> decide
  * cuál se ve. Así el botón muestra el estado correcto desde el primer paint,
  * antes de que hidrate React — no hay parpadeo del ícono.
@@ -19,7 +30,7 @@ export function ThemeToggle({ label, onPanel = false }: { label: string; onPanel
       type="button"
       onClick={toggleTheme}
       aria-label={label}
-      className={`hairline grid size-[30px] cursor-pointer place-items-center rounded-chip bg-transparent transition-colors ${tone}`}
+      className={`hairline grid size-[30px] cursor-pointer place-items-center rounded-chip bg-transparent transition-colors ${TAP_TARGET_44} ${tone}`}
     >
       <svg
         viewBox="0 0 20 20"

@@ -26,11 +26,14 @@ export function Hero({ hero, contactTerm }: { hero: HeroContent; contactTerm: st
         <p className="mt-[clamp(20px,3vw,28px)] mb-0 max-w-[60ch] text-panel-soft">{hero.lede}</p>
 
         <ButtonRow className="mt-[clamp(26px,4vw,38px)]">
-          <ButtonLink href="/#perfil" tone="solid" surface="panel">
+          {/* El CTA primario va a los casos, no al perfil: es la evidencia
+              del trabajo, y era lo primero que una reclutadora buscaba sin
+              encontrarlo desde el hero. */}
+          <ButtonLink href="/#casos" tone="solid" surface="panel">
             {hero.ctaPrimary}
           </ButtonLink>
           {links.cv && (
-            <ButtonLink href={links.cv} surface="panel" external>
+            <ButtonLink href={links.cv} surface="panel" external newTab>
               {hero.ctaCv}
             </ButtonLink>
           )}

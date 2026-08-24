@@ -148,6 +148,16 @@ export interface CaseStudyQps {
   result: string;
   stackLabel: string;
   stack: string[];
+  /**
+   * Textos alternativos de las capturas, igual que en MaestrIA. Array vacío
+   * mientras no haya archivos: el bloque de imágenes no se renderiza, misma
+   * lógica que el string vacío de `lib/links.ts`. Agregar una captura son dos
+   * cambios — el archivo en `SHOTS` de la page y su alt acá, en los dos
+   * idiomas.
+   */
+  shots: string[];
+  /** Pista de que las capturas se pueden abrir a tamaño completo. */
+  shotsHint: string;
   ctaLive: string;
   ctaRepo: string;
   ctaInterview: string;
@@ -196,6 +206,8 @@ export interface CaseStudyMaestria {
    * del diagrama: la copy no guarda rutas.
    */
   shots: string[];
+  /** Pista de que las capturas se pueden abrir a tamaño completo. */
+  shotsHint: string;
   ctaRepo: string;
   ctaLive: string;
 }

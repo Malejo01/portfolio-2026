@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { CaseHeader, CaseHeading } from "@/components/case-study/CaseHeader";
+import { CaseShots } from "@/components/case-study/CaseShots";
 import { FeedbackDiagram } from "@/components/case-study/FeedbackDiagram";
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/Reveal";
 import { AsideNote } from "@/components/ui/Aside";
@@ -16,11 +16,22 @@ const OG_IMAGE = "/opengraph-image";
  * Capturas del flujo. Van acá y no en la copy por la misma razón que los
  * nodos del diagrama: son fijas y su tamaño es un dato del archivo, no una
  * traducción. Los alt sí viven en `caseMaestria.shots`, en este orden.
+ *
+ * `width` es además el tope de render — ver `CaseShots`, que es donde está
+ * la lógica y el porqué.
+ *
+ * El orden es el del flujo real y no es decorativo: primero se configura,
+ * después se genera y se exporta, y las últimas cuatro son la previsualización
+ * mostrando un tipo de pregunta cada una. Esas cuatro son la evidencia de
+ * "4 tipos de pregunta" — sin ellas el dato es una afirmación sin respaldo.
  */
 const SHOTS = [
-  { src: "/casos/maestria/configuracion.png", width: 505, height: 595 },
-  { src: "/casos/maestria/pregunta-generada.png", width: 1347, height: 595 },
-  { src: "/casos/maestria/exportacion-gift.png", width: 1150, height: 512 },
+  { src: "/casos/maestria/configuracion.png", width: 1818, height: 834 },
+  { src: "/casos/maestria/cuestionario-generado.png", width: 1810, height: 834 },
+  { src: "/casos/maestria/previsualizacion-opcion-multiple.png", width: 1817, height: 843 },
+  { src: "/casos/maestria/previsualizacion-numerica.png", width: 1823, height: 770 },
+  { src: "/casos/maestria/previsualizacion-verdadero-falso.png", width: 1820, height: 775 },
+  { src: "/casos/maestria/previsualizacion-respuesta-corta.png", width: 1818, height: 775 },
 ] as const;
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -143,26 +154,13 @@ export default async function MaestriaPage() {
           ))}
         </RevealGroup>
 
-        {/* Las tres capturas del flujo, en el orden en que ocurre: configurar,
-            generar, exportar. `width`/`height` son los intrínsecos del PNG, así
-            que el hueco queda reservado antes de que cargue la imagen. */}
-        <RevealGroup className="mt-[clamp(26px,3.6vw,40px)] grid gap-[clamp(12px,2vw,20px)]">
-          {SHOTS.map((shot, i) => (
-            <RevealItem
-              key={shot.src}
-              className="hairline overflow-hidden rounded-card border-panel-hair bg-panel-2 p-[clamp(10px,1.6vw,16px)]"
-            >
-              <Image
-                src={shot.src}
-                alt={c.shots[i]}
-                width={shot.width}
-                height={shot.height}
-                sizes="(min-width: 1240px) 1100px, 100vw"
-                className="block h-auto w-full rounded-[3px]"
-              />
-            </RevealItem>
-          ))}
-        </RevealGroup>
+        <CaseShots
+          surface="panel"
+          shots={SHOTS}
+          alts={c.shots}
+          hint={c.shotsHint}
+          className="mt-[clamp(26px,3.6vw,40px)]"
+        />
 
         <p className="mt-[clamp(26px,3.6vw,40px)] mb-0 max-w-[44ch] font-display text-lead leading-[1.4] font-medium opsz-24 text-panel-ink">
           {c.closing}

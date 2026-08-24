@@ -126,6 +126,14 @@ por superficie (`paper` / `panel`), envoltura de figura con leyenda y el
 cableado de motion. La **geometría no se comparte** — los offsets de texto
 están ajustados a mano por nodo y una fórmula común los correría.
 
+Las capturas de producto de los dos casos sí comparten todo:
+`case-study/CaseShots.tsx` resuelve marco por superficie, tope de render y el
+ancla al archivo original. Es Server Component: recibe los `Reveal*` como
+envoltura pero los alt llegan desde la copy del servidor. Cada captura es un
+enlace al PNG a propósito — en un teléfono no hay composición que las haga
+leíbles y el zoom nativo del navegador es la salida sin JavaScript. El porqué
+completo, con los números, está en el propio archivo.
+
 El diagrama (`case-study/ArchitectureDiagram.tsx`) **no recibe props de data**.
 Los nodos son fijos y semánticos: el layout de los dos carriles es parte del
 argumento del caso, no un detalle de render. Se renderizan las dos orientaciones

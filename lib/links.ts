@@ -28,16 +28,7 @@ export const links = {
   },
 
   projects: {
-    /**
-     * El proyecto en Vercel ya se llama `salta-pay`, pero la URL sigue siendo
-     * la vieja a propósito: renombrar no reasigna el dominio automático —
-     * `salta-pay.vercel.app` recién se crea en el próximo deploy a producción.
-     * Aliasarlo a mano tampoco sirve: con `ssoProtection` en
-     * `all_except_custom_domains`, un alias nuevo se clasifica como URL de
-     * deployment y cae detrás del login de Vercel. Cambiar esto antes de
-     * redeployar deja el CTA apuntando a un muro de autenticación.
-     */
-    saltaPay: "https://v0-hotel-payment-mvp.vercel.app",
+    saltaPay: "https://salta-pay.vercel.app",
     automotive: "https://f-motors-showroom-prototype.vercel.app",
   },
 } as const;

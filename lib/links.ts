@@ -16,6 +16,16 @@ export const links = {
    */
   cv: "/mauro-lizarraga-cv.pdf",
 
+  /**
+   * `live` es el prototipo del hackathon, que es propio. El demo presentado
+   * al cliente lleva identidad institucional y no se expone. `repo` queda
+   * vacío hasta revisar que esté limpio de credenciales y datos del cliente.
+   */
+  tuki: {
+    live: "https://tuki-salta.vercel.app",
+    repo: "",
+  },
+
   qps: {
     live: "https://quepintasalta.com.ar",
     repo: "https://github.com/Malejo01/que-pinta-salta",

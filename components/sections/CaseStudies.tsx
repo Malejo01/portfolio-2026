@@ -8,12 +8,17 @@ import { pathFor } from "@/lib/routes";
 import type { CasesContent, Locale } from "@/lib/types";
 
 /**
- * Cada caso tiene composición propia (design-system.md §8): Qué Pinta Salta
- * lleva aside de stack sobre `paper-2`; MaestrIA va sobre `paper` con barra
- * de encabezado y sin aside. No es un componente parametrizado por data.
+ * Cada caso tiene composición propia (design-system.md §8): Tuki va sobre
+ * `paper` con aside de rol, porque lo que distingue al caso es el liderazgo;
+ * Qué Pinta Salta lleva aside de stack sobre `paper-2`; MaestrIA va sobre
+ * `paper` con barra de encabezado y sin aside. No es un componente
+ * parametrizado por data.
+ *
+ * El orden es cronológico inverso: Tuki es el más reciente y el único con
+ * dimensión de liderazgo, así que abre la sección.
  */
 export function CaseStudies({ cases, locale }: { cases: CasesContent; locale: Locale }) {
-  const [qps, maestria] = cases.cards;
+  const [tuki, qps, maestria] = cases.cards;
 
   return (
     <section id="casos" className="pb-[clamp(56px,8vw,110px)]">
@@ -22,10 +27,78 @@ export function CaseStudies({ cases, locale }: { cases: CasesContent; locale: Lo
         <SectionNote>{cases.note}</SectionNote>
       </div>
 
-      {/* ── Caso 1 — Qué Pinta Salta ─────────────────────────────── */}
+      {/* ── Caso 1 — Tuki ────────────────────────────────────────── */}
       <Reveal
         as="article"
-        className="hairline overflow-hidden rounded-card border-hair bg-paper-2"
+        className="hairline overflow-hidden rounded-card border-hair bg-paper"
+      >
+        <div className="flex flex-wrap gap-gap-2 p-card">
+          <div className="min-w-0 max-w-[62ch] flex-1 basis-[36ch]">
+            <div className="mb-3.5 flex flex-wrap items-center gap-2.5 font-mono text-meta text-ink-soft">
+              <StatusPill tone="wip">{tuki.status}</StatusPill>
+              <span>{tuki.year}</span>
+              {tuki.kicker && <span>· {tuki.kicker}</span>}
+            </div>
+
+            <h3 className="mt-0 mb-3 font-display text-title leading-[1.08] font-semibold opsz-48 tracking-[-0.02em]">
+              {tuki.title}
+            </h3>
+
+            <p className="mt-0 mb-[18px] max-w-[56ch] text-ink-soft">{tuki.summary}</p>
+
+            {/* Highlights arriba, stack abajo: el aside es de rol, así que
+                la tecnología va como chips y la jerarquía la da el orden. */}
+            <div className="grid gap-2">
+              <ChipRow>
+                {tuki.highlights?.map((h) => (
+                  <Chip key={h} surface="paper-2">
+                    {h}
+                  </Chip>
+                ))}
+              </ChipRow>
+
+              <ChipRow>
+                {tuki.stack.map((line) => (
+                  <Chip key={line} surface="paper-2">
+                    {line}
+                  </Chip>
+                ))}
+              </ChipRow>
+            </div>
+
+            <ButtonRow className="mt-cta">
+              <ButtonLink href={pathFor("tuki", locale)} tone="solid" surface="paper">
+                {tuki.cta}
+              </ButtonLink>
+              {links.tuki.live && (
+                <ButtonLink href={links.tuki.live} surface="paper-2" external>
+                  {cases.ctaPrototype}
+                </ButtonLink>
+              )}
+              {links.tuki.repo && (
+                <ButtonLink href={links.tuki.repo} surface="paper-2" external>
+                  {cases.ctaRepo}
+                </ButtonLink>
+              )}
+            </ButtonRow>
+          </div>
+
+          {tuki.role && (
+            <AsideNote term={tuki.role.term ?? "Rol"}>
+              <span className="grid gap-[5px]">
+                {tuki.role.lines.map((line) => (
+                  <span key={line}>{line}</span>
+                ))}
+              </span>
+            </AsideNote>
+          )}
+        </div>
+      </Reveal>
+
+      {/* ── Caso 2 — Qué Pinta Salta ─────────────────────────────── */}
+      <Reveal
+        as="article"
+        className="hairline mt-[clamp(16px,2.4vw,24px)] overflow-hidden rounded-card border-hair bg-paper-2"
       >
         <div className="flex flex-wrap gap-gap-2 p-card">
           <div className="min-w-0 max-w-[62ch] flex-1 basis-[36ch]">
@@ -73,7 +146,7 @@ export function CaseStudies({ cases, locale }: { cases: CasesContent; locale: Lo
         </div>
       </Reveal>
 
-      {/* ── Caso 2 — MaestrIA ────────────────────────────────────── */}
+      {/* ── Caso 3 — MaestrIA ────────────────────────────────────── */}
       <Reveal
         as="article"
         className="hairline mt-[clamp(16px,2.4vw,24px)] overflow-hidden rounded-card border-hair bg-paper"

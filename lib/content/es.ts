@@ -47,7 +47,7 @@ export const es: Content = {
       },
       {
         term: "IA aplicada",
-        lines: ["Gemini · LLM APIs · extracción", "estructurada · pipelines con", "validación determinista"],
+        lines: ["Gemini · LLM APIs · RAG · pgvector", "extracción estructurada · pipelines", "con validación determinista"],
       },
       {
         term: "Idiomas",
@@ -82,8 +82,43 @@ export const es: Content = {
     label: "Casos de estudio",
     note: "Resumen · abrí el caso completo si querés la arquitectura",
     ctaLive: "Ver en producción",
+    ctaPrototype: "Ver prototipo",
     ctaRepo: "GitHub",
     cards: [
+      {
+        slug: "tuki",
+        status: "En propuesta",
+        statusTone: "wip",
+        year: "2026",
+        kicker: "Cliente institucional · GovTech",
+        title: "Tuki",
+        summary:
+          "Un asistente ciudadano que solo responde lo que el municipio efectivamente publica. RAG sobre el corpus oficial de trámites: cada respuesta resuelve a su documento de origen y, si el trámite no está, deriva en vez de improvisar.",
+        highlights: [
+          "133 trámites · corpus completo",
+          "Equipo de 5 · 2 departamentos",
+          "Web y móvil desplegados",
+          "Plan de 3 meses · 5 fases",
+        ],
+        role: {
+          term: "Rol",
+          lines: [
+            "Referente técnico",
+            "Equipo de 5 · 2 departamentos",
+            "Plan de 5 fases · 3 meses",
+            "Punto único de contacto",
+            "técnico con el cliente",
+          ],
+        },
+        stack: [
+          "Next.js · TypeScript",
+          "React Native (Expo)",
+          "Supabase · pgvector",
+          "Google Gemini",
+          "Vercel",
+        ],
+        cta: "Ver caso completo",
+      },
       {
         slug: "que-pinta-salta",
         status: "En producción",
@@ -164,6 +199,66 @@ export const es: Content = {
     credit: "Mauro Lizárraga · Salta, Argentina · 2026",
     built: "Construido con Next.js, Tailwind y Framer Motion",
     scale: "Escala tipográfica: razón 1.25 · base 17px",
+  },
+
+  caseTuki: {
+    slug: "tuki",
+    status: "En propuesta",
+    year: "2026",
+    kicker: "Cliente institucional · GovTech",
+    title: "Tuki",
+    subtitle: "Un asistente ciudadano que solo responde lo que el municipio efectivamente publica",
+    roleLabel: "Rol",
+    role: "Referente técnico de un equipo de cinco personas y punto único de contacto técnico con el cliente.",
+    problemHeading: "El problema",
+    problem: [
+      "La información de trámites municipales existe, pero está dispersa entre páginas, PDFs y dependencias. El ciudadano no sabe qué necesita, dónde presentarlo ni cuánto cuesta, y termina yendo presencialmente a preguntar.",
+      "Un chatbot genérico empeora el problema: responde con seguridad información que puede estar mal. En un servicio público, una respuesta inventada sobre un requisito no es un error menor.",
+    ],
+    decisionHeading: "La decisión que define el sistema",
+    decisionHeadline: "Anclar cada respuesta a un documento oficial.",
+    decisionBody: [
+      "Tuki no responde desde el conocimiento general del modelo. Recupera los fragmentos pertinentes del corpus que el municipio carga y controla, y se limita a reformular esa información en lenguaje claro.",
+      "La consecuencia es doble: lo que Tuki dice es lo que el municipio publica, y toda respuesta puede rastrearse hasta su documento de origen. Si un trámite no está en el corpus, lo indica y deriva al canal correspondiente, en lugar de improvisar.",
+    ],
+    traceAsideLabel: "Trazabilidad",
+    traceAside:
+      "Cada respuesta resuelve a su documento de origen · fuera del corpus, deriva en vez de improvisar",
+    howHeading: "Cómo funciona",
+    how: [
+      "Corpus de 133 trámites —la totalidad de los publicados por el municipio— scrapeados del sitio oficial, chunkeados y embebidos con gemini-embedding-001 a 768 dimensiones en Supabase con pgvector.",
+      "La recuperación usa distancia coseno sobre un índice ivfflat reconstruido tras la carga. Si hay fragmentos pertinentes, Gemini reformula esa información citando el documento de origen. Si no los hay, el sistema lo dice y deriva al canal que corresponde.",
+    ],
+    evalAsideLabel: "Validación",
+    evalAside: "Banco de 40 preguntas de evaluación construido para el proyecto",
+    builtHeading: "Qué está construido",
+    builtIntro:
+      "Nació en una hackathon de innovación pública en agosto de 2026. Hoy está en etapa de propuesta formal con el cliente, y las tres piezas corren.",
+    built: [
+      "Prototipo web del hackathon, desplegado y público.",
+      "Demo del MVP presentado al cliente, desplegado con la integración web.",
+      "Aplicación móvil en React Native (Expo) con el asistente integrado, corriendo en dispositivo y usada en presentaciones institucionales.",
+    ],
+    teamHeading: "Cómo se organizó el trabajo",
+    team: [
+      "Referente técnico de un equipo de cinco personas, organizado en dos departamentos: técnico y producto/comunicación. Definí la arquitectura, la asignación de roles y la estructura de entrega sobre un plan de cinco fases y tres meses.",
+      "Soy el punto único de contacto técnico con el cliente: alcance, estimación de esfuerzo, requerimientos de acceso a datos y compromisos de seguridad.",
+    ],
+    planAsideLabel: "Plan",
+    planAside: "5 fases · 3 meses · 2 departamentos · 5 personas",
+    resultLabel: "Estado",
+    result:
+      "Propuesta formal en evaluación por el cliente. Lo que hay construido y desplegado es lo que se describe acá: prototipo web, demo del MVP y app móvil corriendo en dispositivo.",
+    stackLabel: "Stack",
+    stack: [
+      "Next.js · TypeScript",
+      "React Native (Expo)",
+      "Supabase (PostgreSQL + pgvector)",
+      "Google Gemini API",
+      "Vercel",
+    ],
+    ctaLive: "Ver prototipo",
+    ctaRepo: "Código en GitHub",
   },
 
   caseQps: {
@@ -302,7 +397,10 @@ export const es: Content = {
   meta: {
     title: "Mauro Lizárraga — AI Engineer & Fullstack Developer",
     description:
-      "Construyo sistemas con IA que corren solos en producción. Casos de estudio de pipelines LLM, plataformas EdTech y automatización.",
+      "Construyo sistemas con IA que corren solos en producción. Casos de estudio de asistentes RAG, pipelines LLM, plataformas EdTech y automatización.",
+    caseTukiTitle: "Tuki — Caso de estudio",
+    caseTukiDescription:
+      "Asistente ciudadano con RAG sobre el corpus oficial de trámites de un municipio: cada respuesta se ancla a su documento de origen y, fuera del corpus, deriva en vez de improvisar.",
     caseQpsTitle: "Qué Pinta Salta — Caso de estudio",
     caseQpsDescription:
       "Pipeline de ingesta con cinco fuentes: el modelo extrae de los flyers y un filtro determinista en TypeScript decide qué se publica.",

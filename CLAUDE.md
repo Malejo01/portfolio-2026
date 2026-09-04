@@ -22,15 +22,19 @@ edición de archivos.
 
 ## Fuente de verdad del diseño
 
-El diseño visual está aprobado y **no se reinterpreta**. Vive un nivel arriba del
-repo:
+El diseño visual está aprobado y **no se reinterpreta**. Los archivos
+originales (`design-system.md` y el HTML standalone) ya no están disponibles
+en la máquina, así que la fuente de verdad es lo que quedó en el código:
 
-- `../design-system.md` — paleta, tipografía, escala, spacing, reglas de composición
-- `../portfolio-mauro-lizarraga-standalone.html` — el archivo real; el HTML está
-  embebido como string JSON escapado en la línea 382, no es legible directamente
+- `app/globals.css` — tokens de color, tipografía, escala 1.25 y spacing fluido.
+  Los comentarios `design-system.md §N` señalan de qué sección salió cada uno.
+- La sección **Invariantes del sistema de diseño** de este archivo.
+- Las composiciones existentes: las tres cards de `CaseStudies.tsx` y las tres
+  páginas de caso en `components/pages/`.
 
-Si un pedido contradice el design system, el design system gana; avisá la
-discrepancia en vez de resolverla en silencio.
+Si un pedido contradice esas reglas, las reglas ganan; avisá la discrepancia en
+vez de resolverla en silencio. No se agregan tokens nuevos sin una razón que
+no se pueda cubrir con los existentes.
 
 ## Arquitectura
 
@@ -76,10 +80,21 @@ que para un cambio de idioma es lo correcto.
 
 ### Tema: solo el script inline
 
-La fuente de verdad es la clase `dark` en `<html>`, y **la escribe únicamente
-el script inline** de `SiteDocument` — las dos ramas, la cookie si existe y
+La fuente de verdad es la clase `dark` en `<html>`, y **la escribe el script
+inline** de `SiteDocument` — las dos ramas, la cookie si existe y
 `prefers-color-scheme` si no. `ThemeProvider` la lee con
 `useSyncExternalStore`, no con `useState`.
+
+Una sola excepción, y está documentada en los dos archivos: en un 404 o un
+error boundary Next monta el layout en el cliente y el script viaja como
+dato, no como etiqueta, así que no corre. `ThemeProvider` lo replica en un
+layout effect **solo si `<html>` no tiene la clase `js`**. Por la misma razón
+el `<html>` no lleva `className` como prop de React —las variables de fuente
+van en `<body>`—: si lo llevara, ese render en cliente borraría `js` y
+`dark`. El aviso de consola "Encountered a script tag" en desarrollo al caer
+en un 404 es el síntoma esperado de ese camino, no un bug, y `next/script`
+con `beforeInteractive` no lo resuelve: en App Router encola el inline y lo
+ejecuta después del primer paint.
 
 Ningún Server Component lee la cookie del tema. Eso no es un detalle: era la
 segunda llamada a `cookies()` del root layout y, junto con el locale, lo que
@@ -111,6 +126,12 @@ componente** — usá las utilidades nombradas:
 - Utilidades propias: `hairline` (borde de 0.5px) y `opsz-14/18/24/36/48/60/72`
   para el eje óptico variable de Bricolage Grotesque
 
+Las variables del bloque `@theme inline` **solo se emiten al CSS si alguna
+utilidad las usa**. En CSS escrito a mano no uses `var(--font-*)` ni
+`var(--text-*)`: usá `@apply` con la utilidad, que inserta el valor resuelto.
+La regla `body` de `globals.css` es el precedente: con `var(--font-body)` el
+cuerpo caía a la fuente del sistema y Public Sans se cargaba sin usarse.
+
 Los tokens de modo oscuro se resuelven solos vía CSS. **Ningún componente debe
 ramificar por tema en JS.** Lo que sí varía es la superficie: los componentes de
 `ui/` toman un prop `onPanel` porque los fondos oscuros (`panel`) necesitan el
@@ -136,9 +157,9 @@ Romperlas es un bug visual, aunque compile:
 - **Tuki no nombra al cliente.** El contrato no está firmado: la copy dice
   "un municipio de capital provincial" y "el cliente institucional", sin
   logos ni identidad visual de ellos. El CTA es "Ver prototipo", no "Ver en
-  producción", y `links.tuki.repo` queda vacío hasta revisar que el repo no
-  tenga credenciales ni datos del cliente. El demo presentado al cliente no
-  se enlaza nunca.
+  producción". El demo presentado al cliente no se enlaza nunca, y las
+  capturas se recortan si muestran una URL o un nombre del municipio: la
+  tercera captura del caso es solo el bloque de fuentes por eso.
 
 ### Animación
 
@@ -196,6 +217,18 @@ patrón.
 El panel del browser suele estar oculto en estas sesiones, y ahí la página queda
 suspendida: **cero frames de `requestAnimationFrame` y cero callbacks de
 IntersectionObserver**. Las animaciones son imposibles de verificar en ese
-entorno — no lo reportes como bug del código. Lo que sí se puede medir por JS:
-overflow horizontal, contraste calculado contra el fondo efectivo, fuentes y ejes
-variables, y los toggles de tema e idioma.
+entorno — no lo reportes como bug del código. Las capturas de pantalla salen
+negras al scrollear y las imágenes en lazy no cargan, por lo mismo. Lo que sí
+se puede medir por JS: overflow horizontal, contraste calculado contra el fondo
+efectivo, fuentes cargadas (`document.fonts`) y ejes variables, anchos de texto
+de los diagramas, y los toggles de tema e idioma.
+
+`.claude/launch.json` (ignorado por git) define el servidor `dev` para el
+panel con `autoPort: true`, porque el puerto 3000 suele estar ocupado por un
+`next dev` que dejó abierto Mauro. Si ese servidor es el de este repo, sirve
+la rama que esté checkouteada, con HMR.
+
+Para probar el camino del 404 y de los error boundaries usá un build de
+producción en otro puerto —`npm run build` y después `npx next start -p 3001`—
+porque en desarrollo ese camino tiene un aviso de consola propio y un ciclo
+de refetch que no existe en producción. Matá el proceso al terminar.

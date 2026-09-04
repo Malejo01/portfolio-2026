@@ -23,7 +23,7 @@ export const links = {
    */
   tuki: {
     live: "https://tuki-salta.vercel.app",
-    repo: "",
+    repo: "https://github.com/Malejo01/ventanilla-salta2",
   },
 
   qps: {

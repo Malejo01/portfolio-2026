@@ -249,6 +249,12 @@ export const en: Content = {
     ],
     evalAsideLabel: "Validation",
     evalAside: "A 40-question evaluation bank built for the project",
+    shots: [
+      "Home screen of the Tuki web prototype: the assistant introduces itself as an advisor for municipal procedures, with the query field and three promises alongside: 100% online, instant answers and official information.",
+      "Frequent queries in the prototype: six sample questions, from opening a food truck to getting a first driver's licence, and a footer note that Tuki only answers with the official information loaded.",
+      "The official-sources block at the foot of an answer: four corpus documents with their category and the date they were verified. That is what every answer resolves to.",
+    ],
+    shotsHint: "Open any screenshot to view it full size",
     builtHeading: "What's built",
     builtIntro:
       "It started at a public-sector innovation hackathon in August 2026. Today it's at the formal proposal stage with the client, and all three pieces run.",

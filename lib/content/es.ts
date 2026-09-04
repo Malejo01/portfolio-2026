@@ -249,6 +249,12 @@ export const es: Content = {
     ],
     evalAsideLabel: "Validación",
     evalAside: "Banco de 40 preguntas de evaluación construido para el proyecto",
+    shots: [
+      "Inicio del prototipo web de Tuki: el asistente se presenta como asesor de trámites municipales, con el campo de consulta y tres promesas al costado: 100% online, respuestas al instante e información oficial.",
+      "Consultas frecuentes del prototipo: seis preguntas de ejemplo, de habilitar un foodtruck a sacar la licencia de conducir por primera vez, y al pie la aclaración de que Tuki responde solo con información oficial cargada.",
+      "Bloque de fuentes oficiales al pie de una respuesta: cuatro documentos del corpus con su categoría y la fecha en que fueron verificados. Es a lo que resuelve cada respuesta.",
+    ],
+    shotsHint: "Abrí cualquier captura para verla a tamaño completo",
     builtHeading: "Qué está construido",
     builtIntro:
       "Nació en una hackathon de innovación pública en agosto de 2026. Hoy está en etapa de propuesta formal con el cliente, y las tres piezas corren.",

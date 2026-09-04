@@ -1,4 +1,5 @@
 import { CaseHeader, CaseHeading } from "@/components/case-study/CaseHeader";
+import { RetrievalDiagram } from "@/components/case-study/RetrievalDiagram";
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/Reveal";
 import { AsideNote } from "@/components/ui/Aside";
 import { ButtonLink, ButtonRow } from "@/components/ui/ButtonLink";
@@ -79,8 +80,9 @@ export function CaseTuki({ locale }: { locale: Locale }) {
       {/* ── Cómo funciona ────────────────────────────────────────── */}
       <section>
         <CaseHeading className="mt-block mb-lede">{c.howHeading}</CaseHeading>
+        <RetrievalDiagram labels={c.diagram} />
 
-        <Reveal className="flex flex-wrap items-start gap-main">
+        <Reveal className="mt-[clamp(26px,3.6vw,40px)] flex flex-wrap items-start gap-main">
           <div className="min-w-0 max-w-[62ch] flex-1 basis-[36ch]">
             {c.how.map((text, i) => (
               <p

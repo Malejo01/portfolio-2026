@@ -220,6 +220,20 @@ export interface CaseStudyMaestria {
   ctaLive: string;
 }
 
+/** Etiquetas del flujo de respuesta de Tuki (`RetrievalDiagram`). */
+export interface RetrievalDiagramLabels {
+  alt: string;
+  question: { title: string; sub: string };
+  embed: { title: string; sub: string };
+  search: { title: string; sub: string };
+  gate: { title: string; sub: string };
+  yes: string;
+  no: string;
+  answer: { title: string; sub1: string; sub2: string };
+  refer: { title: string; sub1: string; sub2: string };
+  caption: string;
+}
+
 export interface CaseStudyTuki {
   slug: "tuki";
   status: string;
@@ -237,6 +251,7 @@ export interface CaseStudyTuki {
   traceAsideLabel: string;
   traceAside: string;
   howHeading: string;
+  diagram: RetrievalDiagramLabels;
   how: string[];
   evalAsideLabel: string;
   evalAside: string;

@@ -225,6 +225,19 @@ export const es: Content = {
     traceAside:
       "Cada respuesta resuelve a su documento de origen · fuera del corpus, deriva en vez de improvisar",
     howHeading: "Cómo funciona",
+    diagram: {
+      alt: "Diagrama del flujo de respuesta: la pregunta del ciudadano se convierte en un embedding de 768 dimensiones y se busca por distancia coseno en pgvector. Una compuerta decide si hay fragmentos del corpus. Si los hay, Gemini reformula la información citando el documento de origen; si no, el sistema deriva al canal correspondiente sin improvisar.",
+      question: { title: "Pregunta", sub: "del ciudadano" },
+      embed: { title: "Embedding", sub: "768 dimensiones" },
+      search: { title: "Búsqueda", sub: "pgvector · coseno" },
+      gate: { title: "¿Hay fragmento?", sub: "en el corpus" },
+      yes: "sí",
+      no: "no",
+      answer: { title: "Gemini reformula", sub1: "cita el documento", sub2: "de origen" },
+      refer: { title: "Deriva al canal", sub1: "correspondiente", sub2: "no improvisa" },
+      caption:
+        "El acento marca el único punto donde interviene el modelo. Las dos salidas tienen el mismo tamaño a propósito: saber cuándo no responder es una decisión de diseño, no un caso de borde.",
+    },
     how: [
       "Corpus de 133 trámites —la totalidad de los publicados por el municipio— scrapeados del sitio oficial, chunkeados y embebidos con gemini-embedding-001 a 768 dimensiones en Supabase con pgvector.",
       "La recuperación usa distancia coseno sobre un índice ivfflat reconstruido tras la carga. Si hay fragmentos pertinentes, Gemini reformula esa información citando el documento de origen. Si no los hay, el sistema lo dice y deriva al canal que corresponde.",

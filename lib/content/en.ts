@@ -225,6 +225,19 @@ export const en: Content = {
     traceAside:
       "Every answer resolves to its source document · outside the corpus, it refers onward instead of improvising",
     howHeading: "How it works",
+    diagram: {
+      alt: "Diagram of the answer flow: the citizen's question becomes a 768-dimension embedding and is searched by cosine distance in pgvector. A gate decides whether corpus fragments were found. If so, Gemini restates the information citing the source document; if not, the system refers the query to the right channel instead of improvising.",
+      question: { title: "Question", sub: "from the citizen" },
+      embed: { title: "Embedding", sub: "768 dimensions" },
+      search: { title: "Search", sub: "pgvector · cosine" },
+      gate: { title: "Fragment found?", sub: "in the corpus" },
+      yes: "yes",
+      no: "no",
+      answer: { title: "Gemini restates", sub1: "citing the source", sub2: "document" },
+      refer: { title: "Refers onward", sub1: "right channel", sub2: "no improvising" },
+      caption:
+        "The accent marks the only point where the model steps in. Both exits are the same size on purpose: knowing when not to answer is a design decision, not an edge case.",
+    },
     how: [
       "A corpus of 133 procedures —every one the city publishes— scraped from the official site, chunked and embedded with gemini-embedding-001 at 768 dimensions into Supabase with pgvector.",
       "Retrieval uses cosine distance over an ivfflat index rebuilt after load. If relevant fragments exist, Gemini restates that information citing the source document. If they don't, the system says so and refers the query to the right channel.",

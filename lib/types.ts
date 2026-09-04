@@ -255,6 +255,13 @@ export interface CaseStudyTuki {
   how: string[];
   evalAsideLabel: string;
   evalAside: string;
+  /**
+   * Textos alternativos de las capturas, mismo contrato que los otros dos
+   * casos: los archivos y sus dimensiones viven en `SHOTS` de la page, los
+   * alt acá en este mismo orden.
+   */
+  shots: string[];
+  shotsHint: string;
   builtHeading: string;
   builtIntro: string;
   built: string[];

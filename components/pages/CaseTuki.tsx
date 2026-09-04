@@ -1,4 +1,5 @@
 import { CaseHeader, CaseHeading } from "@/components/case-study/CaseHeader";
+import { CaseShots } from "@/components/case-study/CaseShots";
 import { RetrievalDiagram } from "@/components/case-study/RetrievalDiagram";
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/Reveal";
 import { AsideNote } from "@/components/ui/Aside";
@@ -18,9 +19,27 @@ import type { Locale } from "@/lib/types";
  * parte del argumento, no una nota al pie. Por eso el aside del problema
  * también es de rol y no de stack.
  *
- * Sin capturas ni videos a propósito: la página cierra sin ellos. Cuando
- * lleguen, van después de "Cómo funciona", como evidencia.
+ * Sin videos todavía: la página cierra sin ellos. Cuando lleguen, van junto
+ * a las capturas, después de "Cómo funciona", como evidencia.
  */
+
+/**
+ * Capturas del prototipo web, mismo contrato que los otros dos casos: el
+ * archivo y sus dimensiones viven acá, los alt en `caseTuki.shots` en este
+ * mismo orden. `width` es también el tope de render.
+ *
+ * La tercera es un recorte a propósito: solo el bloque de fuentes al pie de
+ * una respuesta. La respuesta completa nombraba al municipio en una URL y
+ * ese es exactamente el nombre que el caso no dice. El bloque recortado es
+ * además la evidencia que importa: cada respuesta resuelve a documentos
+ * del corpus con fecha de verificación.
+ */
+const SHOTS = [
+  { src: "/casos/tuki/inicio.png", width: 1820, height: 878 },
+  { src: "/casos/tuki/consultas-frecuentes.png", width: 1455, height: 1108 },
+  { src: "/casos/tuki/fuentes-oficiales.png", width: 938, height: 315 },
+] as const;
+
 export function CaseTuki({ locale }: { locale: Locale }) {
   const content = getContent(locale);
   const c = content.caseTuki;
@@ -95,6 +114,13 @@ export function CaseTuki({ locale }: { locale: Locale }) {
           </div>
           <AsideNote term={c.evalAsideLabel}>{c.evalAside}</AsideNote>
         </Reveal>
+
+        <CaseShots
+          shots={SHOTS}
+          alts={c.shots}
+          hint={c.shotsHint}
+          className="mt-[clamp(26px,3.6vw,40px)]"
+        />
       </section>
 
       {/* ── Qué está construido ──────────────────────────────────── */}

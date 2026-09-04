@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+
+/** Misma metadata que `not-found.tsx`; el porqué está en el catch-all español. */
+export const metadata: Metadata = {
+  title: "404",
+  robots: { index: false, follow: true },
+};
 
 /**
  * Existe solo para llamar a `notFound()`.

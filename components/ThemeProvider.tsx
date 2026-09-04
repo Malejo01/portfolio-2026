@@ -5,6 +5,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useSyncExternalStore,
 } from "react";
@@ -63,6 +64,26 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // corregido.
   const getServerSnapshot = useCallback((): Theme => "light", []);
   const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+
+  // Respaldo del script inline para los árboles que React monta en el
+  // cliente sin pasar por el HTML del layout: el 404 del catch-all y los
+  // error boundaries. Ahí Next sirve una cáscara (`<html id="__next_error__">`)
+  // donde el script del layout viaja como dato del payload RSC, no como
+  // etiqueta, y React nunca ejecuta un <script> que renderiza en cliente.
+  // Resultado sin esto: `<html>` sin `js` ni `dark`, la página en claro para
+  // quien navega en oscuro y las animaciones apagadas por `html:not(.js)`.
+  //
+  // Replica el script una sola vez y solo si detecta que no corrió; en una
+  // carga normal la clase `js` ya está y no hace nada. Es layout effect
+  // para correr antes del primer paint del árbol montado en cliente.
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    if (root.classList.contains("js")) return;
+    root.classList.add("js");
+    const match = document.cookie.match(new RegExp(`(?:^|; )${THEME_COOKIE}=(dark|light)`));
+    const dark = match ? match[1] === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    apply(dark ? "dark" : "light");
+  }, []);
 
   // Sin cookie, seguir al sistema si el usuario lo cambia con la pestaña
   // abierta. Solo toca el DOM; el MutationObserver propaga el cambio.

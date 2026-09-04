@@ -1,4 +1,17 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+
+/**
+ * La misma metadata que `not-found.tsx`. Hace falta en los dos lados: el
+ * HTML del servidor sale con la del `not-found`, pero cuando Next vuelve a
+ * montar el árbol en el cliente resuelve la metadata por segmento, y el
+ * segmento es este. Sin esto, a los pocos segundos el título del 404 pasaba
+ * al del home y el `noindex` desaparecía.
+ */
+export const metadata: Metadata = {
+  title: "404",
+  robots: { index: false, follow: true },
+};
 
 /**
  * Existe solo para llamar a `notFound()`.

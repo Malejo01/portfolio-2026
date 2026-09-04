@@ -138,8 +138,13 @@
   body {
     background: var(--paper);
     color: var(--ink);
-    font-family: var(--font-body);
-    font-size: var(--text-body);
+    /* Por @apply y no por var(): las variables del @theme inline solo se
+       emiten al CSS si alguna utilidad las usa, y `font-body` no la usa
+       ningún componente —el cuerpo la hereda de acá—. Con `var(--font-body)`
+       la declaración quedaba vacía y el texto de cuerpo caía a la fuente del
+       sistema; Public Sans se cargaba y no se usaba. `@apply` inserta el
+       stack resuelto y no depende de que la variable exista en runtime. */
+    @apply font-body text-body;
     line-height: 1.7;
     -webkit-font-smoothing: antialiased;
   }

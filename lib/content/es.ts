@@ -60,6 +60,11 @@ export const es: Content = {
     label: "Experiencia",
     rows: [
       {
+        period: "Liderazgo técnico · ago. 2026 – hoy",
+        title: "Referente técnico — Tuki",
+        body: "Equipo de cinco personas en dos departamentos, plan de cinco fases y tres meses, y punto único de contacto técnico con un cliente institucional: alcance, estimación, acceso a datos y compromisos de seguridad.",
+      },
+      {
         period: "Software · abr. 2025 – feb. 2026",
         title: "Accenture — Packaged App Development Analyst",
         body:

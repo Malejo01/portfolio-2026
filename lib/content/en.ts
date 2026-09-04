@@ -60,6 +60,11 @@ export const en: Content = {
     label: "Experience",
     rows: [
       {
+        period: "Technical leadership · Aug 2026 – present",
+        title: "Technical Lead — Tuki",
+        body: "A five-person team across two departments, a five-phase, three-month plan, and single point of technical contact with an institutional client: scope, estimation, data access and security commitments.",
+      },
+      {
         period: "Software · Apr 2025 – Feb 2026",
         title: "Accenture — Packaged App Development Analyst",
         body:

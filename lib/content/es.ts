@@ -47,7 +47,12 @@ export const es: Content = {
       },
       {
         term: "IA aplicada",
-        lines: ["Gemini · LLM APIs · RAG · pgvector", "extracción estructurada · pipelines", "con validación determinista"],
+        lines: [
+          "Gemini · Claude · LLM APIs",
+          "RAG · pgvector · tool calling",
+          "MCP · agentes con compuertas",
+          "y revisión humana",
+        ],
       },
       {
         term: "Idiomas",
@@ -179,7 +184,7 @@ export const es: Content = {
         slug: "automotive",
         title: "Asistente conversacional automotriz",
         meta: "Desarrollo propio · 2026",
-        body: "Agente LLM para concesionarias. Consultas de modelos, disponibilidad y calificación de leads en un flujo guiado. Diseñado como plantilla reutilizable: catálogo, persona y base de conocimiento son configurables.",
+        body: "Agente conversacional para concesionarias. Flujo guiado por etapas —consultas de modelos, disponibilidad y calificación de leads— que responde desde el catálogo y la base de conocimiento cargados. Plantilla reutilizable: catálogo, persona y base de conocimiento son configurables.",
         stack: "LLM APIs · Next.js",
       },
     ],

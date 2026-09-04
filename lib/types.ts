@@ -53,7 +53,7 @@ export interface ExperienceContent {
 }
 
 export interface CaseCard {
-  slug: "que-pinta-salta" | "maestria";
+  slug: "tuki" | "que-pinta-salta" | "maestria";
   status: string;
   statusTone: "live" | "wip";
   year: string;
@@ -61,6 +61,12 @@ export interface CaseCard {
   title: string;
   summary: string;
   highlights?: string[];
+  /**
+   * Aside de rol, solo en Tuki: ocupa el lugar que en Qué Pinta Salta tiene
+   * el aside de stack, porque ahí lo que distingue al caso es el liderazgo
+   * y no la tecnología.
+   */
+  role?: AsideItem;
   stackLabel?: string;
   stack: string[];
   cta: string;
@@ -71,6 +77,8 @@ export interface CasesContent {
   note: string;
   cards: CaseCard[];
   ctaLive: string;
+  /** Para lo que está desplegado pero no en producción — Tuki. */
+  ctaPrototype: string;
   ctaRepo: string;
 }
 
@@ -212,9 +220,46 @@ export interface CaseStudyMaestria {
   ctaLive: string;
 }
 
+export interface CaseStudyTuki {
+  slug: "tuki";
+  status: string;
+  year: string;
+  kicker: string;
+  title: string;
+  subtitle: string;
+  roleLabel: string;
+  role: string;
+  problemHeading: string;
+  problem: string[];
+  decisionHeading: string;
+  decisionHeadline: string;
+  decisionBody: string[];
+  traceAsideLabel: string;
+  traceAside: string;
+  howHeading: string;
+  how: string[];
+  evalAsideLabel: string;
+  evalAside: string;
+  builtHeading: string;
+  builtIntro: string;
+  built: string[];
+  teamHeading: string;
+  team: string[];
+  planAsideLabel: string;
+  planAside: string;
+  resultLabel: string;
+  result: string;
+  stackLabel: string;
+  stack: string[];
+  ctaLive: string;
+  ctaRepo: string;
+}
+
 export interface MetaContent {
   title: string;
   description: string;
+  caseTukiTitle: string;
+  caseTukiDescription: string;
   caseQpsTitle: string;
   caseQpsDescription: string;
   caseMaestriaTitle: string;
@@ -230,6 +275,7 @@ export interface Content {
   projects: ProjectsContent;
   contact: ContactContent;
   footer: FooterContent;
+  caseTuki: CaseStudyTuki;
   caseQps: CaseStudyQps;
   caseMaestria: CaseStudyMaestria;
   meta: MetaContent;

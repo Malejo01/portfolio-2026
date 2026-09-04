@@ -47,7 +47,7 @@ export const en: Content = {
       },
       {
         term: "Applied AI",
-        lines: ["Gemini · LLM APIs · structured", "extraction · pipelines with", "deterministic validation"],
+        lines: ["Gemini · LLM APIs · RAG · pgvector", "structured extraction · pipelines", "with deterministic validation"],
       },
       {
         term: "Languages",
@@ -82,8 +82,43 @@ export const en: Content = {
     label: "Case studies",
     note: "Summary · open the full case for the architecture",
     ctaLive: "View live",
+    ctaPrototype: "View prototype",
     ctaRepo: "GitHub",
     cards: [
+      {
+        slug: "tuki",
+        status: "In proposal",
+        statusTone: "wip",
+        year: "2026",
+        kicker: "Institutional client · GovTech",
+        title: "Tuki",
+        summary:
+          "A civic assistant that only answers what the city actually publishes. RAG over the official corpus of municipal procedures: every answer resolves to its source document and, if the procedure isn't there, it refers you onward instead of improvising.",
+        highlights: [
+          "133 procedures · full corpus",
+          "Team of 5 · 2 departments",
+          "Web and mobile deployed",
+          "3-month plan · 5 phases",
+        ],
+        role: {
+          term: "Role",
+          lines: [
+            "Technical lead",
+            "Team of 5 · 2 departments",
+            "5-phase · 3-month plan",
+            "Single point of technical",
+            "contact with the client",
+          ],
+        },
+        stack: [
+          "Next.js · TypeScript",
+          "React Native (Expo)",
+          "Supabase · pgvector",
+          "Google Gemini",
+          "Vercel",
+        ],
+        cta: "Read the full case",
+      },
       {
         slug: "que-pinta-salta",
         status: "In production",
@@ -164,6 +199,66 @@ export const en: Content = {
     credit: "Mauro Lizárraga · Salta, Argentina · 2026",
     built: "Built with Next.js, Tailwind and Framer Motion",
     scale: "Type scale: 1.25 ratio · 17px base",
+  },
+
+  caseTuki: {
+    slug: "tuki",
+    status: "In proposal",
+    year: "2026",
+    kicker: "Institutional client · GovTech",
+    title: "Tuki",
+    subtitle: "A civic assistant that only answers what the city actually publishes",
+    roleLabel: "Role",
+    role: "Technical lead of a five-person team and single point of technical contact with the client.",
+    problemHeading: "The problem",
+    problem: [
+      "Information about municipal procedures exists, but it's scattered across pages, PDFs and departments. Citizens don't know what they need, where to file it or what it costs, and end up going in person to ask.",
+      "A generic chatbot makes it worse: it confidently answers with information that may be wrong. In a public service, an invented answer about a requirement is not a minor error.",
+    ],
+    decisionHeading: "The decision that defines the system",
+    decisionHeadline: "Anchor every answer to an official document.",
+    decisionBody: [
+      "Tuki doesn't answer from the model's general knowledge. It retrieves the relevant fragments from the corpus the city loads and controls, and limits itself to restating that information in plain language.",
+      "The consequence is twofold: what Tuki says is what the city publishes, and every answer can be traced back to its source document. If a procedure isn't in the corpus, it says so and refers you to the right channel instead of improvising.",
+    ],
+    traceAsideLabel: "Traceability",
+    traceAside:
+      "Every answer resolves to its source document · outside the corpus, it refers onward instead of improvising",
+    howHeading: "How it works",
+    how: [
+      "A corpus of 133 procedures —every one the city publishes— scraped from the official site, chunked and embedded with gemini-embedding-001 at 768 dimensions into Supabase with pgvector.",
+      "Retrieval uses cosine distance over an ivfflat index rebuilt after load. If relevant fragments exist, Gemini restates that information citing the source document. If they don't, the system says so and refers the query to the right channel.",
+    ],
+    evalAsideLabel: "Validation",
+    evalAside: "A 40-question evaluation bank built for the project",
+    builtHeading: "What's built",
+    builtIntro:
+      "It started at a public-sector innovation hackathon in August 2026. Today it's at the formal proposal stage with the client, and all three pieces run.",
+    built: [
+      "The hackathon web prototype, deployed and public.",
+      "The MVP demo presented to the client, deployed with the web integration.",
+      "A React Native (Expo) mobile app with the assistant integrated, running on device and used in institutional presentations.",
+    ],
+    teamHeading: "How the work was organized",
+    team: [
+      "Technical lead of a five-person team organized in two departments: engineering and product/communications. I defined the architecture, the role assignment and the delivery structure over a five-phase, three-month plan.",
+      "I'm the single point of technical contact with the client: scope, effort estimation, data-access requirements and security commitments.",
+    ],
+    planAsideLabel: "Plan",
+    planAside: "5 phases · 3 months · 2 departments · 5 people",
+    resultLabel: "Status",
+    result:
+      "Formal proposal under evaluation by the client. What's built and deployed is what's described here: the web prototype, the MVP demo and the mobile app running on device.",
+    stackLabel: "Stack",
+    stack: [
+      "Next.js · TypeScript",
+      "React Native (Expo)",
+      "Supabase (PostgreSQL + pgvector)",
+      "Google Gemini API",
+      "Vercel",
+    ],
+    ctaLive: "View prototype",
+    ctaRepo: "Code on GitHub",
   },
 
   caseQps: {
@@ -302,7 +397,10 @@ export const en: Content = {
   meta: {
     title: "Mauro Lizárraga — AI Engineer & Fullstack Developer",
     description:
-      "I build AI systems that run on their own in production. Case studies on LLM pipelines, EdTech platforms and automation.",
+      "I build AI systems that run on their own in production. Case studies on RAG assistants, LLM pipelines, EdTech platforms and automation.",
+    caseTukiTitle: "Tuki — Case study",
+    caseTukiDescription:
+      "A civic assistant with RAG over a city's official corpus of procedures: every answer is anchored to its source document and, outside the corpus, it refers onward instead of improvising.",
     caseQpsTitle: "Qué Pinta Salta — Case study",
     caseQpsDescription:
       "A five-source ingestion pipeline: the model extracts from the flyers and a deterministic TypeScript filter decides what gets published.",

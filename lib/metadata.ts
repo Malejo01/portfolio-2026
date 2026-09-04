@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { getContent } from "@/lib/content";
 import { siteUrl } from "@/lib/links";
-import { alternatesFor, pathFor } from "@/lib/routes";
-import type { Locale } from "@/lib/types";
+import { alternatesFor, pathFor, type CaseRoute } from "@/lib/routes";
+import type { Locale, MetaContent } from "@/lib/types";
 
 /** Ruta del `opengraph-image` del root. `metadataBase` la vuelve absoluta. */
 const OG_IMAGE = "/opengraph-image";
@@ -51,18 +51,25 @@ export function homeMetadata(locale: Locale): Metadata {
   return { alternates: alternatesFor("home", locale) };
 }
 
+/** Qué claves de `meta` lleva cada página de caso. */
+const CASE_META: Record<CaseRoute, { title: keyof MetaContent; description: keyof MetaContent }> = {
+  tuki: { title: "caseTukiTitle", description: "caseTukiDescription" },
+  qps: { title: "caseQpsTitle", description: "caseQpsDescription" },
+  maestria: { title: "caseMaestriaTitle", description: "caseMaestriaDescription" },
+};
+
 /**
- * Las dos páginas de caso.
+ * Las páginas de caso.
  *
  * Declarar `openGraph` acá reemplaza el objeto heredado del root layout: no
  * se mergea campo a campo, así que sin `images` la ruta se queda sin
  * og:image y el convention file de app/opengraph-image.tsx no la cubre. Lo
  * mismo con `twitter`: sin este bloque hereda el título del home.
  */
-export function caseMetadata(locale: Locale, route: "qps" | "maestria"): Metadata {
+export function caseMetadata(locale: Locale, route: CaseRoute): Metadata {
   const { meta } = getContent(locale);
-  const title = route === "qps" ? meta.caseQpsTitle : meta.caseMaestriaTitle;
-  const description = route === "qps" ? meta.caseQpsDescription : meta.caseMaestriaDescription;
+  const title = meta[CASE_META[route].title];
+  const description = meta[CASE_META[route].description];
 
   return {
     title,

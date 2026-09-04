@@ -10,10 +10,14 @@ import type { Locale } from "@/lib/types";
  * LinkedIn, así que mover el español a `/es` obligaría a redirigir la raíz
  * del sitio para ganar nada.
  */
-export type RouteKey = "home" | "qps" | "maestria";
+export type RouteKey = "home" | "tuki" | "qps" | "maestria";
+
+/** Las páginas de caso: todo lo que no es el home. */
+export type CaseRoute = Exclude<RouteKey, "home">;
 
 const PATHS: Record<RouteKey, Record<Locale, string>> = {
   home: { es: "/", en: "/en" },
+  tuki: { es: "/casos/tuki", en: "/en/casos/tuki" },
   qps: { es: "/casos/que-pinta-salta", en: "/en/casos/que-pinta-salta" },
   maestria: { es: "/casos/maestria", en: "/en/casos/maestria" },
 };

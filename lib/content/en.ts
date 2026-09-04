@@ -47,7 +47,12 @@ export const en: Content = {
       },
       {
         term: "Applied AI",
-        lines: ["Gemini · LLM APIs · RAG · pgvector", "structured extraction · pipelines", "with deterministic validation"],
+        lines: [
+          "Gemini · Claude · LLM APIs",
+          "RAG · pgvector · tool calling",
+          "MCP · agents with gates",
+          "and human review",
+        ],
       },
       {
         term: "Languages",
@@ -179,7 +184,7 @@ export const en: Content = {
         slug: "automotive",
         title: "Automotive conversational assistant",
         meta: "Self-initiated · 2026",
-        body: "LLM agent for car dealerships. Model queries, availability and lead qualification in a guided flow. Designed as a reusable template: catalog, persona and knowledge base are configurable.",
+        body: "Conversational agent for car dealerships. A staged, guided flow —model queries, availability and lead qualification— that answers from the loaded catalog and knowledge base. Reusable template: catalog, persona and knowledge base are configurable.",
         stack: "LLM APIs · Next.js",
       },
     ],

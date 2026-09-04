@@ -24,7 +24,18 @@ const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains",
 });
 
-/** Las tres variables de fuente, para el `<html>`. */
+/**
+ * Las tres variables de fuente. Van en `<body>` y no en `<html>` a propósito:
+ * el `<html>` no debe tener ningún `className` administrado por React.
+ *
+ * El script de abajo agrega `js` y `dark` a `<html>` por fuera de React. Si
+ * el `<html>` tuviera `className` como prop, cualquier render del layout en
+ * el cliente —pasa en el 404: Next vuelve a montar el árbol— lo escribiría
+ * entero y borraría esas dos clases: la página se iría a claro en medio de
+ * la visita y `html:not(.js)` desactivaría las animaciones. Sin la prop,
+ * React no toca el atributo y las clases sobreviven. Las custom properties
+ * heredan, así que ponerlas un nivel más abajo no cambia nada para el CSS.
+ */
 const FONT_VARIABLES = `${bricolage.variable} ${publicSans.variable} ${jetbrainsMono.variable}`;
 
 /**
@@ -47,6 +58,28 @@ const FONT_VARIABLES = `${bricolage.variable} ${publicSans.variable} ${jetbrains
  * corre antes de que exista `<body>`, así que la clase está en `<html>`
  * antes del primer píxel. Es el mismo camino que ya cubría a cualquier
  * primera visita con el sistema en oscuro.
+ *
+ * ── El aviso de React en desarrollo ──────────────────────────────────────
+ *
+ * Al caer en un 404 (`[...notFound]` → `notFound()`) o en un error
+ * boundary, Next sirve una cáscara (`<html id="__next_error__">`) y monta
+ * este layout del lado del cliente. Ahí este script viaja como dato del
+ * payload RSC, no como etiqueta, y React no lo ejecuta: en desarrollo lo
+ * dice en consola ("Encountered a script tag while rendering React
+ * component") y en producción simplemente no corre. Por eso `ThemeProvider`
+ * tiene un respaldo que replica estas líneas cuando detecta que `<html>`
+ * no tiene la clase `js`. En una ruta válida el script es una etiqueta
+ * real del `<head>`, corre antes del primer paint y el respaldo no hace
+ * nada. El aviso de consola en desarrollo queda; es el síntoma esperado
+ * de ese camino, no un bug.
+ *
+ * No se "arregla" con `next/script` a propósito. En App Router,
+ * `strategy="beforeInteractive"` con contenido inline **no** emite un
+ * script nativo: lo encola en `self.__next_s` y lo ejecuta el runtime de
+ * Next cuando carga (ver `next/dist/client/script.js`, rama `appDir`). Eso
+ * es después del primer paint, o sea exactamente el flash de tema que este
+ * script existe para evitar. Un `<script async src>` externo tampoco sirve:
+ * React lo eleva sin avisar, pero `async` no frena el parser.
  */
 const bootScript = `(function(){try{
 var d=document.documentElement;
@@ -105,7 +138,7 @@ export function SiteDocument({
   const jsonLd = personJsonLd(locale, getContent(locale).meta.description);
 
   return (
-    <html lang={locale} className={FONT_VARIABLES} suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       {/* `<head>` explícito: el script del tema tiene que estar antes del
           `<body>` para correr antes del primer paint. La regla que se
           silencia apunta al `<Head />` del Pages Router y no aplica acá. */}
@@ -114,7 +147,7 @@ export function SiteDocument({
         <script dangerouslySetInnerHTML={{ __html: bootScript }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
       </head>
-      <body>
+      <body className={FONT_VARIABLES}>
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>

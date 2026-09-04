@@ -36,11 +36,12 @@ discrepancia en vez de resolverla en silencio.
 
 ### Server Components por defecto
 
-Exactamente nueve archivos son `"use client"`: los dos `error.tsx` —React lo
+Exactamente diez archivos son `"use client"`: los dos `error.tsx` —React lo
 exige para un error boundary, y por eso su copy sale de `lib/content/errors`
 y no del diccionario grande—, `ThemeProvider`, `motion/Reveal`,
 `case-study/ArchitectureDiagram`, `case-study/FeedbackDiagram`,
-`case-study/diagram-kit`, `ui/ThemeToggle`, `ui/LocaleToggle`. Todo lo demás
+`case-study/RetrievalDiagram`, `case-study/diagram-kit`, `ui/ThemeToggle`,
+`ui/LocaleToggle`. Todo lo demás
 corre en el servidor. Los wrappers de animación reciben el contenido como
 `children` desde Server Components, así que **la copy nunca entra al bundle del
 cliente**. Mantené esa propiedad al agregar componentes: si algo necesita estado,
@@ -59,10 +60,12 @@ que para un cambio de idioma es lo correcto.
   sumar una fila; `localized()` mueve un href al árbol que toque y
   `swapLocale()` calcula la ruta espejo preservando dónde está el visitante.
 - Los cuerpos de las páginas están en `components/pages/` y reciben `locale`.
-  Los seis archivos de `app/**/page.tsx` son cinco líneas cada uno.
+  Los ocho archivos de `app/**/page.tsx` son cinco líneas cada uno.
 - `lib/metadata.ts` arma la metadata de cada ruta. Los layouts no declaran
   `alternates` a propósito: si lo hicieran, una página que se olvide de
-  sobreescribirlo heredaría el canonical del home en silencio.
+  sobreescribirlo heredaría el canonical del home en silencio. Las páginas
+  de caso resuelven título y descripción por la tabla `CASE_META`, tipada
+  contra `CaseRoute`: sumar un caso sin su fila ahí no compila.
 - `proxy.ts` (Next 16 renombró `middleware.ts` → `proxy.ts`, y la función es
   `proxy`, no `middleware`) tiene matcher `["/"]` y una sola tarea: 307 a
   `/en` si alguien llega a la raíz sin cookie de idioma y con el navegador en
@@ -84,7 +87,7 @@ volvía dinámicas las tres rutas del sitio.
 
 ### Las rutas son estáticas — mantenelas así
 
-El build tiene que mostrar `○` en `/`, `/en` y las cuatro de casos. Cualquier
+El build tiene que mostrar `○` en `/`, `/en` y las seis de casos. Cualquier
 Dynamic API (`cookies()`, `headers()`) en un layout o page las devuelve a `ƒ`
 y tira abajo el cacheo en CDN. Si necesitás algo por request, empujalo al
 cliente o al proxy.
@@ -126,8 +129,16 @@ Romperlas es un bug visual, aunque compile:
 - Máximo dos fondos por vista, con `panel` reservado a tres momentos: hero,
   caso MaestrIA y contacto.
 - Cada caso de estudio tiene composición propia. `CaseStudies.tsx` no está
-  parametrizado por data a propósito: Qué Pinta Salta lleva aside de stack sobre
-  `paper-2`, MaestrIA va sobre `paper` con barra de encabezado y sin aside.
+  parametrizado por data a propósito: Tuki va sobre `paper` con aside de rol
+  —lo que distingue al caso es el liderazgo, no el stack—, Qué Pinta Salta
+  lleva aside de stack sobre `paper-2`, MaestrIA va sobre `paper` con barra
+  de encabezado y sin aside. El orden de la home es cronológico inverso.
+- **Tuki no nombra al cliente.** El contrato no está firmado: la copy dice
+  "un municipio de capital provincial" y "el cliente institucional", sin
+  logos ni identidad visual de ellos. El CTA es "Ver prototipo", no "Ver en
+  producción", y `links.tuki.repo` queda vacío hasta revisar que el repo no
+  tenga credenciales ni datos del cliente. El demo presentado al cliente no
+  se enlaza nunca.
 
 ### Animación
 
@@ -149,13 +160,17 @@ agregás un bloque muy alto, verificá el margen antes de subir ese valor.
 Reglas del diseño: `once: true`, `useReducedMotion()` salta al estado final, y un
 solo momento orquestado — el diagrama de arquitectura.
 
-Los dos diagramas (`case-study/ArchitectureDiagram.tsx` y
-`case-study/FeedbackDiagram.tsx`) comparten `diagram-kit.tsx`: paleta resuelta
-por superficie (`paper` / `panel`), envoltura de figura con leyenda y el
-cableado de motion. La **geometría no se comparte** — los offsets de texto
-están ajustados a mano por nodo y una fórmula común los correría.
+Los tres diagramas (`case-study/ArchitectureDiagram.tsx`,
+`case-study/FeedbackDiagram.tsx` y `case-study/RetrievalDiagram.tsx`)
+comparten `diagram-kit.tsx`: paleta resuelta por superficie (`paper` /
+`panel`), envoltura de figura con leyenda y el cableado de motion. La
+**geometría no se comparte** — los offsets de texto están ajustados a mano
+por nodo y una fórmula común los correría. Los anchos de texto se verifican
+en el browser con `getComputedTextLength()` contra el `rect` de cada nodo,
+en los dos idiomas y las dos orientaciones; la horizontal solo mide con un
+viewport de 760px o más, abajo de eso está en `display: none` y devuelve 0.
 
-Las capturas de producto de los dos casos sí comparten todo:
+Las capturas de producto de Qué Pinta Salta y MaestrIA comparten todo:
 `case-study/CaseShots.tsx` resuelve marco por superficie, tope de render y el
 ancla al archivo original. Es Server Component: recibe los `Reveal*` como
 envoltura pero los alt llegan desde la copy del servidor. Cada captura es un

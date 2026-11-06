@@ -1,0 +1,56 @@
+/** Copy del flotante de Malejo (DISENO.md §5, `11-flotante-*.png`). */
+export const malejoCopy = {
+  open: "Abrir chat con Malejo",
+  close: "Cerrar chat con Malejo",
+  chip: "Chat",
+  chipOpen: "Cerrar",
+  spriteAlt: "",
+  toast: {
+    title: "¿Querés ver mi portfolio?",
+    body: "Proyectos, stack y experiencia. En inglés.",
+    cta: "Ver portfolio →",
+    href: "/portfolio/en",
+    close: "Cerrar aviso",
+  },
+  header: {
+    name: "Malejo",
+    status: "Responde al instante · Lo supervisa Mauro",
+    close: "Cerrar chat",
+  },
+  greeting:
+    "¡Hola! Soy Malejo, el asistente de Mauro. Contame qué tenés y qué necesitás, y te digo qué plan te conviene y cuánto sale.",
+  typing: "Malejo está escribiendo",
+  placeholder: "Escribí tu consulta...",
+  send: "Enviar",
+  inputLabel: "Tu mensaje",
+  chips: {
+    whatsapp: "Hablar por WhatsApp",
+    plans: "Ver otros planes",
+    plansMessage: "¿Qué otros planes tenés?",
+    portfolio: "Ver portfolio",
+  },
+  privacy: "Si me dejás tu nombre y WhatsApp, los uso solo para contactarte.",
+  privacyLink: "Privacidad",
+  quote: {
+    label: "Cotización",
+    listLabel: "Precio de lista",
+    mpLabel: "Mercado Pago",
+    from: "desde",
+    perMonth: "/mes",
+    demo: "Pedir demo con seña de {SENA}",
+  },
+  demo: { label: "Tu demo", demo: "Pedir mi demo", agenda: "Agendar videollamada" },
+  whatsapp: { label: "WhatsApp", cta: "Escribirle a Mauro" },
+  consent: {
+    label: "Tus datos",
+    check: "Acepto que Mauro me contacte por WhatsApp",
+    privacy: "Política de privacidad",
+    save: "Guardar mis datos",
+    saving: "Guardando…",
+    saved: "Listo: Mauro te escribe por WhatsApp.",
+    needCheck: "Marcá la casilla para que pueda guardar tus datos.",
+  },
+  errorText: "No pude responder ahora. Escribime por WhatsApp y te contesta Mauro.",
+};
+
+export type MalejoCopy = typeof malejoCopy;

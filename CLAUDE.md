@@ -40,12 +40,13 @@ no se pueda cubrir con los existentes.
 
 ### Server Components por defecto
 
-Exactamente diez archivos son `"use client"`: los dos `error.tsx` —React lo
+En el portfolio, exactamente diez archivos son `"use client"`: los dos `error.tsx` —React lo
 exige para un error boundary, y por eso su copy sale de `lib/content/errors`
 y no del diccionario grande—, `ThemeProvider`, `motion/Reveal`,
 `case-study/ArchitectureDiagram`, `case-study/FeedbackDiagram`,
 `case-study/RetrievalDiagram`, `case-study/diagram-kit`, `ui/ThemeToggle`,
-`ui/LocaleToggle`. Todo lo demás
+`ui/LocaleToggle`. Las islas del sitio de la agencia viven todas en
+`components/agencia/client/` (ver **Sitio de la agencia**). Todo lo demás
 corre en el servidor. Los wrappers de animación reciben el contenido como
 `children` desde Server Components, así que **la copy nunca entra al bundle del
 cliente**. Mantené esa propiedad al agregar componentes: si algo necesita estado,
@@ -54,13 +55,13 @@ empujá el `"use client"` lo más abajo posible en el árbol.
 ### Idioma: por ruta, no por cookie
 
 El portfolio vive bajo **`/portfolio`** (español: `/portfolio`,
-`/portfolio/casos/…`) y **`/portfolio/en`** (inglés). La raíz del dominio queda
-para el sitio de la agencia Malejo; mientras ese sitio no esté publicado, `/`
-redirige con 307 a `/portfolio` desde `next.config.ts`. Las URLs viejas
+`/portfolio/casos/…`) y **`/portfolio/en`** (inglés). La raíz del dominio es
+el sitio de la agencia Malejo (`app/(agencia)`, ver **Sitio de la agencia**);
+el 307 temporal de `/` → `/portfolio` ya se quitó. Las URLs viejas
 (`/casos/:slug`, `/en`, `/en/…`) redirigen con 308 a las nuevas: están en el
 CV y en LinkedIn, no las borres.
 
-Hay **dos root layouts**, `app/(es)` y `app/(en)`, y ningún `app/layout.tsx`
+El portfolio tiene **dos root layouts**, `app/(es)` y `app/(en)` (la agencia suma un tercero), y ningún `app/layout.tsx`
 arriba — es la condición que pone Next para permitir varios, junto con que
 cada árbol viva dentro de un grupo. Navegar entre árboles fuerza recarga completa,
 que para un cambio de idioma es lo correcto.
@@ -110,13 +111,15 @@ volvía dinámicas las tres rutas del sitio.
 
 ### Las rutas son estáticas — mantenelas así
 
-El build tiene que mostrar `○` en `/portfolio`, `/portfolio/en` y las seis de casos. Cualquier
+El build tiene que mostrar `○` en `/portfolio`, `/portfolio/en`, las seis de casos y todas
+las páginas de la agencia (`/`, `/servicios/*`, `/cotizador`, `/demo`, `/blog/*`, `/legal/*`). Cualquier
 Dynamic API (`cookies()`, `headers()`) en un layout o page las devuelve a `ƒ`
 y tira abajo el cacheo en CDN. Si necesitás algo por request, empujalo al
 cliente o al proxy.
 
-Las dos rutas `ƒ` que sí aparecen son los `[...notFound]` de cada árbol, que
-existen solo para llamar a `notFound()`.
+Las rutas `ƒ` que sí aparecen son los tres `[...notFound]` (raíz de la agencia,
+`/portfolio/…` y `/portfolio/en/…`), que existen solo para llamar a
+`notFound()`, y los route handlers de `/api/*` de la agencia.
 
 ### Tokens: CSS vars → utilidades de Tailwind
 
@@ -219,6 +222,71 @@ la altura, por eso no hay CLS. Sumar una fuente = editar el SVG.
 hay URL"** y los componentes filtran esas entradas en vez de renderizar un
 `href="#"` tabulable que no lleva a ningún lado. Al agregar un CTA, seguí ese
 patrón.
+
+## Sitio de la agencia
+
+La raíz de `malejo.com.ar` es el sitio de la agencia Malejo: un **tercer root
+layout**, `app/(agencia)`, al lado de `(es)` y `(en)`. La fuente de verdad del
+diseño es `docs/agencia/DISENO.md` + `docs/agencia/referencia.html` + las
+capturas de `docs/agencia/capturas-diseno/`; el índice y las fases están en
+`docs/agencia/PROMPT.md` y lo hecho en `docs/agencia/INFORME.md`.
+
+```bash
+npm test            # Vitest: lib/agencia/pricing.ts y las herramientas del chat
+npm run db:generate # drizzle-kit: genera migraciones en drizzle/ (no toca la base)
+npm run db:migrate  # las aplica Mauro, con DATABASE_URL
+```
+
+- **Tokens propios** en `app/(agencia)/agencia.css` (`:root` claro, `.dark`
+  oscuro, expuestos con `@theme inline`: `bg-surf`, `text-muted`,
+  `border-border`, `text-acc-text`, `bg-ic-bg`, `shadow-card`…) y clases de
+  forma definidas una vez (`card`, `card-big`, `lift`, `hi`, `btn btn-p`,
+  `btn btn-s`, `btn-sm`, `lbl lbl-o`, `h`, `h2`, `tag`, `ic`, `lnk`, `chip`).
+  Ningún hex en componentes. `@import "tailwindcss" source(none)` + `@source`
+  limita el escaneo a los archivos de la agencia. `--ok-text` es el único
+  token que no está en DISENO.md (contraste AA del badge "AHORRÁS").
+- **Las invariantes del portfolio no aplican acá y viceversa.** La agencia
+  usa sombras suaves, bordes de 1px y naranja `--acc`; el portfolio sigue
+  sin `box-shadow` y con su verde. Nada de `components/agencia` entra a
+  `app/(es)` ni a `app/(en)`.
+- **Copy y datos** en `content/agencia/*.ts`, nunca en componentes. Los
+  precios salen de `docs/agencia/datos/precios.json` vía
+  `content/agencia/pricing.ts` (tipos + `id` estable por plan) y toda la
+  aritmética pasa por `lib/agencia/pricing.ts` (`fmt`, `conRecargo`,
+  `cotizar`): la home, `/servicios`, `/cotizador`, el blog y el agente usan
+  la misma función. La seña sale de `SENA_MONTO` (`lib/agencia/config.ts`).
+- **Islas `"use client"` de la agencia**, todas en `components/agencia/client/`:
+  `ThemeToggle` (+ el hook `theme.ts`), `MobileMenu`, `SectionSpy`,
+  `Typewriter`, `ServiceLink`, `PricingCatalog`, `MedioSwitch`, `Cotizador`,
+  `ProjectVideo`, `Reveal`, `DemoForm`, `MalejoLoader` y `MalejoWidget`
+  (cargado con `next/dynamic`, `ssr: false`, cuando el navegador está libre).
+  FAQ e historia son `<details>`, sin JS. `PlanCard` no tiene estado y sirve
+  en los dos lados.
+- **Tema:** cookie `malejo-theme` (independiente de la del portfolio) y, sin
+  cookie, **oscuro** — no sigue a `prefers-color-scheme`. Mismo patrón que
+  el portfolio: script inline en el `<head>` del layout, respaldo para el 404
+  en `components/agencia/client/theme.ts`, ningún Server Component lee la cookie.
+- **Rutas estáticas:** todo `○`/`●` salvo los catch-all y `/api/*`. `?plan=`
+  y `?cat=` se leen en el cliente para no volver dinámicas `/demo` ni la home.
+- **404:** `app/(agencia)/[...notFound]` atrapa toda URL de la raíz sin ruta;
+  el portfolio tiene `app/(es)/portfolio/[...notFound]` y
+  `app/(en)/portfolio/en/[...notFound]`.
+- **OG:** `/og` es un route handler estático (`app/(agencia)/og/route.tsx`),
+  no un `opengraph-image.tsx`: en la raíz del grupo colisionaría con el del
+  portfolio. Sitemap y robots (en `app/`) suman las rutas de
+  `lib/agencia/routes.ts`.
+- **Animación:** Framer Motion con `LazyMotion` + `m` en `Reveal` (bajó el
+  TBT de la home en celular de 520 a ~210 ms). `data-reveal` en todo lo
+  animado, igual que en el portfolio. No envuelvas una tarjeta `.lift` con
+  `Reveal`: el `transform: none` inline le gana al `:hover`.
+- **Chat de Malejo:** `app/(agencia)/api/chat/route.ts` (loop manual con
+  streaming, `claude-haiku-5-5` por defecto, herramientas en
+  `lib/agencia/chat/`). `guardar_contacto` **no guarda**: firma el pedido y
+  la UI muestra la casilla; el único insert es `/api/contacto`, con
+  `consent: true` y la firma HMAC. No existe ninguna herramienta ni endpoint
+  que lea contactos; mantenelo así. Sin `ANTHROPIC_API_KEY`, mensaje fijo +
+  WhatsApp. Para probar el loop sin clave real: un mock SSE local y
+  `ANTHROPIC_BASE_URL` (ver `docs/agencia/INFORME.md`).
 
 ## Verificación
 

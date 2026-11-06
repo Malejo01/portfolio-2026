@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/* El sitio de la agencia (app/(agencia)) tiene su propia hoja: que sus
+   clases no se generen también acá. */
+@source not "../components/agencia";
+@source not "../content/agencia";
+@source not "../lib/agencia";
+@source not "./(agencia)";
+
 /* El tema oscuro se activa con la clase .dark en <html>, no con la media query:
    el toggle del nav tiene que poder ganarle a la preferencia del sistema. */
 @custom-variant dark (&:where(.dark, .dark *));

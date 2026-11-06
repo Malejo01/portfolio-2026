@@ -1,0 +1,580 @@
+/*
+ * Hoja de estilos del sitio de la agencia Malejo (`app/(agencia)`).
+ *
+ * Es independiente de `app/globals.css`: otro root layout, otros tokens y
+ * otras reglas (acá hay sombras suaves; en el portfolio no). La fuente de
+ * verdad es `docs/agencia/DISENO.md`; los comentarios `§N` señalan de qué
+ * sección sale cada bloque.
+ *
+ * `source(none)` + `@source`: Tailwind solo escanea los archivos de la
+ * agencia. Sin esto generaría acá todas las utilidades del portfolio.
+ */
+@import "tailwindcss" source(none);
+@source "./";
+@source "../../components/agencia";
+@source "../../lib/agencia";
+@source "../../content/agencia";
+
+/* Oscuro por clase, igual que el portfolio: el toggle le gana al sistema. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ============================================================
+   TOKENS — modo claro (DISENO.md §2)
+   ============================================================ */
+:root {
+  --bg: #f7f6f3;
+  --surf: #ffffff;
+  --surf-2: #f1efea;
+  --border: #e4e2dc;
+  --border-2: #d6d3cb;
+  --border-h: #c9c5bb;
+  --hl: #e4e2dc;
+  --text: #121318;
+  --muted: #565a64;
+  --acc: #ff5a1f;
+  --acc-ink: #0a0b0f;
+  --acc-text: #b23a0c;
+  --ic-bg: #ffe6da;
+  --ok: #16a34a;
+  --user-text: #7a2a0b;
+  --shadow: 0 14px 32px rgba(18, 19, 24, 0.07);
+  --shadow-h: 0 20px 40px rgba(18, 19, 24, 0.11);
+  --hi-b: #ffb899;
+  --hi-t: #ff8a5c;
+  --hi-s: 0 20px 48px rgba(255, 90, 31, 0.16);
+  --mid-bg: rgba(255, 90, 31, 0.06);
+  --mock-bg: radial-gradient(120% 90% at 80% 0%, #ffe6da 0%, #f1efea 60%);
+  --nav-bg: rgba(247, 246, 243, 0.8);
+
+  /* Forma (§2, tabla "Forma"). Misma sombra del botón primario en los dos modos. */
+  --btn-shadow: 0 8px 24px rgba(255, 90, 31, 0.28);
+  --btn-shadow-active: 0 2px 8px rgba(255, 90, 31, 0.25);
+  --save-bg: rgba(61, 220, 132, 0.14);
+  /* Texto verde del badge "AHORRÁS X%". No está en DISENO.md: `--ok` claro
+     (#16A34A) da ~2,9:1 sobre `--save-bg` y el badge es texto de 10px. Este
+     verde más oscuro da AA (§9). En oscuro es el mismo `--ok`. */
+  --ok-text: #166534;
+  /* Sombra hundida del selector de pago y del campo del chat (referencia.html `.seg`). */
+  --inset: inset 0 2px 6px rgba(0, 0, 0, 0.25);
+
+  color-scheme: light;
+}
+
+/* ============================================================
+   TOKENS — modo oscuro, el default (§2)
+   ============================================================ */
+.dark {
+  --bg: #0a0b0f;
+  --surf: #12141a;
+  --surf-2: #171a21;
+  --border: #23262f;
+  --border-2: #2e323c;
+  --border-h: #3a3f4b;
+  --hl: #343844;
+  --text: #ededef;
+  --muted: #a1a6af;
+  --acc-text: #ff8a5c;
+  --ic-bg: #2a1810;
+  --ok: #3ddc84;
+  --ok-text: #3ddc84;
+  --user-text: #ffd9c8;
+  --shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  --shadow-h: 0 24px 48px rgba(0, 0, 0, 0.55);
+  --hi-b: #5a2a16;
+  --hi-t: #8a3a18;
+  --hi-s: 0 24px 56px rgba(255, 90, 31, 0.16), 0 18px 40px rgba(0, 0, 0, 0.5);
+  --mock-bg: radial-gradient(120% 90% at 80% 0%, #1e1410 0%, #0e1014 60%);
+  --nav-bg: rgba(10, 11, 15, 0.72);
+
+  color-scheme: dark;
+}
+
+/* ============================================================
+   THEME — puente hacia las utilidades de Tailwind
+   ============================================================ */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surf: var(--surf);
+  --color-surf-2: var(--surf-2);
+  --color-border: var(--border);
+  --color-border-2: var(--border-2);
+  --color-border-h: var(--border-h);
+  --color-hl: var(--hl);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-acc: var(--acc);
+  --color-acc-ink: var(--acc-ink);
+  --color-acc-text: var(--acc-text);
+  --color-ic-bg: var(--ic-bg);
+  --color-ok: var(--ok);
+  --color-ok-text: var(--ok-text);
+  --color-user-text: var(--user-text);
+  --color-hi-b: var(--hi-b);
+  --color-hi-t: var(--hi-t);
+  --color-mid-bg: var(--mid-bg);
+  --color-save-bg: var(--save-bg);
+
+  --shadow-card: var(--shadow);
+  --shadow-card-h: var(--shadow-h);
+  --shadow-hi: var(--hi-s);
+  --shadow-btn: var(--btn-shadow);
+  --shadow-inset: var(--inset);
+
+  /* Las variables de next/font van en <body> (ver layout.tsx). */
+  --font-display: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+
+}
+
+/* ============================================================
+   BASE
+   ============================================================ */
+html {
+  scroll-padding-top: 104px; /* header sticky: 16 + 62 + 16 + aire */
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  @apply bg-bg font-sans text-text antialiased;
+}
+
+/* Foco visible (§9). */
+:where(a, button, summary, input, textarea, select, [tabindex]):focus-visible {
+  outline: 2px solid var(--acc-text);
+  outline-offset: 3px;
+}
+
+/* Contrato del repo: sin JS, todo lo animado vuelve a su estado final. */
+html:not(.js) [data-reveal] {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* ============================================================
+   CLASES DE FORMA (§2 "Forma") — definidas una sola vez
+   ============================================================ */
+@layer components {
+  .wrap {
+    margin-inline: auto;
+    max-width: 1240px;
+    padding-inline: 20px;
+  }
+  @media (min-width: 640px) {
+    .wrap {
+      padding-inline: 32px;
+    }
+  }
+
+  .card {
+    background: var(--surf);
+    border: 1px solid var(--border);
+    border-top-color: var(--hl);
+    box-shadow: var(--shadow);
+    border-radius: 22px;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease,
+      border-color 0.2s ease;
+  }
+  .card-big {
+    border-radius: 28px;
+  }
+  @media (hover: hover) {
+    .lift:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-h);
+      border-color: var(--border-h);
+    }
+  }
+  .hi {
+    border-color: var(--hi-b);
+    border-top-color: var(--hi-t);
+    box-shadow: var(--hi-s);
+  }
+
+  /* Botones: 50px, chico 42px (§2). */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 50px;
+    padding: 0 24px;
+    border-radius: 16px;
+    border: 0;
+    font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+    transition:
+      transform 0.12s ease,
+      box-shadow 0.12s ease,
+      border-color 0.12s ease;
+  }
+  .btn-sm {
+    height: 42px;
+    padding: 0 18px;
+    font-size: 14px;
+    border-radius: 14px;
+  }
+  .btn-p {
+    background: var(--acc);
+    color: var(--acc-ink);
+    box-shadow: var(--btn-shadow);
+  }
+  .btn-p:active {
+    transform: translateY(2px);
+    box-shadow: var(--btn-shadow-active);
+  }
+  .btn-s {
+    background: transparent;
+    border: 1px solid var(--border-2);
+    color: var(--text);
+    font-weight: 600;
+  }
+  .btn-s:hover {
+    border-color: var(--border-h);
+  }
+  .btn-s:active {
+    transform: translateY(2px);
+  }
+
+  /* Botón de ícono 44×44 (tema, hamburguesa, cerrar). */
+  .ibtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    flex: none;
+    border-radius: 14px;
+    border: 1px solid var(--border-2);
+    background: var(--surf);
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  /* Etiqueta mono (§3). `.lbl-o` = naranja de texto. */
+  .lbl {
+    font-family: var(--font-jetbrains), ui-monospace, monospace;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .lbl-o {
+    color: var(--acc-text);
+  }
+
+  /* Títulos Outfit 800. */
+  .h {
+    font-family: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+  .h2 {
+    font-size: 32px;
+    line-height: 1.05;
+    margin-top: 10px;
+  }
+  @media (min-width: 640px) {
+    .h2 {
+      font-size: 40px;
+    }
+  }
+
+  /* Chip mono (plazo, tags, EN). */
+  .tag {
+    font-family: var(--font-jetbrains), ui-monospace, monospace;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 5px 9px;
+    border-radius: 8px;
+    background: var(--surf-2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .tag-xs {
+    padding: 2px 6px;
+    font-size: 10px;
+  }
+
+  /* Ícono 44×44 sobre `--ic-bg`. */
+  .ic {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    flex: none;
+    border-radius: 12px;
+    background: var(--ic-bg);
+    color: var(--acc-text);
+  }
+
+  /* Link naranja con flecha. */
+  .lnk {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    color: var(--acc-text);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .lnk:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* Chip de acción (chat, extras). */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+    padding: 0 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border-2);
+    background: transparent;
+    color: var(--text);
+    font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  button.chip,
+  a.chip {
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  /* Captura de proyecto. */
+  .shot {
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--mock-bg);
+  }
+
+  .pixel {
+    image-rendering: pixelated;
+  }
+
+  /* Texto largo (legales, blog). */
+  .prose-ag {
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--muted);
+  }
+  .prose-ag h2 {
+    font-family: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    font-size: 24px;
+    line-height: 1.15;
+    margin: 40px 0 12px;
+  }
+  .prose-ag h3 {
+    font-family: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+    font-weight: 700;
+    color: var(--text);
+    font-size: 19px;
+    margin: 28px 0 8px;
+  }
+  .prose-ag p,
+  .prose-ag ul,
+  .prose-ag ol {
+    margin: 0 0 14px;
+  }
+  .prose-ag ul,
+  .prose-ag ol {
+    padding-left: 22px;
+  }
+  .prose-ag li {
+    margin-bottom: 6px;
+  }
+  .prose-ag ul {
+    list-style: disc;
+  }
+  .prose-ag ol {
+    list-style: decimal;
+  }
+  .prose-ag strong {
+    color: var(--text);
+  }
+  .prose-ag a {
+    color: var(--acc-text);
+    font-weight: 600;
+    text-underline-offset: 3px;
+  }
+  .prose-ag code {
+    font-family: var(--font-jetbrains), ui-monospace, monospace;
+    font-size: 0.9em;
+    background: var(--surf-2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1px 5px;
+  }
+  .prose-ag mark {
+    background: var(--ic-bg);
+    color: var(--user-text);
+    padding: 0 4px;
+    border-radius: 4px;
+  }
+}
+
+/* ============================================================
+   DETAILS: FAQ e historia sin JS (§4 "Sobre mí, FAQ")
+   ============================================================ */
+.faq-item summary,
+.story summary {
+  list-style: none;
+  cursor: pointer;
+}
+.faq-item summary::-webkit-details-marker,
+.story summary::-webkit-details-marker {
+  display: none;
+}
+.faq-item .faq-minus,
+.faq-item[open] .faq-plus {
+  display: none;
+}
+.faq-item[open] .faq-minus {
+  display: inline;
+}
+
+/* La historia: abierta, el botón pasa abajo del texto ("Ver menos"). */
+.story .story-less,
+.story[open] .story-more {
+  display: none;
+}
+.story[open] .story-less {
+  display: inline;
+}
+.story[open] {
+  position: relative;
+  padding-bottom: 56px;
+}
+.story[open] > summary {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+}
+
+/* ============================================================
+   MOVIMIENTO (§7)
+   ============================================================ */
+
+/* H1 tecleado. Sin JS se lee completo; con JS las letras arrancan ocultas
+   y la isla las muestra. El respaldo a los 4 s cubre un bundle que no
+   llegó a hidratar: la frase aparece igual. */
+.js .tw:not([data-tw-live]) .tw-l {
+  opacity: 0;
+  animation: tw-fallback 0s linear 4s forwards;
+}
+@keyframes tw-fallback {
+  to {
+    opacity: 1;
+  }
+}
+.tw-cur {
+  color: var(--acc);
+  font-weight: 400;
+}
+.tw-cur[data-blink] {
+  animation: tw-blink 0.9s steps(1) infinite;
+}
+@keyframes tw-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Sprite que respira 1 px cada 3 s. */
+@keyframes breathe {
+  0%,
+  100% {
+    transform: none;
+  }
+  50% {
+    transform: translateY(-1px);
+  }
+}
+.breathe {
+  animation: breathe 3s ease-in-out infinite;
+}
+
+/* Barra del toast (10 s). */
+@keyframes toast-bar {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0;
+  }
+}
+.toast-bar {
+  animation: toast-bar 8s linear forwards;
+}
+
+@keyframes dots {
+  0%,
+  80%,
+  100% {
+    opacity: 0.25;
+  }
+  40% {
+    opacity: 1;
+  }
+}
+.typing-dot {
+  animation: dots 1.2s infinite;
+}
+.typing-dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.typing-dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js .tw .tw-l {
+    opacity: 1 !important;
+    animation: none !important;
+  }
+  .tw-cur {
+    display: none;
+  }
+  .breathe,
+  .typing-dot {
+    animation: none;
+  }
+  .card,
+  .btn {
+    transition: none;
+  }
+  .lift:hover {
+    transform: none;
+  }
+}
+
+/* Scroll horizontal sin barra (pestañas y tarjetas del hero en celular). */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

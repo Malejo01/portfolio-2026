@@ -1,0 +1,550 @@
+{
+  "categorias": [
+    {
+      "key": "webs",
+      "label": "Webs",
+      "intro": "Pago único. Incluye 12 meses de hosting, 30 días de garantía y el código es tuyo.",
+      "note": "Desde el mes 13: renovación de $90.000/año o un plan de mantenimiento.",
+      "plans": [
+        {
+          "name": "Landing Express",
+          "impl": 180000,
+          "from": false,
+          "monthly": null,
+          "unit": "pago único",
+          "time": "3 días",
+          "rec": false,
+          "items": [
+            "Plantilla adaptada a tu marca",
+            "Hasta 4 secciones",
+            "WhatsApp y mapa",
+            "1 ronda de revisión"
+          ],
+          "proof": "",
+          "alt": ""
+        },
+        {
+          "name": "Landing Profesional",
+          "impl": 320000,
+          "from": false,
+          "monthly": null,
+          "unit": "pago único",
+          "time": "5 a 7 días",
+          "rec": true,
+          "items": [
+            "Diseño a medida, hasta 6 secciones",
+            "SEO local y alta en Google Business",
+            "Analytics",
+            "2 rondas de revisión"
+          ],
+          "proof": "",
+          "alt": "O por abono: $90.000 de entrada + $49.000/mes (12 meses, con mantenimiento)."
+        },
+        {
+          "name": "Landing Premium",
+          "impl": 480000,
+          "from": false,
+          "monthly": null,
+          "unit": "pago único",
+          "time": "7 a 10 días",
+          "rec": false,
+          "items": [
+            "Todo lo de Profesional",
+            "Animaciones y redacción de textos",
+            "Asistente IA de preguntas frecuentes",
+            "Formulario con respuesta automática"
+          ],
+          "proof": "",
+          "alt": ""
+        },
+        {
+          "name": "Sitio Pyme",
+          "impl": 650000,
+          "from": false,
+          "monthly": null,
+          "unit": "pago único",
+          "time": "15 días",
+          "rec": false,
+          "items": [
+            "Hasta 5 páginas",
+            "Todo lo de Premium, sin IA",
+            "2 rondas de revisión"
+          ],
+          "proof": "",
+          "alt": ""
+        },
+        {
+          "name": "Sitio autoadministrable",
+          "impl": 950000,
+          "from": false,
+          "monthly": null,
+          "unit": "pago único",
+          "time": "20 días",
+          "rec": false,
+          "items": [
+            "Sitio Pyme + panel propio",
+            "Editás textos, fotos, novedades y precios",
+            "3 rondas de revisión"
+          ],
+          "proof": "",
+          "alt": ""
+        },
+        {
+          "name": "Renová tu web",
+          "impl": 550000,
+          "from": true,
+          "monthly": null,
+          "unit": "pago único",
+          "time": "10 a 15 días",
+          "rec": false,
+          "items": [
+            "Rediseño o migración desde WordPress",
+            "Redirecciones 301: no perdés Google",
+            "Demo previa sin cargo"
+          ],
+          "proof": "",
+          "alt": ""
+        }
+      ]
+    },
+    {
+      "key": "tiendas",
+      "label": "Catálogos y tiendas",
+      "intro": "Vendé por WhatsApp o cobrá online, sin comisiones por venta.",
+      "note": "El abono cubre hosting, panel y soporte. Mercado Pago cobra su propia comisión por cada venta online.",
+      "plans": [
+        {
+          "name": "Menú digital QR",
+          "impl": 120000,
+          "from": false,
+          "monthly": 12000,
+          "unit": "pago único",
+          "time": "3 días",
+          "rec": false,
+          "items": [
+            "Carta con fotos y categorías",
+            "Cambiás precios en segundos",
+            "QR listo para imprimir"
+          ],
+          "proof": "",
+          "alt": ""
+        },
+        {
+          "name": "Catálogo con pedidos por WhatsApp",
+          "impl": 280000,
+          "from": false,
+          "monthly": 15000,
+          "unit": "pago único",
+          "time": "7 días",
+          "rec": true,
+          "items": [
+            "Productos, categorías y buscador",
+            "El carrito arma el pedido por WhatsApp",
+            "Panel para cargar productos y stock"
+          ],
+          "proof": "",
+          "alt": ""
+        },
+        {
+          "name": "Directorio o guía con mapa",
+          "impl": 450000,
+          "from": false,
+          "monthly": 25000,
+          "unit": "pago único",
+          "time": "15 días",
+          "rec": false,
+          "items": [
+            "Fichas con filtros y mapa",
+            "Carga automática desde tus fuentes",
+            "Modo claro y oscuro"
+          ],
+          "proof": "Como Qué Pinta Salta",
+          "alt": ""
+        },
+        {
+          "name": "Tienda online con Mercado Pago",
+          "impl": 750000,
+          "from": true,
+          "monthly": 35000,
+          "unit": "pago único",
+          "time": "20 días",
+          "rec": false,
+          "items": [
+            "Cobro online con Mercado Pago",
+            "Stock, pedidos y avisos por email",
+            "Envío o retiro en el local"
+          ],
+          "proof": "",
+          "alt": ""
+        }
+      ]
+    },
+    {
+      "key": "turnos",
+      "label": "Turnos y reservas",
+      "intro": "Tus clientes reservan solos y vos ves todo en un panel.",
+      "note": "Los recordatorios por WhatsApp usan la API oficial de Meta: su costo por mensaje va aparte.",
+      "plans": [
+        {
+          "name": "Turnos online",
+          "impl": 180000,
+          "from": false,
+          "monthly": 22000,
+          "unit": "pago único",
+          "time": "5 días",
+          "rec": false,
+          "items": [
+            "Agenda por profesional y servicio",
+            "Recordatorio automático",
+            "Panel de turnos y horarios"
+          ],
+          "proof": "",
+          "alt": ""
+        },
+        {
+          "name": "Combo Web + Turnos",
+          "impl": 450000,
+          "from": false,
+          "monthly": 45000,
+          "unit": "pago único",
+          "time": "10 a 15 días",
+          "rec": true,
+          "items": [
+            "Landing Profesional + turnos",
+            "Novedades, precios y horarios editables",
+            "Mantenimiento incluido en el abono"
+          ],
+          "proof": "",
+          "alt": ""
+        },
+        {
+          "name": "Reservas con seña",
+          "impl": 380000,
+          "from": false,
+          "monthly": 35000,
+          "unit": "pago único",
+          "time": "10 días",
+          "rec": false,
+          "items": [
+            "Canchas, alojamientos o clases",
+            "Seña con Mercado Pago",
+            "Calendario de disponibilidad"
+          ],
+          "proof": "",
+          "alt": ""
+        },
+        {
+          "name": "Inscripciones a eventos y salidas",
+          "impl": null,
+          "from": false,
+          "monthly": 15000,
+          "unit": "",
+          "time": "",
+          "rec": false,
+          "items": [
+            "Cupos y lista de espera",
+            "Avisos a los inscriptos",
+            "Gratis para grupos sin fines de lucro"
+          ],
+          "proof": "Como Agenda de salidas (beta)",
+          "alt": ""
+        }
+      ]
+    },
+    {
+      "key": "gestion",
+      "label": "Sistemas de gestión",
+      "intro": "Dejá las planillas sueltas: sistemas simples para el día a día de tu negocio.",
+      "note": "Proyectos desde $900.000: se pagan por hito (40/30/30).",
+      "plans": [
+        {
+          "name": "Control de stock con QR",
+          "impl": 450000,
+          "from": false,
+          "monthly": 30000,
+          "unit": "pago único",
+          "time": "15 días",
+          "rec": false,
+          "items": [
+            "Entradas y salidas escaneando un QR",
+            "Alertas de stock mínimo",
+            "Historial de movimientos"
+          ],
+          "proof": "",
+          "alt": ""
+        },
+        {
+          "name": "Pedidos y clientes",
+          "impl": 550000,
+          "from": false,
+          "monthly": 35000,
+          "unit": "pago único",
+          "time": "20 días",
+          "rec": true,
+          "items": [
+            "Pedidos con estados",
+            "Ficha de cada cliente",
+            "Avisos automáticos por WhatsApp o email"
+          ],
+          "proof": "",
+          "alt": ""
+        },
+        {
+          "name": "Tablero de ventas",
+          "impl": 350000,
+          "from": false,
+          "monthly": 20000,
+          "unit": "pago único",
+          "time": "10 días",
+          "rec": false,
+          "items": [
+            "Tus números en un solo lugar",
+            "Conecta planillas o Mercado Pago",
+            "Resumen semanal por email"
+          ],
+          "proof": "",
+          "alt": ""
+        },
+        {
+          "name": "Sistema a medida",
+          "impl": 900000,
+          "from": true,
+          "monthly": null,
+          "unit": "pago único",
+          "time": "según alcance",
+          "rec": false,
+          "items": [
+            "Relevamiento y propuesta por escrito",
+            "Roles: dueño y empleados",
+            "Pagos por hito"
+          ],
+          "proof": "Como AfinIA Jobs",
+          "alt": ""
+        }
+      ]
+    },
+    {
+      "key": "ia",
+      "label": "IA y automatización",
+      "intro": "IA acotada a tu negocio: responde con tu información, cita fuentes y te pasa los casos que necesitan una persona.",
+      "note": "Diagnóstico gratis de 30 minutos. Los costos del modelo de IA y de Meta van a cargo del cliente.",
+      "plans": [
+        {
+          "name": "Asistente IA para tu web",
+          "impl": 350000,
+          "from": false,
+          "monthly": 45000,
+          "unit": "pago único",
+          "time": "10 días",
+          "rec": true,
+          "items": [
+            "Responde con la info de tu negocio",
+            "Cita las fuentes",
+            "Guarda contactos con consentimiento"
+          ],
+          "proof": "Como Tuki",
+          "alt": ""
+        },
+        {
+          "name": "Asistente por WhatsApp",
+          "impl": 450000,
+          "from": false,
+          "monthly": 55000,
+          "unit": "pago único",
+          "time": "15 días",
+          "rec": false,
+          "items": [
+            "WhatsApp Business oficial",
+            "Deriva a una persona cuando hace falta",
+            "Historial de conversaciones"
+          ],
+          "proof": "",
+          "alt": ""
+        },
+        {
+          "name": "Agente de ventas",
+          "impl": 600000,
+          "from": false,
+          "monthly": 65000,
+          "unit": "pago único",
+          "time": "20 días",
+          "rec": false,
+          "items": [
+            "Cotiza, agenda y hace seguimiento",
+            "Conectado a tu catálogo o stock",
+            "Reporte de consultas"
+          ],
+          "proof": "Como el asistente de ventas automotriz",
+          "alt": ""
+        },
+        {
+          "name": "Automatización",
+          "impl": 250000,
+          "from": true,
+          "monthly": null,
+          "unit": "por flujo",
+          "time": "5 a 10 días",
+          "rec": false,
+          "items": [
+            "Conecta formularios, planillas, email y WhatsApp",
+            "Corre sola, todos los días",
+            "Hecha con n8n"
+          ],
+          "proof": "",
+          "alt": ""
+        },
+        {
+          "name": "Plataforma educativa con IA",
+          "impl": 900000,
+          "from": true,
+          "monthly": null,
+          "unit": "pago único",
+          "time": "según alcance",
+          "rec": false,
+          "items": [
+            "Aulas con roles docente y alumno",
+            "Evaluaciones generadas desde tu programa",
+            "Seguimiento de progreso"
+          ],
+          "proof": "Como MaestrIA",
+          "alt": ""
+        },
+        {
+          "name": "Clasificador con IA",
+          "impl": 700000,
+          "from": true,
+          "monthly": null,
+          "unit": "pago único",
+          "time": "según alcance",
+          "rec": false,
+          "items": [
+            "Lee y ordena información por vos",
+            "Puntúa, filtra y resume",
+            "Avisos, CVs, pedidos o eventos"
+          ],
+          "proof": "Como AfinIA Jobs y Qué Pinta Salta",
+          "alt": ""
+        }
+      ]
+    },
+    {
+      "key": "mant",
+      "label": "Mantenimiento",
+      "intro": "Después del primer año elegís cómo seguir. Pagando el año por adelantado, pagás 10 meses.",
+      "note": "Cambio menor: hasta 30 minutos sin tocar la estructura. Fuera de plan: $10.000 cada 30 minutos.",
+      "plans": [
+        {
+          "name": "Renovación",
+          "impl": 90000,
+          "from": false,
+          "monthly": null,
+          "unit": "por año",
+          "time": "",
+          "rec": false,
+          "items": [
+            "Hosting, SSL y backups",
+            "Gestión del dominio",
+            "Cambios aparte"
+          ],
+          "proof": "",
+          "alt": ""
+        },
+        {
+          "name": "Mantenimiento Básico",
+          "impl": null,
+          "from": false,
+          "monthly": 25000,
+          "unit": "",
+          "time": "",
+          "rec": false,
+          "items": [
+            "Todo lo de Renovación",
+            "30 minutos de cambios por mes",
+            "Respuesta en 48 h hábiles"
+          ],
+          "proof": "",
+          "alt": ""
+        },
+        {
+          "name": "Mantenimiento Pro",
+          "impl": null,
+          "from": false,
+          "monthly": 55000,
+          "unit": "",
+          "time": "",
+          "rec": true,
+          "items": [
+            "2 horas de cambios por mes",
+            "Reporte mensual y SEO local",
+            "Respuesta en 24 h hábiles"
+          ],
+          "proof": "",
+          "alt": ""
+        }
+      ]
+    }
+  ],
+  "combos": [
+    {
+      "name": "Arranque",
+      "parts": "Landing Profesional + catálogo con pedidos por WhatsApp",
+      "list": 600000,
+      "price": 520000,
+      "monthly": 15000
+    },
+    {
+      "name": "Atención 24 h",
+      "parts": "Landing Profesional + asistente IA para tu web",
+      "list": 670000,
+      "price": 590000,
+      "monthly": 45000
+    },
+    {
+      "name": "Negocio con turnos",
+      "parts": "Landing Profesional + turnos online, con mantenimiento",
+      "list": 500000,
+      "price": 450000,
+      "monthly": 45000
+    },
+    {
+      "name": "Pyme digital",
+      "parts": "Sitio Pyme + pedidos y clientes + asistente IA",
+      "list": 1550000,
+      "price": 1350000,
+      "monthly": 75000
+    }
+  ],
+  "extras": [
+    {
+      "nombre": "Página adicional",
+      "precio": 60000
+    },
+    {
+      "nombre": "Redacción de textos",
+      "precio": 60000
+    },
+    {
+      "nombre": "Blog",
+      "precio": 180000
+    },
+    {
+      "nombre": "Sitio bilingüe",
+      "precio": 150000
+    },
+    {
+      "nombre": "Cobro con Mercado Pago",
+      "precio": 150000
+    },
+    {
+      "nombre": "Ronda de revisión extra",
+      "precio": 25000
+    },
+    {
+      "nombre": "Diagnóstico escrito",
+      "precio": 60000
+    }
+  ],
+  "vigencia": "2027-01-31",
+  "moneda": "ARS",
+  "recargoMercadoPago": 0.06
+}

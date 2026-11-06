@@ -12,7 +12,7 @@ import { ROUTE_KEYS, pathFor } from "@/lib/routes";
  */
 export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date();
-  const abs = (path: string) => (path === "/" ? siteUrl : `${siteUrl}${path}`);
+  const abs = (path: string) => `${siteUrl}${path}`;
 
   return ROUTE_KEYS.flatMap((route) => {
     const priority = route === "home" ? 1 : 0.8;

@@ -1,25 +1,29 @@
 import type { Locale } from "@/lib/types";
 
 /**
- * Las URLs del sitio, las dos versiones de cada una. Es la única tabla de
+ * Las URLs del portfolio, las dos versiones de cada una. Es la única tabla de
  * rutas: de acá salen los `canonical`, los `hreflang`, el sitemap y el
  * destino del toggle de idioma. Agregar una página es sumar una fila.
  *
- * El español no lleva prefijo y el inglés sí. No es simetría rota por
- * descuido: `/` ya está indexado y es la URL que está en el CV y en
- * LinkedIn, así que mover el español a `/es` obligaría a redirigir la raíz
- * del sitio para ganar nada.
+ * Desde noviembre de 2026 el portfolio vive bajo `/portfolio` (español) y
+ * `/portfolio/en` (inglés): la raíz del dominio pasa a ser el sitio de la
+ * agencia Malejo. Las URLs viejas (`/casos/…`, `/en/…`) redirigen con 308
+ * desde `next.config.ts`, así que los enlaces del CV y de LinkedIn siguen
+ * funcionando.
  */
+export const PORTFOLIO_ES = "/portfolio";
+export const PORTFOLIO_EN = "/portfolio/en";
+
 export type RouteKey = "home" | "tuki" | "qps" | "maestria";
 
 /** Las páginas de caso: todo lo que no es el home. */
 export type CaseRoute = Exclude<RouteKey, "home">;
 
 const PATHS: Record<RouteKey, Record<Locale, string>> = {
-  home: { es: "/", en: "/en" },
-  tuki: { es: "/casos/tuki", en: "/en/casos/tuki" },
-  qps: { es: "/casos/que-pinta-salta", en: "/en/casos/que-pinta-salta" },
-  maestria: { es: "/casos/maestria", en: "/en/casos/maestria" },
+  home: { es: PORTFOLIO_ES, en: PORTFOLIO_EN },
+  tuki: { es: `${PORTFOLIO_ES}/casos/tuki`, en: `${PORTFOLIO_EN}/casos/tuki` },
+  qps: { es: `${PORTFOLIO_ES}/casos/que-pinta-salta`, en: `${PORTFOLIO_EN}/casos/que-pinta-salta` },
+  maestria: { es: `${PORTFOLIO_ES}/casos/maestria`, en: `${PORTFOLIO_EN}/casos/maestria` },
 };
 
 export const ROUTE_KEYS = Object.keys(PATHS) as RouteKey[];
@@ -32,7 +36,7 @@ export function pathFor(route: RouteKey, locale: Locale): string {
  * `hreflang` recíproco más `x-default`. Los tres apuntan a rutas relativas
  * porque `metadataBase` del layout las vuelve absolutas.
  *
- * `x-default` va al español: es la versión sin prefijo y la que recibe al
+ * `x-default` va al español: es la versión base y la que recibe al
  * visitante que el buscador no sabe clasificar.
  */
 export function alternatesFor(route: RouteKey, locale: Locale) {
@@ -48,32 +52,37 @@ export function alternatesFor(route: RouteKey, locale: Locale) {
 
 /**
  * Mueve un href interno al árbol del idioma que toque. Los enlaces de la
- * copy y de los CTAs están escritos en su forma española (`/`, `/#casos`,
- * `/casos/maestria`) porque el español es el que no lleva prefijo.
+ * copy y de los CTAs están escritos **relativos al portfolio** (`/`,
+ * `/#casos`, `/casos/maestria`): así la copy no sabe dónde está montado el
+ * portfolio y mudarlo fue cambiar solo esta función.
  *
- * El caso del ancla se trata aparte por una razón concreta: `/en/#casos`
+ * El caso del ancla se trata aparte por una razón concreta: `/portfolio/#casos`
  * haría que Next redirija por la barra final antes de saltar al ancla, así
- * que tiene que salir `/en#casos`.
+ * que tiene que salir `/portfolio#casos`.
  */
 export function localized(href: string, locale: Locale): string {
-  if (locale === "es") return href;
-  if (href === "/") return "/en";
-  if (href.startsWith("/#")) return `/en${href.slice(1)}`;
-  return `/en${href}`;
+  const base = locale === "es" ? PORTFOLIO_ES : PORTFOLIO_EN;
+  if (href === "/") return base;
+  if (href.startsWith("/#")) return `${base}${href.slice(1)}`;
+  return `${base}${href}`;
 }
 
 /**
  * La ruta equivalente en el otro idioma, preservando dónde está parado el
- * visitante: de `/casos/maestria` a `/en/casos/maestria`, no al home.
+ * visitante: de `/portfolio/casos/maestria` a `/portfolio/en/casos/maestria`,
+ * no al home.
  *
  * Es manipulación de string y no un lookup en `PATHS` a propósito: así una
  * URL que todavía no está en la tabla —un 404, una ruta futura— igual
- * cambia de idioma en lugar de mandar al visitante al inicio.
+ * cambia de idioma en lugar de mandar al visitante al inicio. Una ruta fuera
+ * del portfolio (un 404 en la raíz) cae al home del otro idioma.
  */
 export function swapLocale(pathname: string, to: Locale): string {
-  const withoutPrefix =
-    pathname === "/en" ? "/" : pathname.startsWith("/en/") ? pathname.slice(3) : pathname;
-
-  if (to === "es") return withoutPrefix;
-  return withoutPrefix === "/" ? "/en" : `/en${withoutPrefix}`;
+  let rest = "";
+  if (pathname === PORTFOLIO_EN || pathname.startsWith(`${PORTFOLIO_EN}/`)) {
+    rest = pathname.slice(PORTFOLIO_EN.length);
+  } else if (pathname === PORTFOLIO_ES || pathname.startsWith(`${PORTFOLIO_ES}/`)) {
+    rest = pathname.slice(PORTFOLIO_ES.length);
+  }
+  return `${to === "es" ? PORTFOLIO_ES : PORTFOLIO_EN}${rest}`;
 }

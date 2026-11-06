@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { matchAcceptLanguage } from "@/lib/locale";
+import { PORTFOLIO_EN } from "@/lib/routes";
 import { LOCALE_COOKIE, type Locale } from "@/lib/types";
 
 const YEAR = 60 * 60 * 24 * 365;
@@ -9,8 +10,9 @@ function isLocale(value: string | undefined): value is Locale {
 }
 
 /**
- * Una sola responsabilidad: mandar al inglés a quien llega a `/` por primera
- * vez con el navegador en inglés.
+ * Una sola responsabilidad: mandar al inglés a quien llega a `/portfolio` por
+ * primera vez con el navegador en inglés. La raíz del dominio es la agencia
+ * Malejo, que es solo en español y no negocia idioma.
  *
  * Tres decisiones que vale la pena dejar escritas:
  *
@@ -19,7 +21,7 @@ function isLocale(value: string | undefined): value is Locale {
  *    negocie — y mantener al proxy fuera del camino es lo que deja esas
  *    rutas cacheables tal como salen del prerender.
  *
- * 2. **Redirect, no rewrite.** Un 307 deja al visitante parado en `/en`,
+ * 2. **Redirect, no rewrite.** Un 307 deja al visitante parado en `/portfolio/en`,
  *    con esa URL en la barra y compartible. Un rewrite le mostraría inglés
  *    en `/`, que es exactamente el problema que vinimos a resolver.
  *
@@ -36,7 +38,7 @@ export function proxy(request: NextRequest) {
   if (detected === "es") return NextResponse.next();
 
   const url = request.nextUrl.clone();
-  url.pathname = "/en";
+  url.pathname = PORTFOLIO_EN;
   const response = NextResponse.redirect(url, 307);
   response.cookies.set(LOCALE_COOKIE, "en", { path: "/", maxAge: YEAR, sameSite: "lax" });
   return response;
@@ -47,5 +49,5 @@ export function proxy(request: NextRequest) {
  * día hay que negociar en otra, se suma acá explícitamente.
  */
 export const config = {
-  matcher: ["/"],
+  matcher: ["/portfolio"],
 };

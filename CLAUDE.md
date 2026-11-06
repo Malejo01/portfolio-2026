@@ -53,15 +53,23 @@ empujá el `"use client"` lo más abajo posible en el árbol.
 
 ### Idioma: por ruta, no por cookie
 
-El español vive sin prefijo (`/`, `/casos/…`) y el inglés bajo `/en`. Hay
-**dos root layouts**, `app/(es)` y `app/(en)`, y ningún `app/layout.tsx`
+El portfolio vive bajo **`/portfolio`** (español: `/portfolio`,
+`/portfolio/casos/…`) y **`/portfolio/en`** (inglés). La raíz del dominio queda
+para el sitio de la agencia Malejo; mientras ese sitio no esté publicado, `/`
+redirige con 307 a `/portfolio` desde `next.config.ts`. Las URLs viejas
+(`/casos/:slug`, `/en`, `/en/…`) redirigen con 308 a las nuevas: están en el
+CV y en LinkedIn, no las borres.
+
+Hay **dos root layouts**, `app/(es)` y `app/(en)`, y ningún `app/layout.tsx`
 arriba — es la condición que pone Next para permitir varios, junto con que
-`/` viva dentro de un grupo. Navegar entre árboles fuerza recarga completa,
+cada árbol viva dentro de un grupo. Navegar entre árboles fuerza recarga completa,
 que para un cambio de idioma es lo correcto.
 
 - `lib/routes.ts` es **la única tabla de rutas**. De ahí salen los canonical,
   los hreflang, el sitemap y el destino del toggle. Agregar una página es
-  sumar una fila; `localized()` mueve un href al árbol que toque y
+  sumar una fila. La copy escribe los enlaces **relativos al portfolio**
+  (`/`, `/#casos`, `/casos/maestria`); `localized()` les pone el prefijo
+  (`/portfolio` o `/portfolio/en`) y
   `swapLocale()` calcula la ruta espejo preservando dónde está el visitante.
 - Los cuerpos de las páginas están en `components/pages/` y reciben `locale`.
   Los ocho archivos de `app/**/page.tsx` son cinco líneas cada uno.
@@ -71,8 +79,8 @@ que para un cambio de idioma es lo correcto.
   de caso resuelven título y descripción por la tabla `CASE_META`, tipada
   contra `CaseRoute`: sumar un caso sin su fila ahí no compila.
 - `proxy.ts` (Next 16 renombró `middleware.ts` → `proxy.ts`, y la función es
-  `proxy`, no `middleware`) tiene matcher `["/"]` y una sola tarea: 307 a
-  `/en` si alguien llega a la raíz sin cookie de idioma y con el navegador en
+  `proxy`, no `middleware`) tiene matcher `["/portfolio"]` y una sola tarea: 307 a
+  `/portfolio/en` si alguien llega al portfolio sin cookie de idioma y con el navegador en
   inglés. Con cookie presente no hace nada.
 - `lib/content/{es,en}.ts` implementan el mismo tipo `Content` de `lib/types.ts`.
   **Agregar copy es cambiar tres archivos**: el tipo y las dos traducciones. El
@@ -102,7 +110,7 @@ volvía dinámicas las tres rutas del sitio.
 
 ### Las rutas son estáticas — mantenelas así
 
-El build tiene que mostrar `○` en `/`, `/en` y las seis de casos. Cualquier
+El build tiene que mostrar `○` en `/portfolio`, `/portfolio/en` y las seis de casos. Cualquier
 Dynamic API (`cookies()`, `headers()`) en un layout o page las devuelve a `ƒ`
 y tira abajo el cacheo en CDN. Si necesitás algo por request, empujalo al
 cliente o al proxy.

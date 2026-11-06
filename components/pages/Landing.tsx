@@ -9,7 +9,7 @@ import type { Locale } from "@/lib/types";
 
 /**
  * El cuerpo del home. Vive acá y no en un `page.tsx` porque hay dos rutas
- * que lo renderizan —`/` y `/en`— y cada una tiene su propio archivo de
+ * que lo renderizan —`/portfolio` y `/portfolio/en`— y cada una tiene su propio archivo de
  * ruta en su árbol de idioma. Lo único que cambia entre las dos es este
  * `locale`.
  */

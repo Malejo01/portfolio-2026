@@ -11,14 +11,14 @@ import { LOCALE_COOKIE, type Locale } from "@/lib/types";
  * idioma tiene su URL, así que esto es un enlace de verdad: se puede abrir
  * en otra pestaña, copiar, y un buscador lo sigue.
  *
- * `swapLocale` preserva la ruta —de `/casos/maestria` a
- * `/en/casos/maestria`, no al home— y por eso hace falta `usePathname`.
+ * `swapLocale` preserva la ruta —de `/portfolio/casos/maestria` a
+ * `/portfolio/en/casos/maestria`, no al home— y por eso hace falta `usePathname`.
  * Es un hook de cliente y no toca el render del servidor, así que no
  * compromete el prerender de la página.
  *
  * La cookie sigue existiendo, con un rol mucho más chico: es el registro de
- * "ya elegí". `proxy.ts` solo redirige `/` por `Accept-Language` cuando no
- * hay ninguna, así que dejarla acá es lo que hace que volver a `/` a mano
+ * "ya elegí". `proxy.ts` solo redirige `/portfolio` por `Accept-Language` cuando no
+ * hay ninguna, así que dejarla acá es lo que hace que volver a `/portfolio` a mano
  * después de haber elegido no rebote al inglés.
  */
 export function LocaleToggle({

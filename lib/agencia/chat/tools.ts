@@ -3,7 +3,7 @@ import { z } from "zod";
 import { combos, extras, getCombo, getPlan, plans } from "@/content/agencia/pricing";
 import { CALCOM_URL, waLink } from "@/lib/agencia/config";
 import { cotizar, resumenCotizacion } from "@/lib/agencia/pricing";
-import { isPhoneAR, signConsent, type ContactPayload } from "./security";
+import { consentEnabled, isPhoneAR, signConsent, type ContactPayload } from "./security";
 
 /**
  * Herramientas del agente Malejo. Cada una tiene su esquema zod (se valida
@@ -144,6 +144,14 @@ export function runTool(name: string, input: unknown): ToolOutcome {
     }
     case "guardar_contacto": {
       const data = parsed.data as z.infer<typeof schemas.guardar_contacto>;
+      if (!consentEnabled()) {
+        // Sin MALEJO_SALT en producción no se guardan contactos: se deriva a WhatsApp.
+        const href = waLink(`Hola Mauro, soy ${data.nombre} (${data.rubro}). ${data.resumen}`);
+        return {
+          content: "Ahora no puedo guardar contactos. Le mostré el botón para escribirle a Mauro por WhatsApp con su resumen.",
+          card: { kind: "whatsapp", href },
+        };
+      }
       if (!isPhoneAR(data.whatsapp)) {
         return { content: "El teléfono no parece un número argentino válido. Pedile que lo revise (con código de área).", isError: true };
       }

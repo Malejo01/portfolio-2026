@@ -38,3 +38,21 @@ describe("herramientas del agente", () => {
     for (const bad of ["hola", "12345", "+1 555 1234"]) expect(isPhoneAR(bad), bad).toBe(false);
   });
 });
+
+describe("sin MALEJO_SALT en producción", () => {
+  it("no firma ni acepta consentimientos", () => {
+    const prev = { env: process.env.NODE_ENV, salt: process.env.MALEJO_SALT };
+    const env = process.env as Record<string, string | undefined>;
+    env.NODE_ENV = "production";
+    delete env.MALEJO_SALT;
+    try {
+      const out = runTool("guardar_contacto", { nombre: "Ana", whatsapp: "3875813233", rubro: "Vete", resumen: "Quiere turnos" });
+      expect(out.card?.kind).toBe("whatsapp");
+      const p = { nombre: "A", whatsapp: "3875813233", rubro: "x", resumen: "y", iat: Date.now() };
+      expect(verifyConsent(p, signConsent(p))).toBe(false);
+    } finally {
+      env.NODE_ENV = prev.env;
+      if (prev.salt) env.MALEJO_SALT = prev.salt;
+    }
+  });
+});

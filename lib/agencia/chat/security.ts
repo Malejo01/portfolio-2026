@@ -12,8 +12,15 @@ import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 
 function salt(): string {
   // Sin sal configurada se usa una fija de desarrollo: los hashes siguen sin
-  // ser la IP, pero Mauro tiene que cargar MALEJO_SALT en producción.
+  // ser la IP, pero esa sal está en el repo. Por eso en producción la firma
+  // de consentimiento no se emite ni se acepta sin MALEJO_SALT
+  // (`consentEnabled`): con la sal pública cualquiera podría falsificarla.
   return process.env.MALEJO_SALT || "malejo-dev-salt";
+}
+
+/** Se puede firmar y verificar consentimiento: hay sal propia, o no es producción. */
+export function consentEnabled(): boolean {
+  return Boolean(process.env.MALEJO_SALT) || process.env.NODE_ENV !== "production";
 }
 
 export function ipFrom(headers: Headers): string {
@@ -42,7 +49,7 @@ export function signConsent(p: ContactPayload): string {
 }
 
 export function verifyConsent(p: ContactPayload, token: string): boolean {
-  if (!/^[0-9a-f]{64}$/.test(token)) return false;
+  if (!consentEnabled() || !/^[0-9a-f]{64}$/.test(token)) return false;
   if (Date.now() - p.iat > 60 * 60 * 1000 || p.iat > Date.now() + 60_000) return false;
   const expected = Buffer.from(signConsent(p), "hex");
   return timingSafeEqual(expected, Buffer.from(token, "hex"));

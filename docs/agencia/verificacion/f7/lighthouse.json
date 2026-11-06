@@ -1,0 +1,50 @@
+[
+  {
+    "ruta": "/",
+    "modo": "celular",
+    "performance": 93,
+    "accessibility": 100,
+    "best-practices": 96,
+    "seo": 100
+  },
+  {
+    "ruta": "/",
+    "modo": "escritorio",
+    "performance": 100,
+    "accessibility": 100,
+    "best-practices": 96,
+    "seo": 100
+  },
+  {
+    "ruta": "/servicios",
+    "modo": "celular",
+    "performance": 95,
+    "accessibility": 100,
+    "best-practices": 96,
+    "seo": 100
+  },
+  {
+    "ruta": "/servicios",
+    "modo": "escritorio",
+    "performance": 100,
+    "accessibility": 100,
+    "best-practices": 96,
+    "seo": 100
+  },
+  {
+    "ruta": "/demo",
+    "modo": "celular",
+    "performance": 96,
+    "accessibility": 100,
+    "best-practices": 96,
+    "seo": 100
+  },
+  {
+    "ruta": "/demo",
+    "modo": "escritorio",
+    "performance": 100,
+    "accessibility": 100,
+    "best-practices": 96,
+    "seo": 100
+  }
+]

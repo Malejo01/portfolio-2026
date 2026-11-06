@@ -23,7 +23,8 @@ export function desdeDe(card: Pick<ServiceCard, "category" | "from">): string {
  * dónde lleva "Ver precios →": en la home abre la pestaña del catálogo; en
  * `/servicios` va a la página de la categoría.
  */
-export function ServiceCards({ linkMode = "tab" }: { linkMode?: "tab" | "page" }) {
+export function ServiceCards({ linkMode = "tab", heading = "h3" }: { linkMode?: "tab" | "page"; heading?: "h2" | "h3" }) {
+  const H = heading;
   const { services } = home;
 
   return (
@@ -37,7 +38,7 @@ export function ServiceCards({ linkMode = "tab" }: { linkMode?: "tab" | "page" }
               </span>
               <span className="lbl">{s.label}</span>
             </div>
-            <h3 className="h text-2xl">{s.title}</h3>
+            <H className="h text-2xl">{s.title}</H>
             <p className="m-0 text-[15px] leading-normal text-muted">{s.description}</p>
             <ul className="m-0 flex list-none flex-col gap-2 p-0 text-sm">
               {s.items.map((item) => (

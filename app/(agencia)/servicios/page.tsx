@@ -19,7 +19,7 @@ export default function ServiciosPage() {
       <span className="lbl lbl-o">{index.label}</span>
       <h1 className="h h2">{index.heading}</h1>
       <p className="mb-0 mt-2 max-w-[40em] text-[17px] text-muted">{index.lead}</p>
-      <ServiceCards linkMode="page" />
+      <ServiceCards linkMode="page" heading="h2" />
       <div className="mt-10 flex flex-wrap gap-3">
         <Link href={index.demo.href} className="btn btn-p">
           {index.demo.label}

@@ -50,6 +50,10 @@
   --btn-shadow: 0 8px 24px rgba(255, 90, 31, 0.28);
   --btn-shadow-active: 0 2px 8px rgba(255, 90, 31, 0.25);
   --save-bg: rgba(61, 220, 132, 0.14);
+  /* Texto verde del badge "AHORRÁS X%". No está en DISENO.md: `--ok` claro
+     (#16A34A) da ~2,9:1 sobre `--save-bg` y el badge es texto de 10px. Este
+     verde más oscuro da AA (§9). En oscuro es el mismo `--ok`. */
+  --ok-text: #166534;
   /* Sombra hundida del selector de pago y del campo del chat (referencia.html `.seg`). */
   --inset: inset 0 2px 6px rgba(0, 0, 0, 0.25);
 
@@ -72,6 +76,7 @@
   --acc-text: #ff8a5c;
   --ic-bg: #2a1810;
   --ok: #3ddc84;
+  --ok-text: #3ddc84;
   --user-text: #ffd9c8;
   --shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
   --shadow-h: 0 24px 48px rgba(0, 0, 0, 0.55);
@@ -102,6 +107,7 @@
   --color-acc-text: var(--acc-text);
   --color-ic-bg: var(--ic-bg);
   --color-ok: var(--ok);
+  --color-ok-text: var(--ok-text);
   --color-user-text: var(--user-text);
   --color-hi-b: var(--hi-b);
   --color-hi-t: var(--hi-t);

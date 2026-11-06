@@ -132,7 +132,7 @@ export function Cotizador({
                   <span>
                     {i.nombre}
                     {c.combosAplicados.includes(i.id) ? (
-                      <span className="ml-1.5 rounded-md bg-save-bg px-1.5 py-0.5 font-mono text-[10px] uppercase text-ok">{copy.comboApplied}</span>
+                      <span className="ml-1.5 rounded-md bg-save-bg px-1.5 py-0.5 font-mono text-[10px] uppercase text-ok-text">{copy.comboApplied}</span>
                     ) : null}
                   </span>
                   <span className="flex-none text-right text-muted">

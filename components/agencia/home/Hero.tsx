@@ -2,10 +2,13 @@ import Link from "next/link";
 import { home } from "@/content/agencia/home";
 import { Icon } from "../icons";
 import { MalejoMark } from "../MalejoMark";
-import { RevealGroup, RevealItem } from "../client/Reveal";
 import { Typewriter } from "../client/Typewriter";
 
-/** Hero bento (DISENO.md §4 Hero, `02-hero-*.png`). */
+/**
+ * Hero bento (DISENO.md §4 Hero, `02-hero-*.png`). Las tres tarjetas de la
+ * derecha no llevan entrada al scroll: están arriba del pliegue, y arrancar
+ * en `opacity: 0` hasta hidratar empeoraba el LCP en celular.
+ */
 export function Hero() {
   const { hero } = home;
 
@@ -36,9 +39,9 @@ export function Hero() {
           </div>
         </div>
 
-        <RevealGroup className="no-scrollbar -mx-5 flex gap-4 overflow-x-auto px-5 pb-2 sm:-mx-8 sm:px-8 lg:mx-0 lg:flex-col lg:justify-center lg:overflow-visible lg:px-0 lg:pb-0">
+        <div className="no-scrollbar -mx-5 flex gap-4 overflow-x-auto px-5 pb-2 sm:-mx-8 sm:px-8 lg:mx-0 lg:flex-col lg:justify-center lg:overflow-visible lg:px-0 lg:pb-0">
           {hero.cards.map((c) => (
-            <RevealItem key={c.title} className="flex min-w-[260px] flex-1 lg:min-w-0 lg:flex-none">
+            <div key={c.title} className="flex min-w-[260px] flex-1 lg:min-w-0 lg:flex-none">
               <div className="card lift flex flex-1 flex-col gap-2 p-6">
                 <div className="flex items-center gap-3.5">
                   <span className="ic h-10 w-10">
@@ -49,9 +52,9 @@ export function Hero() {
                 <h2 className="h text-[21px]">{c.title}</h2>
                 <p className="m-0 text-[15px] leading-normal text-muted">{c.body}</p>
               </div>
-            </RevealItem>
+            </div>
           ))}
-        </RevealGroup>
+        </div>
       </div>
     </section>
   );

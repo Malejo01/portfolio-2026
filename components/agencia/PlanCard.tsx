@@ -90,7 +90,7 @@ export function ComboCard({
 }) {
   return (
     <article className={`card lift relative flex h-full flex-col gap-2.5 p-[22px] ${highlight ? "hi" : ""}`}>
-      <span className="absolute right-[18px] top-[18px] rounded-lg bg-save-bg px-2 py-[5px] font-mono text-[10px] font-semibold uppercase leading-none tracking-[.06em] text-ok">
+      <span className="absolute right-[18px] top-[18px] rounded-lg bg-save-bg px-2 py-[5px] font-mono text-[10px] font-semibold uppercase leading-none tracking-[.06em] text-ok-text">
         {copy.saveLabel} {ahorro(combo)}%
       </span>
       <h4 className="h m-0 pr-[92px] text-[19px]">{combo.name}</h4>

@@ -4,6 +4,8 @@ Este documento y `referencia.html` son **la fuente de verdad** para construir la
 
 | Archivo | Qué es |
 |---|---|
+| `docs/agencia/capturas-diseno/*.png` | **39 capturas** de cada sección y estado, en oscuro y claro (índice en `PROMPT.md` §2). |
+| `docs/agencia/PROMPT.md` | El prompt para el agente que construye el sitio, fase por fase. |
 | `docs/agencia/referencia.html` | La home completa renderizada en estático (modo oscuro, pestaña "Webs", chat cerrado). Abrila en el navegador y copiá medidas, textos y estructura de ahí. |
 | `docs/agencia/datos/precios.json` | Catálogo completo: 6 categorías, planes, combos y extras, en números (sin formatear). |
 | `docs/agencia/capturas/*.webp` | Capturas animadas usadas por la referencia. En el sitio van los MP4 de `public/agencia/proyectos/`. |
@@ -160,7 +162,7 @@ FAQ e historia: `<details>`, sin JS.
 | Tarjeta al pasar | `y −4` + sombra `--shadow-h`, 200 ms (CSS) |
 | Botón al tocar | `y +2`, 120 ms (`:active` o `whileTap`) |
 | Chat | `opacity` + `scale .96→1`, 220 ms, origen abajo a la derecha |
-| **H1 tecleado** | Una vez al cargar. Va **por palabras** (cada palabra en un `inline-block` con `white-space: nowrap`, separadas por `margin-right: .24em`; así no se pierden los espacios). Dentro de cada palabra, cada letra aparece entera a su tiempo: 30–72 ms por letra con ritmo irregular (aleatorio con semilla fija), +60 ms en comas y puntos, +40 ms entre palabras, +180 ms entre líneas, arranca a los 0,5 s (~2,4 s en total). El **cursor naranja `▍` va dentro de la última palabra**, pegado a "IA.", sólido mientras escribe y titila (0,9 s, `steps(1)`) al terminar. `aria-label` con la frase completa y las letras `aria-hidden`. |
+| **H1 tecleado** | Una vez al cargar. Va **por palabras** (cada palabra en un `inline-block` con `white-space: nowrap`, separadas por `margin-right: .24em`; así no se pierden los espacios). Dentro de cada palabra, cada letra aparece entera a su tiempo: 30–72 ms por letra con ritmo irregular (aleatorio con semilla fija), +60 ms en comas y puntos, +40 ms entre palabras, +180 ms entre líneas, arranca a los 0,5 s (~2,4 s en total). El **cursor naranja `▍`** sigue a la última letra visible mientras escribe (sólido) y al terminar queda dentro de la última palabra, pegado a "IA.", titilando (0,9 s, `steps(1)`). `aria-label` con la frase completa y las letras `aria-hidden`. |
 | Reducir movimiento | `useReducedMotion()`: todo aparece en su estado final, H1 completo y sin cursor, videos en póster |
 
 ## 8. Celular (no hay diseño aparte: adaptar con estas reglas)

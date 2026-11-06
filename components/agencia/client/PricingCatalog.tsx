@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ComboCard, PlanCard, type ComboCopy, type PlanCopy } from "@/components/agencia/PlanCard";
 import type { Category, Combo, Extra } from "@/content/agencia/pricing";
 import { OPEN_CATEGORY_EVENT } from "@/lib/agencia/motion";
+import { MedioSwitch } from "./MedioSwitch";
 import { conRecargo, fmt, type Medio } from "@/lib/agencia/pricing";
 
 /**
@@ -88,54 +89,22 @@ export function PricingCatalog({
     tabRefs.current[next]?.focus();
   };
 
-  const onMedioKey = (e: React.KeyboardEvent) => {
-    if (!["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown"].includes(e.key)) return;
-    e.preventDefault();
-    const next: Medio = medio === "mp" ? "transferencia" : "mp";
-    setMedio(next);
-    (e.currentTarget.querySelector(`[data-medio="${next}"]`) as HTMLElement | null)?.focus();
-  };
-
   const category = categories.find((c) => c.key === active) ?? categories[0];
   if (!category) return null;
-
-  const segBtn = (value: Medio, children: React.ReactNode) => {
-    const on = medio === value;
-    return (
-      <button
-        type="button"
-        role="radio"
-        aria-checked={on}
-        tabIndex={on ? 0 : -1}
-        data-medio={value}
-        onClick={() => setMedio(value)}
-        className={`inline-flex h-10 items-center gap-1.5 rounded-[13px] px-4 text-sm font-semibold transition-colors ${
-          on ? "bg-acc text-acc-ink shadow-btn" : "text-muted hover:text-text"
-        }`}
-      >
-        {children}
-      </button>
-    );
-  };
 
   return (
     <>
       <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
         {heading}
-        <div
-          role="radiogroup"
-          aria-label={copy.medioLabel}
-          onKeyDown={onMedioKey}
-          className="inline-flex flex-none self-start rounded-[18px] border border-border bg-surf p-[5px] shadow-inset sm:self-auto"
-        >
-          {segBtn("transferencia", copy.transferencia)}
-          {segBtn(
-            "mp",
-            <>
-              {copy.mp} <span className="tag tag-xs">{copy.mpChip}</span>
-            </>,
-          )}
-        </div>
+        <MedioSwitch
+          value={medio}
+          onChange={setMedio}
+          label={copy.medioLabel}
+          transferencia={copy.transferencia}
+          mp={copy.mp}
+          mpChip={copy.mpChip}
+          className="self-start sm:self-auto"
+        />
       </div>
 
       {single ? null : (

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { home, type ServiceCard } from "@/content/agencia/home";
 import { getCategory } from "@/content/agencia/pricing";
 import { fmt } from "@/lib/agencia/pricing";
@@ -57,11 +58,11 @@ export function ServiceCards({ linkMode = "tab" }: { linkMode?: "tab" | "page" }
                   <span className="sr-only">: {s.title}</span>
                 </ServiceLink>
               ) : (
-                <a href={`/servicios/${s.category}`} className="lnk">
+                <Link href={`/servicios/${s.category}`} className="lnk">
                   {services.cta}
                   <Icon name="arrow" size={16} />
                   <span className="sr-only">: {s.title}</span>
-                </a>
+                </Link>
               )}
             </div>
           </article>

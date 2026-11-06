@@ -40,12 +40,13 @@ no se pueda cubrir con los existentes.
 
 ### Server Components por defecto
 
-Exactamente diez archivos son `"use client"`: los dos `error.tsx` —React lo
+En el portfolio, exactamente diez archivos son `"use client"`: los dos `error.tsx` —React lo
 exige para un error boundary, y por eso su copy sale de `lib/content/errors`
 y no del diccionario grande—, `ThemeProvider`, `motion/Reveal`,
 `case-study/ArchitectureDiagram`, `case-study/FeedbackDiagram`,
 `case-study/RetrievalDiagram`, `case-study/diagram-kit`, `ui/ThemeToggle`,
-`ui/LocaleToggle`. Todo lo demás
+`ui/LocaleToggle`. Las islas del sitio de la agencia viven todas en
+`components/agencia/client/` (ver **Sitio de la agencia**). Todo lo demás
 corre en el servidor. Los wrappers de animación reciben el contenido como
 `children` desde Server Components, así que **la copy nunca entra al bundle del
 cliente**. Mantené esa propiedad al agregar componentes: si algo necesita estado,
@@ -219,6 +220,36 @@ la altura, por eso no hay CLS. Sumar una fuente = editar el SVG.
 hay URL"** y los componentes filtran esas entradas en vez de renderizar un
 `href="#"` tabulable que no lleva a ningún lado. Al agregar un CTA, seguí ese
 patrón.
+
+## Sitio de la agencia
+
+La raíz de `malejo.com.ar` es el sitio de la agencia Malejo: un **tercer root
+layout**, `app/(agencia)`, al lado de `(es)` y `(en)`. La fuente de verdad del
+diseño es `docs/agencia/DISENO.md` + `docs/agencia/referencia.html` + las
+capturas de `docs/agencia/capturas-diseno/`; el índice y las fases están en
+`docs/agencia/PROMPT.md`.
+
+- **Tokens propios** en `app/(agencia)/agencia.css` (`:root` claro, `.dark`
+  oscuro, expuestos con `@theme inline`: `bg-surf`, `text-muted`,
+  `border-border`, `text-acc-text`, `bg-ic-bg`, `shadow-card`…) y clases de
+  forma definidas una vez (`card`, `card-big`, `lift`, `hi`, `btn btn-p`,
+  `btn btn-s`, `btn-sm`, `lbl lbl-o`, `h`, `h2`, `tag`, `ic`, `lnk`, `chip`).
+  Ningún hex en componentes. `@import "tailwindcss" source(none)` + `@source`
+  limita el escaneo a los archivos de la agencia.
+- **Las invariantes del portfolio no aplican acá y viceversa.** La agencia
+  usa sombras suaves, bordes de 1px y naranja `--acc`; el portfolio sigue
+  sin `box-shadow` y con su verde. Nada de `components/agencia` entra a
+  `app/(es)` ni a `app/(en)`.
+- **Tema:** cookie `malejo-theme` (independiente de la del portfolio) y, sin
+  cookie, **oscuro** — no sigue a `prefers-color-scheme`. Mismo patrón que
+  el portfolio: script inline en el `<head>` del layout, respaldo para el 404
+  en `components/agencia/client/theme.ts`, ningún Server Component lee la cookie.
+- **404:** `app/(agencia)/[...notFound]` atrapa toda URL de la raíz sin ruta;
+  el portfolio tiene `app/(es)/portfolio/[...notFound]` y
+  `app/(en)/portfolio/en/[...notFound]`.
+- **OG:** `/og` es un route handler estático (`app/(agencia)/og/route.tsx`),
+  no un `opengraph-image.tsx`: en la raíz del grupo colisionaría con el del
+  portfolio.
 
 ## Verificación
 

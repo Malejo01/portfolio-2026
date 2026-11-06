@@ -23,7 +23,7 @@ export function Header() {
     <header className="sticky top-0 z-40 py-4 before:absolute before:inset-0 before:-z-10 before:bg-(--nav-bg) before:backdrop-blur-[12px]">
       <a
         href="#contenido"
-        className="btn btn-p btn-sm absolute left-4 top-3 -translate-y-24 focus-visible:translate-y-0"
+        className="btn btn-p btn-sm sr-only focus-visible:not-sr-only focus-visible:absolute focus-visible:left-4 focus-visible:top-3 focus-visible:z-50"
       >
         {site.skip}
       </a>

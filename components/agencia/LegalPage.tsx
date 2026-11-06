@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { LegalBlock, LegalDoc } from "@/content/agencia/legal";
 import { senaMonto } from "@/lib/agencia/config";
 import { fmt } from "@/lib/agencia/format";
-import { RECARGO_MP } from "@/lib/agencia/recargo";
+import { recargoMercadoPago as RECARGO_MP } from "@/content/agencia/pricing";
 
 /**
  * Página legal: texto simple con el layout de la agencia. Los

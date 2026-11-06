@@ -1,8 +1,9 @@
-/**
- * Home provisoria de F1: solo menú y pie (los pone el layout). La home real
- * llega en F2. Mientras tanto `/` sigue redirigiendo a `/portfolio` desde
- * `next.config.ts`, así que esta página solo se ve en desarrollo.
- */
+import type { Metadata } from "next";
+import { HomePage } from "@/components/agencia/home/HomePage";
+
+/** Hereda título, descripción y OG del layout; solo declara su canonical. */
+export const metadata: Metadata = { alternates: { canonical: "/" } };
+
 export default function Page() {
-  return <div className="min-h-[60vh]" />;
+  return <HomePage />;
 }

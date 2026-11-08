@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Icon } from "@/components/agencia/icons";
 import type { cotizadorCopy } from "@/content/agencia/cotizador";
 import type { Category, Extra } from "@/content/agencia/pricing";
 import { waLink } from "@/lib/agencia/config";
-import { conRecargo, cotizar, fmt, precioDePlan, resumenCotizacion, type Medio } from "@/lib/agencia/pricing";
+import { cotizar, fmt, fmtUsd, montoDeExtra, precioDePlan, resumenCotizacion, type Medio } from "@/lib/agencia/pricing";
 import { MedioSwitch } from "./MedioSwitch";
 
 /**
@@ -30,7 +30,19 @@ export function Cotizador({
   const [extraIds, setExtraIds] = useState<string[]>([]);
   const [medio, setMedio] = useState<Medio>("transferencia");
 
-  const c = useMemo(() => cotizar({ planIds, extras: extraIds, medio }), [planIds, extraIds, medio]);
+  // Tipo de cambio del día: se pide al montar, así la página sigue estática.
+  // Si falla, el cotizador sigue en pesos y no muestra la línea en dólares.
+  const [tipoDeCambio, setTipoDeCambio] = useState<number>();
+  useEffect(() => {
+    const ctrl = new AbortController();
+    fetch("/api/dolar", { signal: ctrl.signal })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: { valor?: number } | null) => d?.valor && d.valor > 0 && setTipoDeCambio(d.valor))
+      .catch(() => {});
+    return () => ctrl.abort();
+  }, []);
+
+  const c = useMemo(() => cotizar({ planIds, extras: extraIds, medio, tipoDeCambio }), [planIds, extraIds, medio, tipoDeCambio]);
   const toggle = (list: string[], id: string) => (list.includes(id) ? list.filter((x) => x !== id) : [...list, id]);
 
   const demoHref = `/demo?plan=${encodeURIComponent(c.items.filter((i) => i.tipo !== "extra").map((i) => i.id).join(","))}${
@@ -71,7 +83,7 @@ export function Cotizador({
                     </span>
                     <span className="text-sm text-muted">
                       {p.etiqueta === "Desde" ? "Desde " : ""}
-                      <strong className="text-text">{fmt(p.precio)}</strong> {p.unidad}
+                      <strong className="text-text">{p.precio == null ? p.texto : fmt(p.precio)}</strong> {p.unidad}
                       {p.abono ? ` + ${fmt(p.abono)}/mes` : ""}
                     </span>
                     {plan.time ? <span className="tag self-start">⏱ {plan.time}</span> : null}
@@ -95,7 +107,7 @@ export function Cotizador({
                   onClick={() => setExtraIds((l) => toggle(l, e.id))}
                   className={`chip h-[34px] ${on ? "border-hi-t bg-ic-bg text-acc-text" : ""}`}
                 >
-                  {e.name} <strong>{fmt(conRecargo(e.price, medio))}</strong>
+                  {e.name} <strong>{montoDeExtra(e, medio)}</strong>
                 </button>
               );
             })}
@@ -139,6 +151,7 @@ export function Cotizador({
                     {i.implementacion ? <strong className="text-text">{`${i.desde ? "desde " : ""}${fmt(i.implementacion)}`}</strong> : null}
                     {i.mensual ? <span className="block">+ {fmt(i.mensual)}/mes</span> : null}
                     {i.anual ? <span className="block">{fmt(i.anual)}/año</span> : null}
+                    {i.aCotizar ? <span className="block">{i.aCotizar}</span> : null}
                   </span>
                 </li>
               ))}
@@ -153,7 +166,9 @@ export function Cotizador({
           <div>
             <span className="lbl text-[10px]">{copy.total}</span>
             <div className="h text-[34px]">{fmt(c.total)}</div>
+            {c.usd && c.total ? <p className="m-0 text-sm text-muted">{copy.usd.replace("{USD}", fmtUsd(c.usd.total))}</p> : null}
             <p className="m-0 text-xs text-muted">{c.desde ? copy.desdeHint : copy.totalHint}</p>
+            {c.aCotizar.length ? <p className="m-0 text-xs text-muted">{copy.aCotizarHint}</p> : null}
           </div>
         </div>
 

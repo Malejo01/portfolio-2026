@@ -4,14 +4,17 @@ import {
   getPlan,
   recargoMercadoPago,
   type Combo,
+  type Extra,
   type Plan,
 } from "@/content/agencia/pricing";
 import { fmt } from "./format";
 
 /**
  * **Única lógica de precios** de la agencia. La usan la sección de precios
- * de la home, `/servicios/[slug]`, `/cotizador` y la herramienta `cotizar`
- * del agente Malejo. Funciones puras: también corren en las islas.
+ * de la home, `/servicios/[slug]`, `/cotizador` y las herramientas `cotizar`
+ * y `comparar` del agente Malejo. Funciones puras: también corren en las
+ * islas. El tipo de cambio entra como parámetro (lo resuelve
+ * `lib/agencia/usd.ts` en el servidor), así todo sigue siendo testeable.
  */
 
 export { fmt };
@@ -28,6 +31,22 @@ export function conRecargo(n: number, medio: Medio): number {
   return Math.round((n * (1 + recargoMercadoPago)) / 100) * 100;
 }
 
+/**
+ * Pesos → dólares al tipo de cambio dado (ARS por USD). Redondea a la
+ * decena; abajo de USD 100 redondea a la unidad, porque en un abono chico
+ * la decena distorsiona demasiado ($23.300 a 1.450 son USD 16, no 20).
+ */
+export function aUsd(ars: number, tipoDeCambio: number): number {
+  if (!ars || !(tipoDeCambio > 0)) return 0;
+  const usd = ars / tipoDeCambio;
+  return usd < 100 ? Math.round(usd) : Math.round(usd / 10) * 10;
+}
+
+/** "USD 1.230" (miles con punto, como los pesos). */
+export function fmtUsd(n: number): string {
+  return `USD ${new Intl.NumberFormat("es-AR", { maximumFractionDigits: 0 }).format(n)}`;
+}
+
 /** "AHORRÁS 13%": descuento del combo sobre la suma de lista, redondeado. */
 export function ahorro(combo: Pick<Combo, "list" | "price">): number {
   return Math.round((1 - combo.price / combo.list) * 100);
@@ -37,7 +56,7 @@ export interface ItemCotizado {
   id: string;
   tipo: "plan" | "combo" | "extra";
   nombre: string;
-  /** Pago único de implementación (0 si es solo abono). */
+  /** Pago único de implementación (0 si es solo abono o a cotizar). */
   implementacion: number;
   /** Abono mensual (0 si no tiene). */
   mensual: number;
@@ -45,8 +64,19 @@ export interface ItemCotizado {
   anual: number;
   /** El precio es "desde": el final depende del alcance. */
   desde: boolean;
+  /** Sin precio fijo: el texto que va en lugar del monto. Vacío si tiene precio. */
+  aCotizar: string;
   /** Para combos: los planes que reemplaza. */
   incluye?: string[];
+}
+
+export interface CotizacionUsd {
+  /** ARS por USD usado en la conversión. */
+  tipoDeCambio: number;
+  implementacion: number;
+  abonoMensual: number;
+  anual: number;
+  total: number;
 }
 
 export interface Cotizacion {
@@ -62,10 +92,14 @@ export interface Cotizacion {
   total: number;
   /** Algún ítem es "desde": el total es un piso, no un precio cerrado. */
   desde: boolean;
+  /** Ítems sin precio fijo (dominio, sprint): "Nombre: se cotiza con…". */
+  aCotizar: string[];
   /** Combos que se aplicaron solos porque estaban todas sus partes. */
   combosAplicados: string[];
   /** Ids que no existen en el catálogo (el agente los reporta, no los inventa). */
   desconocidos: string[];
+  /** Equivalente en dólares, solo si se pasó un tipo de cambio. */
+  usd?: CotizacionUsd;
 }
 
 function itemDePlan(plan: Plan, medio: Medio): ItemCotizado {
@@ -78,6 +112,7 @@ function itemDePlan(plan: Plan, medio: Medio): ItemCotizado {
     mensual: conRecargo(plan.monthly ?? 0, medio),
     anual: conRecargo(anual, medio),
     desde: plan.from,
+    aCotizar: plan.aCotizar,
   };
 }
 
@@ -90,30 +125,44 @@ function itemDeCombo(combo: Combo, medio: Medio): ItemCotizado {
     mensual: conRecargo(combo.monthly, medio),
     anual: 0,
     desde: false,
+    aCotizar: "",
     incluye: combo.planIds,
   };
 }
 
 /**
- * Cotiza una selección. `planIds` acepta ids de planes y de combos
- * (`combo-arranque`). Si la selección contiene todas las partes de un
- * combo, se reemplazan por el combo (es siempre más barato). El recargo se
- * aplica ítem por ítem, así el total es la suma exacta de lo que se ve.
+ * Cotiza una selección **que se contrata junta**: suma todo. Para mostrar
+ * alternativas sin sumarlas está `comparar()`.
+ *
+ * `planIds` acepta ids de planes y de combos (`combo-arranque`). Si la
+ * selección contiene todas las partes de un combo, se reemplazan por el
+ * combo (es siempre más barato). El recargo se aplica ítem por ítem, así el
+ * total es la suma exacta de lo que se ve. Un id de plan que llega como
+ * extra (el diagnóstico escrito era un extra) se cotiza como plan.
  */
 export function cotizar({
   planIds,
   extras = [],
   medio = "transferencia",
+  tipoDeCambio,
 }: {
   planIds: string[];
   extras?: string[];
   medio?: Medio;
+  /** ARS por USD. Si viene, la cotización suma su equivalente en dólares. */
+  tipoDeCambio?: number;
 }): Cotizacion {
   const desconocidos: string[] = [];
+  const pedidos = [...planIds];
+  const extrasPedidos: string[] = [];
+  for (const id of new Set(extras)) {
+    if (getPlan(id) && !getExtra(id)) pedidos.push(id);
+    else extrasPedidos.push(id);
+  }
+
   const elegidos = new Set<string>();
   const combosElegidos: Combo[] = [];
-
-  for (const id of planIds) {
+  for (const id of pedidos) {
     const combo = getCombo(id);
     if (combo) {
       if (!combosElegidos.includes(combo)) combosElegidos.push(combo);
@@ -136,29 +185,33 @@ export function cotizar({
 
   const items: ItemCotizado[] = [
     ...combosElegidos.map((c) => itemDeCombo(c, medio)),
-    ...planIds.filter((id) => elegidos.has(id)).map((id) => itemDePlan(getPlan(id)!, medio)),
+    ...[...new Set(pedidos)].filter((id) => elegidos.has(id)).map((id) => itemDePlan(getPlan(id)!, medio)),
   ];
 
-  for (const id of new Set(extras)) {
+  for (const id of extrasPedidos) {
     const extra = getExtra(id);
     if (!extra) {
       desconocidos.push(id);
       continue;
     }
+    const precio = extra.price == null ? 0 : conRecargo(extra.price, medio);
+    const anual = extra.unit === "por año";
     items.push({
       id: extra.id,
       tipo: "extra",
       nombre: extra.name,
-      implementacion: conRecargo(extra.price, medio),
+      implementacion: anual ? 0 : precio,
       mensual: 0,
-      anual: 0,
+      anual: anual ? precio : 0,
       desde: false,
+      aCotizar: extra.price == null ? extra.aCotizar : "",
     });
   }
 
   const implementacion = items.reduce((s, i) => s + i.implementacion, 0);
   const abonoMensual = items.reduce((s, i) => s + i.mensual, 0);
   const anual = items.reduce((s, i) => s + i.anual, 0);
+  const total = implementacion + abonoMensual * 12 + anual;
 
   return {
     medio,
@@ -166,22 +219,131 @@ export function cotizar({
     implementacion,
     abonoMensual,
     anual,
-    total: implementacion + abonoMensual * 12 + anual,
+    total,
     desde: items.some((i) => i.desde),
+    aCotizar: items.filter((i) => i.aCotizar).map((i) => `${i.nombre}: ${i.aCotizar}`),
     combosAplicados,
     desconocidos,
+    ...(tipoDeCambio && tipoDeCambio > 0
+      ? {
+          usd: {
+            tipoDeCambio,
+            implementacion: aUsd(implementacion, tipoDeCambio),
+            abonoMensual: aUsd(abonoMensual, tipoDeCambio),
+            anual: aUsd(anual, tipoDeCambio),
+            total: aUsd(total, tipoDeCambio),
+          },
+        }
+      : {}),
   };
+}
+
+/** Monto de un extra para un chip: "$60.000", o el texto si no tiene precio fijo. */
+export function montoDeExtra(extra: Pick<Extra, "price" | "aCotizar">, medio: Medio): string {
+  return extra.price == null ? extra.aCotizar : fmt(conRecargo(extra.price, medio));
 }
 
 /** Lo que se muestra en grande en la tarjeta de un plan (DISENO.md §4 Precios). */
 export function precioDePlan(plan: Plan, medio: Medio) {
-  const soloAbono = plan.impl == null;
+  const aCotizar = plan.impl == null && plan.monthly == null;
+  const soloAbono = plan.impl == null && !aCotizar;
   return {
-    etiqueta: soloAbono ? "Abono" : plan.from ? "Desde" : "Implementación",
-    precio: conRecargo(soloAbono ? (plan.monthly ?? 0) : plan.impl!, medio),
+    etiqueta: aCotizar ? "A cotizar" : soloAbono ? "Abono" : plan.from ? "Desde" : "Implementación",
+    /** `null` = sin precio fijo: mostrar `texto`. */
+    precio: aCotizar ? null : conRecargo(soloAbono ? (plan.monthly ?? 0) : plan.impl!, medio),
+    texto: plan.aCotizar,
     unidad: soloAbono ? "/mes" : plan.unit,
     abono: !soloAbono && plan.monthly ? conRecargo(plan.monthly, medio) : null,
   };
+}
+
+/** Una opción de `comparar()`: lo justo para elegir, sin totales. */
+export interface FilaComparacion {
+  id: string;
+  nombre: string;
+  /** "Desde", "Implementación", "Abono", "Combo" o "A cotizar". */
+  etiqueta: string;
+  /** Monto principal. `null` = a cotizar (ver `texto`). */
+  precio: number | null;
+  texto: string;
+  unidad: string;
+  /** Abono mensual aparte del precio principal, si hay. */
+  abono: number | null;
+  /** Alternativa por abono del catálogo ("O por abono: …"), literal. */
+  alt: string;
+  plazo: string;
+  /** Para quién es: el primer ítem del plan o lo que incluye el combo. */
+  paraQuien: string;
+  recomendado: boolean;
+  usd?: { precio: number; abono: number };
+}
+
+export interface Comparacion {
+  medio: Medio;
+  filas: FilaComparacion[];
+  desconocidos: string[];
+  tipoDeCambio?: number;
+}
+
+/**
+ * Compara alternativas (2 a 4 planes o combos) **sin sumarlas**: cada fila es
+ * una opción por separado. Es lo que corresponde cuando la persona todavía
+ * elige entre Landing Express y Profesional, o entre Mantenimiento Básico y
+ * Pro. Nunca devuelve un total.
+ */
+export function comparar({
+  ids,
+  medio = "transferencia",
+  tipoDeCambio,
+}: {
+  ids: string[];
+  medio?: Medio;
+  tipoDeCambio?: number;
+}): Comparacion {
+  const filas: FilaComparacion[] = [];
+  const desconocidos: string[] = [];
+  const conUsd = tipoDeCambio && tipoDeCambio > 0 ? tipoDeCambio : undefined;
+
+  for (const id of new Set(ids)) {
+    const plan = getPlan(id);
+    const combo = getCombo(id);
+    if (plan) {
+      const p = precioDePlan(plan, medio);
+      filas.push({
+        id,
+        nombre: plan.name,
+        etiqueta: p.etiqueta,
+        precio: p.precio,
+        texto: p.texto,
+        unidad: p.unidad,
+        abono: p.abono,
+        alt: plan.alt,
+        plazo: plan.time,
+        paraQuien: plan.items[0] ?? "",
+        recomendado: plan.rec,
+        ...(conUsd ? { usd: { precio: aUsd(p.precio ?? 0, conUsd), abono: aUsd(p.abono ?? 0, conUsd) } } : {}),
+      });
+    } else if (combo) {
+      const precio = conRecargo(combo.price, medio);
+      const abono = conRecargo(combo.monthly, medio);
+      filas.push({
+        id,
+        nombre: `Combo ${combo.name}`,
+        etiqueta: "Combo",
+        precio,
+        texto: "",
+        unidad: "pago único",
+        abono,
+        alt: "",
+        plazo: "",
+        paraQuien: combo.parts,
+        recomendado: false,
+        ...(conUsd ? { usd: { precio: aUsd(precio, conUsd), abono: aUsd(abono, conUsd) } } : {}),
+      });
+    } else desconocidos.push(id);
+  }
+
+  return { medio, filas, desconocidos, ...(conUsd ? { tipoDeCambio: conUsd } : {}) };
 }
 
 /** Texto plano de una cotización, para WhatsApp y para el agente. */
@@ -191,6 +353,7 @@ export function resumenCotizacion(c: Cotizacion): string {
       i.implementacion ? `${i.desde ? "desde " : ""}${fmt(i.implementacion)}` : "",
       i.mensual ? `${fmt(i.mensual)}/mes` : "",
       i.anual ? `${fmt(i.anual)}/año` : "",
+      i.aCotizar,
     ].filter(Boolean);
     return `• ${i.nombre}: ${partes.join(" + ")}`;
   });
@@ -199,6 +362,7 @@ export function resumenCotizacion(c: Cotizacion): string {
     ...lineas,
     `Implementación: ${c.desde ? "desde " : ""}${fmt(c.implementacion)}`,
     c.abonoMensual ? `Abono: ${fmt(c.abonoMensual)}/mes` : "",
+    c.usd ? `≈ ${fmtUsd(c.usd.implementacion)}${c.usd.abonoMensual ? ` + ${fmtUsd(c.usd.abonoMensual)}/mes` : ""} (dólar oficial del día)` : "",
     `Pago por ${medio}.`,
   ]
     .filter(Boolean)

@@ -32,7 +32,11 @@ export function PlanCard({ plan, medio, copy }: { plan: Plan; medio: Medio; copy
       <div>
         <span className="lbl text-[10px]">{p.etiqueta}</span>
         <div className="flex flex-wrap items-baseline gap-1.5">
-          <span className="h text-[34px] tracking-[-.02em]">{fmt(p.precio)}</span>
+          {p.precio == null ? (
+            <span className="h text-[22px] leading-tight">{p.texto}</span>
+          ) : (
+            <span className="h text-[34px] tracking-[-.02em]">{fmt(p.precio)}</span>
+          )}
           {p.unidad ? <span className="text-sm text-muted">{p.unidad}</span> : null}
         </div>
         {p.abono ? (

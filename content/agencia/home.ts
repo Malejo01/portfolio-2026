@@ -159,7 +159,7 @@ export const home = {
     saveLabel: "Ahorrás",
     comboCta: "Quiero este combo",
     extrasLabel: "Extras",
-    legal: `Precios en pesos, vigentes hasta el ${vigencia}. Webs: 12 meses de hosting y 30 días de garantía incluidos. Proyectos desde $450.000: 3 pagos sin recargo por transferencia. Los costos de Meta (WhatsApp) y del modelo de IA van aparte.`,
+    legal: `Precios en pesos, vigentes hasta el ${vigencia}. Webs: 12 meses de hosting y 30 días de garantía incluidos. El total se paga 50% al aprobar la demo y 50% en la entrega; con Mercado Pago, hasta 6 cuotas. El dominio, los costos de Meta (WhatsApp) y los del modelo de IA van aparte.`,
     legalCta: { label: "¿No ves lo tuyo? Pedí una cotización", href: "/cotizador" },
   },
 

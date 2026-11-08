@@ -1,5 +1,5 @@
-import { categories, combos, extras, recargoMercadoPago, vigencia } from "@/content/agencia/pricing";
-import { fmt, precioDePlan } from "@/lib/agencia/pricing";
+import { categories, combos, extras, mantenimientoGrandesPct, recargoMercadoPago, vigencia } from "@/content/agencia/pricing";
+import { fmt, montoDeExtra, precioDePlan } from "@/lib/agencia/pricing";
 import { bloqueConocimiento } from "./knowledge";
 
 /**
@@ -8,21 +8,25 @@ import { bloqueConocimiento } from "./knowledge";
  * un solo precio escrito a mano acá. Es determinista (mismo texto en cada
  * request) para que el prefijo sea cacheable.
  */
-function catalogo(): string {
+export function catalogo(): string {
   const lineas: string[] = [];
   for (const c of categories) {
     lineas.push(`\n## ${c.label}\n${c.intro} ${c.note}`);
     for (const p of c.plans) {
       const d = precioDePlan(p, "transferencia");
+      const precio = d.precio == null ? d.texto : `${d.etiqueta.toLowerCase()} ${fmt(d.precio)} ${d.unidad}`.trim();
       const abono = d.abono ? ` + ${fmt(d.abono)}/mes` : "";
       const plazo = p.time ? ` · plazo ${p.time}` : "";
-      lineas.push(`- [${p.id}] ${p.name}: ${d.etiqueta.toLowerCase()} ${fmt(d.precio)} ${d.unidad}${abono}${plazo}. ${p.items.join("; ")}.`);
+      const rec = p.rec ? " · RECOMENDADO" : "";
+      const alt = p.alt ? ` ${p.alt}` : "";
+      lineas.push(`- [${p.id}] ${p.name}: ${precio}${abono}${plazo}${rec}. ${p.items.join("; ")}.${alt}`);
     }
   }
-  lineas.push("\n## Combos");
+  lineas.push("\n## Combos (si cubren lo que pide, mencionalos)");
   for (const c of combos) lineas.push(`- [${c.id}] ${c.name}: ${c.parts}. ${fmt(c.price)} + ${fmt(c.monthly)}/mes (lista ${fmt(c.list)}).`);
   lineas.push("\n## Extras");
-  lineas.push(extras.map((e) => `[${e.id}] ${e.name} ${fmt(e.price)}`).join(" · "));
+  lineas.push(extras.map((e) => `[${e.id}] ${e.name} ${montoDeExtra(e, "transferencia")}`).join(" · "));
+  lineas.push(`\nMantenimiento de proyectos grandes: ${Math.round(mantenimientoGrandesPct * 100)}% mensual del valor de implementación.`);
   return lineas.join("\n");
 }
 

@@ -45,7 +45,9 @@ function jsonLd(slug: string): string {
     url: `${siteUrl}/servicios/${slug}`,
     provider: { "@type": "ProfessionalService", name: "Malejo", url: siteUrl },
     areaServed: [{ "@type": "Country", name: "Argentina" }, { "@type": "Place", name: "LATAM" }],
-    offers: category.plans.map((p) => ({
+    // Los ítems sin precio fijo (proyectos grandes: "se cotiza con el
+    // diagnóstico") no llevan `Offer`: un precio en 0 sería falso.
+    offers: category.plans.filter((p) => p.impl != null || p.monthly != null).map((p) => ({
       "@type": "Offer",
       name: p.name,
       url: `${siteUrl}/demo?plan=${p.id}`,

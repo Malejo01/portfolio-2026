@@ -255,7 +255,7 @@
       "key": "gestion",
       "label": "Sistemas de gestión",
       "intro": "Dejá las planillas sueltas: sistemas simples para el día a día de tu negocio.",
-      "note": "Proyectos desde $900.000: se pagan por hito (40/30/30).",
+      "note": "Proyectos desde $900.000: arrancan con un diagnóstico escrito y se desarrollan por etapas (ver Proyectos grandes).",
       "plans": [
         {
           "name": "Control de stock con QR",
@@ -482,6 +482,81 @@
           "alt": ""
         }
       ]
+    },
+    {
+      "key": "grandes",
+      "label": "Proyectos grandes",
+      "intro": "Marketplaces, apps a medida o sistemas complejos: nunca un precio cerrado sin entender el proyecto. Primero una charla, después un diagnóstico por escrito y recién ahí el desarrollo, por sprints.",
+      "note": "Cada sprint se cotiza con el diagnóstico y termina con una demo funcionando. Sin permanencia: el mantenimiento se da de baja avisando con 30 días.",
+      "plans": [
+        {
+          "name": "Consultoría inicial",
+          "impl": 0,
+          "from": false,
+          "monthly": null,
+          "unit": "sin cargo",
+          "time": "30 minutos",
+          "rec": true,
+          "items": [
+            "Charla por videollamada o WhatsApp",
+            "Vemos si es un proyecto grande",
+            "Sin compromiso"
+          ],
+          "proof": "",
+          "alt": ""
+        },
+        {
+          "name": "Diagnóstico escrito",
+          "impl": 60000,
+          "from": false,
+          "monthly": null,
+          "unit": "pago único",
+          "time": "",
+          "rec": false,
+          "items": [
+            "Relevamiento y alcance",
+            "Arquitectura propuesta",
+            "Estimación por etapas"
+          ],
+          "proof": "",
+          "alt": ""
+        },
+        {
+          "name": "Sprint con demo",
+          "impl": null,
+          "from": false,
+          "monthly": null,
+          "unit": "",
+          "time": "2 semanas",
+          "rec": false,
+          "items": [
+            "Se cotiza con el diagnóstico",
+            "Demo funcionando al cierre",
+            "Pagás sprint por sprint"
+          ],
+          "proof": "Como AfinIA Jobs",
+          "alt": "",
+          "aCotizar": "se cotiza con el diagnóstico"
+        },
+        {
+          "name": "Mantenimiento de proyectos grandes",
+          "impl": null,
+          "from": false,
+          "monthly": null,
+          "unit": "",
+          "time": "",
+          "rec": false,
+          "items": [
+            "Hosting, backups y monitoreo",
+            "Correcciones y ajustes menores",
+            "Sin permanencia mínima"
+          ],
+          "proof": "",
+          "alt": "",
+          "aCotizar": "10% mensual del valor de implementación",
+          "mantenimientoPct": 0.1
+        }
+      ]
     }
   ],
   "combos": [
@@ -540,11 +615,24 @@
       "precio": 25000
     },
     {
-      "nombre": "Diagnóstico escrito",
-      "precio": 60000
+      "nombre": "Dominio .com.ar (NIC.ar, por año)",
+      "precio": null,
+      "unidad": "por año",
+      "aCotizar": "según tarifa vigente de NIC.ar"
+    },
+    {
+      "nombre": "Dominio .com (por año)",
+      "precio": null,
+      "unidad": "por año",
+      "aCotizar": "según tarifa vigente del registrador"
     }
   ],
   "vigencia": "2027-01-31",
   "moneda": "ARS",
-  "recargoMercadoPago": 0.06
+  "recargoMercadoPago": 0.06,
+  "usd": {
+    "fallback": 1500,
+    "fuente": "dólar oficial, venta (dolarapi.com)",
+    "nota": "fallback: se usa solo si dolarapi.com no responde y no hay USD_ARS_FALLBACK. Actualizalo cada tanto."
+  }
 }

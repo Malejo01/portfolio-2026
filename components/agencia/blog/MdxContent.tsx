@@ -16,7 +16,7 @@ function Precio({ id }: { id: string }) {
   return (
     <strong className="text-text">
       {p.etiqueta === "Desde" ? "desde " : ""}
-      {fmt(p.precio)}
+      {p.precio == null ? p.texto : fmt(p.precio)}
       {p.abono ? ` + ${fmt(p.abono)}/mes` : ""}
     </strong>
   );

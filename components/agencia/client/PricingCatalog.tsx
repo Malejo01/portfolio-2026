@@ -5,7 +5,7 @@ import { ComboCard, PlanCard, type ComboCopy, type PlanCopy } from "@/components
 import type { Category, Combo, Extra } from "@/content/agencia/pricing";
 import { OPEN_CATEGORY_EVENT } from "@/lib/agencia/motion";
 import { MedioSwitch } from "./MedioSwitch";
-import { conRecargo, fmt, type Medio } from "@/lib/agencia/pricing";
+import { montoDeExtra, type Medio } from "@/lib/agencia/pricing";
 
 /**
  * Catálogo de precios (DISENO.md §4 Precios, `05-precios-*.png`). Isla:
@@ -174,7 +174,7 @@ export function PricingCatalog({
           <ul className="m-0 flex flex-1 list-none flex-wrap gap-2 p-0">
             {extras.map((e) => (
               <li key={e.id} className="chip h-[34px]">
-                {e.name} <strong>{fmt(conRecargo(e.price, medio))}</strong>
+                {e.name} <strong>{montoDeExtra(e, medio)}</strong>
               </li>
             ))}
           </ul>

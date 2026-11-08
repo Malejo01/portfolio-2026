@@ -100,8 +100,8 @@ export default async function ServicioPage({ params }: Props) {
           idPrefix={`servicio-${category.key}`}
           heading={
             <div>
-              <span className="lbl lbl-o">{detail.plansLabel}</span>
-              <h2 className="h mt-2 text-[26px] sm:text-[30px]">{detail.plansTitle}</h2>
+              <span className="lbl lbl-o">{category.key === "grandes" ? detail.stepsLabel : detail.plansLabel}</span>
+              <h2 className="h mt-2 text-[26px] sm:text-[30px]">{category.key === "grandes" ? detail.stepsTitle : detail.plansTitle}</h2>
             </div>
           }
           footer={

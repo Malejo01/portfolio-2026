@@ -33,7 +33,7 @@ export function PlanCard({ plan, medio, copy }: { plan: Plan; medio: Medio; copy
         <span className="lbl text-[10px]">{p.etiqueta}</span>
         <div className="flex flex-wrap items-baseline gap-1.5">
           {p.precio == null ? (
-            <span className="h text-[22px] leading-tight">{p.texto}</span>
+            <span className="text-sm text-muted">{p.texto}</span>
           ) : (
             <span className="h text-[34px] tracking-[-.02em]">{fmt(p.precio)}</span>
           )}
@@ -115,5 +115,86 @@ export function ComboCard({
         {copy.comboCta}
       </Link>
     </article>
+  );
+}
+
+export interface GrandesCopy {
+  stepLabel: string;
+  free: string;
+  maintenance: string;
+  cta: { label: string; href: string };
+}
+
+/**
+ * Pestaña "Proyectos grandes": los pasos (consultoría → diagnóstico →
+ * sprint) en tarjetas numeradas, la línea de mantenimiento y el CTA de la
+ * consultoría. Misma forma que `PlanCard` (DISENO.md §4): `card lift`, el
+ * paso recomendado en `.hi`, precios desde `precioDePlan`.
+ */
+export function GrandesSteps({ plans, medio, copy }: { plans: Plan[]; medio: Medio; copy: GrandesCopy & PlanCopy }) {
+  const pasos = plans.filter((p) => p.mantenimientoPct == null);
+  const external = /^https?:/.test(copy.cta.href);
+  return (
+    <>
+      <ol className="m-0 mt-[22px] grid list-none grid-cols-1 items-stretch gap-5 p-0 sm:grid-cols-2 lg:grid-cols-3">
+        {pasos.map((plan, i) => {
+          const p = precioDePlan(plan, medio);
+          return (
+            <li key={plan.id} className={`card lift relative flex flex-col gap-4 p-[26px] ${plan.rec ? "hi" : ""}`}>
+              <div className="flex items-start justify-between gap-2.5">
+                <div>
+                  <span className="lbl lbl-o text-[10px]">
+                    {copy.stepLabel} {i + 1}
+                  </span>
+                  <h3 className="h mt-1 text-xl">{plan.name}</h3>
+                </div>
+                {plan.time ? <span className="tag flex-none">⏱ {plan.time}</span> : null}
+              </div>
+              <div>
+                {p.precio == null ? (
+                  <>
+                    <span className="h block text-[34px] tracking-[-.02em]">{p.etiqueta}</span>
+                    <span className="text-sm text-muted">{p.texto}</span>
+                  </>
+                ) : p.precio === 0 ? (
+                  <span className="h text-[34px] tracking-[-.02em]">{copy.free}</span>
+                ) : (
+                  <div className="flex flex-wrap items-baseline gap-1.5">
+                    <span className="h text-[34px] tracking-[-.02em]">{fmt(p.precio)}</span>
+                    {p.unidad ? <span className="text-sm text-muted">{p.unidad}</span> : null}
+                  </div>
+                )}
+              </div>
+              <ul className="m-0 flex list-none flex-col gap-[9px] p-0 text-sm">
+                {plan.items.map((item) => (
+                  <li key={item} className="flex items-start gap-2">
+                    <Check />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              {plan.proof ? (
+                <span className="mt-auto inline-flex items-center gap-1.5 text-xs text-muted">
+                  <span aria-hidden="true" className="text-[8px] text-acc">
+                    ●
+                  </span>
+                  {plan.proof}
+                </span>
+              ) : null}
+            </li>
+          );
+        })}
+      </ol>
+      <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <p className="m-0 text-[15px] text-muted">{copy.maintenance}</p>
+        <a
+          href={copy.cta.href}
+          {...(external ? { target: "_blank", rel: "noopener" } : {})}
+          className="btn btn-p btn-sm flex-none"
+        >
+          {copy.cta.label}
+        </a>
+      </div>
+    </>
   );
 }

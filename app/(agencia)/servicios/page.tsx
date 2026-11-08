@@ -20,6 +20,16 @@ export default function ServiciosPage() {
       <h1 className="h h2">{index.heading}</h1>
       <p className="mb-0 mt-2 max-w-[40em] text-[17px] text-muted">{index.lead}</p>
       <ServiceCards linkMode="page" heading="h2" />
+      <div className="card mt-5 flex flex-col gap-2 p-[26px] sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+        <div>
+          <span className="lbl lbl-o">{index.grandes.label}</span>
+          <h2 className="h mt-2 text-2xl">{index.grandes.title}</h2>
+          <p className="m-0 mt-1 max-w-[40em] text-[15px] leading-normal text-muted">{index.grandes.body}</p>
+        </div>
+        <Link href={index.grandes.cta.href} className="lnk flex-none">
+          {index.grandes.cta.label}
+        </Link>
+      </div>
       <div className="mt-10 flex flex-wrap gap-3">
         <Link href={index.demo.href} className="btn btn-p">
           {index.demo.label}

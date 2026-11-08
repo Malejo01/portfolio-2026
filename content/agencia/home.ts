@@ -1,7 +1,8 @@
 import type { IconName } from "@/components/agencia/icons";
 import { agenciaLinks } from "./links";
 import { faqPorIds } from "./conocimiento";
-import { recargoMercadoPago, vigencia, type CategoryKey } from "./pricing";
+import { agendaGrandesHref } from "./grandes";
+import { mantenimientoGrandesPct, recargoMercadoPago, vigencia, type CategoryKey } from "./pricing";
 
 /**
  * Copy de la home de la agencia. Textos exactos de
@@ -161,6 +162,13 @@ export const home = {
     extrasLabel: "Extras",
     legal: `Precios en pesos, vigentes hasta el ${vigencia}. Webs: 12 meses de hosting y 30 días de garantía incluidos. El total se paga 50% al aprobar la demo y 50% en la entrega; con Mercado Pago, hasta 6 cuotas. El dominio, los costos de Meta (WhatsApp) y los del modelo de IA van aparte.`,
     legalCta: { label: "¿No ves lo tuyo? Pedí una cotización", href: "/cotizador" },
+    /** Pestaña "Proyectos grandes": tres pasos en vez de planes. */
+    grandes: {
+      stepLabel: "Paso",
+      free: "Sin cargo",
+      maintenance: `Mantenimiento: ${Math.round(mantenimientoGrandesPct * 100)}% mensual del valor de implementación, sin permanencia.`,
+      cta: { label: "Agendá la consultoría", href: agendaGrandesHref },
+    },
   },
 
   projects: {

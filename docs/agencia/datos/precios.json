@@ -487,7 +487,7 @@
       "key": "grandes",
       "label": "Proyectos grandes",
       "intro": "Marketplaces, apps a medida o sistemas complejos: nunca un precio cerrado sin entender el proyecto. Primero una charla, después un diagnóstico por escrito y recién ahí el desarrollo, por sprints.",
-      "note": "Cada sprint se cotiza con el diagnóstico y termina con una demo funcionando. Sin permanencia: el mantenimiento se da de baja avisando con 30 días.",
+      "note": "Cada sprint se cotiza con el diagnóstico y termina con una demo funcionando.",
       "plans": [
         {
           "name": "Consultoría inicial",
@@ -530,7 +530,7 @@
           "time": "2 semanas",
           "rec": false,
           "items": [
-            "Se cotiza con el diagnóstico",
+            "Alcance cerrado por sprint",
             "Demo funcionando al cierre",
             "Pagás sprint por sprint"
           ],

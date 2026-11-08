@@ -5,9 +5,9 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/agencia/icons";
 import type { MalejoCopy } from "@/content/agencia/malejo";
-import type { Card } from "@/lib/agencia/chat/tools";
+import type { Card } from "@/lib/agencia/chat/cards";
 import { waLink } from "@/lib/agencia/config";
-import { fmt } from "@/lib/agencia/format";
+import { fmt, fmtUsd } from "@/lib/agencia/format";
 
 /**
  * El flotante de Malejo (DISENO.md §5, `11-flotante-*.png`): sprite-botón,
@@ -372,9 +372,47 @@ function CardView({
               {copy.quote.perMonth}
             </span>
           ) : null}
+          {card.anual ? (
+            <span className="text-[13px] text-muted">
+              + {fmt(card.anual)}
+              {copy.quote.perYear}
+            </span>
+          ) : null}
         </div>
+        {card.usd ? (
+          <p className="m-0 text-[13px] text-muted">
+            ≈ {fmtUsd(card.usd.implementacion)}
+            {card.usd.mensual ? ` + ${fmtUsd(card.usd.mensual)}${copy.quote.perMonth}` : ""} · {copy.quote.usd}
+          </p>
+        ) : null}
+        {card.aCotizar.map((t) => (
+          <p key={t} className="m-0 text-[13px] text-muted">
+            + {t}
+          </p>
+        ))}
         <Link href={card.demoHref} className="btn btn-p btn-sm w-full">
           {copy.quote.demo.replace("{SENA}", fmt(senaMonto))}
+        </Link>
+      </div>
+    );
+  }
+  if (card.kind === "compare") return <CompareCard card={card} copy={copy} />;
+  if (card.kind === "proyectos") {
+    return (
+      <div className="card flex flex-col gap-2 rounded-[18px] p-3.5">
+        <span className="lbl lbl-o text-[10px]">{copy.proyectos.label}</span>
+        <ul className="m-0 flex list-none flex-col gap-2 p-0">
+          {card.items.map((p) => (
+            <li key={p.nombre}>
+              <a href={p.href} target="_blank" rel="noopener" className="flex flex-col rounded-xl border border-border px-3 py-2 hover:border-border-h">
+                <span className="text-sm font-semibold">{p.nombre} ↗</span>
+                <span className="text-[12px] leading-snug text-muted">{p.que}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+        <Link href={card.portfolio.href} className="btn btn-s btn-sm w-full">
+          {copy.proyectos.portfolio}
         </Link>
       </div>
     );
@@ -401,6 +439,62 @@ function CardView({
     );
   }
   return <ConsentCard card={card} copy={copy} turnstileSiteKey={turnstileSiteKey} />;
+}
+
+/**
+ * Alternativas lado a lado (`comparar`): una fila por opción y **ningún
+ * total**. Misma familia visual que la tarjeta de cotización (DISENO.md §5).
+ */
+function CompareCard({ card, copy }: { card: Extract<Card, { kind: "compare" }>; copy: MalejoCopy }) {
+  return (
+    <div className="card hi flex flex-col gap-2 rounded-[18px] p-3.5">
+      <div className="flex justify-between gap-2">
+        <span className="lbl lbl-o text-[10px]">{copy.compare.label}</span>
+        <span className="lbl text-[10px]">{card.medio === "mp" ? copy.quote.mpLabel : copy.quote.listLabel}</span>
+      </div>
+      <p className="m-0 text-[12px] text-muted">{copy.compare.hint}</p>
+      <ul className="m-0 flex list-none flex-col p-0">
+        {card.filas.map((f) => (
+          <li key={f.id} className="flex flex-col gap-1 border-t border-border py-2.5 first:border-t-0 first:pt-1">
+            <div className="flex items-start justify-between gap-2">
+              <span className="h text-[15px]">{f.nombre}</span>
+              {f.recomendado ? <span className="tag flex-none text-[10px]">{copy.compare.recommended}</span> : null}
+            </div>
+            <div className="flex flex-wrap items-baseline gap-1.5">
+              {f.precio == null ? (
+                <span className="text-sm font-semibold">{f.texto}</span>
+              ) : (
+                <>
+                  {f.etiqueta === "Desde" ? <span className="text-[12px] text-muted">{copy.quote.from}</span> : null}
+                  <span className="h text-[19px]">{fmt(f.precio)}</span>
+                  {f.unidad === "/mes" ? <span className="text-[12px] text-muted">{copy.compare.perMonth}</span> : null}
+                </>
+              )}
+              {f.abono ? (
+                <span className="text-[12px] text-muted">
+                  + {fmt(f.abono)}
+                  {copy.compare.perMonth}
+                </span>
+              ) : null}
+              {f.plazo ? <span className="text-[12px] text-muted">· ⏱ {f.plazo}</span> : null}
+            </div>
+            {f.usd ? (
+              <span className="text-[12px] text-muted">
+                ≈ {fmtUsd(f.usd.precio)}
+                {f.usd.abono ? ` + ${fmtUsd(f.usd.abono)}${copy.compare.perMonth}` : ""}
+              </span>
+            ) : null}
+            {f.paraQuien ? <span className="text-[12px] leading-snug text-muted">{f.paraQuien}</span> : null}
+            {f.alt ? <span className="text-[12px] leading-snug text-muted">{f.alt}</span> : null}
+            <Link href={`/demo?plan=${encodeURIComponent(f.id)}`} className="lnk self-start text-[13px]">
+              {copy.compare.choose} →
+            </Link>
+          </li>
+        ))}
+      </ul>
+      {card.tipoDeCambio ? <p className="m-0 text-[11px] text-muted">{copy.compare.usd}</p> : null}
+    </div>
+  );
 }
 
 declare global {

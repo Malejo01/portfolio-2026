@@ -1,22 +1,29 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
+import type { Card } from "@/lib/agencia/chat/cards";
+import type { Ficha } from "@/lib/agencia/chat/ficha";
+import { FichaSchema, limpiarFicha } from "@/lib/agencia/chat/ficha-schema";
 import { consume } from "@/lib/agencia/chat/limits";
 import { systemPrompt } from "@/lib/agencia/chat/prompt";
 import { hashIp, ipFrom } from "@/lib/agencia/chat/security";
-import { runTool, tools, type Card } from "@/lib/agencia/chat/tools";
+import { nuevoContexto, runTool, tools } from "@/lib/agencia/chat/tools";
 import { senaMonto, waLink } from "@/lib/agencia/config";
+import { tipoDeCambio } from "@/lib/agencia/usd";
 
 /**
- * Chat de Malejo. POST `{ messages: [{ role, content }] }` → stream NDJSON:
+ * Chat de Malejo. POST `{ messages: [{ role, content }], ficha?, shownCards? }`
+ * → stream NDJSON:
  *
  *   {"type":"text","text":"…"}   delta de texto
  *   {"type":"card","card":{…}}   tarjeta de herramienta (cotización, demo…)
+ *   {"type":"ficha","ficha":{…}} cambio de ficha (el widget lo fusiona)
  *   {"type":"done"}              fin del turno
  *   {"type":"error","text":"…"}  error mostrable (con tarjeta de WhatsApp)
  *
  * Loop manual con streaming: las herramientas corren acá, en el servidor,
  * validadas con zod. El historial llega del cliente solo como texto (no se
- * guardan transcripciones) y se recorta a los últimos 20 turnos.
+ * guardan transcripciones) y se recorta a los últimos 20 turnos. La ficha y
+ * las firmas de tarjetas llegan del widget, se validan y no se guardan.
  *
  * Sin `ANTHROPIC_API_KEY` responde un mensaje fijo con WhatsApp: la UI no
  * se rompe. Los logs no llevan datos personales: solo tipo de error y status.
@@ -32,11 +39,20 @@ const Body = z.object({
     .array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().trim().min(1).max(2000) }))
     .min(1)
     .max(60),
+  /** Lo que el widget sabe del cliente. Se valida, se trunca y no se guarda. */
+  ficha: FichaSchema.optional(),
+  /** Firmas de las tarjetas ya mostradas (`firmaCard`), para no repetirlas. */
+  shownCards: z.array(z.string().max(300)).max(40).optional(),
 });
 
 const FALLBACK = "Ahora no puedo responder, escribime por WhatsApp y te contesta Mauro.";
 
-type Event = { type: "text"; text: string } | { type: "card"; card: Card } | { type: "done" } | { type: "error"; text: string };
+type Event =
+  | { type: "text"; text: string }
+  | { type: "card"; card: Card }
+  | { type: "ficha"; ficha: Ficha }
+  | { type: "done" }
+  | { type: "error"; text: string };
 
 function ndjson(events: Event[]): Response {
   return new Response(events.map((e) => JSON.stringify(e)).join("\n") + "\n", {
@@ -73,6 +89,7 @@ export async function POST(request: Request) {
   while (history.length && history[0].role !== "user") history = history.slice(1);
   const messages: Anthropic.MessageParam[] = history.map((m) => ({ role: m.role, content: m.content }));
 
+  const ctx = nuevoContexto((await tipoDeCambio()).valor, body.ficha ? limpiarFicha(body.ficha) : {}, body.shownCards);
   const client = new Anthropic();
   const system = systemPrompt(senaMonto());
   const encoder = new TextEncoder();
@@ -116,8 +133,9 @@ export async function POST(request: Request) {
 
           messages.push({ role: "assistant", content: message.content });
           const results: Anthropic.ToolResultBlockParam[] = toolUses.map((t) => {
-            const out = runTool(t.name, t.input);
+            const out = runTool(t.name, t.input, ctx);
             if (out.card) send({ type: "card", card: out.card });
+            if (out.ficha) send({ type: "ficha", ficha: out.ficha });
             return { type: "tool_result", tool_use_id: t.id, content: out.content, ...(out.isError ? { is_error: true } : {}) };
           });
           messages.push({ role: "user", content: results });

@@ -7,7 +7,7 @@ import {
   type Extra,
   type Plan,
 } from "@/content/agencia/pricing";
-import { fmt } from "./format";
+import { fmt, fmtUsd } from "./format";
 
 /**
  * **Única lógica de precios** de la agencia. La usan la sección de precios
@@ -17,7 +17,7 @@ import { fmt } from "./format";
  * `lib/agencia/usd.ts` en el servidor), así todo sigue siendo testeable.
  */
 
-export { fmt };
+export { fmt, fmtUsd };
 
 export type Medio = "transferencia" | "mp";
 
@@ -40,11 +40,6 @@ export function aUsd(ars: number, tipoDeCambio: number): number {
   if (!ars || !(tipoDeCambio > 0)) return 0;
   const usd = ars / tipoDeCambio;
   return usd < 100 ? Math.round(usd) : Math.round(usd / 10) * 10;
-}
-
-/** "USD 1.230" (miles con punto, como los pesos). */
-export function fmtUsd(n: number): string {
-  return `USD ${new Intl.NumberFormat("es-AR", { maximumFractionDigits: 0 }).format(n)}`;
 }
 
 /** "AHORRÁS 13%": descuento del combo sobre la suma de lista, redondeado. */

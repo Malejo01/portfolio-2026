@@ -27,7 +27,7 @@ export const demoCopy = {
   },
   success: {
     title: "¡Listo! Recibí tu brief.",
-    body: "Te escribo en menos de 24 h hábiles. Mientras, podés pagar la seña y agendar la videollamada acá abajo.",
+    body: "Te escribo en hasta 2 días hábiles. Mientras, podés pagar la seña y agendar la videollamada acá abajo.",
     fallbackTitle: "No pude guardar tu brief.",
     fallbackBody: "Mandámelo por WhatsApp con este botón y lo vemos por ahí.",
     fallbackCta: "Mandar por WhatsApp",

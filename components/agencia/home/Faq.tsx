@@ -1,11 +1,16 @@
 import { home, type FaqItem } from "@/content/agencia/home";
+import { senaMonto } from "@/lib/agencia/config";
+import { fmt } from "@/lib/agencia/format";
 import { Reveal } from "../client/Reveal";
 
 /**
  * FAQ (`08-faq-*.png`): `<details name="faq">` hace el acordeón exclusivo
- * sin JS. La primera abierta. Se reutiliza en `/servicios/[slug]`.
+ * sin JS. La primera abierta. Se reutiliza en `/servicios/[slug]`. Las
+ * respuestas salen de `conocimiento.ts`; `{SENA}` se completa acá, en el
+ * servidor, con `SENA_MONTO`.
  */
 export function FaqList({ items, name = "faq" }: { items: readonly FaqItem[]; name?: string }) {
+  const sena = fmt(senaMonto());
   return (
     <div className="mt-7 flex flex-col gap-3">
       {items.map((item, i) => (
@@ -20,7 +25,7 @@ export function FaqList({ items, name = "faq" }: { items: readonly FaqItem[]; na
               <span className="faq-minus">−</span>
             </span>
           </summary>
-          <p className="m-0 px-6 pb-[22px] text-[15px] leading-[1.6] text-muted">{item.a}</p>
+          <p className="m-0 px-6 pb-[22px] text-[15px] leading-[1.6] text-muted">{item.a.replaceAll("{SENA}", sena)}</p>
         </details>
       ))}
     </div>

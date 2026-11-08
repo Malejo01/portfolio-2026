@@ -1,4 +1,5 @@
 import type { CategoryKey } from "./pricing";
+import { faqPorIds } from "./conocimiento";
 import { home, type FaqItem } from "./home";
 
 /**
@@ -27,10 +28,8 @@ export const servicios = {
   },
 };
 
-/** FAQ de pagos de cada página de servicio: las preguntas de la home que hablan de plata. */
-export const faqPagos: FaqItem[] = home.faq.items.filter((i) =>
-  ["¿Cómo pago?", "¿Qué pasa después del primer año?", "¿De quién es el código?", "¿Qué es un cambio menor y qué un cambio mayor?"].includes(i.q),
-);
+/** FAQ de pagos de cada página de servicio, desde la base de conocimiento. */
+export const faqPagos: FaqItem[] = faqPorIds(["pagos", "cuotas", "sena", "primer-anio", "codigo", "cambios"]);
 
 export function serviceCard(key: CategoryKey) {
   return home.services.cards.find((c) => c.category === key);

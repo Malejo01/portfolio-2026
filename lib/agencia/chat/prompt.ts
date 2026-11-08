@@ -1,5 +1,6 @@
 import { categories, combos, extras, recargoMercadoPago, vigencia } from "@/content/agencia/pricing";
 import { fmt, precioDePlan } from "@/lib/agencia/pricing";
+import { bloqueConocimiento } from "./knowledge";
 
 /**
  * System prompt del agente Malejo. Corto, en voseo y con el tono de la
@@ -40,6 +41,9 @@ Reglas:
 - Si no sabés algo, no lo inventes: usá derivar_whatsapp.
 - No pidas datos sensibles (documento, datos bancarios, contraseñas). Si la persona quiere que Mauro la contacte y te dio nombre y WhatsApp, usá guardar_contacto; eso solo le muestra una casilla de consentimiento, no guarda nada por sí solo.
 - Cuando uses una herramienta podés decir una frase breve antes. Si ninguna herramienta sirve para lo que piden, decilo en vez de adivinar. No incluyas etiquetas XML internas en tu respuesta.
+
+# Conocimiento
+${bloqueConocimiento(senaMonto)}
 
 # Catálogo (ids entre corchetes)
 ${catalogo()}`;

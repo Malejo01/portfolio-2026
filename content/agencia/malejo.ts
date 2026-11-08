@@ -16,6 +16,8 @@ export const malejoCopy = {
     name: "Malejo",
     status: "Responde al instante · Lo supervisa Mauro",
     close: "Cerrar chat",
+    whatsapp: "Escribirle a Mauro por WhatsApp con el resumen de esta charla",
+    whatsappTip: "WhatsApp con Mauro",
   },
   greeting:
     "¡Hola! Soy Malejo, el asistente de Mauro. Contame qué tenés y qué necesitás, y te digo qué plan te conviene y cuánto sale.",

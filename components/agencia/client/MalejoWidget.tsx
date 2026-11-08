@@ -7,7 +7,8 @@ import { Icon } from "@/components/agencia/icons";
 import type { MalejoCopy } from "@/content/agencia/malejo";
 import type { Card } from "@/lib/agencia/chat/cards";
 import { mergeFicha, type Ficha } from "@/lib/agencia/chat/ficha";
-import { armarHistorial, firmasMostradas } from "@/lib/agencia/chat/history";
+import { armarHistorial, firmasMostradas, ultimaQuote } from "@/lib/agencia/chat/history";
+import { mensajeWhatsApp } from "@/lib/agencia/chat/whatsapp";
 import { waLink } from "@/lib/agencia/config";
 import { fmt, fmtUsd } from "@/lib/agencia/format";
 
@@ -124,7 +125,11 @@ export default function MalejoWidget({
           }
         }
       } catch {
-        patch((m) => ({ ...m, text: m.text || copy.errorText, cards: [...m.cards, { kind: "whatsapp", href: waLink() }] }));
+        patch((m) => ({
+          ...m,
+          text: m.text || copy.errorText,
+          cards: [...m.cards, { kind: "whatsapp", href: waLink(mensajeWhatsApp(ficha, ultimaQuote(msgs))) }],
+        }));
       } finally {
         setBusy(false);
       }
@@ -132,10 +137,9 @@ export default function MalejoWidget({
     [busy, msgs, ficha, copy.errorText],
   );
 
-  const waSummary = () => {
-    const pedidos = msgs.filter((m) => m.role === "user").map((m) => m.text).slice(-3).join(" / ");
-    return waLink(pedidos ? `Hola Mauro, vengo del chat de malejo.com.ar: ${pedidos}` : "Hola Mauro, vengo de malejo.com.ar.");
-  };
+  // Un solo formato para el ícono del encabezado, la chip y el error:
+  // la ficha y la última cotización mostrada (`lib/agencia/chat/whatsapp.ts`).
+  const waHref = waLink(mensajeWhatsApp(ficha, ultimaQuote(msgs)));
 
   const pose = open && busy ? "pensando" : "ok";
 
@@ -189,7 +193,7 @@ export default function MalejoWidget({
             style={{ transformOrigin: "100% 100%" }}
             className="card pointer-events-auto fixed inset-0 z-[61] flex flex-col overflow-hidden rounded-none sm:static sm:mb-[18px] sm:h-[min(600px,calc(100vh-110px))] sm:w-[380px] sm:rounded-[24px]"
           >
-            <ChatHeader copy={copy} onClose={close} />
+            <ChatHeader copy={copy} onClose={close} waHref={waHref} />
 
             <div ref={listRef} className="flex flex-1 flex-col gap-3 overflow-y-auto px-4 py-4" aria-live="polite">
               {msgs.map((m) => (
@@ -206,7 +210,7 @@ export default function MalejoWidget({
 
             <div className="flex flex-col gap-2.5 border-t border-border px-4 pb-3 pt-3">
               <div className="flex flex-wrap gap-2">
-                <a href={waSummary()} target="_blank" rel="noopener" className="chip">
+                <a href={waHref} target="_blank" rel="noopener" className="chip">
                   {copy.chips.whatsapp}
                 </a>
                 <button type="button" className="chip" onClick={() => send(copy.chips.plansMessage)} disabled={busy}>
@@ -293,7 +297,7 @@ function Avatar({ size }: { size: 32 | 40 }) {
   );
 }
 
-function ChatHeader({ copy, onClose }: { copy: MalejoCopy; onClose: () => void }) {
+function ChatHeader({ copy, onClose, waHref }: { copy: MalejoCopy; onClose: () => void; waHref: string }) {
   return (
     <div className="flex items-center gap-3 border-b border-border px-4 py-3">
       <Avatar size={40} />
@@ -304,6 +308,16 @@ function ChatHeader({ copy, onClose }: { copy: MalejoCopy; onClose: () => void }
         </div>
         <div className="text-xs text-muted">{copy.header.status}</div>
       </div>
+      <a
+        href={waHref}
+        target="_blank"
+        rel="noopener"
+        className="ibtn h-9 w-9 rounded-xl"
+        aria-label={copy.header.whatsapp}
+        title={copy.header.whatsappTip}
+      >
+        <Icon name="whatsapp" size={18} />
+      </a>
       <button type="button" className="ibtn h-9 w-9 rounded-xl" aria-label={copy.header.close} onClick={onClose}>
         <Icon name="close" size={16} />
       </button>

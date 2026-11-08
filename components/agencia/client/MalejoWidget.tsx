@@ -6,6 +6,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/agencia/icons";
 import type { MalejoCopy } from "@/content/agencia/malejo";
 import type { Card } from "@/lib/agencia/chat/cards";
+import { mergeFicha, type Ficha } from "@/lib/agencia/chat/ficha";
+import { armarHistorial, firmasMostradas } from "@/lib/agencia/chat/history";
 import { waLink } from "@/lib/agencia/config";
 import { fmt, fmtUsd } from "@/lib/agencia/format";
 
@@ -14,6 +16,11 @@ import { fmt, fmtUsd } from "@/lib/agencia/format";
  * toast del portfolio y ventana de chat. Lo carga `MalejoLoader` con
  * `next/dynamic` (`ssr: false`) cuando el navegador está libre, así que no
  * pesa en el primer render.
+ *
+ * Memoria de la charla, toda en el cliente (el servidor no guarda nada): los
+ * mensajes con sus tarjetas y la **ficha** que va armando `anotar_ficha`.
+ * Cada pedido manda el historial con una línea por tarjeta mostrada, la
+ * ficha y las firmas de las tarjetas (`lib/agencia/chat/history.ts`).
  */
 type Msg = { id: number; role: "user" | "assistant"; text: string; cards: Card[] };
 
@@ -34,6 +41,7 @@ export default function MalejoWidget({
   const [busy, setBusy] = useState(false);
   const [input, setInput] = useState("");
   const [msgs, setMsgs] = useState<Msg[]>([{ id: 0, role: "assistant", text: copy.greeting, cards: [] }]);
+  const [ficha, setFicha] = useState<Ficha>({});
   const nextId = useRef(1);
   const spriteBtn = useRef<HTMLButtonElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -84,7 +92,8 @@ export default function MalejoWidget({
       if (!content || busy) return;
       const user: Msg = { id: nextId.current++, role: "user", text: content, cards: [] };
       const bot: Msg = { id: nextId.current++, role: "assistant", text: "", cards: [] };
-      const history = [...msgs, user].map((m) => ({ role: m.role, content: m.text })).filter((m) => m.content);
+      const history = armarHistorial([...msgs, user]);
+      const shownCards = firmasMostradas(msgs);
       setMsgs((m) => [...m, user, bot]);
       setInput("");
       setBusy(true);
@@ -94,7 +103,7 @@ export default function MalejoWidget({
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ messages: history }),
+          body: JSON.stringify({ messages: history, ficha, shownCards }),
         });
         if (!res.ok || !res.body) throw new Error(String(res.status));
         const reader = res.body.getReader();
@@ -108,9 +117,10 @@ export default function MalejoWidget({
           buffer = lines.pop() ?? "";
           for (const line of lines) {
             if (!line.trim()) continue;
-            const ev = JSON.parse(line) as { type: string; text?: string; card?: Card };
+            const ev = JSON.parse(line) as { type: string; text?: string; card?: Card; ficha?: Ficha };
             if ((ev.type === "text" || ev.type === "error") && ev.text) patch((m) => ({ ...m, text: m.text + ev.text }));
             if (ev.type === "card" && ev.card) patch((m) => ({ ...m, cards: [...m.cards, ev.card!] }));
+            if (ev.type === "ficha" && ev.ficha) setFicha((f) => mergeFicha(f, ev.ficha!));
           }
         }
       } catch {
@@ -119,7 +129,7 @@ export default function MalejoWidget({
         setBusy(false);
       }
     },
-    [busy, msgs, copy.errorText],
+    [busy, msgs, ficha, copy.errorText],
   );
 
   const waSummary = () => {

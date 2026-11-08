@@ -23,7 +23,25 @@ import { fmt, fmtUsd } from "@/lib/agencia/format";
  * Cada pedido manda el historial con una línea por tarjeta mostrada, la
  * ficha y las firmas de las tarjetas (`lib/agencia/chat/history.ts`).
  */
-type Msg = { id: number; role: "user" | "assistant"; text: string; cards: Card[] };
+type Seg = { t: "text"; text: string } | { t: "card"; card: Card };
+/**
+ * `text` y `cards` arman el historial; `segs` guarda el orden en que llegaron
+ * (texto → tarjeta → texto) para mostrarlos igual y no dejar la frase que
+ * sigue a una herramienta arriba de su tarjeta.
+ */
+type Msg = { id: number; role: "user" | "assistant"; text: string; cards: Card[]; segs?: Seg[] };
+
+function conTexto(m: Msg, text: string): Msg {
+  const segs = [...(m.segs ?? [])];
+  const last = segs[segs.length - 1];
+  if (last?.t === "text") segs[segs.length - 1] = { t: "text", text: last.text + text };
+  else segs.push({ t: "text", text });
+  return { ...m, text: m.text + text, segs };
+}
+
+function conCard(m: Msg, card: Card): Msg {
+  return { ...m, cards: [...m.cards, card], segs: [...(m.segs ?? []), { t: "card", card }] };
+}
 
 const TOAST_KEY = "malejo-toast";
 
@@ -119,17 +137,15 @@ export default function MalejoWidget({
           for (const line of lines) {
             if (!line.trim()) continue;
             const ev = JSON.parse(line) as { type: string; text?: string; card?: Card; ficha?: Ficha };
-            if ((ev.type === "text" || ev.type === "error") && ev.text) patch((m) => ({ ...m, text: m.text + ev.text }));
-            if (ev.type === "card" && ev.card) patch((m) => ({ ...m, cards: [...m.cards, ev.card!] }));
+            if ((ev.type === "text" || ev.type === "error") && ev.text) patch((m) => conTexto(m, ev.text!));
+            if (ev.type === "card" && ev.card) patch((m) => conCard(m, ev.card!));
             if (ev.type === "ficha" && ev.ficha) setFicha((f) => mergeFicha(f, ev.ficha!));
           }
         }
       } catch {
-        patch((m) => ({
-          ...m,
-          text: m.text || copy.errorText,
-          cards: [...m.cards, { kind: "whatsapp", href: waLink(mensajeWhatsApp(ficha, ultimaQuote(msgs))) }],
-        }));
+        patch((m) =>
+          conCard(m.text ? m : conTexto(m, copy.errorText), { kind: "whatsapp", href: waLink(mensajeWhatsApp(ficha, ultimaQuote(msgs))) }),
+        );
       } finally {
         setBusy(false);
       }
@@ -350,19 +366,26 @@ function MessageView({
       </div>
     );
   }
-  if (!msg.text && !msg.cards.length) return null;
+  const segs: Seg[] = (msg.segs ?? [{ t: "text", text: msg.text }, ...msg.cards.map((card) => ({ t: "card" as const, card }))]).filter(
+    (s) => s.t === "card" || s.text.trim(),
+  );
+  if (!segs.length) return null;
   return (
     <div className="flex items-end gap-2">
       <Avatar size={32} />
       <div className="flex min-w-0 flex-1 flex-col gap-2.5">
-        {msg.text ? (
-          <div className="self-start whitespace-pre-wrap rounded-[16px_16px_16px_6px] border border-border bg-surf-2 px-[13px] py-2.5 text-sm leading-[1.45]">
-            {rich(msg.text.trim())}
-          </div>
-        ) : null}
-        {msg.cards.map((card, i) => (
-          <CardView key={i} card={card} copy={copy} senaMonto={senaMonto} turnstileSiteKey={turnstileSiteKey} />
-        ))}
+        {segs.map((s, i) =>
+          s.t === "text" ? (
+            <div
+              key={i}
+              className="self-start whitespace-pre-wrap rounded-[16px_16px_16px_6px] border border-border bg-surf-2 px-[13px] py-2.5 text-sm leading-[1.45]"
+            >
+              {rich(s.text.trim())}
+            </div>
+          ) : (
+            <CardView key={i} card={s.card} copy={copy} senaMonto={senaMonto} turnstileSiteKey={turnstileSiteKey} />
+          ),
+        )}
       </div>
     </div>
   );
@@ -430,7 +453,7 @@ function CardView({
             <li key={p.nombre}>
               <a href={p.href} target="_blank" rel="noopener" className="flex flex-col rounded-xl border border-border px-3 py-2 hover:border-border-h">
                 <span className="text-sm font-semibold">{p.nombre} ↗</span>
-                <span className="text-[12px] leading-snug text-muted">{p.que}</span>
+                <span className="line-clamp-2 text-[12px] leading-snug text-muted">{p.que}</span>
               </a>
             </li>
           ))}

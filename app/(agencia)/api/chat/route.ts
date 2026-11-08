@@ -4,7 +4,7 @@ import type { Card } from "@/lib/agencia/chat/cards";
 import type { Ficha } from "@/lib/agencia/chat/ficha";
 import { FichaSchema, limpiarFicha } from "@/lib/agencia/chat/ficha-schema";
 import { consume } from "@/lib/agencia/chat/limits";
-import { systemPrompt } from "@/lib/agencia/chat/prompt";
+import { systemBlocks } from "@/lib/agencia/chat/prompt";
 import { hashIp, ipFrom } from "@/lib/agencia/chat/security";
 import { nuevoContexto, runTool, tools } from "@/lib/agencia/chat/tools";
 import { senaMonto, waLink } from "@/lib/agencia/config";
@@ -91,7 +91,8 @@ export async function POST(request: Request) {
 
   const ctx = nuevoContexto((await tipoDeCambio()).valor, body.ficha ? limpiarFicha(body.ficha) : {}, body.shownCards);
   const client = new Anthropic();
-  const system = systemPrompt(senaMonto());
+  // La ficha del bloque final es la que llegó con el pedido: fija durante el turno.
+  const system = systemBlocks(senaMonto(), ctx.ficha);
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream<Uint8Array>({
@@ -103,9 +104,11 @@ export async function POST(request: Request) {
           const s = client.messages.stream(
             {
               model: MODEL,
-              max_tokens: 600,
-              // Haiku 5.5 piensa de forma adaptativa; con esfuerzo bajo casi
-              // no lo hace en un chat y deja los 600 tokens para la respuesta.
+              // 800 (antes 600): con anotar_ficha el modelo suele llamar dos
+              // herramientas en la misma ronda además del texto, y un input
+              // cortado por max_tokens no se ejecuta. Haiku 5.5 piensa de forma
+              // adaptativa; con esfuerzo bajo casi no lo hace en un chat.
+              max_tokens: 800,
               output_config: { effort: "low" },
               system,
               tools,

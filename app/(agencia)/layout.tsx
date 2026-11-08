@@ -30,10 +30,15 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
+/**
+ * Variable, sin `weight`: misma configuración que `SiteDocument`. Con pesos
+ * fijos ["500", "600"], un build sin caché en Vercel fallaba en Turbopack
+ * ("next/font/google queries have exactly one entry") al resolver los
+ * archivos de Google Fonts. La variable cubre 500 y 600 igual.
+ */
 const jetbrains = JetBrains_Mono({
   subsets: ["latin"],
   display: "swap",
-  weight: ["500", "600"],
   variable: "--font-jetbrains",
 });
 

@@ -17,7 +17,7 @@ export const cotizadorCopy = {
   desdeHint: "Hay precios \"desde\": el total final depende del alcance.",
   /** `{USD}` = el total en dólares. Se lee de `/api/dolar` en el cliente. */
   usd: "≈ {USD} al dólar oficial del día",
-  aCotizarHint: "Lo que dice \"a cotizar\" va aparte del total.",
+  aCotizarHint: "Lo que no tiene precio fijo (como el dominio) va aparte del total.",
   comboApplied: "Combo aplicado",
   demo: "Pedí tu demo",
   whatsapp: "Mandame esto por WhatsApp",

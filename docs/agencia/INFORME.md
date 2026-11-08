@@ -183,3 +183,200 @@ probarlo con el modelo real**: es lo primero a revisar en la vista previa.
     la 20; no quise tocar los tipos del portfolio por esto.
 22. **Footer.** "Servicios" va a `/servicios` (la página) y "Cotizador" a
     `/cotizador`; en la referencia eran anclas de la home.
+
+---
+
+# Tanda CHAT-R1 · refinamiento del asistente Malejo
+
+Implementación de la tanda CHAT-R1 (pruebas en producción del 8-11-2026,
+fallas F1 a F12). Un commit por fase (`feat(chat): R1-Fn …`) en la rama
+`claude/compassionate-ride-ypvfbj`, reiniciada desde `main` porque el PR
+anterior de esta rama (#3) ya estaba mergeado. `npm test` (94 tests),
+`npm run lint` y `npm run build` en verde; todas las rutas de la agencia y
+del portfolio siguen en `○`/`●` salvo los catch-all y `/api/*` (se sumó
+`ƒ /api/dolar`).
+
+## Qué se hizo, por fase
+
+### F1 · Base de conocimiento única
+- `content/agencia/conocimiento.ts`: quién es Mauro (de la copy existente),
+  proceso, pagos, dominio, propiedad, tecnología, mantenimiento, garantía,
+  tiempo de respuesta, los cuatro proyectos (Tuki sin nombrar al cliente) y
+  un FAQ de 16 preguntas de 40 palabras como máximo que cubre todo F12.
+- El FAQ de la home y el de `/servicios/[slug]` eligen preguntas **por id**
+  desde ahí; el prompt genera su bloque de conocimiento con
+  `lib/agencia/chat/knowledge.ts`. `{SENA}` se completa en el servidor.
+
+### F2 · Precios: dominio, USD y proyectos grandes
+- `precios.json`: categoría `grandes` (consultoría sin cargo, diagnóstico
+  escrito, sprint `impl: null` "se cotiza con el diagnóstico" y
+  mantenimiento con `mantenimientoPct: 0.10`), dominios `.com.ar` y `.com`
+  como extras anuales con `precio: null` y `usd.fallback`.
+- `cotizar()` soporta ítems a cotizar y un tipo de cambio opcional;
+  `comparar()` nuevo (filas, sin total); `aUsd()` y `fmtUsd()`.
+- `lib/agencia/usd.ts` (dolarapi.com, 3 s, cache de un día, respaldo) y
+  `GET /api/dolar`: el cotizador muestra "≈ USD … al dólar oficial del día"
+  leyendo esa ruta en el cliente, así `/cotizador` sigue estático.
+- El catálogo del prompt suma las alternativas por abono (`alt`), el
+  recomendado de cada categoría y los proyectos grandes.
+
+### F3 · Herramientas
+- `cotizar` (lo que se contrata junto), `comparar` (alternativas, tarjeta
+  nueva), `anotar_ficha` (silenciosa, zod, truncado, evento `ficha`),
+  `mostrar_proyectos` (tarjeta con los proyectos y el portfolio),
+  `pedir_demo`, `derivar_whatsapp` (mensaje desde la ficha + última
+  cotización) y `guardar_contacto` (rubro y resumen desde la ficha).
+- Guardas del servidor: ninguna herramienta cotiza, compara ni ofrece demo
+  de un proyecto grande; una tarjeta `quote`/`compare`/`proyectos` con la
+  misma firma (ids, extras, medio y moneda) que una ya mostrada no se emite.
+- Módulos puros para el widget, sin zod: `cards.ts`, `ficha.ts`,
+  `history.ts`, `whatsapp.ts`. La validación vive en `ficha-schema.ts`.
+
+### F4 · Historial con memoria de tarjetas
+- El widget agrega una línea `[Tarjeta mostrada · …]` por tarjeta a cada
+  mensaje del asistente y manda `ficha` y `shownCards`; el servidor los
+  valida con tope de tamaño. Sigue el recorte a 20 turnos y nada se guarda.
+- Además (fix de la misma fase): el widget muestra texto y tarjetas en el
+  orden en que llegan; antes la frase posterior a una herramienta quedaba
+  arriba de su tarjeta.
+
+### F5 · Prompt reescrito
+- Identidad → objetivo → estilo → flujo de venta → objeciones → proyectos
+  grandes → cuándo derivar → herramientas y tarjetas → límites →
+  conocimiento → catálogo, y al final "Lo que ya sabés del cliente".
+- `system` como array: el bloque base con `cache_control: ephemeral`
+  (≈ 6,5 k tokens con las herramientas; el mínimo cacheable de Haiku 5.5 es
+  512) y la ficha en un bloque posterior sin caché.
+
+### F6 · Botón de WhatsApp con la ficha
+- Ícono propio (trazo, `currentColor`) en el encabezado, con `aria-label` y
+  tooltip. `mensajeWhatsApp(ficha, últimaCotización)` arma el formato
+  pedido, omite líneas vacías y corta en 1.000 caracteres; lo usan el
+  ícono, la chip, la tarjeta de `derivar_whatsapp` y todos los fallbacks.
+
+### F7 · Límites
+- `CHAT_DAILY_LIMIT_IP` vacío o `0` = sin límite (default);
+  `CHAT_DAILY_LIMIT_TOTAL` default 1000, `0` = sin límite.
+
+### F8 · Proyectos grandes en el sitio
+- Pestaña nueva en precios (home y `/servicios/grandes`, estática y en el
+  sitemap) con los tres pasos, la línea de mantenimiento y "Agendá la
+  consultoría" (Cal.com o WhatsApp). Capturas en
+  `docs/agencia/verificacion/chat-r1/grandes-*.png`.
+- Legales: seña, 50/50, cuotas, dominio, baja del mantenimiento y
+  proyectos grandes.
+
+### F9 · Robustez
+- Timeout por ronda (`CHAT_ROUND_TIMEOUT_MS`, 20 s) junto con la señal del
+  pedido, un reintento del SDK y `maxDuration = 60`. Error, timeout, sin
+  clave o límite diario: mensaje fijo + WhatsApp con la ficha.
+- Una herramienta que tira vuelve como `is_error`. Logs sin datos personales.
+
+### F10 · Evals
+- Unitarios y de ruta con modelo simulado (`lib/agencia/chat/mock-anthropic.ts`
+  + `ANTHROPIC_BASE_URL`): cotizar vs comparar, USD, `impl: null`,
+  `mensajeWhatsApp`, merge de ficha, dedup, límites, zod, prompt; texto →
+  herramienta → texto, evento `ficha`, dedup, input inválido, error y timeout.
+- `npm run eval:chat -- --url <base>`: los 24 casos de
+  `lib/agencia/chat/evals/casos.ts` como conversaciones reales, con
+  aserciones deterministas, y el informe en `docs/agencia/evals/<fecha>.md`.
+
+## Resultado de los evals
+
+**No se corrieron contra el modelo real**: el sandbox no tiene
+`ANTHROPIC_API_KEY` (y no llega a dolarapi.com ni a nic.ar). Lo que sí se
+verificó:
+- El loop completo contra el modelo simulado, en tests y con `next start`
+  (capturas del widget en `docs/agencia/verificacion/chat-r1/widget-*.png`).
+- Que las aserciones detectan las fallas reales: un caso A con la tarjeta
+  que suma alternativas y "/demo?plan=…" falla por las dos razones.
+- Que `npm run eval:chat` corre y escribe el informe (contra un servidor sin
+  clave avisa que todas las respuestas son el fallback).
+
+Corre después del deploy: ver los pasos para Mauro.
+
+## Tanda CHAT-R1 · Decisiones
+
+1. **El 10% de mantenimiento.** "Con un 10% de mantenimiento mensual estaría"
+   se interpretó como **10% mensual del valor de implementación, solo para
+   proyectos grandes y sistemas a medida**. Básico ($25.000) y Pro
+   ($55.000) no cambian. Está en un solo lugar: `mantenimientoPct` del plan
+   "Mantenimiento de proyectos grandes" en `precios.json`; el prompt, la
+   pestaña de precios y los legales leen de ahí.
+2. **Pagos unificados a 50/50.** La decisión de Mauro choca con dos textos
+   anteriores: "Proyectos desde $450.000: 3 pagos sin recargo" (pie de
+   precios, términos y DISENO.md §4) y "40/30/30" (nota de Sistemas de
+   gestión y términos). Ganó la decisión: 50% al aprobar la demo y 50% en la
+   entrega; los sistemas desde $900.000 "arrancan con un diagnóstico y se
+   desarrollan por etapas". DISENO.md no se tocó (es el handoff).
+3. **Dominio sin precio.** nic.ar no responde desde el sandbox: los dos
+   extras quedan con `precio: null` y "según tarifa vigente de NIC.ar" (o
+   "del registrador" para `.com`). El agente lo dice así, sin número. Para
+   publicar un monto, cargalo en `precio` y listo: todo lo demás lo toma.
+4. **Dólar.** dolarapi.com tampoco responde desde el sandbox. Respaldo:
+   `USD_ARS_FALLBACK` y, si no está, `usd.fallback` de `precios.json`, que
+   quedó en **1500 como valor provisorio**: actualizalo. Redondeo: a la
+   decena, como pide la tanda, **salvo abajo de USD 100, a la unidad** (un
+   abono de $23.300 son USD 16, no 20). Es una línea en `aUsd()`.
+5. **Cuándo la tarjeta muestra dólares.** `cotizar` y `comparar` tienen un
+   parámetro `moneda` (`ars` | `usd`); la tarjeta suma "≈ USD" solo con
+   `usd`, que el prompt reserva para cuando lo piden, escriben desde afuera o
+   en otro idioma. La moneda es parte de la firma de deduplicación.
+6. **Diagnóstico escrito.** Pasó de extra a plan de `grandes` (mismo id
+   `diagnostico-escrito`, mismos $60.000, sin duplicar). Sale de los chips
+   de extras de la home; el cotizador lo muestra en "Proyectos grandes" y
+   `cotizar()` lo sigue aceptando si llega como extra.
+7. **Una herramienta más: `mostrar_proyectos`.** La tanda pide que el agente
+   nombre los proyectos (F5) y que nunca escriba URLs; sin una tarjeta, la
+   persona no tendría cómo abrirlos. Es de solo lectura (conocimiento) y no
+   se repite.
+8. **`guardar_contacto`.** El contrato con la UI y con `/api/contacto` no
+   cambió (`ContactPayload` y firma iguales). En la herramienta, rubro y
+   resumen pasaron a opcionales y se completan desde la ficha; si faltan los
+   dos, devuelve error y el modelo pregunta.
+9. **Guardas de proyectos grandes en el servidor.** Además del prompt,
+   `cotizar`, `comparar` y `pedir_demo` rechazan ids de `grandes` con la
+   indicación del camino consultoría → diagnóstico → sprint.
+10. **`max_tokens` 600 → 800, `effort: "low"` igual.** Con `anotar_ficha` el
+    modelo suele pedir dos herramientas en la misma ronda. Sin evals reales
+    no hay evidencia para subir el esfuerzo; revisalo con el informe.
+11. **La ficha vive solo en la memoria del widget.** Se pierde al recargar;
+    no se usa `localStorage` para mantener "no guarda tu conversación".
+12. **Tiempo de respuesta.** "En 24 h te paso una propuesta" (cierre de la
+    home) y "te escribo en menos de 24 h hábiles" (éxito de `/demo`) pasaron
+    a "hasta 2 días hábiles", como la decisión de Mauro.
+13. **Proyectos grandes fuera de la grilla de servicios.** La grilla 3×2 de
+    la home es del diseño aprobado: la categoría nueva tiene pestaña en
+    precios, página propia y un bloque en `/servicios`, no una séptima
+    tarjeta.
+14. **`tsx` como devDependency** para `npm run eval:chat` (TypeScript con
+    los alias `@/`). Al instalarlo, `package-lock.json` se regeneró: el de
+    `main` no tenía `@anthropic-ai/sdk`, `drizzle-orm`, `vitest` ni otras
+    dependencias de la agencia (estaba desincronizado con `package.json`).
+15. **Factura.** Los términos dicen "por ahora no emito factura; si la
+    necesitás, consultalo antes de contratar".
+
+## Pendiente
+
+- Correr los evals con el modelo real e iterar el prompt hasta 22 de 24.
+- Precio del dominio y valor real del dólar de respaldo (decisiones 3 y 4).
+- Lo pendiente de las tandas anteriores sigue igual (migración de la base,
+  foto, `[PLACEHOLDERS]` legales, AAIP).
+
+## Pasos manuales para Mauro
+
+1. **Variables en Vercel.** Si `CHAT_DAILY_LIMIT_IP` está cargada (antes el
+   default era 30), borrala o ponela en `0` para la etapa de pruebas.
+   Opcionales: `CHAT_DAILY_LIMIT_TOTAL` (default 1000), `USD_ARS_FALLBACK`,
+   `CHAT_ROUND_TIMEOUT_MS`. Redeploy después.
+2. **Límite mensual del workspace de Anthropic** (Console → Limits): es el
+   tope real de gasto ahora que no hay límite por IP.
+3. **Evals con el modelo real**, en local con la clave:
+   `CHAT_DAILY_LIMIT_TOTAL=0 npm run dev` y, en otra terminal,
+   `npm run eval:chat` (o `npm run eval:chat -- --url <vista previa>`).
+   Revisá `docs/agencia/evals/<fecha>.md`; si pasan menos de 22, el detalle
+   de cada caso dice qué aserción falló. `--solo A,I` corre algunos.
+4. **Actualizá `usd.fallback`** en `precios.json` con el oficial del día y,
+   si querés publicar un monto, el `precio` de los dominios.
+5. **Confirmá las decisiones 1 (10%) y 2 (50/50)**: si alguna era distinta,
+   es una línea en `precios.json` o en `conocimiento.ts`.

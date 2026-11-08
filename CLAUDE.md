@@ -232,7 +232,8 @@ capturas de `docs/agencia/capturas-diseno/`; el índice y las fases están en
 `docs/agencia/PROMPT.md` y lo hecho en `docs/agencia/INFORME.md`.
 
 ```bash
-npm test            # Vitest: lib/agencia/pricing.ts y las herramientas del chat
+npm test            # Vitest: precios, chat (herramientas, ficha, prompt, ruta con modelo simulado)
+npm run eval:chat   # evals del chat contra el modelo real (-- --url <base>, default localhost:3000)
 npm run db:generate # drizzle-kit: genera migraciones en drizzle/ (no toca la base)
 npm run db:migrate  # las aplica Mauro, con DATABASE_URL
 ```
@@ -285,8 +286,38 @@ npm run db:migrate  # las aplica Mauro, con DATABASE_URL
   la UI muestra la casilla; el único insert es `/api/contacto`, con
   `consent: true` y la firma HMAC. No existe ninguna herramienta ni endpoint
   que lea contactos; mantenelo así. Sin `ANTHROPIC_API_KEY`, mensaje fijo +
-  WhatsApp. Para probar el loop sin clave real: un mock SSE local y
-  `ANTHROPIC_BASE_URL` (ver `docs/agencia/INFORME.md`).
+  WhatsApp. Detalle y decisiones de la tanda CHAT-R1 en `docs/agencia/INFORME.md`.
+  - **Conocimiento** en `content/agencia/conocimiento.ts` (quién es Mauro,
+    pagos, dominio, proyectos, FAQ): la misma fuente para el FAQ del sitio y
+    el prompt. **El modelo nunca calcula precios**: `cotizar` (lo que se
+    contrata junto, suma) y `comparar` (alternativas, nunca suma) pasan por
+    `lib/agencia/pricing.ts`. Ninguna cotiza proyectos grandes (`grandes`).
+  - **Herramientas:** `cotizar`, `comparar`, `anotar_ficha` (silenciosa),
+    `mostrar_proyectos`, `pedir_demo`, `derivar_whatsapp`, `guardar_contacto`.
+  - **Ficha:** lo que se aprende del cliente. La anota el modelo, el servidor
+    la valida (`ficha-schema.ts`) y la emite como evento `ficha`; **vive solo
+    en la memoria del widget**, que la reenvía con cada pedido. Nunca va a la
+    base. El botón de WhatsApp del widget y `derivar_whatsapp` arman el
+    mensaje con `mensajeWhatsApp(ficha, última cotización)`.
+  - **Tarjetas:** tipos y firmas en `cards.ts` (módulos puros, sin zod, para
+    no inflar la isla). El historial lleva una línea `[Tarjeta mostrada · …]`
+    por tarjeta y el servidor no repite una `quote`/`compare`/`proyectos`
+    cuya firma ya se mostró.
+  - **Prompt:** `system` en dos bloques, el base (instrucciones +
+    conocimiento + catálogo generados) con `cache_control` y la ficha al
+    final sin caché. Nada variable (fechas, ficha) antes del corte.
+  - **USD:** `lib/agencia/usd.ts` (dolarapi.com, respaldo `USD_ARS_FALLBACK`
+    o `precios.json → usd.fallback`), solo servidor; `/api/dolar` para el
+    cotizador en el cliente.
+  - **Límites:** `CHAT_DAILY_LIMIT_IP` (0/vacío = sin límite, default) y
+    `CHAT_DAILY_LIMIT_TOTAL` (default 1000, 0 = sin límite). Timeout por
+    ronda: `CHAT_ROUND_TIMEOUT_MS` (20 s).
+  - **Pruebas sin clave:** `lib/agencia/chat/mock-anthropic.ts` imita la API
+    con SSE; se apunta el SDK con `ANTHROPIC_BASE_URL` (lo usan
+    `route.test.ts` y `evals/evals.test.ts`). **Evals reales:**
+    `npm run eval:chat` corre los 24 casos de `lib/agencia/chat/evals/casos.ts`
+    contra `/api/chat` y escribe `docs/agencia/evals/<fecha>.md`; objetivo
+    22 de 24. Gasta tokens: necesita la clave en el servidor.
 
 ## Verificación
 

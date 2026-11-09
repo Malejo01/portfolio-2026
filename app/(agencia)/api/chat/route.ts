@@ -42,6 +42,8 @@ export const maxDuration = 60;
 const MODEL = process.env.MALEJO_MODEL || "claude-haiku-5-5";
 const MAX_TURNS = 20;
 const MAX_TOOL_ROUNDS = 4;
+/** Herramientas que no muestran nada: no justifican otra ronda del modelo. */
+const SILENCIOSAS = new Set(["anotar_ficha"]);
 
 function roundTimeout(): number {
   const n = Number(process.env.CHAT_ROUND_TIMEOUT_MS);
@@ -172,6 +174,11 @@ export async function POST(request: Request) {
             if (out.ficha) send({ type: "ficha", ficha: out.ficha });
             return { type: "tool_result", tool_use_id: t.id, content: out.content, ...(out.isError ? { is_error: true } : {}) };
           });
+          // Si la ronda ya respondió con texto y solo anotó la ficha, el turno
+          // termina acá: con otra ronda el modelo repetía la respuesta entera
+          // (evals del 8-11 en producción: 6 de 24 casos con el texto duplicado).
+          const huboTexto = message.content.some((b) => b.type === "text" && b.text.trim() !== "");
+          if (huboTexto && toolUses.every((t) => SILENCIOSAS.has(t.name))) break;
           messages.push({ role: "user", content: results });
         }
         send({ type: "done" });

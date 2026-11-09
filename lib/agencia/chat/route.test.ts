@@ -93,6 +93,33 @@ describe("/api/chat con modelo simulado", () => {
     expect((ultimo.content as { type: string }[]).map((b) => b.type)).toEqual(["tool_result", "tool_result"]);
   });
 
+  it("texto + solo anotar_ficha cierra el turno: no hay segunda ronda que repita la respuesta", async () => {
+    mock.guion([
+      {
+        bloques: [
+          { type: "text", text: "Para una peluquería te sirve Turnos online. ¿Ya tenés web?" },
+          { type: "tool_use", name: "anotar_ficha", input: { rubro: "Peluquería" } },
+        ],
+        stop: "tool_use",
+      },
+      { bloques: [{ type: "text", text: "Para una peluquería te sirve Turnos online. ¿Ya tenés web?" }], stop: "end_turn" },
+    ]);
+    const antes = mock.pedidos.length;
+    const evs = await chat(user("Tengo una peluquería"));
+    expect(evs.map((e) => e.type)).toEqual(["text", "ficha", "done"]);
+    expect(textos(evs)).toBe("Para una peluquería te sirve Turnos online. ¿Ya tenés web?");
+    expect(mock.pedidos.length - antes).toBe(1);
+  });
+
+  it("solo anotar_ficha sin texto sí sigue a otra ronda para responder", async () => {
+    mock.guion([
+      { bloques: [{ type: "tool_use", name: "anotar_ficha", input: { rubro: "Ferretería" } }], stop: "tool_use" },
+      { bloques: [{ type: "text", text: "¿Qué querés que haga la web?" }], stop: "end_turn" },
+    ]);
+    const evs = await chat(user("Tengo una ferretería"));
+    expect(evs.map((e) => e.type)).toEqual(["ficha", "text", "done"]);
+  });
+
   it("no repite una tarjeta que el widget dice que ya mostró", async () => {
     const firma = firmaCard(runTool("cotizar", { planIds: ["turnos-online"], medio: "mp" }, nuevoContexto(1000)).card!);
     mock.guion([

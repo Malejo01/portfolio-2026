@@ -620,3 +620,29 @@ después del deploy** (paso manual 6).
    y redeploy; la home la toma sola.
 8. **Search Console**: pedí reindexar `/`, `/precios` y `/servicios/*`
    (cambiaron títulos y nombres de planes).
+
+---
+
+# Tanda R3 · revisión como usuario y el agente como vendedor
+
+Pedido de Mauro (9-11, noche): recorrer el sitio como cliente, probar muchas conversaciones con Malejo, armar un plan y ejecutarlo en loop. Sigue en el mismo PR (#7), con commits `R3-n`. El detalle (hallazgos, simulación, lo que solo Mauro puede responder y el plan para vender el asesor) está en **`docs/agencia/revision-r3.md`**. `npm test` (152 tests), `npm run lint` y `npm run build` en verde. Todas las rutas siguen `○`/`●`. La home mide 3,43 pantallas en escritorio y 5,46 en celular.
+
+**Sin clave de Anthropic en el entorno** (y sin permiso para leer las variables del proyecto en Vercel), las conversaciones se probaron con una simulación de 22 charlas (`docs/agencia/evals/2026-11-09-simulacion.md`) y con el modelo simulado de los tests. Las evals reales siguen pendientes: 36 casos, objetivo 33.
+
+## Qué se hizo
+- **R3-1** Contexto de página en el prompt (validado contra las rutas), la charla persiste en `sessionStorage` con "Empezar de nuevo", y eventos de Vercel Analytics del embudo, sin datos personales.
+- **R3-2** Respuestas sugeridas (`sugerir_respuestas`) y formulario de contacto en el chat (`pedir_contacto`, con ticket firmado, que también acepta `/api/contacto`). Prompt con "No inventes" (funciones, fechas, cuotas, medios de pago, terceros, marca blanca, memoria). Renovación sin seña. Privacidad coherente. `cotizar` con aviso de costos por uso correcto, otra forma de pago y regla de cuotas. Evals AE–AJ.
+- **R3-3** `/demo` se completa con la ficha del chat y ofrece avisar por WhatsApp al enviar. Beneficios compactos en celular. Título "Soy Mauro, detrás de Malejo.". Combos con el mismo sufijo de cuota.
+
+## Decisiones
+1. **Simulación como sustituto, con aviso.** No es Haiku en producción; las fallas que encontró se convirtieron en reglas y en evals reales (AE–AJ) para confirmarlas con el modelo.
+2. **Descuentos:** se mantuvo "opción accesible + derivar en el mismo turno", porque es lo que pide la eval C de producción. La simulación sugería derivar solo si insiste.
+3. **`pedir_contacto` firma solo el rubro y el resumen**; el nombre y el WhatsApp los escribe la persona. Se mantiene que el modelo no puede guardar nada y que no existe ningún endpoint que lea contactos.
+4. **El precio "desde" del catálogo** se puede decir sin herramienta; las sumas, los totales y las combinaciones siguen saliendo de `cotizar`.
+5. **Eventos de Analytics:** solo conteos y tipos, nunca texto. En el plan Hobby de Vercel no se registran.
+
+## Pasos manuales nuevos para Mauro
+- Responder las 9 preguntas de `revision-r3.md` §2.3 (cada una saca una derivación).
+- Correr las evals reales: `CHAT_TEST_TOKEN=… npm run eval:chat -- --url <vista previa o producción>` (36 casos, objetivo 33).
+- Si querés ver el embudo: plan Pro de Vercel (eventos personalizados).
+

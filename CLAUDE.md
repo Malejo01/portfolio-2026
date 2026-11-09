@@ -322,7 +322,23 @@ npm run db:migrate  # las aplica Mauro, con DATABASE_URL
     contrata junto, suma) y `comparar` (alternativas, nunca suma) pasan por
     `lib/agencia/pricing.ts`. Ninguna cotiza proyectos grandes (`grandes`).
   - **Herramientas:** `cotizar`, `comparar`, `anotar_ficha` (silenciosa),
-    `mostrar_proyectos`, `pedir_demo`, `derivar_whatsapp`, `guardar_contacto`.
+    `mostrar_proyectos`, `pedir_demo`, `derivar_whatsapp`, `guardar_contacto`,
+    y desde R3 `pedir_contacto` (formulario en el chat; firma un *ticket* con
+    rubro y resumen, la persona escribe nombre y WhatsApp) y
+    `sugerir_respuestas` (2–3 botones; silenciosa, no entra al historial).
+  - **Contexto y memoria (R3):** el widget manda `pagina`
+    (`location.pathname`); `chat/pagina.ts` la valida contra las rutas y va al
+    bloque sin caché. La charla y la ficha viven en `sessionStorage`
+    (`chat/sesion.ts`), solo en la pestaña; `/demo` las usa para completar
+    el formulario. Nada de eso va a la base.
+  - **"No inventes" (R3):** el prompt deriva a Mauro todo lo que no está en
+    el catálogo ni en el conocimiento (funciones, fechas, valor de cuotas,
+    medios de pago, sitios de terceros, marca blanca). Para responderlo, se
+    agrega el dato a `conocimiento.ts`; la lista está en
+    `docs/agencia/revision-r3.md` §2.3.
+  - **Embudo (R3):** eventos de Vercel Analytics `cta_chat`, `chat_abierto`,
+    `chat_mensaje`, `chat_tarjeta`, `chat_opcion`, `chat_clic`,
+    `chat_contacto_guardado`. Solo conteos y tipos, nunca texto.
   - **Ficha:** lo que se aprende del cliente. La anota el modelo, el servidor
     la valida (`ficha-schema.ts`) y la emite como evento `ficha`; **vive solo
     en la memoria del widget**, que la reenvía con cada pedido. Nunca va a la

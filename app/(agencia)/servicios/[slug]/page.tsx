@@ -140,9 +140,13 @@ export default async function ServicioPage({ params }: Props) {
         </div>
 
         {/* 2 · Tres beneficios */}
-        <ul aria-label={detail.beneficiosLabel} className="m-0 mt-6 grid list-none grid-cols-1 gap-3 p-0 sm:grid-cols-3 sm:gap-5">
+        {/* En celular, lista compacta (el plan recomendado entra antes); desde `sm`, tarjetas. */}
+        <ul aria-label={detail.beneficiosLabel} className="m-0 mt-5 grid list-none grid-cols-1 gap-2.5 p-0 sm:mt-6 sm:grid-cols-3 sm:gap-5">
           {s.beneficios.map((b) => (
-            <li key={b} className="card flex items-start gap-3 p-4 text-[15px] font-semibold leading-snug sm:p-5">
+            <li
+              key={b}
+              className="flex items-start gap-3 text-[15px] font-semibold leading-snug sm:rounded-[22px] sm:border sm:border-border sm:border-t-hl sm:bg-surf sm:p-5 sm:shadow-card"
+            >
               <Check size={18} />
               {b}
             </li>

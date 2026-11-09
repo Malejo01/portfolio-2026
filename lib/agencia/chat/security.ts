@@ -56,6 +56,30 @@ export function verifyConsent(p: ContactPayload, token: string): boolean {
 }
 
 /**
+ * Ticket del formulario de contacto del chat (tanda R3, `pedir_contacto`).
+ * El servidor firma el rubro y el resumen que salen de la ficha; el nombre
+ * y el WhatsApp los escribe la persona en el formulario, con la casilla
+ * marcada. Así `/api/contacto` solo acepta envíos que nacieron en el chat,
+ * y el modelo tampoco puede disparar el guardado: necesita a la persona.
+ * El prefijo `ticket:` evita que una firma sirva para el otro formato.
+ */
+export interface ContactTicket {
+  rubro: string;
+  resumen: string;
+  iat: number;
+}
+
+export function signTicket(t: ContactTicket): string {
+  return createHmac("sha256", salt()).update(`ticket:${JSON.stringify([t.rubro, t.resumen, t.iat])}`).digest("hex");
+}
+
+export function verifyTicket(t: ContactTicket, token: string): boolean {
+  if (!consentEnabled() || !/^[0-9a-f]{64}$/.test(token)) return false;
+  if (Date.now() - t.iat > 2 * 60 * 60 * 1000 || t.iat > Date.now() + 60_000) return false;
+  return timingSafeEqual(Buffer.from(signTicket(t), "hex"), Buffer.from(token, "hex"));
+}
+
+/**
  * Teléfono argentino: con o sin +54, con o sin 9, con o sin 0 de larga
  * distancia y 15 de celular, separado por espacios o guiones.
  * Ej.: "+54 9 387 581-3233", "0387 15 581-3233", "3875813233".

@@ -90,7 +90,7 @@ describe("/api/chat con modelo simulado", () => {
     expect(p1.system).toHaveLength(2);
     expect(p1.system[0].cache_control).toEqual({ type: "ephemeral" });
     expect(p1.system[1].text).toContain("- Ciudad: Salta");
-    expect(p1.tools).toHaveLength(8);
+    expect(p1.tools).toHaveLength(9);
     // La segunda ronda lleva los dos tool_result en un solo mensaje.
     const ultimo = p2.messages.at(-1)!;
     expect(ultimo.role).toBe("user");
@@ -247,5 +247,20 @@ describe("/api/chat y /api/contacto · seguridad (R2)", () => {
     expect(conLlave).toContain("Seguimos.");
     env.CHAT_BURST_LIMIT = "0";
     delete env.CHAT_TEST_TOKEN;
+  });
+});
+
+describe("/api/contacto · formulario del chat (R3)", () => {
+  const enviar = (body: unknown) =>
+    POSTContacto(new Request("http://localhost/api/contacto", { method: "POST", headers: { "content-type": "application/json", "x-forwarded-for": "10.7.7.7" }, body: JSON.stringify(body) }));
+
+  it("valida el ticket y el WhatsApp; sin base responde 503 (el pedido era válido)", async () => {
+    const out = runTool("pedir_contacto", {}, nuevoContexto(1000, { rubro: "Veterinaria", necesidad: "Turnos" }));
+    if (out.card?.kind !== "formContacto") throw new Error("sin formulario");
+    const { ticket, token } = out.card;
+    expect((await enviar({ consent: true, ticket, token, nombre: "Ana", whatsapp: "3875813233" })).status).toBe(503);
+    expect((await enviar({ consent: true, ticket, token, nombre: "Ana", whatsapp: "12345678" })).status).toBe(400);
+    expect((await enviar({ consent: true, ticket: { ...ticket, rubro: "Otra" }, token, nombre: "Ana", whatsapp: "3875813233" })).status).toBe(400);
+    expect((await enviar({ consent: false, ticket, token, nombre: "Ana", whatsapp: "3875813233" })).status).toBe(400);
   });
 });

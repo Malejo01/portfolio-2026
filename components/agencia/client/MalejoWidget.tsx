@@ -535,6 +535,7 @@ function CardView({
     );
   }
   if (card.kind === "opciones") return null;
+  if (card.kind === "formContacto") return <ContactFormCard card={card} copy={copy} turnstileSiteKey={turnstileSiteKey} />;
   return <ConsentCard card={card} copy={copy} turnstileSiteKey={turnstileSiteKey} />;
 }
 
@@ -675,5 +676,92 @@ function ConsentCard({
         {state === "saving" ? copy.consent.saving : copy.consent.save}
       </button>
     </div>
+  );
+}
+
+/**
+ * Formulario de contacto (`pedir_contacto`, tanda R3): la persona escribe
+ * nombre y WhatsApp y marca la casilla; el ticket firmado (rubro y
+ * resumen de la ficha) va con el envío. Sin la casilla no se manda nada.
+ */
+function ContactFormCard({
+  card,
+  copy,
+  turnstileSiteKey,
+}: {
+  card: Extract<Card, { kind: "formContacto" }>;
+  copy: MalejoCopy;
+  turnstileSiteKey?: string;
+}) {
+  const [state, setState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [error, setError] = useState("");
+  const [captcha, setCaptcha] = useState<string>();
+  const box = useRef<HTMLDivElement>(null);
+  useTurnstile(turnstileSiteKey, box, setCaptcha);
+  const f = copy.form;
+
+  const enviar = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const data = new FormData(e.currentTarget);
+    const nombre = String(data.get("nombre") ?? "").trim();
+    const whatsapp = String(data.get("whatsapp") ?? "").trim();
+    if (!data.get("consent")) return setError(f.needCheck);
+    if (nombre.length < 2 || whatsapp.replace(/\D/g, "").length < 10) return setError(f.invalid);
+    setState("saving");
+    setError("");
+    try {
+      const res = await fetch("/api/contacto", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ consent: true, ticket: card.ticket, token: card.token, nombre, whatsapp, turnstile: captcha }),
+      });
+      const r = (await res.json()) as { ok: boolean; error?: string };
+      if (!r.ok) throw new Error(r.error);
+      setState("saved");
+      track("chat_contacto_guardado", { via: "formulario" });
+    } catch (err) {
+      setState("error");
+      setError((err as Error).message || copy.errorText);
+    }
+  };
+
+  if (state === "saved") {
+    return (
+      <div role="status" className="card rounded-[18px] p-3.5 text-sm">
+        {f.saved}
+      </div>
+    );
+  }
+  const campo = "h-11 w-full rounded-[12px] border border-border-2 bg-bg px-3 text-[15px] text-text";
+  return (
+    <form onSubmit={enviar} className="card hi flex flex-col gap-2.5 rounded-[18px] p-3.5 text-sm">
+      <span className="lbl lbl-o text-[10px]">{f.label}</span>
+      <label className="flex flex-col gap-1">
+        <span className="text-[13px] font-semibold">{f.nombre}</span>
+        <input name="nombre" autoComplete="name" maxLength={80} className={campo} />
+      </label>
+      <label className="flex flex-col gap-1">
+        <span className="text-[13px] font-semibold">{f.whatsapp}</span>
+        <input name="whatsapp" type="tel" inputMode="tel" autoComplete="tel" maxLength={30} className={campo} />
+      </label>
+      <label className="flex min-h-11 cursor-pointer items-center gap-2.5">
+        <input type="checkbox" name="consent" className="h-5 w-5 flex-none accent-(--acc)" />
+        <span>
+          {f.check}.{" "}
+          <Link href="/legal/privacidad" className="text-acc-text underline underline-offset-2">
+            {f.privacy}
+          </Link>
+        </span>
+      </label>
+      <div ref={box} />
+      {error ? (
+        <p role="alert" className="m-0 text-[13px] text-acc-text">
+          {error}
+        </p>
+      ) : null}
+      <button type="submit" disabled={state === "saving"} className="btn btn-p btn-sm min-h-11 w-full disabled:opacity-60">
+        {state === "saving" ? f.saving : f.save}
+      </button>
+    </form>
   );
 }

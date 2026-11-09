@@ -217,7 +217,7 @@ export const conocimiento: Conocimiento = {
     {
       id: "respuesta",
       q: "¿Cuánto tarda Mauro en responder?",
-      a: "Hasta 2 días hábiles por WhatsApp. El asistente responde al momento y Mauro supervisa las charlas.",
+      a: "Hasta 2 días hábiles por WhatsApp. El asistente responde al momento; Mauro revisa cómo responde, pero no lee las charlas.",
     },
     {
       id: "garantia",
@@ -227,7 +227,7 @@ export const conocimiento: Conocimiento = {
     {
       id: "malejo",
       q: "¿Qué hace el asistente Malejo?",
-      a: "Es el asistente de este sitio: entiende qué necesita tu negocio, te dice qué te conviene y cuánto sale con los precios publicados y, si querés, le pasa tu contacto a Mauro. No guarda tu conversación.",
+      a: "Es el asistente de este sitio, con IA de Anthropic: entiende qué necesita tu negocio y te dice qué te conviene y cuánto sale. No guarda tu conversación; si querés, le pasa tu contacto a Mauro.",
     },
     {
       id: "costos-aparte",

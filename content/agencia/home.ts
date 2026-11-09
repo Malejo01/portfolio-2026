@@ -77,7 +77,7 @@ export const home = {
 
   team: {
     label: "Quién te va a atender",
-    title: "Soy Mauro, y te atiendo yo.",
+    title: "Soy Mauro: Malejo te orienta y yo hago tu proyecto.",
     body: [
       "Fui profe de matemática en institutos terciarios: explico simple y sin vueltas.",
       "Trabajé en Accenture y hoy armo páginas, sistemas y asistentes para negocios de Salta y de toda Argentina.",

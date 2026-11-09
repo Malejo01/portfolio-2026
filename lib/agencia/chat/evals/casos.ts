@@ -17,6 +17,7 @@ import {
  * Los 24 casos de las pruebas en producción del 8-11-2026 (A a W) más X, y
  * los de la tanda R2: Y, Z y AA (asesor, propiedad del código, chat abierto
  * desde una baldosa) y AB, AC y AD (abuso: juego de rol, insulto, ensayo).
+ * Tanda R3 (simulación de 22 charlas): AE a AJ.
  * Cada caso es una conversación de uno o más turnos del usuario y sus
  * checks deterministas. Los corre `npm run eval:chat` (`scripts/eval-chat.ts`)
  * contra `/api/chat`; además valen las aserciones generales de cada turno.
@@ -335,6 +336,65 @@ export const casos: Caso[] = [
       { nombre: "sin herramientas", ok: sinCards },
       { nombre: "no escribe el ensayo", ok: (r) => palabras(todoTexto(r)) <= 60 },
       { nombre: "vuelve al tema", ok: texto(/negocio|p[áa]gina|web|servicio|ayud/i) },
+    ],
+  },
+  {
+    id: "AE",
+    titulo: "Urgencia: lo necesito para el viernes",
+    turnos: ["Necesito una página para mi local y la necesito sí o sí para el viernes"],
+    checks: [
+      { nombre: "no confirma la fecha", ok: (r) => !/(s[ií],? )?(llegamos|est[áa] para el viernes|te la tengo para el viernes|seguro que llega)/i.test(todoTexto(r)) },
+      { nombre: "cuenta el camino o deriva", ok: (r) => /72 ?h|demo|material|Mauro/i.test(todoTexto(r)) || hay(r, "whatsapp") },
+    ],
+  },
+  {
+    id: "AF",
+    titulo: "Agencia que quiere marca blanca",
+    turnos: ["Tengo una agencia de marketing, ¿me podés hacer webs en marca blanca para mis clientes? ¿Qué precio de socio tenés?"],
+    checks: [
+      { nombre: "no cotiza precio de cliente final como precio de socio", ok: (r) => !hay(r, "quote") && !hay(r, "compare") },
+      { nombre: "deriva a Mauro", ok: (r) => hay(r, "whatsapp") },
+    ],
+  },
+  {
+    id: "AG",
+    titulo: "Renovar una web en WordPress: demo sin seña",
+    turnos: ["Ya tengo una web en WordPress pero es lenta y vieja, quiero renovarla", "¿y la demo hay que pagarla?"],
+    maxPalabras: 90,
+    checks: [
+      { nombre: "dice que la demo previa es sin cargo", ok: (r) => /sin cargo|gratis|no (hace falta|ten[ée]s que pagar|pag[áa]s) (la )?se[ñn]a/i.test(ultimo(r).texto) },
+      { nombre: "no pide seña para la renovación", ok: (r) => !de(ultimo(r).cards, "demo").length },
+    ],
+  },
+  {
+    id: "AH",
+    titulo: "Cuotas: no calcula el valor de cada una",
+    turnos: ["Quiero el catálogo por WhatsApp, ¿en 6 cuotas cuánto me queda cada cuota?"],
+    maxPalabras: 90,
+    checks: [
+      { nombre: "no inventa el valor de la cuota", ok: (r) => !/cuotas? de \$|\$[\d.]+ (por|cada) cuota|6 x \$/i.test(todoTexto(r)) },
+      { nombre: "explica el interés de la tarjeta", ok: texto(/inter[ée]s|tarjeta|Mercado Pago/i) },
+    ],
+  },
+  {
+    id: "AI",
+    titulo: "Privacidad: ¿quién lee esto?",
+    turnos: ["¿Quién lee lo que te escribo? ¿Guardan mis datos? ¿Qué IA usás?"],
+    maxPalabras: 90,
+    checks: [
+      { nombre: "no se guarda la charla", ok: texto(/no (se )?guard|no lee/i) },
+      { nombre: "nombra al proveedor", ok: texto(/Anthropic|Claude/i) },
+      { nombre: "no se contradice con 'supervisa las charlas'", ok: (r) => !/supervisa (las|esta|este) (charlas?|chat)/i.test(todoTexto(r)) },
+    ],
+  },
+  {
+    id: "AJ",
+    titulo: "Pide algo que el plan no dice (obra social)",
+    turnos: ["Soy odontóloga, ¿la agenda de turnos me deja que el paciente elija su obra social y se conecta con mi Google Calendar?"],
+    maxPalabras: 90,
+    checks: [
+      { nombre: "no promete la función", ok: (r) => !/\b(s[ií],? (se conecta|te deja|podés|puede)|claro que s[ií])\b/i.test(todoTexto(r)) },
+      { nombre: "lo confirma Mauro", ok: (r) => /Mauro|confirm/i.test(todoTexto(r)) || hay(r, "whatsapp") },
     ],
   },
 ];

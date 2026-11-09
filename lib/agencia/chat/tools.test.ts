@@ -202,3 +202,40 @@ describe("sin MALEJO_SALT en producción", () => {
     }
   });
 });
+
+describe("simulación R3: correcciones de herramientas", () => {
+  const contenido = (out: { content: string }) => JSON.parse(out.content) as Record<string, unknown>;
+
+  it("el aviso de costos por uso va solo si hay IA o turnos (también dentro de un combo)", () => {
+    expect(contenido(runTool("cotizar", { planIds: ["combo-arranque"] }, ctx()))).not.toHaveProperty("recordatorio");
+    expect(contenido(runTool("cotizar", { planIds: ["combo-atencion-24-h"] }, ctx()))).toHaveProperty("recordatorio");
+    expect(contenido(runTool("cotizar", { planIds: ["turnos-online"] }, ctx()))).toHaveProperty("recordatorio");
+    expect(contenido(runTool("cotizar", { planIds: ["landing-express"] }, ctx()))).not.toHaveProperty("recordatorio");
+  });
+
+  it("cotizar devuelve la otra forma de pago y la regla de cuotas, con el vocabulario del sitio", () => {
+    const c = contenido(runTool("cotizar", { planIds: ["landing-profesional"] }, ctx()));
+    expect(c.otraFormaDePago).toEqual(["Página para aparecer en Google: $90.000 de entrada y $49.000 por mes durante 12 meses, con mantenimiento incluido."]);
+    expect(String(c.cuotas)).toMatch(/NO calcules/);
+    expect(c).toHaveProperty("pagoUnico", 320000);
+    expect(c).not.toHaveProperty("implementacion");
+  });
+
+  it("guardar_contacto sin rubro ni necesidad no pierde el contacto", () => {
+    const out = runTool("guardar_contacto", { nombre: "Pedro", whatsapp: "3875813233" }, ctx());
+    expect(out.card?.kind).toBe("consent");
+    if (out.card?.kind !== "consent") return;
+    expect(out.card.payload).toMatchObject({ rubro: "Sin especificar", resumen: "Quiere que Mauro le escriba" });
+  });
+
+  it("pedir_contacto muestra el formulario con un ticket firmado desde la ficha", async () => {
+    const { verifyTicket } = await import("./security");
+    const out = runTool("pedir_contacto", {}, ctx({ rubro: "Odontología", necesidad: "Turnos online" }));
+    expect(out.card?.kind).toBe("formContacto");
+    if (out.card?.kind !== "formContacto") return;
+    expect(out.card.ticket).toMatchObject({ rubro: "Odontología", resumen: "Turnos online" });
+    expect(verifyTicket(out.card.ticket, out.card.token)).toBe(true);
+    expect(verifyTicket({ ...out.card.ticket, resumen: "otra cosa" }, out.card.token)).toBe(false);
+    expect(out.content).toMatch(/ni le pidas los datos por chat/);
+  });
+});

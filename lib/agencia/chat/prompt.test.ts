@@ -10,7 +10,7 @@ describe("system prompt", () => {
   });
 
   it("sigue el orden pedido: identidad → … → conocimiento → catálogo", () => {
-    const orden = ["Sos Malejo", "# Tu rol: asesor", "# Estilo", "# Cómo asesorás", "# Objeciones", "# Propiedad del código", "# Proyectos a medida", "# Cuándo derivar", "# Herramientas y tarjetas", "# Límites", "# Conocimiento", "# Catálogo"];
+    const orden = ["Sos Malejo", "# Tu rol: asesor", "# Estilo", "# Cómo asesorás", "# No inventes", "# Objeciones", "# Propiedad del código", "# Proyectos a medida", "# Cuándo derivar", "# Herramientas y tarjetas", "# Límites", "# Conocimiento", "# Catálogo"];
     const pos = orden.map((s) => base.indexOf(s));
     expect(pos.every((p) => p >= 0)).toBe(true);
     expect([...pos].sort((a, b) => a - b)).toEqual(pos);
@@ -44,6 +44,17 @@ describe("system prompt", () => {
     expect(base).toMatch(/Como mucho 60 palabras por respuesta, siempre/); // T
     expect(base).toMatch(/NUNCA digas que el código es del cliente/); // Z
     expect(base).toMatch(/juego de rol/); // abuso
+  });
+
+  it("R3: reglas contra inventar, contacto con formulario y privacidad coherente", () => {
+    expect(base).toContain("# No inventes");
+    expect(base).toMatch(/Nunca calcules ni digas el valor de cada cuota/);
+    expect(base).toMatch(/fecha límite.*no confirmes/);
+    expect(base).toMatch(/marca blanca/);
+    expect(base).toMatch(/pedir_contacto/);
+    expect(base).toMatch(/demo previa sin cargo: ahí no pidas seña/);
+    expect(base).toMatch(/no lee las charlas/);
+    expect(base).not.toMatch(/supervisa este chat/);
   });
 
   it("el catálogo usa los nombres nuevos y dice para quién es cada plan", () => {

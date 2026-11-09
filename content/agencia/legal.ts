@@ -210,7 +210,7 @@ export const legalDocs: Record<LegalDoc["slug"], LegalDoc> = {
       {
         heading: "7. Cookies y almacenamiento local",
         blocks: [
-          "El sitio guarda una sola cookie, `malejo-theme`, con tu preferencia de modo claro u oscuro. El aviso del portfolio usa el almacenamiento de sesión del navegador para no repetirse. Ninguna de las dos identifica a nadie.",
+          "El sitio guarda una sola cookie, `malejo-theme`, con tu preferencia de modo claro u oscuro. El chat de Malejo guarda la charla en el almacenamiento de sesión de tu navegador (solo en esa pestaña, se borra al cerrarla) para que no se pierda si recargás; nunca se manda a ningún servidor para guardarse. Ninguno de los dos identifica a nadie.",
         ],
       },
     ],

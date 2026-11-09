@@ -72,6 +72,11 @@ export function DemoForm({
             {copy.success.fallbackCta}
           </a>
         ) : null}
+        {ok && state.whatsapp ? (
+          <a href={state.whatsapp} target="_blank" rel="noopener" className="btn btn-s self-start">
+            {copy.success.avisarCta}
+          </a>
+        ) : null}
       </div>
     );
   }

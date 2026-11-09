@@ -35,10 +35,12 @@ export const demoCopy = {
     fallbackTitle: "No pude guardar tu consulta.",
     fallbackBody: "Mandámelo por WhatsApp con este botón y lo vemos por ahí.",
     fallbackCta: "Mandar por WhatsApp",
+    /** Después de enviar bien: el cliente puede avisar por WhatsApp para no quedarse esperando. */
+    avisarCta: "Avisale a Mauro por WhatsApp",
   },
   sena: {
     title: "Seña de {SENA}",
-    body: "Se descuenta completa del total si contratás. La demo está lista en 72 horas hábiles desde que recibo la seña y el material.",
+    body: "Se descuenta completa del total si contratás. La demo está lista en 72 horas hábiles desde que recibo la seña y el material. Si vas a renovar tu web actual, la demo previa es sin cargo: no hace falta la seña.",
     pay: "Pagar la seña",
     alias: "Transferí al alias",
     whatsapp: "Pedir los datos para la seña",

@@ -7,7 +7,7 @@ export const malejoCopy = {
   spriteAlt: "",
   header: {
     name: "Malejo",
-    status: "Responde al instante · Lo supervisa Mauro",
+    status: "Asistente con IA · Responde al instante",
     close: "Cerrar chat",
     restart: "Empezar una charla nueva",
     whatsapp: "Escribirle a Mauro por WhatsApp con el resumen de esta charla",
@@ -57,6 +57,18 @@ export const malejoCopy = {
     choose: "Pedir demo",
   },
   proyectos: { label: "Proyectos de Mauro", portfolio: "Ver todo en el portfolio" },
+  form: {
+    label: "Que Mauro te escriba",
+    nombre: "Tu nombre",
+    whatsapp: "Tu WhatsApp (con código de área)",
+    check: "Acepto que Mauro me contacte por WhatsApp",
+    privacy: "Política de privacidad",
+    save: "Que me escriba",
+    saving: "Enviando…",
+    saved: "Listo: Mauro te escribe por WhatsApp en hasta 2 días hábiles.",
+    needCheck: "Marcá la casilla para que pueda guardar tus datos.",
+    invalid: "Revisá el nombre y el WhatsApp (con código de área).",
+  },
   demo: { label: "Tu demo", demo: "Pedir mi demo", agenda: "Agendar videollamada" },
   whatsapp: { label: "WhatsApp", cta: "Escribirle a Mauro" },
   consent: {

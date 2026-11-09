@@ -1,8 +1,8 @@
+/* eslint-disable @typescript-eslint/no-require-imports -- script suelto de Node (CommonJS), no es parte de la app */
 // Script de las capturas y mediciones de la tanda R2 (Playwright). Uso:
 //   npx next start -p 3005   (y el build de ea4ee29 en 3006 para el "antes")
-//   node docs/agencia/verificacion/r2/capturas.js docs/agencia/verificacion/r2 antes
+//   NODE_PATH=$(npm root -g) node docs/agencia/verificacion/r2/capturas.js docs/agencia/verificacion/r2 antes
 const { chromium } = require("playwright");
-const fs = require("fs");
 const OUT = process.argv[2];
 const FORZAR = "[data-reveal]{opacity:1!important;transform:none!important}";
 const rutas = ["/", "/precios", "/servicios", "/servicios/webs", "/servicios/tiendas", "/servicios/turnos", "/servicios/gestion", "/servicios/ia", "/servicios/mant", "/servicios/grandes", "/cotizador", "/demo"];

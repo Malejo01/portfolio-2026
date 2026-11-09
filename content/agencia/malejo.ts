@@ -9,6 +9,7 @@ export const malejoCopy = {
     name: "Malejo",
     status: "Responde al instante · Lo supervisa Mauro",
     close: "Cerrar chat",
+    restart: "Empezar una charla nueva",
     whatsapp: "Escribirle a Mauro por WhatsApp con el resumen de esta charla",
     whatsappTip: "WhatsApp con Mauro",
   },

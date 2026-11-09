@@ -1,5 +1,6 @@
 "use client";
 
+import { track } from "@vercel/analytics";
 import { abrirChat } from "@/lib/agencia/abrir-chat";
 
 /**
@@ -34,7 +35,10 @@ export function AbrirChat({
       aria-label={ariaLabel}
       onClick={(e) => {
         if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
-        if (abrirChat({ tema })) e.preventDefault();
+        // Embudo: qué botón trae a la gente al chat (o a WhatsApp, si el chat no está).
+        const abierto = abrirChat({ tema });
+        track("cta_chat", { pagina: location.pathname, tema: Boolean(tema), destino: abierto ? "chat" : "whatsapp" });
+        if (abierto) e.preventDefault();
       }}
     >
       {children}

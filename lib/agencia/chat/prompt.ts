@@ -116,21 +116,27 @@ const ETIQUETAS: [keyof Ficha, string][] = [
   ["etapa", "Etapa"],
 ];
 
-/** El bloque sin caché del final: la ficha que mandó el widget. */
-export function bloqueFicha(ficha: Ficha): string {
-  if (fichaVacia(ficha) && !ficha.etapa) return "# Lo que ya sabés del cliente\nTodavía nada: es el comienzo de la charla.";
+/**
+ * El bloque sin caché del final: la ficha que mandó el widget y, si se
+ * conoce, la página desde la que escribe (tanda R3).
+ */
+export function bloqueFicha(ficha: Ficha, pagina?: string | null): string {
+  const donde = pagina
+    ? `\n\n# Dónde está\nLa persona escribe desde ${pagina}. Usalo para entender qué está mirando, sin decírselo textual ni asumir que ya eligió.`
+    : "";
+  if (fichaVacia(ficha) && !ficha.etapa) return `# Lo que ya sabés del cliente\nTodavía nada: es el comienzo de la charla.${donde}`;
   const lineas = ETIQUETAS.flatMap(([k, label]) => {
     const v = ficha[k];
     const texto = Array.isArray(v) ? v.join("; ") : v;
     return texto ? [`- ${label}: ${texto}`] : [];
   });
-  return `# Lo que ya sabés del cliente\n${lineas.join("\n")}\nNo le vuelvas a preguntar lo que ya está acá.`;
+  return `# Lo que ya sabés del cliente\n${lineas.join("\n")}\nNo le vuelvas a preguntar lo que ya está acá.${donde}`;
 }
 
 /** `system` del pedido: el bloque cacheado y, después, la ficha. */
-export function systemBlocks(senaMonto: number, ficha: Ficha): Anthropic.TextBlockParam[] {
+export function systemBlocks(senaMonto: number, ficha: Ficha, pagina?: string | null): Anthropic.TextBlockParam[] {
   return [
     { type: "text", text: systemPrompt(senaMonto), cache_control: { type: "ephemeral" } },
-    { type: "text", text: bloqueFicha(ficha) },
+    { type: "text", text: bloqueFicha(ficha, pagina) },
   ];
 }

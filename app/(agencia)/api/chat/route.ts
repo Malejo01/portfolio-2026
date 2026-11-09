@@ -5,6 +5,7 @@ import type { Ficha } from "@/lib/agencia/chat/ficha";
 import { FichaSchema, limpiarFicha } from "@/lib/agencia/chat/ficha-schema";
 import { consume, type Motivo } from "@/lib/agencia/chat/limits";
 import { systemBlocks } from "@/lib/agencia/chat/prompt";
+import { contextoDePagina } from "@/lib/agencia/chat/pagina";
 import { recortarHistorial } from "@/lib/agencia/chat/recorte";
 import { TEST_HEADER, esTokenDePrueba, hashIp, ipFrom, origenPermitido, rechazarOrigen } from "@/lib/agencia/chat/security";
 import { nuevoContexto, runTool, tools, ultimaCotizacion, type ToolContext, type ToolOutcome } from "@/lib/agencia/chat/tools";
@@ -65,6 +66,8 @@ const Body = z.object({
   ficha: FichaSchema.optional(),
   /** Firmas de las tarjetas ya mostradas (`firmaCard`), para no repetirlas. */
   shownCards: z.array(z.string().max(300)).max(40).optional(),
+  /** `location.pathname` del widget. Se valida contra las rutas del sitio (`pagina.ts`). */
+  pagina: z.string().max(120).optional(),
 });
 
 /** Al llegar a un tope: mensaje amable y WhatsApp con la ficha. */
@@ -134,7 +137,7 @@ export async function POST(request: Request) {
   // Un reintento como mucho: el timeout por ronda manda sobre la espera total.
   const client = new Anthropic({ maxRetries: 1 });
   // La ficha del bloque final es la que llegó con el pedido: fija durante el turno.
-  const system = systemBlocks(senaMonto(), ctx.ficha);
+  const system = systemBlocks(senaMonto(), ctx.ficha, await contextoDePagina(body.pagina));
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream<Uint8Array>({

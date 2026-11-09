@@ -1,5 +1,6 @@
 "use client";
 
+import { track } from "@vercel/analytics";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -8,6 +9,7 @@ import type { MalejoCopy } from "@/content/agencia/malejo";
 import type { Card } from "@/lib/agencia/chat/cards";
 import { mergeFicha, type Ficha } from "@/lib/agencia/chat/ficha";
 import { armarHistorial, firmasMostradas, ultimaQuote } from "@/lib/agencia/chat/history";
+import { borrarSesion, guardarSesion, leerSesion } from "@/lib/agencia/chat/sesion";
 import { mensajeWhatsApp } from "@/lib/agencia/chat/whatsapp";
 import { waLink } from "@/lib/agencia/config";
 import { fmt, fmtUsd } from "@/lib/agencia/format";
@@ -72,6 +74,32 @@ export default function MalejoWidget({
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
+  // La charla sobrevive a una recarga o a ir y volver de `/demo` (solo en
+  // esta pestaña: `sessionStorage`). Se lee en el primer frame.
+  const restaurada = useRef(false);
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => {
+      const s = leerSesion();
+      restaurada.current = true;
+      if (!s) return;
+      setMsgs(s.msgs);
+      setFicha(s.ficha);
+      nextId.current = Math.max(...s.msgs.map((m) => m.id)) + 1;
+    });
+    return () => cancelAnimationFrame(raf);
+  }, []);
+  useEffect(() => {
+    if (!restaurada.current || busy) return;
+    if (msgs.some((m) => m.role === "user")) guardarSesion({ msgs, ficha });
+  }, [msgs, ficha, busy]);
+
+  const reiniciar = useCallback(() => {
+    borrarSesion();
+    setMsgs([{ id: nextId.current++, role: "assistant", text: copy.greeting, cards: [] }]);
+    setFicha({});
+    inputRef.current?.focus();
+  }, [copy.greeting]);
+
   const close = useCallback(() => {
     setOpen(false);
     spriteBtn.current?.focus();
@@ -100,13 +128,15 @@ export default function MalejoWidget({
       setMsgs((m) => [...m, user, bot]);
       setInput("");
       setBusy(true);
+      // Embudo (Vercel Analytics): solo conteos, nunca el texto.
+      track("chat_mensaje", { n: msgs.filter((m) => m.role === "user").length + 1 });
 
       const patch = (fn: (m: Msg) => Msg) => setMsgs((all) => all.map((m) => (m.id === bot.id ? fn(m) : m)));
       try {
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ messages: history, ficha, shownCards }),
+          body: JSON.stringify({ messages: history, ficha, shownCards, pagina: location.pathname }),
         });
         if (!res.ok || !res.body) throw new Error(String(res.status));
         const reader = res.body.getReader();
@@ -122,7 +152,10 @@ export default function MalejoWidget({
             if (!line.trim()) continue;
             const ev = JSON.parse(line) as { type: string; text?: string; card?: Card; ficha?: Ficha };
             if ((ev.type === "text" || ev.type === "error") && ev.text) patch((m) => conTexto(m, ev.text!));
-            if (ev.type === "card" && ev.card) patch((m) => conCard(m, ev.card!));
+            if (ev.type === "card" && ev.card) {
+              patch((m) => conCard(m, ev.card!));
+              track("chat_tarjeta", { tipo: ev.card.kind });
+            }
             if (ev.type === "ficha" && ev.ficha) setFicha((f) => mergeFicha(f, ev.ficha!));
           }
         }
@@ -151,6 +184,7 @@ export default function MalejoWidget({
     const raf = requestAnimationFrame(() => {
       atendido.current = pedido.n;
       setOpen(true);
+      track("chat_abierto", { origen: pedido.tema ? "tema" : "boton" });
       if (pedido.tema) sendRef.current(pedido.tema);
     });
     return () => cancelAnimationFrame(raf);
@@ -179,7 +213,7 @@ export default function MalejoWidget({
             style={{ transformOrigin: "100% 100%" }}
             className="card pointer-events-auto fixed inset-0 z-[61] flex flex-col overflow-hidden rounded-none sm:static sm:mb-[18px] sm:h-[min(600px,calc(100vh-110px))] sm:w-[380px] sm:rounded-[24px]"
           >
-            <ChatHeader copy={copy} onClose={close} waHref={waHref} />
+            <ChatHeader copy={copy} onClose={close} waHref={waHref} onRestart={sinMensajes ? undefined : reiniciar} />
 
             <div ref={listRef} className="flex flex-1 flex-col gap-3 overflow-y-auto px-4 py-4" aria-live="polite">
               {msgs.map((m) => (
@@ -248,7 +282,11 @@ export default function MalejoWidget({
         type="button"
         aria-label={open ? copy.close : copy.open}
         aria-expanded={open}
-        onClick={() => (open ? close() : setOpen(true))}
+        onClick={() => {
+          if (open) return close();
+          setOpen(true);
+          track("chat_abierto", { origen: "flotante" });
+        }}
         className={`breathe pointer-events-auto flex-col items-center gap-1 rounded-lg ${open ? "hidden sm:flex" : "flex"}`}
       >
         <span className="lbl hidden rounded-[7px] bg-acc px-[7px] py-1 text-[10px] font-semibold text-acc-ink shadow-btn sm:inline">
@@ -297,7 +335,7 @@ function Avatar({ size }: { size: 32 | 40 }) {
   );
 }
 
-function ChatHeader({ copy, onClose, waHref }: { copy: MalejoCopy; onClose: () => void; waHref: string }) {
+function ChatHeader({ copy, onClose, waHref, onRestart }: { copy: MalejoCopy; onClose: () => void; waHref: string; onRestart?: () => void }) {
   return (
     <div className="flex items-center gap-3 border-b border-border px-4 py-3">
       <Avatar size={40} />
@@ -308,10 +346,16 @@ function ChatHeader({ copy, onClose, waHref }: { copy: MalejoCopy; onClose: () =
         </div>
         <div className="text-xs text-muted">{copy.header.status}</div>
       </div>
+      {onRestart ? (
+        <button type="button" className="ibtn h-9 w-9 rounded-xl" aria-label={copy.header.restart} title={copy.header.restart} onClick={onRestart}>
+          <span aria-hidden="true" className="text-[17px] leading-none">↺</span>
+        </button>
+      ) : null}
       <a
         href={waHref}
         target="_blank"
         rel="noopener"
+        onClick={() => track("chat_clic", { destino: "whatsapp" })}
         className="ibtn h-9 w-9 rounded-xl"
         aria-label={copy.header.whatsapp}
         title={copy.header.whatsappTip}
@@ -421,7 +465,7 @@ function CardView({
             + {t}
           </p>
         ))}
-        <Link href={card.demoHref} className="btn btn-p btn-sm w-full">
+        <Link href={card.demoHref} onClick={() => track("chat_clic", { destino: "demo" })} className="btn btn-p btn-sm w-full">
           {copy.quote.demo.replace("{SENA}", fmt(senaMonto))}
         </Link>
       </div>
@@ -452,7 +496,7 @@ function CardView({
     return (
       <div className="card hi flex flex-col gap-2 rounded-[18px] p-3.5">
         <span className="lbl lbl-o text-[10px]">{copy.demo.label}</span>
-        <Link href={card.demoHref} className="btn btn-p btn-sm w-full">
+        <Link href={card.demoHref} onClick={() => track("chat_clic", { destino: "demo" })} className="btn btn-p btn-sm w-full">
           {copy.demo.demo}
         </Link>
         <a href={card.agendaHref} target="_blank" rel="noopener" className="btn btn-s btn-sm w-full">
@@ -463,7 +507,7 @@ function CardView({
   }
   if (card.kind === "whatsapp") {
     return (
-      <a href={card.href} target="_blank" rel="noopener" className="btn btn-s btn-sm self-start">
+      <a href={card.href} target="_blank" rel="noopener" onClick={() => track("chat_clic", { destino: "whatsapp" })} className="btn btn-s btn-sm self-start">
         <Icon name="chat" size={16} />
         {copy.whatsapp.cta}
       </a>
@@ -569,6 +613,7 @@ function ConsentCard({
       const data = (await res.json()) as { ok: boolean; error?: string };
       if (!data.ok) throw new Error(data.error);
       setState("saved");
+      track("chat_contacto_guardado");
     } catch (e) {
       setState("error");
       setError((e as Error).message || copy.errorText);

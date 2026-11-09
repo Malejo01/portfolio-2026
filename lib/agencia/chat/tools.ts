@@ -1,15 +1,27 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
+import { conocimiento } from "@/content/agencia/conocimiento";
 import { combos, extras, getCombo, getPlan, plans } from "@/content/agencia/pricing";
 import { CALCOM_URL, waLink } from "@/lib/agencia/config";
-import { cotizar, resumenCotizacion } from "@/lib/agencia/pricing";
+import { comparar, cotizar, resumenCotizacion } from "@/lib/agencia/pricing";
+import { deduplicable, firmaCard, leerFirmaQuote, type Card, type Medio, type Moneda, type QuoteCard } from "./cards";
+import { mergeFicha, type Ficha } from "./ficha";
+import { FichaSchema, limpiarFicha } from "./ficha-schema";
 import { consentEnabled, isPhoneAR, signConsent, type ContactPayload } from "./security";
+import { mensajeWhatsApp } from "./whatsapp";
 
 /**
  * Herramientas del agente Malejo. Cada una tiene su esquema zod (se valida
  * en el servidor antes de ejecutar: con `eager_input_streaming` la API no
- * valida el input) y devuelve dos cosas: el texto para el modelo y, si
- * corresponde, una tarjeta para la UI.
+ * valida el input) y devuelve hasta tres cosas: el texto para el modelo, una
+ * tarjeta para la UI y un cambio de ficha.
+ *
+ * - `cotizar` suma lo que se contrata junto; `comparar` muestra
+ *   alternativas sin sumarlas. Ninguna cotiza proyectos grandes.
+ * - `anotar_ficha` es silenciosa: no muestra nada y nunca guarda en el
+ *   servidor; el widget guarda la ficha en memoria.
+ * - Una tarjeta `quote`/`compare`/`proyectos` igual a una ya mostrada no se
+ *   vuelve a emitir (`ctx.shown` trae las firmas del historial reciente).
  *
  * No hay ninguna herramienta que lea contactos. `guardar_contacto` no
  * guarda: firma el pedido y se lo pasa a la UI, que muestra la casilla de
@@ -19,44 +31,95 @@ import { consentEnabled, isPhoneAR, signConsent, type ContactPayload } from "./s
 
 const ids = [...plans.map((p) => p.id), ...combos.map((c) => c.id)];
 const extraIds = extras.map((e) => e.id);
+const esGrande = (id: string) => getPlan(id)?.category === "grandes";
+
+const medio = z.enum(["transferencia", "mp"]).optional();
+const moneda = z.enum(["ars", "usd"]).optional();
 
 const schemas = {
   cotizar: z.object({
     planIds: z.array(z.string()).min(1).max(6),
-    extras: z.array(z.string()).max(7).optional(),
-    medio: z.enum(["transferencia", "mp"]).optional(),
+    extras: z.array(z.string()).max(8).optional(),
+    medio,
+    moneda,
   }),
+  comparar: z.object({ ids: z.array(z.string()).min(2).max(4), medio, moneda }),
+  anotar_ficha: FichaSchema,
+  mostrar_proyectos: z.object({}).passthrough(),
   pedir_demo: z.object({ planId: z.string().optional() }),
-  derivar_whatsapp: z.object({ resumen: z.string().min(1).max(600) }),
+  derivar_whatsapp: z.object({ resumen: z.string().trim().min(1).max(600) }),
   guardar_contacto: z.object({
     nombre: z.string().trim().min(2).max(80),
     whatsapp: z.string().trim().min(8).max(30),
-    rubro: z.string().trim().min(2).max(80),
-    resumen: z.string().trim().min(5).max(600),
+    rubro: z.string().trim().max(80).optional(),
+    resumen: z.string().trim().max(600).optional(),
   }),
 };
 
 export type ToolName = keyof typeof schemas;
 
+const fichaProps = {
+  nombre: { type: "string" },
+  rubro: { type: "string", description: "Rubro del negocio: peluquería, veterinaria, ferretería…" },
+  ciudad: { type: "string" },
+  necesidad: { type: "string", description: "Qué necesita, en una frase y en primera persona." },
+  presupuesto: { type: "string", description: "Lo que dijo que puede gastar, textual." },
+  planesInteres: { type: "array", items: { type: "string" }, description: "Ids del catálogo que le interesan." },
+  urgencia: { type: "string" },
+  medioPago: { type: "string", description: "transferencia o Mercado Pago" },
+  cuotas: { type: "string", description: "Ej.: 6 cuotas" },
+  dudas: { type: "array", items: { type: "string" }, description: "Dudas abiertas que Mauro tendría que responder." },
+  etapa: { type: "string", enum: ["descubrimiento", "cotizado", "interesado", "listo_para_demo", "derivado"] },
+} as const;
+
 export const tools: Anthropic.Tool[] = [
   {
     name: "cotizar",
     description:
-      "Calcula el precio exacto de uno o más planes o combos del catálogo de Malejo, con extras opcionales y medio de pago. Usala SIEMPRE antes de decir cualquier monto. Si la selección incluye todas las partes de un combo, aplica el combo sola.",
+      "Precio exacto de lo que la persona contrataría JUNTO (suma todo: implementación, abono y total del primer año). Usala antes de decir cualquier monto de una selección. Para comparar opciones alternativas usá comparar: cotizar nunca es para alternativas. Si están todas las partes de un combo, aplica el combo sola. No sirve para proyectos grandes.",
     eager_input_streaming: true,
     input_schema: {
       type: "object",
       properties: {
-        planIds: { type: "array", items: { type: "string", enum: ids }, description: "Ids de planes o combos del catálogo." },
+        planIds: { type: "array", items: { type: "string", enum: ids }, description: "Planes o combos que se contratan juntos." },
         extras: { type: "array", items: { type: "string", enum: extraIds } },
         medio: { type: "string", enum: ["transferencia", "mp"], description: "mp = Mercado Pago (+6%). Por defecto transferencia." },
+        moneda: { type: "string", enum: ["ars", "usd"], description: "usd = suma el equivalente en dólares. Solo si lo pide, escribe desde el exterior o en otro idioma." },
       },
       required: ["planIds"],
     },
   },
   {
+    name: "comparar",
+    description:
+      "Muestra de 2 a 4 opciones ALTERNATIVAS lado a lado (precio, abono, plazo y para quién es), sin sumarlas ni dar un total. Usala cuando la persona elige entre opciones: Landing Express o Profesional, Mantenimiento Básico o Pro.",
+    eager_input_streaming: true,
+    input_schema: {
+      type: "object",
+      properties: {
+        ids: { type: "array", items: { type: "string", enum: ids }, description: "De 2 a 4 planes o combos alternativos." },
+        medio: { type: "string", enum: ["transferencia", "mp"] },
+        moneda: { type: "string", enum: ["ars", "usd"] },
+      },
+      required: ["ids"],
+    },
+  },
+  {
+    name: "anotar_ficha",
+    description:
+      "Anota en silencio lo que aprendiste del cliente (no muestra nada y no se lo digas). Llamala cada vez que aprendas algo nuevo: rubro, necesidad, planes que le interesan, presupuesto, urgencia, medio de pago, dudas o etapa. Solo los campos nuevos.",
+    eager_input_streaming: true,
+    input_schema: { type: "object", properties: fichaProps },
+  },
+  {
+    name: "mostrar_proyectos",
+    description: "Muestra una tarjeta con los proyectos reales de Mauro (AfinIA Jobs, Qué Pinta Salta, Tuki y MaestrIA) y el link al portfolio. Usala si preguntan por trabajos, experiencia o confianza.",
+    eager_input_streaming: true,
+    input_schema: { type: "object", properties: {} },
+  },
+  {
     name: "pedir_demo",
-    description: "Devuelve el link para pedir la demo con seña (y la agenda si existe). Usala cuando la persona quiera avanzar.",
+    description: "Muestra el botón para pedir la demo con seña (y la agenda de la videollamada). Usala cuando la persona quiera avanzar con un plan del catálogo. No es para proyectos grandes.",
     eager_input_streaming: true,
     input_schema: {
       type: "object",
@@ -65,101 +128,201 @@ export const tools: Anthropic.Tool[] = [
   },
   {
     name: "derivar_whatsapp",
-    description: "Arma un link de WhatsApp a Mauro con un resumen de la consulta. Usala si no sabés algo, si piden hablar con una persona o si el pedido no entra en el catálogo.",
+    description:
+      "Muestra el botón de WhatsApp a Mauro con la ficha del cliente y la última cotización ya cargadas. Usala si pide una persona, si no hay dato en el conocimiento, si pide descuento o un caso especial, o para un proyecto grande.",
     eager_input_streaming: true,
     input_schema: {
       type: "object",
-      properties: { resumen: { type: "string", description: "Resumen breve de lo que necesita, en primera persona." } },
+      properties: { resumen: { type: "string", description: "La consulta en una frase, en primera persona." } },
       required: ["resumen"],
     },
   },
   {
     name: "guardar_contacto",
     description:
-      "Propone guardar el contacto para que Mauro escriba. NO guarda nada: le muestra a la persona una casilla de consentimiento y solo se guarda si la marca. Usala solo cuando la persona ya te dio nombre y WhatsApp por su cuenta y quiere que la contacten.",
+      "Propone guardar el contacto para que Mauro escriba. NO guarda nada: le muestra a la persona una casilla de consentimiento y solo se guarda si la marca. Usala solo cuando la persona ya te dio nombre y WhatsApp por su cuenta y quiere que la contacten. Rubro y resumen salen de la ficha si no los pasás.",
     eager_input_streaming: true,
     input_schema: {
       type: "object",
       properties: {
         nombre: { type: "string" },
-        whatsapp: { type: "string", description: "Teléfono argentino." },
+        whatsapp: { type: "string", description: "Teléfono argentino completo, con código de área." },
         rubro: { type: "string" },
         resumen: { type: "string", description: "Qué necesita, en una o dos frases." },
       },
-      required: ["nombre", "whatsapp", "rubro", "resumen"],
+      required: ["nombre", "whatsapp"],
     },
   },
 ];
 
-export type Card =
-  | { kind: "quote"; titulo: string; implementacion: number; mensual: number; desde: boolean; demoHref: string; medio: "transferencia" | "mp" }
-  | { kind: "demo"; demoHref: string; agendaHref: string }
-  | { kind: "whatsapp"; href: string }
-  | { kind: "consent"; payload: ContactPayload; token: string };
+/** Lo que cada herramienta necesita del pedido. */
+export interface ToolContext {
+  /** ARS por USD del día. */
+  tipoDeCambio: number;
+  ficha: Ficha;
+  /** Firmas de las tarjetas ya mostradas (del historial y de este turno). */
+  shown: Set<string>;
+}
 
 export interface ToolOutcome {
   content: string;
   isError?: boolean;
   card?: Card;
+  /** Cambio de ficha normalizado (ya fusionado en `ctx.ficha`). */
+  ficha?: Ficha;
 }
 
-export function runTool(name: string, input: unknown): ToolOutcome {
+export function nuevoContexto(tipoDeCambio: number, ficha: Ficha = {}, shownCards: string[] = []): ToolContext {
+  return { tipoDeCambio, ficha, shown: new Set(shownCards) };
+}
+
+/** Arma la tarjeta de cotización. La usa la herramienta y la reconstrucción desde una firma. */
+export function quoteCard(args: { planIds: string[]; extras?: string[]; medio?: Medio; moneda?: Moneda }, tipoDeCambio: number) {
+  const m = args.medio ?? "transferencia";
+  const mon = args.moneda ?? "ars";
+  const c = cotizar({ planIds: args.planIds, extras: args.extras, medio: m, tipoDeCambio });
+  const principal = c.items.filter((i) => i.tipo !== "extra");
+  const card: QuoteCard = {
+    kind: "quote",
+    ids: [...new Set(args.planIds)],
+    extras: [...new Set(args.extras ?? [])],
+    titulo: c.items.length === 1 ? c.items[0].nombre : principal.map((i) => i.nombre).join(" + ") || "Tu cotización",
+    implementacion: c.implementacion,
+    mensual: c.abonoMensual,
+    anual: c.anual,
+    desde: c.desde,
+    medio: m,
+    moneda: mon,
+    aCotizar: c.aCotizar,
+    ...(mon === "usd" && c.usd ? { usd: { implementacion: c.usd.implementacion, mensual: c.usd.abonoMensual, tipoDeCambio: c.usd.tipoDeCambio } } : {}),
+    demoHref: `/demo?plan=${encodeURIComponent(principal.map((i) => i.id).join(","))}`,
+  };
+  return { cotizacion: c, card };
+}
+
+/** La última cotización mostrada, reconstruida desde su firma (el cliente no manda montos). */
+export function ultimaCotizacion(ctx: ToolContext): QuoteCard | null {
+  const firma = [...ctx.shown].reverse().find((s) => s.startsWith("quote:"));
+  const partes = firma && leerFirmaQuote(firma);
+  if (!partes) return null;
+  const { cotizacion, card } = quoteCard({ planIds: partes.ids, extras: partes.extras, medio: partes.medio, moneda: partes.moneda }, ctx.tipoDeCambio);
+  return cotizacion.items.length ? card : null;
+}
+
+const nombreDe = (id: string) => getPlan(id)?.name ?? (getCombo(id) ? `Combo ${getCombo(id)!.name}` : id);
+
+function conDedup(ctx: ToolContext, out: ToolOutcome): ToolOutcome {
+  if (!out.card || !deduplicable(out.card)) return out;
+  const firma = firmaCard(out.card);
+  if (ctx.shown.has(firma)) {
+    return {
+      content: `${out.content}\n\nEsa misma tarjeta YA está en pantalla: no la mostré de nuevo. No la repitas ni la cites; seguí con el próximo paso.`,
+    };
+  }
+  ctx.shown.add(firma);
+  return out;
+}
+
+const GRANDES =
+  "Es un proyecto grande: no va con tarjeta de cotización ni con la demo de 72 horas. Proponé el camino consultoría inicial sin cargo → diagnóstico escrito ($60.000) → sprint con demo, y ofrecé la consultoría por WhatsApp con derivar_whatsapp.";
+
+export function runTool(name: string, input: unknown, ctx: ToolContext): ToolOutcome {
   if (!(name in schemas)) return { content: `Herramienta desconocida: ${name}`, isError: true };
-  const parsed = schemas[name as ToolName].safeParse(input);
+  const parsed = schemas[name as ToolName].safeParse(input ?? {});
   if (!parsed.success) {
-    return { content: JSON.stringify({ INVALID_INPUT: parsed.error.issues.map((i) => i.message) }), isError: true };
+    return { content: JSON.stringify({ INVALID_INPUT: parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`) }), isError: true };
   }
 
   switch (name as ToolName) {
     case "cotizar": {
       const args = parsed.data as z.infer<typeof schemas.cotizar>;
-      const c = cotizar({ planIds: args.planIds, extras: args.extras, medio: args.medio });
+      if (args.planIds.some(esGrande)) return { content: GRANDES, isError: true };
+      const { cotizacion: c, card } = quoteCard(args, ctx.tipoDeCambio);
       if (!c.items.length) return { content: `Ningún id existe en el catálogo: ${c.desconocidos.join(", ")}`, isError: true };
-      const principal = c.items.filter((i) => i.tipo !== "extra");
-      const titulo = c.items.length === 1 ? c.items[0].nombre : principal.map((i) => i.nombre).join(" + ") || "Tu cotización";
-      return {
-        content: JSON.stringify({ ...c, resumen: resumenCotizacion(c) }),
+      const { usd, ...ars } = c;
+      const enUsd = card.moneda === "usd" && usd ? { usd, tipoDeCambio: `dólar oficial del día: $${usd.tipoDeCambio}` } : {};
+      return conDedup(ctx, {
+        content: JSON.stringify({ ...ars, ...enUsd, resumen: resumenCotizacion(card.moneda === "usd" ? c : ars) }),
+        card,
+      });
+    }
+    case "comparar": {
+      const args = parsed.data as z.infer<typeof schemas.comparar>;
+      if (args.ids.some(esGrande)) return { content: GRANDES, isError: true };
+      const usd = args.moneda === "usd";
+      const c = comparar({ ids: args.ids, medio: args.medio, tipoDeCambio: usd ? ctx.tipoDeCambio : undefined });
+      if (c.filas.length < 2) return { content: `Para comparar hacen falta al menos 2 ids del catálogo. Desconocidos: ${c.desconocidos.join(", ") || "ninguno"}`, isError: true };
+      return conDedup(ctx, {
+        content: JSON.stringify({ ...c, nota: "Son alternativas: no las sumes ni des un total." }),
         card: {
-          kind: "quote",
-          titulo,
-          implementacion: c.implementacion,
-          mensual: c.abonoMensual,
-          desde: c.desde,
+          kind: "compare",
+          ids: c.filas.map((f) => f.id),
           medio: c.medio,
-          demoHref: `/demo?plan=${encodeURIComponent(principal.map((i) => i.id).join(","))}`,
+          moneda: usd ? "usd" : "ars",
+          filas: c.filas,
+          ...(c.tipoDeCambio ? { tipoDeCambio: c.tipoDeCambio } : {}),
         },
-      };
+      });
+    }
+    case "anotar_ficha": {
+      const patch = limpiarFicha(parsed.data as z.infer<typeof schemas.anotar_ficha>);
+      if (patch.planesInteres) patch.planesInteres = patch.planesInteres.map(nombreDe);
+      ctx.ficha = mergeFicha(ctx.ficha, patch);
+      return { content: "Anotado. No lo menciones.", ficha: patch };
+    }
+    case "mostrar_proyectos": {
+      const items = conocimiento.proyectos.filter((p) => p.href).map((p) => ({ nombre: p.nombre, que: p.que, href: p.href }));
+      return conDedup(ctx, {
+        content: `Le mostré la tarjeta con ${items.map((i) => i.nombre).join(", ")} y el portfolio. No escribas los links.`,
+        card: { kind: "proyectos", items, portfolio: conocimiento.portfolio },
+      });
     }
     case "pedir_demo": {
       const { planId } = parsed.data as z.infer<typeof schemas.pedir_demo>;
+      if (planId && esGrande(planId)) return { content: GRANDES, isError: true };
       const valid = planId && (getPlan(planId) || getCombo(planId)) ? planId : undefined;
       const demoHref = valid ? `/demo?plan=${valid}` : "/demo";
       const agendaHref = CALCOM_URL || waLink("Quiero agendar una videollamada");
-      return { content: JSON.stringify({ demoHref, agenda: CALCOM_URL ? "Cal.com" : "WhatsApp" }), card: { kind: "demo", demoHref, agendaHref } };
+      return {
+        content: "Le mostré el botón para pedir la demo y la agenda. No escribas el link.",
+        card: { kind: "demo", demoHref, agendaHref },
+      };
     }
     case "derivar_whatsapp": {
       const { resumen } = parsed.data as z.infer<typeof schemas.derivar_whatsapp>;
-      const href = waLink(`Hola Mauro, vengo del chat de malejo.com.ar. ${resumen}`);
-      return { content: "Le mostré el botón de WhatsApp con el resumen.", card: { kind: "whatsapp", href } };
+      ctx.ficha = mergeFicha(ctx.ficha, { etapa: "derivado" });
+      const href = waLink(mensajeWhatsApp(ctx.ficha, ultimaCotizacion(ctx), resumen));
+      return {
+        content: "Le mostré el botón de WhatsApp con su ficha. No repitas que te pasa con Mauro ni escribas el link.",
+        card: { kind: "whatsapp", href },
+        ficha: { etapa: "derivado" },
+      };
     }
     case "guardar_contacto": {
       const data = parsed.data as z.infer<typeof schemas.guardar_contacto>;
+      const rubro = (data.rubro || ctx.ficha.rubro || "").slice(0, 80);
+      const resumen = (data.resumen || ctx.ficha.necesidad || "").slice(0, 600);
       if (!consentEnabled()) {
         // Sin MALEJO_SALT en producción no se guardan contactos: se deriva a WhatsApp.
-        const href = waLink(`Hola Mauro, soy ${data.nombre} (${data.rubro}). ${data.resumen}`);
+        const href = waLink(mensajeWhatsApp(mergeFicha(ctx.ficha, { nombre: data.nombre }), ultimaCotizacion(ctx), resumen));
         return {
-          content: "Ahora no puedo guardar contactos. Le mostré el botón para escribirle a Mauro por WhatsApp con su resumen.",
+          content: "Ahora no puedo guardar contactos. Le mostré el botón para escribirle a Mauro por WhatsApp con su ficha.",
           card: { kind: "whatsapp", href },
         };
       }
       if (!isPhoneAR(data.whatsapp)) {
-        return { content: "El teléfono no parece un número argentino válido. Pedile que lo revise (con código de área).", isError: true };
+        return { content: "El teléfono no parece un número argentino válido. Pedile el número completo, con código de área.", isError: true };
       }
-      const payload: ContactPayload = { ...data, iat: Date.now() };
+      if (rubro.length < 2 || resumen.length < 5) {
+        return { content: "Falta saber el rubro o qué necesita: preguntáselo antes de proponer guardar el contacto.", isError: true };
+      }
+      const payload: ContactPayload = { nombre: data.nombre, whatsapp: data.whatsapp, rubro, resumen, iat: Date.now() };
+      ctx.ficha = mergeFicha(ctx.ficha, { nombre: data.nombre });
       return {
         content:
-          "Le mostré la casilla de consentimiento. Los datos se guardan SOLO si la marca: no digas que ya quedaron guardados. Decile que, si la marca, Mauro le escribe.",
+          "Le mostré la casilla de consentimiento. Los datos se guardan SOLO si la marca: no digas que ya quedaron guardados. Decile que, si la marca, Mauro le escribe por WhatsApp en hasta 2 días hábiles.",
         card: { kind: "consent", payload, token: signConsent(payload) },
+        ficha: { nombre: data.nombre },
       };
     }
   }

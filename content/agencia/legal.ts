@@ -25,7 +25,7 @@ export interface LegalDoc {
   sections: LegalSection[];
 }
 
-const UPDATED = "6 de noviembre de 2026";
+const UPDATED = "8 de noviembre de 2026";
 
 export const legalDocs: Record<LegalDoc["slug"], LegalDoc> = {
   terminos: {
@@ -42,25 +42,28 @@ export const legalDocs: Record<LegalDoc["slug"], LegalDoc> = {
         blocks: [
           "Los servicios y sus precios están publicados en malejo.com.ar. Los precios están en pesos argentinos, son finales para el alcance descripto en cada plan y están vigentes hasta el 31/01/2027.",
           "Si lo que necesitás no entra en un plan publicado, te paso una cotización por escrito antes de empezar. Nada se cobra fuera de lo acordado por escrito.",
-          "Los costos de terceros van aparte y los paga el cliente directamente: mensajes de la API oficial de WhatsApp (Meta), consumo del modelo de IA, comisiones de Mercado Pago por venta y dominios distintos de los incluidos.",
+          "Los costos de terceros van aparte y los paga el cliente directamente: mensajes de la API oficial de WhatsApp (Meta), consumo del modelo de IA, comisiones de Mercado Pago por venta y el registro del dominio.",
+          "Los proyectos grandes (marketplaces, apps a medida o sistemas complejos) no tienen precio cerrado: empiezan con una consultoría sin cargo y un diagnóstico escrito, y se desarrollan por sprints que se cotizan con ese diagnóstico. Su mantenimiento mensual es el {MANT_GRANDES} del valor de implementación.",
         ],
       },
       {
         heading: "2. Seña y demo",
         blocks: [
           "Para armar una demo con tu marca pido una seña de {SENA}. La demo está lista en 72 horas hábiles desde que recibo la seña y el material.",
-          "Si contratás, la seña se descuenta completa del total. [DEFINIR: qué pasa con la seña si después de ver la demo decidís no contratar.]",
+          "La seña no es reembolsable: paga el trabajo de armar la demo. Si contratás, se descuenta completa del total; si después de ver la demo decidís no contratar, no se devuelve y no hay ningún otro cargo.",
         ],
       },
       {
         heading: "3. Formas de pago",
         blocks: [
+          "Los precios están en pesos argentinos. El chat puede mostrar un equivalente aproximado en dólares al tipo de cambio oficial del día, solo como referencia.",
+          "Por ahora no emito factura. Si la necesitás, consultalo antes de contratar.",
           {
             list: [
               "Transferencia bancaria: precio publicado, sin recargo.",
-              "Mercado Pago: {RECARGO} de recargo sobre el precio publicado.",
-              "Proyectos desde $450.000: hasta 3 pagos sin recargo por transferencia.",
-              "Sistemas de gestión desde $900.000: pago por hitos (40 % al empezar, 30 % en la entrega intermedia, 30 % en la entrega final).",
+              "Mercado Pago: {RECARGO} de recargo sobre el precio publicado, en hasta 6 cuotas. El interés de las cuotas lo define Mercado Pago según la tarjeta.",
+              "El total de la implementación se paga 50 % al aprobar la demo y 50 % en la entrega, con la seña descontada.",
+              "Proyectos grandes: cada sprint se paga según la cotización del diagnóstico.",
               "Abonos mensuales: se pagan por mes adelantado. Pagando el año por adelantado, pagás 10 meses.",
             ],
           },
@@ -76,6 +79,8 @@ export const legalDocs: Record<LegalDoc["slug"], LegalDoc> = {
         heading: "5. Hosting, dominio y renovación",
         blocks: [
           "Las webs incluyen 12 meses de hosting. Desde el mes 13 se renueva por $90.000 al año o se pasa a un plan de mantenimiento. Si no se renueva, te entrego el código y los accesos para que lo alojes donde quieras.",
+          "El dominio se registra a nombre del cliente. Su costo va aparte del precio del plan, según la tarifa vigente de NIC.ar (o del registrador, para otros dominios), y yo me ocupo de registrarlo y configurarlo.",
+          "Los planes de mantenimiento no tienen permanencia mínima: se dan de baja avisando con 30 días de anticipación.",
         ],
       },
       {

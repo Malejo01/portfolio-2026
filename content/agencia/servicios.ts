@@ -1,5 +1,6 @@
 import type { CategoryKey } from "./pricing";
-import { home, type FaqItem } from "./home";
+import { faqPorIds } from "./conocimiento";
+import { home, type FaqItem, type ServiceCard } from "./home";
 
 /**
  * Copy de `/servicios` y `/servicios/[slug]`. El slug de cada página es la
@@ -16,22 +17,43 @@ export const servicios = {
     lead: "Seis tipos de proyecto, todos con precio publicado. Entrá a cada uno para ver los planes y los combos.",
     cotizador: { label: "Armá tu cotización", href: "/cotizador" },
     demo: { label: "Pedí tu demo", href: "/demo" },
+    grandes: {
+      label: "Proyectos grandes",
+      title: "¿Algo más grande que un plan?",
+      body: "Marketplaces, apps a medida o sistemas complejos: consultoría sin cargo, diagnóstico escrito y desarrollo por sprints con demo.",
+      cta: { label: "Ver cómo trabajo proyectos grandes →", href: "/servicios/grandes" },
+    },
   },
   detail: {
     back: { label: "← Todos los servicios", href: "/servicios" },
     plansLabel: "Planes",
     plansTitle: "Elegí tu plan",
+    /** En `/servicios/grandes` no hay planes: hay pasos. */
+    stepsLabel: "Pasos",
+    stepsTitle: "Así arrancamos",
     faqLabel: "Pagos",
     faqTitle: "Cómo se paga",
     cotizador: { label: "Sumar extras en el cotizador →", href: "/cotizador" },
   },
 };
 
-/** FAQ de pagos de cada página de servicio: las preguntas de la home que hablan de plata. */
-export const faqPagos: FaqItem[] = home.faq.items.filter((i) =>
-  ["¿Cómo pago?", "¿Qué pasa después del primer año?", "¿De quién es el código?", "¿Qué es un cambio menor y qué un cambio mayor?"].includes(i.q),
-);
+/** FAQ de pagos de cada página de servicio, desde la base de conocimiento. */
+export const faqPagos: FaqItem[] = faqPorIds(["pagos", "cuotas", "sena", "primer-anio", "codigo", "cambios"]);
 
-export function serviceCard(key: CategoryKey) {
-  return home.services.cards.find((c) => c.category === key);
+/**
+ * Tarjeta de "Proyectos grandes": tiene página propia (`/servicios/grandes`)
+ * pero no va en la grilla de 3×2 de la home, que es del diseño aprobado.
+ */
+export const grandesCard: ServiceCard = {
+  category: "grandes",
+  icon: "app",
+  label: "A medida",
+  title: "Proyectos grandes",
+  description: "Para marketplaces, apps a medida o sistemas complejos: primero entendemos el proyecto, después lo construimos por etapas.",
+  items: ["Consultoría inicial sin cargo", "Diagnóstico escrito", "Sprints con demo"],
+  from: { basis: "impl", suffix: "" },
+};
+
+export function serviceCard(key: CategoryKey): ServiceCard | undefined {
+  return home.services.cards.find((c) => c.category === key) ?? (key === "grandes" ? grandesCard : undefined);
 }

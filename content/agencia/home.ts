@@ -1,12 +1,13 @@
 import type { IconName } from "@/components/agencia/icons";
 import { agenciaLinks } from "./links";
-import { getPlan, recargoMercadoPago, vigencia, type CategoryKey } from "./pricing";
+import { faqPorIds } from "./conocimiento";
+import { agendaGrandesHref } from "./grandes";
+import { mantenimientoGrandesPct, recargoMercadoPago, vigencia, type CategoryKey } from "./pricing";
 
 /**
  * Copy de la home de la agencia. Textos exactos de
- * `docs/agencia/referencia.html`; donde la referencia no los trae (respuestas
- * 2 a 6 del FAQ) están armados con datos del catálogo y anotados en
- * "Decisiones para Mauro".
+ * `docs/agencia/referencia.html`. El FAQ sale de `conocimiento.ts`, la misma
+ * base que usa el chat de Malejo (tanda CHAT-R1).
  *
  * Ningún precio está escrito a mano: los "Desde" de servicios salen del
  * catálogo y los montos de la seña de `SENA_MONTO` (se inyectan en el render).
@@ -46,9 +47,6 @@ export interface FaqItem {
 }
 
 const pct = `${Math.round(recargoMercadoPago * 100)}%`;
-const renovacion = getPlan("renovacion")?.impl ?? 0;
-const basico = getPlan("mantenimiento-basico")?.monthly ?? 0;
-const ars = (n: number) => `$${new Intl.NumberFormat("es-AR").format(n)}`;
 
 export const home = {
   hero: {
@@ -162,8 +160,15 @@ export const home = {
     saveLabel: "Ahorrás",
     comboCta: "Quiero este combo",
     extrasLabel: "Extras",
-    legal: `Precios en pesos, vigentes hasta el ${vigencia}. Webs: 12 meses de hosting y 30 días de garantía incluidos. Proyectos desde $450.000: 3 pagos sin recargo por transferencia. Los costos de Meta (WhatsApp) y del modelo de IA van aparte.`,
+    legal: `Precios en pesos, vigentes hasta el ${vigencia}. Webs: 12 meses de hosting y 30 días de garantía incluidos. El total se paga 50% al aprobar la demo y 50% en la entrega; con Mercado Pago, hasta 6 cuotas. El dominio, los costos de Meta (WhatsApp) y los del modelo de IA van aparte.`,
     legalCta: { label: "¿No ves lo tuyo? Pedí una cotización", href: "/cotizador" },
+    /** Pestaña "Proyectos grandes": tres pasos en vez de planes. */
+    grandes: {
+      stepLabel: "Paso",
+      free: "Sin cargo",
+      maintenance: `Mantenimiento: ${Math.round(mantenimientoGrandesPct * 100)}% mensual del valor de implementación, sin permanencia.`,
+      cta: { label: "Agendá la consultoría", href: agendaGrandesHref },
+    },
   },
 
   projects: {
@@ -233,38 +238,14 @@ export const home = {
   faq: {
     label: "Preguntas",
     title: "Lo que más me preguntan",
-    items: [
-      {
-        q: "¿Cuánto tarda mi web?",
-        a: "Una landing está lista en 3 a 10 días hábiles según el paquete; un sitio de hasta 5 páginas, en unas 2 semanas. El plazo corre desde que recibo tu material.",
-      },
-      {
-        q: "¿Qué es un cambio menor y qué un cambio mayor?",
-        a: "Un cambio menor lleva hasta 30 minutos y no toca la estructura: un texto, una foto, un precio o un horario. Un cambio mayor —una sección nueva, una funcionalidad o un rediseño— se cotiza por escrito antes de hacerlo. Fuera de plan, cada 30 minutos cuestan $10.000.",
-      },
-      {
-        q: "¿Cómo pago?",
-        a: `Por transferencia, al precio publicado, o con Mercado Pago con un ${pct} de recargo. Los proyectos desde $450.000 se pueden pagar en 3 pagos sin recargo por transferencia, y los sistemas desde $900.000, por hitos (40/30/30).`,
-      },
-      {
-        q: "¿Qué pasa después del primer año?",
-        a: `Las webs incluyen 12 meses de hosting. Desde el mes 13 elegís: la renovación de ${ars(renovacion)} al año (hosting, SSL, backups y dominio) o un plan de mantenimiento desde ${ars(basico)} por mes, con cambios incluidos.`,
-      },
-      {
-        q: "¿De quién es el código?",
-        a: "Tuyo. Una vez pagado el total, el código y los accesos son tuyos: si algún día querés llevarte el sitio a otro lado, te lo llevás entero.",
-      },
-      {
-        q: "¿Qué hace el asistente Malejo?",
-        a: "Es el asistente de este sitio: te cotiza con los precios publicados, te arma el pedido de demo y, si vos querés, le pasa tu contacto a Mauro. Lo supervisa Mauro y no guarda tu conversación.",
-      },
-    ] satisfies FaqItem[],
+    /** Las respuestas viven en `conocimiento.ts`: la misma fuente que usa el chat. */
+    items: faqPorIds(["plazos", "cambios", "pagos", "primer-anio", "codigo", "malejo"]) satisfies FaqItem[],
   },
 
   cta: {
     label: "Empecemos",
     title: "¿Lo charlamos?",
-    lead: "Contame qué necesitás y en 24 h te paso una propuesta con precio y plazo.",
+    lead: "Contame qué necesitás y en hasta 2 días hábiles te paso una propuesta con precio y plazo.",
     whatsapp: "Escribime por WhatsApp",
     whatsappText: "Hola Mauro, vengo de malejo.com.ar y quiero contarte qué necesito.",
     agenda: "Agendá una videollamada",

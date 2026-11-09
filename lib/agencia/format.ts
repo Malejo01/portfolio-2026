@@ -10,3 +10,8 @@ const NUMBER = new Intl.NumberFormat("es-AR", { maximumFractionDigits: 0 });
 export function fmt(n: number): string {
   return `$${NUMBER.format(Math.round(n))}`;
 }
+
+/** "USD 1.230": miles con punto, como los pesos. */
+export function fmtUsd(n: number): string {
+  return `USD ${NUMBER.format(Math.round(n))}`;
+}

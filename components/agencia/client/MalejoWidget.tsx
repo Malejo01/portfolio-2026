@@ -5,17 +5,43 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/agencia/icons";
 import type { MalejoCopy } from "@/content/agencia/malejo";
-import type { Card } from "@/lib/agencia/chat/tools";
+import type { Card } from "@/lib/agencia/chat/cards";
+import { mergeFicha, type Ficha } from "@/lib/agencia/chat/ficha";
+import { armarHistorial, firmasMostradas, ultimaQuote } from "@/lib/agencia/chat/history";
+import { mensajeWhatsApp } from "@/lib/agencia/chat/whatsapp";
 import { waLink } from "@/lib/agencia/config";
-import { fmt } from "@/lib/agencia/format";
+import { fmt, fmtUsd } from "@/lib/agencia/format";
 
 /**
  * El flotante de Malejo (DISENO.md §5, `11-flotante-*.png`): sprite-botón,
  * toast del portfolio y ventana de chat. Lo carga `MalejoLoader` con
  * `next/dynamic` (`ssr: false`) cuando el navegador está libre, así que no
  * pesa en el primer render.
+ *
+ * Memoria de la charla, toda en el cliente (el servidor no guarda nada): los
+ * mensajes con sus tarjetas y la **ficha** que va armando `anotar_ficha`.
+ * Cada pedido manda el historial con una línea por tarjeta mostrada, la
+ * ficha y las firmas de las tarjetas (`lib/agencia/chat/history.ts`).
  */
-type Msg = { id: number; role: "user" | "assistant"; text: string; cards: Card[] };
+type Seg = { t: "text"; text: string } | { t: "card"; card: Card };
+/**
+ * `text` y `cards` arman el historial; `segs` guarda el orden en que llegaron
+ * (texto → tarjeta → texto) para mostrarlos igual y no dejar la frase que
+ * sigue a una herramienta arriba de su tarjeta.
+ */
+type Msg = { id: number; role: "user" | "assistant"; text: string; cards: Card[]; segs?: Seg[] };
+
+function conTexto(m: Msg, text: string): Msg {
+  const segs = [...(m.segs ?? [])];
+  const last = segs[segs.length - 1];
+  if (last?.t === "text") segs[segs.length - 1] = { t: "text", text: last.text + text };
+  else segs.push({ t: "text", text });
+  return { ...m, text: m.text + text, segs };
+}
+
+function conCard(m: Msg, card: Card): Msg {
+  return { ...m, cards: [...m.cards, card], segs: [...(m.segs ?? []), { t: "card", card }] };
+}
 
 const TOAST_KEY = "malejo-toast";
 
@@ -34,6 +60,7 @@ export default function MalejoWidget({
   const [busy, setBusy] = useState(false);
   const [input, setInput] = useState("");
   const [msgs, setMsgs] = useState<Msg[]>([{ id: 0, role: "assistant", text: copy.greeting, cards: [] }]);
+  const [ficha, setFicha] = useState<Ficha>({});
   const nextId = useRef(1);
   const spriteBtn = useRef<HTMLButtonElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -84,7 +111,8 @@ export default function MalejoWidget({
       if (!content || busy) return;
       const user: Msg = { id: nextId.current++, role: "user", text: content, cards: [] };
       const bot: Msg = { id: nextId.current++, role: "assistant", text: "", cards: [] };
-      const history = [...msgs, user].map((m) => ({ role: m.role, content: m.text })).filter((m) => m.content);
+      const history = armarHistorial([...msgs, user]);
+      const shownCards = firmasMostradas(msgs);
       setMsgs((m) => [...m, user, bot]);
       setInput("");
       setBusy(true);
@@ -94,7 +122,7 @@ export default function MalejoWidget({
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ messages: history }),
+          body: JSON.stringify({ messages: history, ficha, shownCards }),
         });
         if (!res.ok || !res.body) throw new Error(String(res.status));
         const reader = res.body.getReader();
@@ -108,24 +136,26 @@ export default function MalejoWidget({
           buffer = lines.pop() ?? "";
           for (const line of lines) {
             if (!line.trim()) continue;
-            const ev = JSON.parse(line) as { type: string; text?: string; card?: Card };
-            if ((ev.type === "text" || ev.type === "error") && ev.text) patch((m) => ({ ...m, text: m.text + ev.text }));
-            if (ev.type === "card" && ev.card) patch((m) => ({ ...m, cards: [...m.cards, ev.card!] }));
+            const ev = JSON.parse(line) as { type: string; text?: string; card?: Card; ficha?: Ficha };
+            if ((ev.type === "text" || ev.type === "error") && ev.text) patch((m) => conTexto(m, ev.text!));
+            if (ev.type === "card" && ev.card) patch((m) => conCard(m, ev.card!));
+            if (ev.type === "ficha" && ev.ficha) setFicha((f) => mergeFicha(f, ev.ficha!));
           }
         }
       } catch {
-        patch((m) => ({ ...m, text: m.text || copy.errorText, cards: [...m.cards, { kind: "whatsapp", href: waLink() }] }));
+        patch((m) =>
+          conCard(m.text ? m : conTexto(m, copy.errorText), { kind: "whatsapp", href: waLink(mensajeWhatsApp(ficha, ultimaQuote(msgs))) }),
+        );
       } finally {
         setBusy(false);
       }
     },
-    [busy, msgs, copy.errorText],
+    [busy, msgs, ficha, copy.errorText],
   );
 
-  const waSummary = () => {
-    const pedidos = msgs.filter((m) => m.role === "user").map((m) => m.text).slice(-3).join(" / ");
-    return waLink(pedidos ? `Hola Mauro, vengo del chat de malejo.com.ar: ${pedidos}` : "Hola Mauro, vengo de malejo.com.ar.");
-  };
+  // Un solo formato para el ícono del encabezado, la chip y el error:
+  // la ficha y la última cotización mostrada (`lib/agencia/chat/whatsapp.ts`).
+  const waHref = waLink(mensajeWhatsApp(ficha, ultimaQuote(msgs)));
 
   const pose = open && busy ? "pensando" : "ok";
 
@@ -179,7 +209,7 @@ export default function MalejoWidget({
             style={{ transformOrigin: "100% 100%" }}
             className="card pointer-events-auto fixed inset-0 z-[61] flex flex-col overflow-hidden rounded-none sm:static sm:mb-[18px] sm:h-[min(600px,calc(100vh-110px))] sm:w-[380px] sm:rounded-[24px]"
           >
-            <ChatHeader copy={copy} onClose={close} />
+            <ChatHeader copy={copy} onClose={close} waHref={waHref} />
 
             <div ref={listRef} className="flex flex-1 flex-col gap-3 overflow-y-auto px-4 py-4" aria-live="polite">
               {msgs.map((m) => (
@@ -196,7 +226,7 @@ export default function MalejoWidget({
 
             <div className="flex flex-col gap-2.5 border-t border-border px-4 pb-3 pt-3">
               <div className="flex flex-wrap gap-2">
-                <a href={waSummary()} target="_blank" rel="noopener" className="chip">
+                <a href={waHref} target="_blank" rel="noopener" className="chip">
                   {copy.chips.whatsapp}
                 </a>
                 <button type="button" className="chip" onClick={() => send(copy.chips.plansMessage)} disabled={busy}>
@@ -283,7 +313,7 @@ function Avatar({ size }: { size: 32 | 40 }) {
   );
 }
 
-function ChatHeader({ copy, onClose }: { copy: MalejoCopy; onClose: () => void }) {
+function ChatHeader({ copy, onClose, waHref }: { copy: MalejoCopy; onClose: () => void; waHref: string }) {
   return (
     <div className="flex items-center gap-3 border-b border-border px-4 py-3">
       <Avatar size={40} />
@@ -294,6 +324,16 @@ function ChatHeader({ copy, onClose }: { copy: MalejoCopy; onClose: () => void }
         </div>
         <div className="text-xs text-muted">{copy.header.status}</div>
       </div>
+      <a
+        href={waHref}
+        target="_blank"
+        rel="noopener"
+        className="ibtn h-9 w-9 rounded-xl"
+        aria-label={copy.header.whatsapp}
+        title={copy.header.whatsappTip}
+      >
+        <Icon name="whatsapp" size={18} />
+      </a>
       <button type="button" className="ibtn h-9 w-9 rounded-xl" aria-label={copy.header.close} onClick={onClose}>
         <Icon name="close" size={16} />
       </button>
@@ -326,19 +366,26 @@ function MessageView({
       </div>
     );
   }
-  if (!msg.text && !msg.cards.length) return null;
+  const segs: Seg[] = (msg.segs ?? [{ t: "text", text: msg.text }, ...msg.cards.map((card) => ({ t: "card" as const, card }))]).filter(
+    (s) => s.t === "card" || s.text.trim(),
+  );
+  if (!segs.length) return null;
   return (
     <div className="flex items-end gap-2">
       <Avatar size={32} />
       <div className="flex min-w-0 flex-1 flex-col gap-2.5">
-        {msg.text ? (
-          <div className="self-start whitespace-pre-wrap rounded-[16px_16px_16px_6px] border border-border bg-surf-2 px-[13px] py-2.5 text-sm leading-[1.45]">
-            {rich(msg.text.trim())}
-          </div>
-        ) : null}
-        {msg.cards.map((card, i) => (
-          <CardView key={i} card={card} copy={copy} senaMonto={senaMonto} turnstileSiteKey={turnstileSiteKey} />
-        ))}
+        {segs.map((s, i) =>
+          s.t === "text" ? (
+            <div
+              key={i}
+              className="self-start whitespace-pre-wrap rounded-[16px_16px_16px_6px] border border-border bg-surf-2 px-[13px] py-2.5 text-sm leading-[1.45]"
+            >
+              {rich(s.text.trim())}
+            </div>
+          ) : (
+            <CardView key={i} card={s.card} copy={copy} senaMonto={senaMonto} turnstileSiteKey={turnstileSiteKey} />
+          ),
+        )}
       </div>
     </div>
   );
@@ -372,9 +419,47 @@ function CardView({
               {copy.quote.perMonth}
             </span>
           ) : null}
+          {card.anual ? (
+            <span className="text-[13px] text-muted">
+              + {fmt(card.anual)}
+              {copy.quote.perYear}
+            </span>
+          ) : null}
         </div>
+        {card.usd ? (
+          <p className="m-0 text-[13px] text-muted">
+            ≈ {fmtUsd(card.usd.implementacion)}
+            {card.usd.mensual ? ` + ${fmtUsd(card.usd.mensual)}${copy.quote.perMonth}` : ""} · {copy.quote.usd}
+          </p>
+        ) : null}
+        {card.aCotizar.map((t) => (
+          <p key={t} className="m-0 text-[13px] text-muted">
+            + {t}
+          </p>
+        ))}
         <Link href={card.demoHref} className="btn btn-p btn-sm w-full">
           {copy.quote.demo.replace("{SENA}", fmt(senaMonto))}
+        </Link>
+      </div>
+    );
+  }
+  if (card.kind === "compare") return <CompareCard card={card} copy={copy} />;
+  if (card.kind === "proyectos") {
+    return (
+      <div className="card flex flex-col gap-2 rounded-[18px] p-3.5">
+        <span className="lbl lbl-o text-[10px]">{copy.proyectos.label}</span>
+        <ul className="m-0 flex list-none flex-col gap-2 p-0">
+          {card.items.map((p) => (
+            <li key={p.nombre}>
+              <a href={p.href} target="_blank" rel="noopener" className="flex flex-col rounded-xl border border-border px-3 py-2 hover:border-border-h">
+                <span className="text-sm font-semibold">{p.nombre} ↗</span>
+                <span className="line-clamp-2 text-[12px] leading-snug text-muted">{p.que}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+        <Link href={card.portfolio.href} className="btn btn-s btn-sm w-full">
+          {copy.proyectos.portfolio}
         </Link>
       </div>
     );
@@ -401,6 +486,62 @@ function CardView({
     );
   }
   return <ConsentCard card={card} copy={copy} turnstileSiteKey={turnstileSiteKey} />;
+}
+
+/**
+ * Alternativas lado a lado (`comparar`): una fila por opción y **ningún
+ * total**. Misma familia visual que la tarjeta de cotización (DISENO.md §5).
+ */
+function CompareCard({ card, copy }: { card: Extract<Card, { kind: "compare" }>; copy: MalejoCopy }) {
+  return (
+    <div className="card hi flex flex-col gap-2 rounded-[18px] p-3.5">
+      <div className="flex justify-between gap-2">
+        <span className="lbl lbl-o text-[10px]">{copy.compare.label}</span>
+        <span className="lbl text-[10px]">{card.medio === "mp" ? copy.quote.mpLabel : copy.quote.listLabel}</span>
+      </div>
+      <p className="m-0 text-[12px] text-muted">{copy.compare.hint}</p>
+      <ul className="m-0 flex list-none flex-col p-0">
+        {card.filas.map((f) => (
+          <li key={f.id} className="flex flex-col gap-1 border-t border-border py-2.5 first:border-t-0 first:pt-1">
+            <div className="flex items-start justify-between gap-2">
+              <span className="h text-[15px]">{f.nombre}</span>
+              {f.recomendado ? <span className="tag flex-none text-[10px]">{copy.compare.recommended}</span> : null}
+            </div>
+            <div className="flex flex-wrap items-baseline gap-1.5">
+              {f.precio == null ? (
+                <span className="text-sm font-semibold">{f.texto}</span>
+              ) : (
+                <>
+                  {f.etiqueta === "Desde" ? <span className="text-[12px] text-muted">{copy.quote.from}</span> : null}
+                  <span className="h text-[19px]">{fmt(f.precio)}</span>
+                  {f.unidad === "/mes" ? <span className="text-[12px] text-muted">{copy.compare.perMonth}</span> : null}
+                </>
+              )}
+              {f.abono ? (
+                <span className="text-[12px] text-muted">
+                  + {fmt(f.abono)}
+                  {copy.compare.perMonth}
+                </span>
+              ) : null}
+              {f.plazo ? <span className="text-[12px] text-muted">· ⏱ {f.plazo}</span> : null}
+            </div>
+            {f.usd ? (
+              <span className="text-[12px] text-muted">
+                ≈ {fmtUsd(f.usd.precio)}
+                {f.usd.abono ? ` + ${fmtUsd(f.usd.abono)}${copy.compare.perMonth}` : ""}
+              </span>
+            ) : null}
+            {f.paraQuien ? <span className="text-[12px] leading-snug text-muted">{f.paraQuien}</span> : null}
+            {f.alt ? <span className="text-[12px] leading-snug text-muted">{f.alt}</span> : null}
+            <Link href={`/demo?plan=${encodeURIComponent(f.id)}`} className="lnk self-start text-[13px]">
+              {copy.compare.choose} →
+            </Link>
+          </li>
+        ))}
+      </ul>
+      {card.tipoDeCambio ? <p className="m-0 text-[11px] text-muted">{copy.compare.usd}</p> : null}
+    </div>
+  );
 }
 
 declare global {

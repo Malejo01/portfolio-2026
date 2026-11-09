@@ -16,6 +16,8 @@ export const malejoCopy = {
     name: "Malejo",
     status: "Responde al instante · Lo supervisa Mauro",
     close: "Cerrar chat",
+    whatsapp: "Escribirle a Mauro por WhatsApp con el resumen de esta charla",
+    whatsappTip: "WhatsApp con Mauro",
   },
   greeting:
     "¡Hola! Soy Malejo, el asistente de Mauro. Contame qué tenés y qué necesitás, y te digo qué plan te conviene y cuánto sale.",
@@ -37,8 +39,19 @@ export const malejoCopy = {
     mpLabel: "Mercado Pago",
     from: "desde",
     perMonth: "/mes",
+    perYear: "/año",
+    usd: "al dólar oficial del día",
     demo: "Pedir demo con seña de {SENA}",
   },
+  compare: {
+    label: "Comparación",
+    hint: "Son alternativas: elegí una",
+    recommended: "Recomendado",
+    perMonth: "/mes",
+    usd: "Dólares al oficial del día",
+    choose: "Pedir demo",
+  },
+  proyectos: { label: "Proyectos de Mauro", portfolio: "Ver todo en el portfolio" },
   demo: { label: "Tu demo", demo: "Pedir mi demo", agenda: "Agendar videollamada" },
   whatsapp: { label: "WhatsApp", cta: "Escribirle a Mauro" },
   consent: {

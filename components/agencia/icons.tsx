@@ -17,6 +17,7 @@ export type IconName =
   | "close"
   | "menu"
   | "chat"
+  | "whatsapp"
   | "send";
 
 const PATHS: Record<IconName, React.ReactNode> = {
@@ -72,6 +73,13 @@ const PATHS: Record<IconName, React.ReactNode> = {
   close: <path d="M6 6l12 12M18 6L6 18" />,
   menu: <path d="M4 7h16M4 12h16M4 17h16" />,
   chat: <path d="M4 20l1.3-3.9A8 8 0 1 1 8 19z" />,
+  /** Globo con auricular, de trazo y en `currentColor`: no es el logo de WhatsApp. */
+  whatsapp: (
+    <>
+      <path d="M4 20l1.3-3.9A8 8 0 1 1 8 19z" />
+      <path d="M9.3 8.4c.3-.4.7-.5 1-.3l.8.5.4 1.6-.8.7c.4.9 1.1 1.6 2 2l.7-.8 1.6.4.5.8c.2.3.1.7-.3 1-.9.6-2 .6-3 .1a7 7 0 0 1-3-3c-.5-1-.5-2.1.1-3z" />
+    </>
+  ),
   send: <path d="M5 12h14M13 6l6 6-6 6" />,
 };
 

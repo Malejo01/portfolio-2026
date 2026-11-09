@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { LegalBlock, LegalDoc } from "@/content/agencia/legal";
 import { senaMonto } from "@/lib/agencia/config";
 import { fmt } from "@/lib/agencia/format";
-import { recargoMercadoPago as RECARGO_MP } from "@/content/agencia/pricing";
+import { mantenimientoGrandesPct, recargoMercadoPago as RECARGO_MP } from "@/content/agencia/pricing";
 
 /**
  * Página legal: texto simple con el layout de la agencia. Los
@@ -52,11 +52,12 @@ function Block({ block }: { block: LegalBlock }) {
   );
 }
 
-/** Reemplaza `{SENA}`/`{RECARGO}`, marca `[PLACEHOLDERS]` y `código`. */
+/** Reemplaza `{SENA}`/`{RECARGO}`/`{MANT_GRANDES}`, marca `[PLACEHOLDERS]` y `código`. */
 function rich(text: string): React.ReactNode[] {
   const filled = text
     .replaceAll("{SENA}", fmt(senaMonto()))
-    .replaceAll("{RECARGO}", `${Math.round(RECARGO_MP * 100)} %`);
+    .replaceAll("{RECARGO}", `${Math.round(RECARGO_MP * 100)} %`)
+    .replaceAll("{MANT_GRANDES}", `${Math.round(mantenimientoGrandesPct * 100)} %`);
   return filled.split(/(\[[^\]]+\]|`[^`]+`)/g).map((part, i) => {
     if (part.startsWith("[") && part.endsWith("]")) return <mark key={i}>{part}</mark>;
     if (part.startsWith("`") && part.endsWith("`")) return <code key={i}>{part.slice(1, -1)}</code>;

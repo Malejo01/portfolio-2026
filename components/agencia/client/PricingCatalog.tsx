@@ -1,11 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ComboCard, PlanCard, type ComboCopy, type PlanCopy } from "@/components/agencia/PlanCard";
+import { ComboCard, GrandesSteps, PlanCard, type ComboCopy, type GrandesCopy, type PlanCopy } from "@/components/agencia/PlanCard";
 import type { Category, Combo, Extra } from "@/content/agencia/pricing";
 import { OPEN_CATEGORY_EVENT } from "@/lib/agencia/motion";
 import { MedioSwitch } from "./MedioSwitch";
-import { conRecargo, fmt, type Medio } from "@/lib/agencia/pricing";
+import { montoDeExtra, type Medio } from "@/lib/agencia/pricing";
 
 /**
  * Catálogo de precios (DISENO.md §4 Precios, `05-precios-*.png`). Isla:
@@ -20,6 +20,9 @@ import { conRecargo, fmt, type Medio } from "@/lib/agencia/pricing";
  *
  * `heading` es el encabezado de la sección (Server Component), para que el
  * selector quede a su derecha como en la captura.
+ *
+ * La pestaña "Proyectos grandes" no muestra planes sino los pasos
+ * (`GrandesSteps`): consultoría sin cargo → diagnóstico → sprint.
  */
 export interface CatalogCopy extends PlanCopy, ComboCopy {
   medioLabel: string;
@@ -30,6 +33,8 @@ export interface CatalogCopy extends PlanCopy, ComboCopy {
   combosLabel: string;
   combosTitle: string;
   extrasLabel: string;
+  /** Copy de la pestaña "Proyectos grandes" (pasos en vez de planes). */
+  grandes?: GrandesCopy;
 }
 
 export function PricingCatalog({
@@ -146,11 +151,15 @@ export function PricingCatalog({
         aria-labelledby={single ? undefined : `${idPrefix}-tab-${category.key}`}
       >
         <p className="mb-0 mt-[18px] text-[15px] text-muted">{category.intro}</p>
-        <div className="mt-[22px] grid grid-cols-1 items-stretch gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {category.plans.map((plan) => (
-            <PlanCard key={plan.id} plan={plan} medio={medio} copy={copy} />
-          ))}
-        </div>
+        {category.key === "grandes" && copy.grandes ? (
+          <GrandesSteps plans={category.plans} medio={medio} copy={{ ...copy, ...copy.grandes }} />
+        ) : (
+          <div className="mt-[22px] grid grid-cols-1 items-stretch gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {category.plans.map((plan) => (
+              <PlanCard key={plan.id} plan={plan} medio={medio} copy={copy} />
+            ))}
+          </div>
+        )}
         <p className="mb-0 mt-3.5 text-[13px] text-muted">{category.note}</p>
       </div>
 
@@ -174,7 +183,7 @@ export function PricingCatalog({
           <ul className="m-0 flex flex-1 list-none flex-wrap gap-2 p-0">
             {extras.map((e) => (
               <li key={e.id} className="chip h-[34px]">
-                {e.name} <strong>{fmt(conRecargo(e.price, medio))}</strong>
+                {e.name} <strong>{montoDeExtra(e, medio)}</strong>
               </li>
             ))}
           </ul>

@@ -55,7 +55,7 @@ export function NeedTiles({ heading = "h3" }: { heading?: "h2" | "h3" }) {
             <div className="mt-auto flex flex-col gap-1 border-t border-border pt-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:pt-3">
               <span className="inline-flex flex-wrap items-center gap-x-1.5 text-[13px] text-muted sm:text-sm">
                 {needs.fromLabel} <strong className="text-[15px] text-text sm:text-base">{desdeDe(s)}</strong>
-                <Icon name="arrow" size={14} className="text-acc-text" />
+                <Icon name="arrow" size={14} className="hidden text-acc-text sm:block" />
               </span>
               <AbrirChat href={wa} tema={s.tema} className="lnk relative z-10 -my-2 min-h-11 whitespace-normal text-[13px]">
                 {needs.ask}

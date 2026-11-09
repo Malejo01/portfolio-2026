@@ -13,10 +13,15 @@ import { waLink } from "@/lib/agencia/config";
 import { fmt, fmtUsd } from "@/lib/agencia/format";
 
 /**
- * El flotante de Malejo (DISENO.md §5, `11-flotante-*.png`): sprite-botón,
- * toast del portfolio y ventana de chat. Lo carga `MalejoLoader` con
- * `next/dynamic` (`ssr: false`) cuando el navegador está libre, así que no
- * pesa en el primer render.
+ * El flotante de Malejo (DISENO.md §5, `11-flotante-*.png`): sprite-botón y
+ * ventana de chat. Lo carga `MalejoLoader` con `next/dynamic` (`ssr: false`)
+ * cuando el navegador está libre o cuando un botón `AbrirChat` lo pide
+ * (`pedido`), así que no pesa en el primer render.
+ *
+ * Tanda R2: Malejo es el asesor principal. Arranca con chips por problema
+ * (hasta el primer mensaje) y, si se abrió con un tema, ese tema sale ya
+ * enviado como primer mensaje. El toast del portfolio se apagó. En celular
+ * el botón es compacto: solo la cabeza del sprite.
  *
  * Memoria de la charla, toda en el cliente (el servidor no guarda nada): los
  * mensajes con sus tarjetas y la **ficha** que va armando `anotar_ficha`.
@@ -43,20 +48,20 @@ function conCard(m: Msg, card: Card): Msg {
   return { ...m, cards: [...m.cards, card], segs: [...(m.segs ?? []), { t: "card", card }] };
 }
 
-const TOAST_KEY = "malejo-toast";
-
 export default function MalejoWidget({
   copy,
   senaMonto,
   turnstileSiteKey,
+  pedido,
 }: {
   copy: MalejoCopy;
   senaMonto: number;
   turnstileSiteKey?: string;
+  /** Pedido de apertura de `AbrirChat` (vía `MalejoLoader`): abrir y, si hay tema, enviarlo. */
+  pedido?: { tema?: string; n: number } | null;
 }) {
   const reduced = useReducedMotion();
   const [open, setOpen] = useState(false);
-  const [toast, setToast] = useState(false);
   const [busy, setBusy] = useState(false);
   const [input, setInput] = useState("");
   const [msgs, setMsgs] = useState<Msg[]>([{ id: 0, role: "assistant", text: copy.greeting, cards: [] }]);
@@ -65,28 +70,6 @@ export default function MalejoWidget({
   const spriteBtn = useRef<HTMLButtonElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
-
-  // Toast: a los 2 s, se va a los 10 s, una vez por sesión. Con `?ref=cv` o
-  // llegando desde LinkedIn se muestra igual.
-  useEffect(() => {
-    let seen = false;
-    try {
-      seen = sessionStorage.getItem(TOAST_KEY) === "1";
-    } catch {}
-    const fromCv = new URLSearchParams(location.search).get("ref") === "cv" || /linkedin\./i.test(document.referrer);
-    if (seen && !fromCv) return;
-    const show = setTimeout(() => {
-      setToast(true);
-      try {
-        sessionStorage.setItem(TOAST_KEY, "1");
-      } catch {}
-    }, 2000);
-    const hide = setTimeout(() => setToast(false), 10000);
-    return () => {
-      clearTimeout(show);
-      clearTimeout(hide);
-    };
-  }, []);
 
   const close = useCallback(() => {
     setOpen(false);
@@ -153,6 +136,27 @@ export default function MalejoWidget({
     [busy, msgs, ficha, copy.errorText],
   );
 
+  // Pedido de `AbrirChat`: abre y, si trae tema, lo manda como primer
+  // mensaje. El estado se escribe en el primer frame (no en el cuerpo del
+  // efecto) y el pedido se marca atendido recién ahí: con StrictMode el
+  // efecto corre dos veces y el primer frame se cancela.
+  const sendRef = useRef(send);
+  useEffect(() => {
+    sendRef.current = send;
+  });
+  const atendido = useRef(0);
+  useEffect(() => {
+    if (!pedido || pedido.n === atendido.current) return;
+    const raf = requestAnimationFrame(() => {
+      atendido.current = pedido.n;
+      setOpen(true);
+      if (pedido.tema) sendRef.current(pedido.tema);
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [pedido]);
+
+  const sinMensajes = !msgs.some((m) => m.role === "user");
+
   // Un solo formato para el ícono del encabezado, la chip y el error:
   // la ficha y la última cotización mostrada (`lib/agencia/chat/whatsapp.ts`).
   const waHref = waLink(mensajeWhatsApp(ficha, ultimaQuote(msgs)));
@@ -160,42 +164,7 @@ export default function MalejoWidget({
   const pose = open && busy ? "pensando" : "ok";
 
   return (
-    <div className="pointer-events-none fixed bottom-0 right-4 z-[60] flex items-end gap-3 sm:right-7">
-      <AnimatePresence>
-        {toast && !open ? (
-          <motion.div
-            key="toast"
-            role="status"
-            initial={reduced ? false : { opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={reduced ? { opacity: 0 } : { opacity: 0, y: 8 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
-            className="card pointer-events-auto relative mb-[72px] w-[min(280px,calc(100vw-110px))] overflow-hidden rounded-[18px] px-3.5 pt-3.5"
-          >
-            <div className="flex items-start gap-2.5">
-              <div className="flex-1">
-                <div className="text-sm font-semibold">{copy.toast.title}</div>
-                <div className="mt-0.5 text-[13px] text-muted">{copy.toast.body}</div>
-              </div>
-              <button
-                type="button"
-                aria-label={copy.toast.close}
-                onClick={() => setToast(false)}
-                className="inline-flex h-[26px] w-[26px] items-center justify-center rounded-lg text-muted hover:text-text"
-              >
-                <Icon name="close" size={16} />
-              </button>
-            </div>
-            <Link href={copy.toast.href} className="lnk mb-3 mt-2.5">
-              {copy.toast.cta}
-            </Link>
-            <div className="-mx-3.5 h-[3px] bg-border">
-              <div className="toast-bar h-[3px] bg-acc" />
-            </div>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
-
+    <div className="pointer-events-none fixed bottom-3 right-3 z-[60] flex items-end gap-3 sm:bottom-0 sm:right-7">
       <AnimatePresence>
         {open ? (
           <motion.div
@@ -225,16 +194,18 @@ export default function MalejoWidget({
             </div>
 
             <div className="flex flex-col gap-2.5 border-t border-border px-4 pb-3 pt-3">
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2" role="group" aria-label={copy.chipsLabel}>
+                {sinMensajes
+                  ? copy.chips.map((c) => (
+                      <button key={c} type="button" className="chip" onClick={() => send(c)} disabled={busy}>
+                        {c}
+                      </button>
+                    ))
+                  : null}
                 <a href={waHref} target="_blank" rel="noopener" className="chip">
-                  {copy.chips.whatsapp}
+                  <Icon name="whatsapp" size={14} />
+                  {copy.mauro}
                 </a>
-                <button type="button" className="chip" onClick={() => send(copy.chips.plansMessage)} disabled={busy}>
-                  {copy.chips.plans}
-                </button>
-                <Link href="/portfolio/en" className="chip">
-                  {copy.chips.portfolio}
-                </Link>
               </div>
               <form
                 className="flex gap-2"
@@ -277,10 +248,22 @@ export default function MalejoWidget({
         aria-label={open ? copy.close : copy.open}
         aria-expanded={open}
         onClick={() => (open ? close() : setOpen(true))}
-        className="breathe pointer-events-auto flex flex-col items-center gap-1 rounded-lg"
+        className={`breathe pointer-events-auto flex-col items-center gap-1 rounded-lg ${open ? "hidden sm:flex" : "flex"}`}
       >
-        <span className="lbl rounded-[7px] bg-acc px-[7px] py-1 text-[10px] font-semibold text-acc-ink shadow-btn">
+        <span className="lbl hidden rounded-[7px] bg-acc px-[7px] py-1 text-[10px] font-semibold text-acc-ink shadow-btn sm:inline">
           {open ? copy.chipOpen : copy.chip}
+        </span>
+        {/* Celular: solo la cabeza, en una caja de 56 × 64 (no tapa tarjetas). */}
+        <span className="relative inline-flex h-16 w-14 justify-center overflow-hidden rounded-[18px] border border-border bg-ic-bg shadow-card sm:hidden">
+          {/* eslint-disable-next-line @next/next/no-img-element -- recorte del sprite */}
+          <img
+            src={`/agencia/sprites/malejo-${pose}.png`}
+            alt=""
+            width={64}
+            height={146}
+            className="pixel mt-1 block h-[146px] w-16 max-w-none flex-none"
+          />
+          <span className="absolute bottom-1 right-1 h-2.5 w-2.5 rounded-full border-2 border-ic-bg bg-ok" aria-hidden="true" />
         </span>
         {/* eslint-disable-next-line @next/next/no-img-element -- pixel art chico, sin optimizar a propósito */}
         <img
@@ -288,7 +271,7 @@ export default function MalejoWidget({
           alt=""
           width={54}
           height={123}
-          className="pixel block h-[123px] w-[54px]"
+          className="pixel hidden h-[123px] w-[54px] sm:block"
         />
       </button>
     </div>

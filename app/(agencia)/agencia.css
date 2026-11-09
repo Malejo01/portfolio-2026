@@ -527,19 +527,6 @@ html:not(.js) [data-reveal] {
   animation: breathe 3s ease-in-out infinite;
 }
 
-/* Barra del toast (10 s). */
-@keyframes toast-bar {
-  from {
-    width: 100%;
-  }
-  to {
-    width: 0;
-  }
-}
-.toast-bar {
-  animation: toast-bar 8s linear forwards;
-}
-
 @keyframes dots {
   0%,
   80%,

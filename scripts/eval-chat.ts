@@ -5,10 +5,10 @@
  *   npm run eval:chat -- --url https://malejo.com.ar
  *   npm run eval:chat -- --solo A,B,I        # algunos casos
  *
- * Corre los 24 casos de `lib/agencia/chat/evals/casos.ts` como
+ * Corre los casos de `lib/agencia/chat/evals/casos.ts` (30 desde la tanda R2) como
  * conversaciones de varios turnos contra `/api/chat`, aplica las aserciones
  * deterministas y escribe `docs/agencia/evals/<fecha>.md`. Sale con código 1
- * si pasan menos de 22.
+ * si pasan menos del objetivo (22 de 24, proporcional: 28 de 30).
  *
  * Gasta tokens de verdad (unos 24 × 7 k de entrada, casi todo cacheado):
  * necesita `ANTHROPIC_API_KEY` en el servidor que recibe los pedidos. Con
@@ -16,7 +16,7 @@
  */
 import { mkdirSync, writeFileSync } from "node:fs";
 import { casos } from "@/lib/agencia/chat/evals/casos";
-import { correrCaso, informe, type Corrida } from "@/lib/agencia/chat/evals/runner";
+import { correrCaso, informe, objetivo, type Corrida } from "@/lib/agencia/chat/evals/runner";
 
 function arg(nombre: string): string | undefined {
   const i = process.argv.indexOf(`--${nombre}`);
@@ -53,7 +53,7 @@ async function main() {
   const archivo = `${dir}/${fecha}.md`;
   writeFileSync(archivo, informe(corridas, { base, fecha: new Date().toISOString().slice(0, 16).replace("T", " ") }));
   console.log(`\n${pasan} de ${corridas.length} pasan. Informe: ${archivo}`);
-  if (!solo && pasan < 22) process.exitCode = 1;
+  if (!solo && pasan < objetivo(elegidos.length)) process.exitCode = 1;
 }
 
 main().catch((e) => {

@@ -10,7 +10,7 @@ describe("system prompt", () => {
   });
 
   it("sigue el orden pedido: identidad → … → conocimiento → catálogo", () => {
-    const orden = ["Sos Malejo", "# Objetivo", "# Estilo", "# Cómo vendés", "# Objeciones", "# Proyectos grandes", "# Cuándo derivar", "# Herramientas y tarjetas", "# Límites", "# Conocimiento", "# Catálogo"];
+    const orden = ["Sos Malejo", "# Tu rol: asesor", "# Estilo", "# Cómo asesorás", "# Objeciones", "# Propiedad del código", "# Proyectos a medida", "# Cuándo derivar", "# Herramientas y tarjetas", "# Límites", "# Conocimiento", "# Catálogo"];
     const pos = orden.map((s) => base.indexOf(s));
     expect(pos.every((p) => p >= 0)).toBe(true);
     expect([...pos].sort((a, b) => a - b)).toEqual(pos);
@@ -31,6 +31,25 @@ describe("system prompt", () => {
     expect(base).toContain("[Tarjeta mostrada");
     expect(base).toContain("te corrijo");
     expect(base).toMatch(/Nunca escribas URLs/);
+  });
+
+  it("R2-F3: rol de asesor y las reglas de las fallas en producción (Q, K, F, C, B, T)", () => {
+    expect(base).toMatch(/como mucho 2 preguntas, de a una/i); // asesor
+    expect(base).toMatch(/UNA solución/);
+    expect(base).toMatch(/"tienda" a secas, empezá por el catálogo/); // Q
+    expect(base).toMatch(/WhatsApp y el servicio de inteligencia artificial va aparte/); // K
+    expect(base).toMatch(/no se devuelve.*se descuenta completa/); // F
+    expect(base).toMatch(/TENÉS que llamar a derivar_whatsapp/); // C
+    expect(base).toMatch(/quiere avanzar.*Mauro le escriba/); // B
+    expect(base).toMatch(/Como mucho 60 palabras por respuesta, siempre/); // T
+    expect(base).toMatch(/NUNCA digas que el código es del cliente/); // Z
+    expect(base).toMatch(/juego de rol/); // abuso
+  });
+
+  it("el catálogo usa los nombres nuevos y dice para quién es cada plan", () => {
+    expect(base).toContain("[landing-profesional] Página para aparecer en Google");
+    expect(base).toContain("[combo-negocio-con-turnos] Combo Página + turnos");
+    expect(catalogo()).toMatch(/Para: Querés que te encuentren/);
   });
 
   it("no le pasa URLs al modelo", () => {

@@ -241,8 +241,20 @@ export function runTool(name: string, input: unknown, ctx: ToolContext): ToolOut
       if (!c.items.length) return { content: `Ningún id existe en el catálogo: ${c.desconocidos.join(", ")}`, isError: true };
       const { usd, ...ars } = c;
       const enUsd = card.moneda === "usd" && usd ? { usd, tipoDeCambio: `dólar oficial del día: $${usd.tipoDeCambio}` } : {};
+      // Las claves usan el vocabulario del sitio (pago único, cuota mensual):
+      // el modelo tiende a repetir lo que lee.
+      const { implementacion, abonoMensual, total, ...resto } = ars;
+      const conUso = c.items.some((i) => ["ia", "turnos"].includes(getPlan(i.id)?.category ?? "") || i.tipo === "combo");
       return conDedup(ctx, {
-        content: JSON.stringify({ ...ars, ...enUsd, resumen: resumenCotizacion(card.moneda === "usd" ? c : ars) }),
+        content: JSON.stringify({
+          pagoUnico: implementacion,
+          cuotaMensual: abonoMensual,
+          totalPrimerAnio: total,
+          ...resto,
+          ...enUsd,
+          resumen: resumenCotizacion(card.moneda === "usd" ? c : ars),
+          ...(conUso ? { recordatorio: "Si incluye WhatsApp automático o IA, aclará en una frase que lo que cobran por uso WhatsApp y el servicio de IA va aparte." } : {}),
+        }),
         card,
       });
     }

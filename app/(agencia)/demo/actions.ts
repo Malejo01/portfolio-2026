@@ -3,8 +3,11 @@
 import { headers } from "next/headers";
 import { z } from "zod";
 import { getCombo, getPlan } from "@/content/agencia/pricing";
-import { hashIp, ipFrom } from "@/lib/agencia/chat/security";
+import { consume } from "@/lib/agencia/chat/limits";
+import { hashIp, ipFrom, origenPermitido, verifyTurnstile } from "@/lib/agencia/chat/security";
 import { waLink } from "@/lib/agencia/config";
+import { CAMPO_TRAMPA } from "@/lib/agencia/demo-plan";
+import { avisarPorEmail } from "@/lib/agencia/email";
 import { getDb, schema } from "@/lib/db";
 
 /**
@@ -13,8 +16,14 @@ import { getDb, schema } from "@/lib/db";
  * ninguna de las dos, el brief no se pierde: devuelve un link de WhatsApp
  * con el texto armado.
  *
+ * Anti-abuso (tanda R2): `Origin` ajeno → error (S6); campo trampa
+ * (`CAMPO_TRAMPA`), invisible para las personas: si viene lleno se responde
+ * "listo" sin guardar ni avisar (S5); Turnstile si hay claves (S4); y los
+ * topes por IP del chat (ráfaga y diario), contados aparte (S1).
+ *
  * `headers()` acá no vuelve dinámica la página: corre solo al enviar.
  */
+
 const Brief = z.object({
   nombre: z.string().trim().min(2, "Decime tu nombre.").max(80),
   contacto: z
@@ -33,7 +42,7 @@ const Brief = z.object({
 type BriefField = keyof z.infer<typeof Brief>;
 
 export interface BriefState {
-  status: "idle" | "error" | "ok" | "fallback";
+  status: "idle" | "error" | "ok" | "fallback" | "bloqueado";
   errors?: Partial<Record<BriefField, string>>;
   values?: Partial<Record<BriefField, string>>;
   whatsapp?: string;
@@ -48,32 +57,23 @@ function planLabel(ids: string | undefined): string {
     .join(" + ");
 }
 
-async function avisar(texto: string): Promise<boolean> {
-  const key = process.env.RESEND_API_KEY;
-  const to = process.env.EMAIL_TO;
-  if (!key || !to) return false;
-  try {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { authorization: `Bearer ${key}`, "content-type": "application/json" },
-      body: JSON.stringify({
-        from: process.env.EMAIL_FROM || "Malejo <onboarding@resend.dev>",
-        to: [to],
-        subject: "Nuevo brief desde malejo.com.ar",
-        text: texto,
-      }),
-    });
-    return res.ok;
-  } catch {
-    return false;
-  }
-}
-
 const FIELDS: BriefField[] = ["nombre", "contacto", "rubro", "necesidad", "plan", "presupuesto", "consent"];
 
 export async function enviarBrief(_prev: BriefState, form: FormData): Promise<BriefState> {
+  const h = await headers();
   const raw = Object.fromEntries(FIELDS.map((k) => [k, form.get(k)?.toString() ?? ""]));
   const values = raw as BriefState["values"];
+  const whatsappDe = (t: string) => waLink(`Hola Mauro, te paso mi consulta para la demo:\n${t}`);
+
+  if (!origenPermitido(h.get("origin"))) return { status: "bloqueado", values };
+  // Un bot llena todo: el campo trampa delata. Respondemos "listo" y no se guarda nada.
+  if (form.get(CAMPO_TRAMPA)?.toString().trim()) return { status: "ok" };
+
+  const ip = ipFrom(h);
+  const tope = await consume(hashIp(ip), { ambito: "demo" });
+  if (!tope.ok) return { status: "fallback", values, whatsapp: whatsappDe(`Nombre: ${raw.nombre}\nRubro: ${raw.rubro}\nNecesita: ${raw.necesidad}`) };
+  if (!(await verifyTurnstile(form.get("cf-turnstile-response")?.toString(), ip))) return { status: "bloqueado", values };
+
   const parsed = Brief.safeParse(raw);
   if (!parsed.success) {
     const errors: BriefState["errors"] = {};
@@ -101,7 +101,6 @@ export async function enviarBrief(_prev: BriefState, form: FormData): Promise<Br
   const db = getDb();
   if (db) {
     try {
-      const h = await headers();
       await db.insert(schema.briefs).values({
         nombre: b.nombre,
         contacto: b.contacto,
@@ -110,16 +109,16 @@ export async function enviarBrief(_prev: BriefState, form: FormData): Promise<Br
         plan: b.plan || null,
         presupuesto: b.presupuesto || null,
         consentAt: new Date(),
-        ipHash: hashIp(ipFrom(h)),
+        ipHash: hashIp(ip),
       });
       guardado = true;
     } catch (err) {
       console.error("[brief] insert error", (err as Error)?.name);
     }
   }
-  const avisado = await avisar(texto);
+  const avisado = await avisarPorEmail("Nueva consulta desde malejo.com.ar", texto);
 
-  const whatsapp = waLink(`Hola Mauro, te paso mi brief para la demo:\n${texto}`);
+  const whatsapp = whatsappDe(texto);
   if (!guardado && !avisado) return { status: "fallback", whatsapp, values };
   return { status: "ok", whatsapp };
 }

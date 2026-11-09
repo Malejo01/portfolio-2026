@@ -1,5 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { POST } from "@/app/(agencia)/api/chat/route";
+import { POST as POSTContacto } from "@/app/(agencia)/api/contacto/route";
+import { resetUsoEnMemoria } from "./limits";
 import { firmaCard, type Card } from "./cards";
 import { mockAnthropic, type MockAnthropic } from "./mock-anthropic";
 import { nuevoContexto, runTool } from "./tools";
@@ -22,6 +24,8 @@ beforeAll(async () => {
   env.ANTHROPIC_BASE_URL = mock.url;
   env.ANTHROPIC_API_KEY = "test-no-es-una-clave";
   env.CHAT_DAILY_LIMIT_TOTAL = "0";
+  env.CHAT_DAILY_LIMIT_IP = "0";
+  env.CHAT_BURST_LIMIT = "0";
   delete env.DATABASE_URL;
   // dolarapi.com no se toca en los tests: dólar fijo a $1.000.
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) =>
@@ -32,7 +36,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   globalThis.fetch = fetchOriginal;
-  for (const k of ["ANTHROPIC_BASE_URL", "ANTHROPIC_API_KEY", "CHAT_DAILY_LIMIT_TOTAL", "CHAT_ROUND_TIMEOUT_MS", "DATABASE_URL"]) {
+  for (const k of ["ANTHROPIC_BASE_URL", "ANTHROPIC_API_KEY", "CHAT_DAILY_LIMIT_TOTAL", "CHAT_DAILY_LIMIT_IP", "CHAT_BURST_LIMIT", "CHAT_ROUND_TIMEOUT_MS", "DATABASE_URL"]) {
     if (prev[k] === undefined) delete env[k];
     else env[k] = prev[k];
   }
@@ -181,5 +185,40 @@ describe("/api/chat con modelo simulado", () => {
     } finally {
       env.ANTHROPIC_API_KEY = "test-no-es-una-clave";
     }
+  });
+});
+
+describe("/api/chat y /api/contacto · seguridad (R2)", () => {
+  const pedido = (url: string, origin: string | null, headers: Record<string, string> = {}) =>
+    new Request(url, {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-forwarded-for": "10.9.9.9", ...(origin ? { origin } : {}), ...headers },
+      body: JSON.stringify({ messages: [{ role: "user", content: "hola" }] }),
+    });
+
+  it("S6: un Origin ajeno recibe 403 en el chat y en el contacto", async () => {
+    expect((await POST(pedido("http://localhost/api/chat", "https://evil.example"))).status).toBe(403);
+    expect((await POSTContacto(pedido("http://localhost/api/contacto", "https://evil.example"))).status).toBe(403);
+    // Sin Origin (curl, el runner de evals) no se rechaza por origen.
+    expect((await POSTContacto(pedido("http://localhost/api/contacto", null))).status).toBe(400);
+  });
+
+  it("S1: al llegar a la ráfaga, mensaje amable y WhatsApp con la ficha; la llave de pruebas la saltea", async () => {
+    env.CHAT_BURST_LIMIT = "1";
+    env.CHAT_TEST_TOKEN = "k".repeat(24);
+    resetUsoEnMemoria();
+    mock.guion([{ bloques: [{ type: "text", text: "Hola." }], stop: "end_turn" }]);
+    await (await POST(pedido("http://localhost/api/chat", null))).text();
+    const evs = (await (await POST(pedido("http://localhost/api/chat", null))).text())
+      .split("\n")
+      .filter(Boolean)
+      .map((l) => JSON.parse(l) as Ev);
+    expect(evs[0].text).toMatch(/esperá unos minutos/);
+    expect(evs.some((e) => e.card?.kind === "whatsapp")).toBe(true);
+    mock.guion([{ bloques: [{ type: "text", text: "Seguimos." }], stop: "end_turn" }]);
+    const conLlave = await (await POST(pedido("http://localhost/api/chat", null, { "x-malejo-test": "k".repeat(24) }))).text();
+    expect(conLlave).toContain("Seguimos.");
+    env.CHAT_BURST_LIMIT = "0";
+    delete env.CHAT_TEST_TOKEN;
   });
 });

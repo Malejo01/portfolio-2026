@@ -38,7 +38,7 @@ export default function DemoPage() {
         <div className="card card-big p-6 sm:p-8">
           <span className="lbl lbl-o">{copy.steps.brief}</span>
           <h2 className="h mb-5 mt-2 text-2xl">{copy.brief.title}</h2>
-          <DemoForm copy={copy} plans={options} aliases={{ ...aliases }} />
+          <DemoForm copy={copy} plans={options} aliases={{ ...aliases }} turnstileSiteKey={process.env.TURNSTILE_SITE_KEY || undefined} />
         </div>
 
         <div className="flex flex-col gap-6">

@@ -23,7 +23,9 @@ async function turno(base: string, msgs: ChatMsg[], ficha: Ficha, usuario: strin
   const inicio = Date.now();
   const res = await fetch(new URL("/api/chat", base), {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    // Con `CHAT_TEST_TOKEN` en el entorno del script, la llave de pruebas
+    // saltea los topes por IP (no el global): las evals salen de una sola IP.
+    headers: { "content-type": "application/json", ...(process.env.CHAT_TEST_TOKEN ? { "x-malejo-test": process.env.CHAT_TEST_TOKEN } : {}) },
     body: JSON.stringify({
       messages: armarHistorial([...msgs, { role: "user", text: usuario, cards: [] }]),
       ficha,

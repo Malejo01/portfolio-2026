@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useActionState, useEffect, useRef, useState } from "react";
 import { enviarBrief, type BriefState } from "@/app/(agencia)/demo/actions";
 import type { demoCopy } from "@/content/agencia/demo";
-import { planDesdeUrl, type OpcionPlan } from "@/lib/agencia/demo-plan";
+import { CAMPO_TRAMPA, planDesdeUrl, type OpcionPlan } from "@/lib/agencia/demo-plan";
+import { useTurnstile } from "./turnstile";
 
 /**
  * Formulario del brief (`/demo`). Isla mínima: `useActionState` para los
@@ -18,17 +19,22 @@ export function DemoForm({
   copy,
   plans,
   aliases,
+  turnstileSiteKey,
 }: {
   copy: Copy;
   plans: OpcionPlan[];
   /** Ids viejos → vigentes (`combo-web-turnos`), para links ya compartidos. */
   aliases: Record<string, string>;
+  /** Sin clave no se muestra ni se exige Turnstile. */
+  turnstileSiteKey?: string;
 }) {
   const [state, action, pending] = useActionState<BriefState, FormData>(enviarBrief, { status: "idle" });
   const [plan, setPlan] = useState("");
   const [extraOption, setExtraOption] = useState<{ id: string; name: string } | null>(null);
   const summary = useRef<HTMLDivElement>(null);
   const done = useRef<HTMLDivElement>(null);
+  const captcha = useRef<HTMLDivElement>(null);
+  useTurnstile(turnstileSiteKey, captcha);
   const b = copy.brief;
 
   useEffect(() => {
@@ -74,6 +80,16 @@ export function DemoForm({
 
   return (
     <form action={action} noValidate className="flex flex-col gap-4">
+      {state.status === "bloqueado" ? (
+        <div role="alert" className="rounded-[14px] border border-hi-b bg-ic-bg p-4 text-sm text-user-text">
+          {b.bloqueado}
+        </div>
+      ) : null}
+      {/* Campo trampa (S5): fuera de pantalla, sin foco y oculto a lectores. */}
+      <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+        <label htmlFor={CAMPO_TRAMPA}>{b.trampa}</label>
+        <input id={CAMPO_TRAMPA} name={CAMPO_TRAMPA} type="text" tabIndex={-1} autoComplete="off" defaultValue="" />
+      </div>
       {state.status === "error" ? (
         <div ref={summary} tabIndex={-1} role="alert" className="rounded-[14px] border border-hi-b bg-ic-bg p-4 text-sm text-user-text">
           <strong>{b.errorsTitle}</strong>
@@ -142,8 +158,9 @@ export function DemoForm({
         </div>
       </div>
       <div>
-        <label className="flex cursor-pointer items-start gap-2.5 text-sm">
-          <input type="checkbox" name="consent" required className="mt-0.5 h-[18px] w-[18px] flex-none accent-(--acc)" {...describe("consent")} />
+        {/* Toda la fila es el área táctil (44 px como mínimo, auditoría P1-10). */}
+        <label className="-mx-2 flex min-h-11 cursor-pointer items-center gap-3 rounded-[12px] px-2 py-2 text-sm hover:bg-surf-2">
+          <input type="checkbox" name="consent" required className="h-6 w-6 flex-none accent-(--acc)" {...describe("consent")} />
           <span>
             {b.consent}{" "}
             <Link href="/legal/privacidad" className="text-acc-text underline underline-offset-2">
@@ -153,6 +170,7 @@ export function DemoForm({
         </label>
         {fieldError("consent")}
       </div>
+      <div ref={captcha} />
       <button type="submit" disabled={pending} className="btn btn-p self-start disabled:opacity-60">
         {pending ? b.sending : b.submit}
       </button>

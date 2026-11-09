@@ -12,7 +12,9 @@
  *
  * Gasta tokens de verdad (unos 24 × 7 k de entrada, casi todo cacheado):
  * necesita `ANTHROPIC_API_KEY` en el servidor que recibe los pedidos. Con
- * límites diarios activos conviene correrlo con `CHAT_DAILY_LIMIT_TOTAL=0`.
+ * los topes por IP activos (R2), exportá `CHAT_TEST_TOKEN` con el mismo
+ * valor que el servidor: el runner manda `x-malejo-test` y saltea los topes
+ * por IP (el global no). El tope global se puede subir con `CHAT_DAILY_LIMIT_TOTAL=0`.
  */
 import { mkdirSync, writeFileSync } from "node:fs";
 import { casos } from "@/lib/agencia/chat/evals/casos";

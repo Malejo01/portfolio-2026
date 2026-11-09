@@ -24,6 +24,9 @@ export const demoCopy = {
     submit: "Enviar mi consulta",
     sending: "Enviando…",
     errorsTitle: "Revisá estos campos:",
+    /** Campo trampa (invisible): solo lo ven los lectores de pantalla que lo ignoran por `aria-hidden`. */
+    trampa: "No completes este campo",
+    bloqueado: "No pude verificar el envío. Probá de nuevo en unos minutos o mandámelo por WhatsApp.",
   },
   success: {
     title: "¡Listo! Recibí tu consulta.",

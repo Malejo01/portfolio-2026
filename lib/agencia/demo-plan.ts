@@ -32,3 +32,11 @@ export function planDesdeUrl(
   const id = conocidas.map((o) => o.id).join(",");
   return { id, extra: { id, name: conocidas.map((o) => o.name).join(" + ") } };
 }
+
+/**
+ * Campo trampa del formulario de `/demo` (S5): invisible para las personas,
+ * fuera de la pantalla y sin foco. Un bot que lo completa recibe "listo" y
+ * no se guarda nada. Vive acá porque un archivo `"use server"` solo puede
+ * exportar funciones.
+ */
+export const CAMPO_TRAMPA = "sitio_web";

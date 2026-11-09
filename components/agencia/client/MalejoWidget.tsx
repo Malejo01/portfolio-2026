@@ -11,6 +11,7 @@ import { armarHistorial, firmasMostradas, ultimaQuote } from "@/lib/agencia/chat
 import { mensajeWhatsApp } from "@/lib/agencia/chat/whatsapp";
 import { waLink } from "@/lib/agencia/config";
 import { fmt, fmtUsd } from "@/lib/agencia/format";
+import { useTurnstile } from "./turnstile";
 
 /**
  * El flotante de Malejo (DISENO.md §5, `11-flotante-*.png`): sprite-botón y
@@ -531,12 +532,6 @@ function CompareCard({ card, copy }: { card: Extract<Card, { kind: "compare" }>;
   );
 }
 
-declare global {
-  interface Window {
-    turnstile?: { render: (el: HTMLElement, opts: Record<string, unknown>) => string };
-  }
-}
-
 /**
  * Casilla de consentimiento. Sin la casilla marcada no se manda nada; con
  * ella, el pedido firmado va a `/api/contacto`, que vuelve a verificar todo.
@@ -556,17 +551,7 @@ function ConsentCard({
   const [captcha, setCaptcha] = useState<string>();
   const box = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!turnstileSiteKey || !box.current) return;
-    const el = box.current;
-    const render = () => window.turnstile?.render(el, { sitekey: turnstileSiteKey, appearance: "interaction-only", callback: setCaptcha });
-    if (window.turnstile) return void render();
-    const s = document.createElement("script");
-    s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
-    s.async = true;
-    s.onload = render;
-    document.head.appendChild(s);
-  }, [turnstileSiteKey]);
+  useTurnstile(turnstileSiteKey, box, setCaptcha);
 
   const save = async () => {
     if (!checked) {

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { getDb, schema } from "@/lib/db";
-import { hashIp, ipFrom, isPhoneAR, verifyConsent, verifyTurnstile } from "@/lib/agencia/chat/security";
+import { hashIp, ipFrom, isPhoneAR, origenPermitido, rechazarOrigen, verifyConsent, verifyTurnstile } from "@/lib/agencia/chat/security";
 
 /**
  * Guarda un contacto del chat. Es el único camino al insert de `leads`, y
@@ -12,6 +12,8 @@ import { hashIp, ipFrom, isPhoneAR, verifyConsent, verifyTurnstile } from "@/lib
  *    agente propuso guardar el contacto. El modelo nunca ve esa firma, así
  *    que no puede disparar este endpoint, y el payload no se puede editar.
  * 3. Turnstile, si existe `TURNSTILE_SECRET_KEY`.
+ *
+ * Antes de todo, un `Origin` ajeno se rechaza con 403 (tanda R2, S6).
  *
  * Solo insert. No hay ningún endpoint que lea contactos.
  */
@@ -31,6 +33,7 @@ const Body = z.object({
 });
 
 export async function POST(request: Request) {
+  if (!origenPermitido(request.headers.get("origin"))) return rechazarOrigen();
   const parsed = Body.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return Response.json({ ok: false, error: "Falta tu consentimiento." }, { status: 400 });
 

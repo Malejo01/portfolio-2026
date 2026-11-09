@@ -58,3 +58,19 @@ export const chatUsage = pgTable(
   },
   (t) => [primaryKey({ columns: [t.dia, t.ipHash] })],
 );
+
+/**
+ * Ráfagas del chat y del formulario de `/demo` (tanda R2, S1): mensajes por
+ * IP (hasheada) en ventanas de 10 minutos. `ventana` = minutos desde 1970
+ * divididos por 10. El cron borra las ventanas viejas. Las claves del
+ * formulario llevan el prefijo `demo:`.
+ */
+export const chatBurst = pgTable(
+  "chat_burst",
+  {
+    ventana: integer("ventana").notNull(),
+    ipHash: text("ip_hash").notNull(),
+    mensajes: integer("mensajes").notNull().default(0),
+  },
+  (t) => [primaryKey({ columns: [t.ventana, t.ipHash] })],
+);

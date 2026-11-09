@@ -51,6 +51,8 @@ describe("runner punta a punta (runner → /api/chat → modelo simulado)", () =
     env.ANTHROPIC_BASE_URL = mock.url;
     env.ANTHROPIC_API_KEY = "test-no-es-una-clave";
     env.CHAT_DAILY_LIMIT_TOTAL = "0";
+  env.CHAT_DAILY_LIMIT_IP = "0";
+  env.CHAT_BURST_LIMIT = "0";
     globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input instanceof Request ? input.url : input);
       if (url.includes("dolarapi.com")) return Response.json({ venta: 1000 });

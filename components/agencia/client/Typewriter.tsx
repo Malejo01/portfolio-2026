@@ -101,7 +101,7 @@ export function Typewriter({ lines }: { lines: Word[][] }) {
             return (
               <span
                 key={wi}
-                className={`inline-block whitespace-nowrap ${word.accent ? "text-acc" : ""}`}
+                className={`inline-block whitespace-nowrap ${word.accent ? "text-acc-text dark:text-acc" : ""}`}
                 style={last ? undefined : { marginRight: ".24em" }}
               >
                 {cursor && shown === 0 && index === 0 ? <Cursor /> : null}

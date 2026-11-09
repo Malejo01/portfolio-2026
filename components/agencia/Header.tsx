@@ -39,7 +39,7 @@ export function Header() {
           aria-label={nav.ariaLabel}
           className="card flex items-center gap-[18px] rounded-[18px] py-2 pl-[22px] pr-2"
         >
-          <Link href="/" aria-label={nav.home} className="inline-flex items-center gap-2.5 no-underline">
+          <Link href="/" aria-label={nav.home} className="inline-flex min-h-11 items-center gap-2.5 no-underline">
             <MalejoMark size={30} className="text-acc" />
             <span className="h text-[22px]">{site.name}</span>
           </Link>

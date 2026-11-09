@@ -204,7 +204,7 @@ export function GrandesSteps({ plans, medio, copy }: { plans: Plan[]; medio: Med
         <a
           href={copy.cta.href}
           {...(external ? { target: "_blank", rel: "noopener" } : {})}
-          className="btn btn-p btn-sm flex-none"
+          className="btn btn-p btn-sm min-h-11 flex-none"
         >
           {copy.cta.label}
         </a>

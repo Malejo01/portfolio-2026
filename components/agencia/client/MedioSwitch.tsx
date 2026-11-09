@@ -41,7 +41,7 @@ export function MedioSwitch({
         tabIndex={on ? 0 : -1}
         data-medio={m}
         onClick={() => onChange(m)}
-        className={`inline-flex h-10 items-center gap-1.5 rounded-[13px] px-4 text-sm font-semibold transition-colors ${
+        className={`inline-flex h-11 items-center gap-1.5 rounded-[13px] px-4 text-sm font-semibold transition-colors ${
           on ? "bg-acc text-acc-ink shadow-btn" : "text-muted hover:text-text"
         }`}
       >

@@ -500,9 +500,16 @@ html:not(.js) [data-reveal] {
     opacity: 1;
   }
 }
+/* El "IA." y el cursor: en claro, `--acc-text` (el naranja puro da 2,9:1
+   sobre el fondo claro y el texto grande pide 3:1; DISENO.md §2 ya dice
+   "texto naranja sobre fondo: --acc-text, nunca --acc"). En oscuro, `--acc`
+   (≈ 6,4:1). Tanda R2, auditoría P2-4. */
 .tw-cur {
-  color: var(--acc);
+  color: var(--acc-text);
   font-weight: 400;
+}
+.dark .tw-cur {
+  color: var(--acc);
 }
 .tw-cur[data-blink] {
   animation: tw-blink 0.9s steps(1) infinite;

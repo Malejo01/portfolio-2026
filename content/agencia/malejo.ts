@@ -34,6 +34,7 @@ export const malejoCopy = {
     "No sé qué necesito",
   ],
   mauro: "Hablar con Mauro",
+  opcionesLabel: "Respuestas sugeridas",
   privacy: "Si me dejás tu nombre y WhatsApp, los uso solo para contactarte.",
   privacyLink: "Privacidad",
   quote: {

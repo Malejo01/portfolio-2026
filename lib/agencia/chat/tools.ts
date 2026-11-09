@@ -20,6 +20,8 @@ import { mensajeWhatsApp } from "./whatsapp";
  *   alternativas sin sumarlas. Ninguna cotiza proyectos grandes.
  * - `anotar_ficha` es silenciosa: no muestra nada y nunca guarda en el
  *   servidor; el widget guarda la ficha en memoria.
+ * - `sugerir_respuestas` (R3) muestra 2 o 3 respuestas tocables al pie
+ *   del turno; tampoco justifica otra ronda del modelo.
  * - Una tarjeta `quote`/`compare`/`proyectos` igual a una ya mostrada no se
  *   vuelve a emitir (`ctx.shown` trae las firmas del historial reciente).
  *
@@ -48,6 +50,19 @@ const schemas = {
   mostrar_proyectos: z.object({}).passthrough(),
   pedir_demo: z.object({ planId: z.string().optional() }),
   derivar_whatsapp: z.object({ resumen: z.string().trim().min(1).max(600) }),
+  sugerir_respuestas: z.object({
+    opciones: z
+      .array(
+        z
+          .string()
+          .trim()
+          .min(1)
+          .max(40)
+          .refine((t) => !/https?:|www\.|\//i.test(t), "sin links ni rutas"),
+      )
+      .min(2)
+      .max(3),
+  }),
   guardar_contacto: z.object({
     nombre: z.string().trim().min(2).max(80),
     whatsapp: z.string().trim().min(8).max(30),
@@ -135,6 +150,19 @@ export const tools: Anthropic.Tool[] = [
       type: "object",
       properties: { resumen: { type: "string", description: "La consulta en una frase, en primera persona." } },
       required: ["resumen"],
+    },
+  },
+  {
+    name: "sugerir_respuestas",
+    description:
+      "Muestra 2 o 3 botones con respuestas cortas que la persona puede tocar en vez de escribir. Usala al final de un turno en el que hiciste una pregunta con respuestas previsibles (sí o no, el rubro, cómo atiende hoy, cuál de dos opciones). Escribilas en primera persona, como las diría el cliente, de hasta 40 caracteres (ej.: \"Sí, quiero turnos\", \"Todavía no tengo página\"). No las menciones en el texto.",
+    eager_input_streaming: true,
+    input_schema: {
+      type: "object",
+      properties: {
+        opciones: { type: "array", items: { type: "string" }, minItems: 2, maxItems: 3, description: "Respuestas cortas en primera persona." },
+      },
+      required: ["opciones"],
     },
   },
   {
@@ -309,6 +337,10 @@ export function runTool(name: string, input: unknown, ctx: ToolContext): ToolOut
         card: { kind: "whatsapp", href },
         ficha: { etapa: "derivado" },
       };
+    }
+    case "sugerir_respuestas": {
+      const { opciones } = parsed.data as z.infer<typeof schemas.sugerir_respuestas>;
+      return { content: "Mostré los botones. No los menciones.", card: { kind: "opciones", opciones: [...new Set(opciones)] } };
     }
     case "guardar_contacto": {
       const data = parsed.data as z.infer<typeof schemas.guardar_contacto>;

@@ -38,3 +38,10 @@ describe("historial con memoria de tarjetas", () => {
     expect(ultimaQuote([])).toBeNull();
   });
 });
+
+describe("respuestas sugeridas en el historial (R3)", () => {
+  it("no agregan línea de tarjeta", () => {
+    const h = armarHistorial([{ role: "assistant", text: "¿Ya tenés página?", cards: [{ kind: "opciones", opciones: ["Sí", "No"] }] }]);
+    expect(h[0].content).toBe("¿Ya tenés página?");
+  });
+});

@@ -90,7 +90,7 @@ describe("/api/chat con modelo simulado", () => {
     expect(p1.system).toHaveLength(2);
     expect(p1.system[0].cache_control).toEqual({ type: "ephemeral" });
     expect(p1.system[1].text).toContain("- Ciudad: Salta");
-    expect(p1.tools).toHaveLength(7);
+    expect(p1.tools).toHaveLength(8);
     // La segunda ronda lleva los dos tool_result en un solo mensaje.
     const ultimo = p2.messages.at(-1)!;
     expect(ultimo.role).toBe("user");
@@ -185,6 +185,33 @@ describe("/api/chat con modelo simulado", () => {
     } finally {
       env.ANTHROPIC_API_KEY = "test-no-es-una-clave";
     }
+  });
+});
+
+describe("respuestas sugeridas (R3)", () => {
+  it("texto + anotar_ficha + sugerir_respuestas cierra el turno con la tarjeta de opciones", async () => {
+    mock.guion([
+      {
+        bloques: [
+          { type: "text", text: "Para tu consultorio te conviene la agenda de turnos. ¿Ya tenés página?" },
+          { type: "tool_use", name: "anotar_ficha", input: { rubro: "Consultorio" } },
+          { type: "tool_use", name: "sugerir_respuestas", input: { opciones: ["Sí, ya tengo", "Todavía no tengo"] } },
+        ],
+        stop: "tool_use",
+      },
+      { bloques: [{ type: "text", text: "(no debería pedirse)" }], stop: "end_turn" },
+    ]);
+    const evs = await chat(user("Tengo un consultorio y quiero dar turnos"));
+    expect(mock.pedidos).toHaveLength(1);
+    expect(cards(evs)).toEqual([{ kind: "opciones", opciones: ["Sí, ya tengo", "Todavía no tengo"] }]);
+    expect(textos(evs)).not.toContain("no debería");
+  });
+
+  it("opciones con links o de más de 40 caracteres se rechazan", () => {
+    const ctx = nuevoContexto(1000);
+    expect(runTool("sugerir_respuestas", { opciones: ["https://x.com", "No"] }, ctx).isError).toBe(true);
+    expect(runTool("sugerir_respuestas", { opciones: ["a".repeat(41), "No"] }, ctx).isError).toBe(true);
+    expect(runTool("sugerir_respuestas", { opciones: ["Sí"] }, ctx).isError).toBe(true);
   });
 });
 

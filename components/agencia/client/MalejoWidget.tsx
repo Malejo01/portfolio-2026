@@ -217,7 +217,18 @@ export default function MalejoWidget({
 
             <div ref={listRef} className="flex flex-1 flex-col gap-3 overflow-y-auto px-4 py-4" aria-live="polite">
               {msgs.map((m) => (
-                <MessageView key={m.id} msg={m} copy={copy} senaMonto={senaMonto} turnstileSiteKey={turnstileSiteKey} />
+                <MessageView
+                  key={m.id}
+                  msg={m}
+                  copy={copy}
+                  senaMonto={senaMonto}
+                  turnstileSiteKey={turnstileSiteKey}
+                  // Las respuestas sugeridas solo se pueden tocar en el último mensaje.
+                  onOpcion={!busy && m.id === msgs[msgs.length - 1]?.id ? (t) => {
+                    track("chat_opcion");
+                    send(t);
+                  } : undefined}
+                />
               ))}
               {busy && !msgs[msgs.length - 1]?.text && !msgs[msgs.length - 1]?.cards.length ? (
                 <div className="flex items-center gap-2 pl-10" aria-label={copy.typing} role="status">
@@ -381,11 +392,13 @@ function MessageView({
   copy,
   senaMonto,
   turnstileSiteKey,
+  onOpcion,
 }: {
   msg: Msg;
   copy: MalejoCopy;
   senaMonto: number;
   turnstileSiteKey?: string;
+  onOpcion?: (texto: string) => void;
 }) {
   if (msg.role === "user") {
     return (
@@ -395,7 +408,7 @@ function MessageView({
     );
   }
   const segs: Seg[] = (msg.segs ?? [{ t: "text", text: msg.text }, ...msg.cards.map((card) => ({ t: "card" as const, card }))]).filter(
-    (s) => s.t === "card" || s.text.trim(),
+    (s) => (s.t === "card" ? s.card.kind !== "opciones" || Boolean(onOpcion) : s.text.trim()),
   );
   if (!segs.length) return null;
   return (
@@ -409,6 +422,14 @@ function MessageView({
               className="self-start whitespace-pre-wrap rounded-[16px_16px_16px_6px] border border-border bg-surf-2 px-[13px] py-2.5 text-sm leading-[1.45]"
             >
               {rich(s.text.trim())}
+            </div>
+          ) : s.card.kind === "opciones" ? (
+            <div key={i} role="group" aria-label={copy.opcionesLabel} className="flex flex-wrap gap-2">
+              {s.card.opciones.map((o) => (
+                <button key={o} type="button" className="chip h-auto min-h-9 py-1.5 text-left" onClick={() => onOpcion?.(o)}>
+                  {o}
+                </button>
+              ))}
             </div>
           ) : (
             <CardView key={i} card={s.card} copy={copy} senaMonto={senaMonto} turnstileSiteKey={turnstileSiteKey} />
@@ -513,6 +534,7 @@ function CardView({
       </a>
     );
   }
+  if (card.kind === "opciones") return null;
   return <ConsentCard card={card} copy={copy} turnstileSiteKey={turnstileSiteKey} />;
 }
 

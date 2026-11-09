@@ -51,7 +51,9 @@ export type Card =
   | { kind: "demo"; demoHref: string; agendaHref: string }
   | { kind: "whatsapp"; href: string }
   | { kind: "consent"; payload: ContactPayload; token: string }
-  | { kind: "proyectos"; items: { nombre: string; que: string; href: string }[]; portfolio: { label: string; href: string } };
+  | { kind: "proyectos"; items: { nombre: string; que: string; href: string }[]; portfolio: { label: string; href: string } }
+  /** Respuestas sugeridas (R3): botones que mandan ese texto como mensaje del usuario. */
+  | { kind: "opciones"; opciones: string[] };
 
 export type QuoteCard = Extract<Card, { kind: "quote" }>;
 
@@ -114,5 +116,8 @@ export function lineaTarjeta(card: Card): string {
       return "[Tarjeta mostrada · Consentimiento]";
     case "proyectos":
       return "[Tarjeta mostrada · Proyectos]";
+    case "opciones":
+      // Las respuestas sugeridas no son algo que la persona "vio": no van al historial.
+      return "";
   }
 }

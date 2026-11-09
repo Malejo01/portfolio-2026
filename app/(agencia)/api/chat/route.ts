@@ -50,7 +50,7 @@ const MODEL = process.env.MALEJO_MODEL || "claude-haiku-5-5";
 const MAX_TURNS = 20;
 const MAX_TOOL_ROUNDS = 4;
 /** Herramientas que no muestran nada: no justifican otra ronda del modelo. */
-const SILENCIOSAS = new Set(["anotar_ficha"]);
+const SILENCIOSAS = new Set(["anotar_ficha", "sugerir_respuestas"]);
 
 function roundTimeout(): number {
   const n = Number(process.env.CHAT_ROUND_TIMEOUT_MS);

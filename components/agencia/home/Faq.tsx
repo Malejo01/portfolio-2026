@@ -1,21 +1,21 @@
-import { home, type FaqItem } from "@/content/agencia/home";
+import type { FaqItem } from "@/content/agencia/home";
 import { senaMonto } from "@/lib/agencia/config";
 import { fmt } from "@/lib/agencia/format";
-import { Reveal } from "../client/Reveal";
 
 /**
- * FAQ (`08-faq-*.png`): `<details name="faq">` hace el acordeón exclusivo
- * sin JS. La primera abierta. Se reutiliza en `/servicios/[slug]`. Las
+ * Preguntas frecuentes (`08-faq-*.png`): `<details name>` hace el acordeón
+ * exclusivo sin JS. Lo usan el cierre de la home (3 preguntas, `compact`,
+ * todas cerradas) y cada `/servicios/[slug]` (la primera abierta). Las
  * respuestas salen de `conocimiento.ts`; `{SENA}` se completa acá, en el
  * servidor, con `SENA_MONTO`.
  */
-export function FaqList({ items, name = "faq" }: { items: readonly FaqItem[]; name?: string }) {
+export function FaqList({ items, name = "faq", compact = false }: { items: readonly FaqItem[]; name?: string; compact?: boolean }) {
   const sena = fmt(senaMonto());
   return (
-    <div className="mt-7 flex flex-col gap-3">
+    <div className={`flex flex-col ${compact ? "mt-3 gap-2 lg:grid lg:grid-cols-3 lg:items-start lg:gap-3" : "mt-7 gap-3"}`}>
       {items.map((item, i) => (
-        <details key={item.q} name={name} open={i === 0} className="faq-item card">
-          <summary className="flex items-center justify-between gap-4 px-6 py-5 text-[17px] font-semibold">
+        <details key={item.q} name={name} open={!compact && i === 0} className={`faq-item card ${compact ? "rounded-[16px] shadow-none" : ""}`}>
+          <summary className={`flex items-center justify-between gap-4 font-semibold ${compact ? "min-h-12 px-4 py-2.5 text-[15px]" : "px-6 py-5 text-[17px]"}`}>
             {item.q}
             <span
               aria-hidden="true"
@@ -25,22 +25,9 @@ export function FaqList({ items, name = "faq" }: { items: readonly FaqItem[]; na
               <span className="faq-minus">−</span>
             </span>
           </summary>
-          <p className="m-0 px-6 pb-[22px] text-[15px] leading-[1.6] text-muted">{item.a.replaceAll("{SENA}", sena)}</p>
+          <p className={`m-0 leading-[1.6] text-muted ${compact ? "px-4 pb-4 text-sm" : "px-6 pb-[22px] text-[15px]"}`}>{item.a.replaceAll("{SENA}", sena)}</p>
         </details>
       ))}
     </div>
-  );
-}
-
-export function Faq() {
-  const { faq } = home;
-  return (
-    <section id="faq" className="wrap max-w-[920px] pt-[72px] sm:pt-24">
-      <Reveal>
-        <span className="lbl lbl-o">{faq.label}</span>
-        <h2 className="h h2">{faq.title}</h2>
-      </Reveal>
-      <FaqList items={faq.items} />
-    </section>
   );
 }

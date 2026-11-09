@@ -1,13 +1,13 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 import { conocimiento } from "@/content/agencia/conocimiento";
-import { combos, extras, getCombo, getPlan, plans } from "@/content/agencia/pricing";
+import { combos, extras, getCombo, getPlan, plans, resolverId } from "@/content/agencia/pricing";
 import { CALCOM_URL, waLink } from "@/lib/agencia/config";
-import { comparar, cotizar, resumenCotizacion } from "@/lib/agencia/pricing";
+import { comparar, cotizar, fmt, resumenCotizacion } from "@/lib/agencia/pricing";
 import { deduplicable, firmaCard, leerFirmaQuote, type Card, type Medio, type Moneda, type QuoteCard } from "./cards";
 import { mergeFicha, type Ficha } from "./ficha";
 import { FichaSchema, limpiarFicha } from "./ficha-schema";
-import { consentEnabled, isPhoneAR, signConsent, type ContactPayload } from "./security";
+import { consentEnabled, isPhoneAR, signConsent, signTicket, type ContactPayload } from "./security";
 import { mensajeWhatsApp } from "./whatsapp";
 
 /**
@@ -20,6 +20,8 @@ import { mensajeWhatsApp } from "./whatsapp";
  *   alternativas sin sumarlas. Ninguna cotiza proyectos grandes.
  * - `anotar_ficha` es silenciosa: no muestra nada y nunca guarda en el
  *   servidor; el widget guarda la ficha en memoria.
+ * - `sugerir_respuestas` (R3) muestra 2 o 3 respuestas tocables al pie
+ *   del turno; tampoco justifica otra ronda del modelo.
  * - Una tarjeta `quote`/`compare`/`proyectos` igual a una ya mostrada no se
  *   vuelve a emitir (`ctx.shown` trae las firmas del historial reciente).
  *
@@ -48,6 +50,20 @@ const schemas = {
   mostrar_proyectos: z.object({}).passthrough(),
   pedir_demo: z.object({ planId: z.string().optional() }),
   derivar_whatsapp: z.object({ resumen: z.string().trim().min(1).max(600) }),
+  pedir_contacto: z.object({ motivo: z.string().trim().max(200).optional() }),
+  sugerir_respuestas: z.object({
+    opciones: z
+      .array(
+        z
+          .string()
+          .trim()
+          .min(1)
+          .max(40)
+          .refine((t) => !/https?:|www\.|\//i.test(t), "sin links ni rutas"),
+      )
+      .min(2)
+      .max(3),
+  }),
   guardar_contacto: z.object({
     nombre: z.string().trim().min(2).max(80),
     whatsapp: z.string().trim().min(8).max(30),
@@ -76,7 +92,7 @@ export const tools: Anthropic.Tool[] = [
   {
     name: "cotizar",
     description:
-      "Precio exacto de lo que la persona contrataría JUNTO (suma todo: implementación, abono y total del primer año). Usala antes de decir cualquier monto de una selección. Para comparar opciones alternativas usá comparar: cotizar nunca es para alternativas. Si están todas las partes de un combo, aplica el combo sola. No sirve para proyectos grandes.",
+      "Precio exacto de lo que la persona contrataría JUNTO (suma todo: pago único, cuota mensual y total del primer año). Usala antes de decir cualquier monto de una selección. Para comparar opciones alternativas usá comparar: cotizar nunca es para alternativas. Si están todas las partes de un combo, aplica el combo sola. No sirve para proyectos a medida (grandes).",
     eager_input_streaming: true,
     input_schema: {
       type: "object",
@@ -92,7 +108,7 @@ export const tools: Anthropic.Tool[] = [
   {
     name: "comparar",
     description:
-      "Muestra de 2 a 4 opciones ALTERNATIVAS lado a lado (precio, abono, plazo y para quién es), sin sumarlas ni dar un total. Usala cuando la persona elige entre opciones: Landing Express o Profesional, Mantenimiento Básico o Pro.",
+      "Muestra de 2 a 4 opciones ALTERNATIVAS lado a lado (precio, cuota mensual, plazo y para quién es), sin sumarlas ni dar un total. Usala cuando la persona elige entre opciones: dos páginas web distintas, o dos planes de mantenimiento.",
     eager_input_streaming: true,
     input_schema: {
       type: "object",
@@ -135,6 +151,29 @@ export const tools: Anthropic.Tool[] = [
       type: "object",
       properties: { resumen: { type: "string", description: "La consulta en una frase, en primera persona." } },
       required: ["resumen"],
+    },
+  },
+  {
+    name: "pedir_contacto",
+    description:
+      "Muestra un formulario corto (nombre y WhatsApp, con la casilla de consentimiento) para que Mauro le escriba. No guarda nada: se guarda solo si la persona lo completa y marca la casilla. Ofrecelo una vez cuando mostró interés y todavía no dejó su contacto. Si ya te escribió su nombre y su WhatsApp, usá guardar_contacto.",
+    eager_input_streaming: true,
+    input_schema: {
+      type: "object",
+      properties: { motivo: { type: "string", description: "Qué quiere que Mauro le resuelva, en una frase (si no está en la ficha)." } },
+    },
+  },
+  {
+    name: "sugerir_respuestas",
+    description:
+      "Muestra 2 o 3 botones con respuestas cortas que la persona puede tocar en vez de escribir. Usala al final de un turno en el que hiciste una pregunta con respuestas previsibles (sí o no, el rubro, cómo atiende hoy, cuál de dos opciones). Escribilas en primera persona, como las diría el cliente, de hasta 40 caracteres (ej.: \"Sí, quiero turnos\", \"Todavía no tengo página\"). No las menciones en el texto.",
+    eager_input_streaming: true,
+    input_schema: {
+      type: "object",
+      properties: {
+        opciones: { type: "array", items: { type: "string" }, minItems: 2, maxItems: 3, description: "Respuestas cortas en primera persona." },
+      },
+      required: ["opciones"],
     },
   },
   {
@@ -184,7 +223,7 @@ export function quoteCard(args: { planIds: string[]; extras?: string[]; medio?: 
   const principal = c.items.filter((i) => i.tipo !== "extra");
   const card: QuoteCard = {
     kind: "quote",
-    ids: [...new Set(args.planIds)],
+    ids: [...new Set(args.planIds.map(resolverId))],
     extras: [...new Set(args.extras ?? [])],
     titulo: c.items.length === 1 ? c.items[0].nombre : principal.map((i) => i.nombre).join(" + ") || "Tu cotización",
     implementacion: c.implementacion,
@@ -223,8 +262,8 @@ function conDedup(ctx: ToolContext, out: ToolOutcome): ToolOutcome {
   return out;
 }
 
-const GRANDES =
-  "Es un proyecto grande: no va con tarjeta de cotización ni con la demo de 72 horas. Proponé el camino consultoría inicial sin cargo → diagnóstico escrito ($60.000) → sprint con demo, y ofrecé la consultoría por WhatsApp con derivar_whatsapp.";
+const planEscrito = fmt(getPlan("diagnostico-escrito")?.impl ?? 0);
+const GRANDES = `Es un proyecto a medida (grande): no va con tarjeta de cotización ni con la demo de 72 horas. Proponé el camino charla gratis (20 min) → plan del proyecto por escrito (${planEscrito}, por adelantado) → etapas de 2 semanas con avance funcionando, cada una 50% al arrancarla y 50% al entregarla. Ofrecé la charla por WhatsApp con derivar_whatsapp.`;
 
 export function runTool(name: string, input: unknown, ctx: ToolContext): ToolOutcome {
   if (!(name in schemas)) return { content: `Herramienta desconocida: ${name}`, isError: true };
@@ -241,8 +280,28 @@ export function runTool(name: string, input: unknown, ctx: ToolContext): ToolOut
       if (!c.items.length) return { content: `Ningún id existe en el catálogo: ${c.desconocidos.join(", ")}`, isError: true };
       const { usd, ...ars } = c;
       const enUsd = card.moneda === "usd" && usd ? { usd, tipoDeCambio: `dólar oficial del día: $${usd.tipoDeCambio}` } : {};
+      // Las claves usan el vocabulario del sitio (pago único, cuota mensual):
+      // el modelo tiende a repetir lo que lee.
+      const { implementacion, abonoMensual, total, ...resto } = ars;
+      const usaWhatsAppOIa = (id: string) => ["ia", "turnos"].includes(getPlan(id)?.category ?? "");
+      const conUso = c.items.some((i) => usaWhatsAppOIa(i.id) || (i.incluye ?? []).some(usaWhatsAppOIa));
+      // La otra forma de pago de los planes cotizados (antes solo la devolvía `comparar`).
+      const otraFormaDePago = c.items
+        .map((i) => getPlan(i.id))
+        .filter((p) => p?.alt)
+        .map((p) => `${p!.name}: ${p!.alt}`);
       return conDedup(ctx, {
-        content: JSON.stringify({ ...ars, ...enUsd, resumen: resumenCotizacion(card.moneda === "usd" ? c : ars) }),
+        content: JSON.stringify({
+          pagoUnico: implementacion,
+          cuotaMensual: abonoMensual,
+          totalPrimerAnio: total,
+          ...resto,
+          ...enUsd,
+          resumen: resumenCotizacion(card.moneda === "usd" ? c : ars),
+          ...(otraFormaDePago.length ? { otraFormaDePago } : {}),
+          cuotas: "Hasta 6 con Mercado Pago (+6%); el interés lo pone la tarjeta: NO calcules el valor de cada cuota.",
+          ...(conUso ? { recordatorio: "Incluye WhatsApp automático o IA: aclará en una frase que lo que cobran por uso WhatsApp y el servicio de IA va aparte." } : {}),
+        }),
         card,
       });
     }
@@ -298,6 +357,26 @@ export function runTool(name: string, input: unknown, ctx: ToolContext): ToolOut
         ficha: { etapa: "derivado" },
       };
     }
+    case "pedir_contacto": {
+      const { motivo } = parsed.data as z.infer<typeof schemas.pedir_contacto>;
+      if (!consentEnabled()) {
+        const href = waLink(mensajeWhatsApp(ctx.ficha, ultimaCotizacion(ctx), motivo));
+        return { content: "Ahora no puedo guardar contactos. Le mostré el botón de WhatsApp con su ficha.", card: { kind: "whatsapp", href } };
+      }
+      const ticket = {
+        rubro: (ctx.ficha.rubro || "Sin especificar").slice(0, 80),
+        resumen: (ctx.ficha.necesidad || motivo || "Quiere que Mauro le escriba").slice(0, 600),
+        iat: Date.now(),
+      };
+      return {
+        content: "Le mostré el formulario. Los datos se guardan SOLO si lo completa y marca la casilla: no digas que ya quedaron guardados ni le pidas los datos por chat.",
+        card: { kind: "formContacto", ticket, token: signTicket(ticket) },
+      };
+    }
+    case "sugerir_respuestas": {
+      const { opciones } = parsed.data as z.infer<typeof schemas.sugerir_respuestas>;
+      return { content: "Mostré los botones. No los menciones.", card: { kind: "opciones", opciones: [...new Set(opciones)] } };
+    }
     case "guardar_contacto": {
       const data = parsed.data as z.infer<typeof schemas.guardar_contacto>;
       const rubro = (data.rubro || ctx.ficha.rubro || "").slice(0, 80);
@@ -313,10 +392,14 @@ export function runTool(name: string, input: unknown, ctx: ToolContext): ToolOut
       if (!isPhoneAR(data.whatsapp)) {
         return { content: "El teléfono no parece un número argentino válido. Pedile el número completo, con código de área.", isError: true };
       }
-      if (rubro.length < 2 || resumen.length < 5) {
-        return { content: "Falta saber el rubro o qué necesita: preguntáselo antes de proponer guardar el contacto.", isError: true };
-      }
-      const payload: ContactPayload = { nombre: data.nombre, whatsapp: data.whatsapp, rubro, resumen, iat: Date.now() };
+      // Sin rubro o necesidad no se pierde el contacto (simulación R3, C13): van valores neutros.
+      const payload: ContactPayload = {
+        nombre: data.nombre,
+        whatsapp: data.whatsapp,
+        rubro: rubro.length >= 2 ? rubro : "Sin especificar",
+        resumen: resumen.length >= 5 ? resumen : "Quiere que Mauro le escriba",
+        iat: Date.now(),
+      };
       ctx.ficha = mergeFicha(ctx.ficha, { nombre: data.nombre });
       return {
         content:

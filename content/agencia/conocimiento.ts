@@ -1,5 +1,5 @@
 import { agenciaLinks } from "./links";
-import { getPlan, recargoMercadoPago } from "./pricing";
+import { getPlan, mantenimientoGrandesPct, recargoMercadoPago, type CategoryKey } from "./pricing";
 
 /**
  * Base de conocimiento **única** de Malejo: quién es Mauro, cómo se trabaja,
@@ -27,11 +27,17 @@ export interface Proyecto {
   nombre: string;
   /** Qué es, en una línea. */
   que: string;
-  /** Qué demuestra para un cliente, en una línea. */
+  /** El problema que resuelve, contado para un dueño de negocio (título de la tarjeta de la home). */
+  problema: string;
+  /** Qué demuestra para un cliente, en una línea y sin nombres de tecnologías. */
   demuestra: string;
   href: string;
-  /** Plan del catálogo que se parece ("Como Tuki"). */
+  /** Planes del catálogo que se le parecen ("Como Tuki"), por id fijo. */
+  parecidoIds: string[];
+  /** Los nombres de esos planes, unidos: lo arma `conocimiento`, no se escribe. */
   parecido: string;
+  /** La solución (`/servicios/<slug>`) a la que lleva "Se parece a…". */
+  solucion: CategoryKey;
 }
 
 export interface Conocimiento {
@@ -53,81 +59,105 @@ const pct = `${Math.round(recargoMercadoPago * 100)}%`;
 const ars = (n: number) => `$${new Intl.NumberFormat("es-AR").format(n)}`;
 const renovacion = getPlan("renovacion")?.impl ?? 0;
 const basico = getPlan("mantenimiento-basico")?.monthly ?? 0;
+const planEscrito = getPlan("diagnostico-escrito")?.impl ?? 0;
+const mantGrandes = `${Math.round(mantenimientoGrandesPct * 100)}%`;
+
+/** "Como Tuki" → los nombres vigentes de los planes, por id. */
+function nombres(ids: string[]): string {
+  return ids
+    .map((id) => getPlan(id)?.name)
+    .filter(Boolean)
+    .join(" y ");
+}
+
+type ProyectoBase = Omit<Proyecto, "parecido">;
+
+const proyectos: ProyectoBase[] = [
+  {
+    key: "afiniajobs",
+    nombre: "AfinIA Jobs",
+    que: "Proyecto propio en prueba: lee cada aviso de empleo contra tu perfil y te dice qué tan afín es y qué te falta.",
+    problema: "Lee cientos de avisos y te dice cuáles te convienen",
+    demuestra: "Inteligencia artificial que lee, puntúa y resume mucha información por vos.",
+    href: agenciaLinks.afinia,
+    parecidoIds: ["clasificador-con-ia", "sistema-a-medida"],
+    solucion: "ia",
+  },
+  {
+    key: "quepintasalta",
+    nombre: "Qué Pinta Salta",
+    que: "La agenda cultural de Salta, cargada sola con IA desde varias fuentes.",
+    problema: "Una agenda cultural que se carga sola",
+    demuestra: "Una guía con mapa y filtros que se actualiza sola: ya está funcionando.",
+    href: agenciaLinks.qps,
+    parecidoIds: ["directorio-o-guia-con-mapa"],
+    solucion: "tiendas",
+  },
+  {
+    key: "tuki",
+    nombre: "Tuki",
+    que: "Asistente de trámites que responde con fuentes oficiales, concebido en NOA Innova 2026 para un municipio de capital provincial.",
+    problema: "Un asistente que responde trámites las 24 h",
+    demuestra: "Un asistente que responde solo con información oficial, dice de dónde la sacó y pasa a una persona cuando hace falta.",
+    href: agenciaLinks.tuki,
+    parecidoIds: ["asistente-ia-para-tu-web"],
+    solucion: "ia",
+  },
+  {
+    key: "maestria",
+    nombre: "MaestrIA",
+    que: "Proyecto propio en construcción: el docente sube su programa y la IA arma evaluaciones alineadas; cuando el alumno se equivoca, primero diagnostica el error.",
+    problema: "Evaluaciones que se arman solas desde el programa",
+    demuestra: "Un aula virtual con docentes y alumnos, y la inteligencia artificial aplicada a enseñar.",
+    href: agenciaLinks.maestria,
+    parecidoIds: ["plataforma-educativa-con-ia"],
+    solucion: "ia",
+  },
+];
 
 export const conocimiento: Conocimiento = {
   quienSoy:
-    "Mauro Lizárraga, AI Developer en Salta, Argentina. Desde 2023 da clases de matemática a nivel terciario, donde también fue formador y evaluador docente. En 2025 trabajó como desarrollador full-stack en Accenture, en plataformas internas y chatbots con IA. Se formó en IA aplicada con DataCamp y Anthropic Academy. Hoy construye productos propios: Qué Pinta Salta, AfinIA Jobs, Tuki y MaestrIA.",
+    "Mauro Lizárraga, desarrollador en Salta, Argentina. Desde 2023 da clases de matemática a nivel terciario, donde también fue formador y evaluador docente. En 2025 trabajó como desarrollador en Accenture, armando sistemas internos y asistentes con IA para una multinacional. Se formó en IA aplicada con DataCamp y Anthropic Academy. Hoy construye proyectos propios: Qué Pinta Salta, AfinIA Jobs, Tuki y MaestrIA.",
   proceso:
-    "1) Contás tu idea (brief corto o videollamada). 2) Seña de {SENA}. 3) Demo con tu marca en 72 horas hábiles. 4) Videollamada de 20 minutos para verla juntos y decidir sin compromiso. 5) Si contratás: 50% al aprobar la demo y 50% en la entrega, con la seña descontada del total.",
+    "1) Me contás qué necesitás (por WhatsApp, por este chat o en una charla gratis de 20 minutos). 2) Seña de {SENA}, que se descuenta del total. 3) Demo con tu marca en 72 horas hábiles. 4) La vemos juntos en 20 minutos y decidís sin compromiso. 5) Si contratás: 50% al aprobar la demo y 50% al recibir el proyecto, con la seña descontada.",
   pagos: [
     "Transferencia al precio publicado.",
     `Mercado Pago con ${pct} de recargo.`,
     `Hasta 6 cuotas con Mercado Pago, sobre el precio con el ${pct}; el interés de las cuotas lo define Mercado Pago según la tarjeta.`,
     "El total se paga 50% al aprobar la demo y 50% en la entrega.",
+    `Proyectos a medida (grandes): el plan del proyecto por escrito (${ars(planEscrito)}) se paga por adelantado, y cada etapa de 2 semanas se paga 50% al arrancarla y 50% al entregarla.`,
     "La seña no se devuelve: paga el trabajo de la demo. Si contratás, se descuenta completa del total.",
-    "Los abonos se pagan por mes adelantado; pagando el año por adelantado se pagan 10 meses.",
+    "Las cuotas mensuales se pagan por mes adelantado; pagando el año por adelantado se pagan 10 meses.",
     "Todavía no emite factura (lo va a hacer más adelante). Si el cliente la necesita, lo habla con Mauro.",
   ],
   dominio:
-    "El dominio queda a nombre del cliente. Su costo va aparte del precio del plan, como un adicional (tarifa vigente de NIC.ar para .com.ar), y Mauro lo registra y lo configura.",
-  propiedad: "El código y el dominio son del cliente una vez pagado el total: si algún día quiere llevarse el sitio, se lo lleva entero.",
-  tecnologia: "No usamos WordPress: trabajamos con Next.js, que es más rápido, más seguro y no depende de plugins.",
-  mantenimiento:
-    "Sin permanencia mínima: se da de baja avisando con 30 días. Después del primer año, la renovación cubre hosting, SSL, backups y gestión del dominio; los planes de mantenimiento suman cambios incluidos.",
+    "La dirección web (el dominio) queda a nombre del cliente. Su costo va aparte del precio del plan, como un adicional (tarifa vigente de NIC.ar para .com.ar), y Mauro la registra y la configura.",
+  propiedad:
+    "En páginas web, catálogos, tiendas, turnos y mantenimiento, la página y el dominio son del cliente una vez pagado el total: si algún día quiere llevársela, se la lleva entera. En sistemas para ordenar el negocio, asistentes con IA y proyectos a medida NO digas que el código es del cliente: la propiedad del código se define en la propuesta escrita.",
+  tecnologia:
+    "No se usan plantillas como WordPress: se trabaja con tecnología propia (Next.js), más rápida y segura, que no se cae por un plugin ni hay que actualizarla.",
+  mantenimiento: `Sin permanencia mínima: se da de baja avisando con 30 días. Después del primer año, mantener online cubre que la página siga funcionando y segura, con copia de seguridad y la dirección web; los planes de mantenimiento suman cambios incluidos. En los proyectos a medida, el mantenimiento es el ${mantGrandes} mensual del precio del proyecto.`,
   tiempoRespuesta:
     "Mauro responde por WhatsApp en hasta 2 días hábiles. Nunca prometer que responde al instante ni en el día.",
   garantia:
     "30 días de garantía desde cada entrega (en las webs está incluida en el precio): si algo no funciona como se acordó, se corrige sin cargo. Cubre errores, no funcionalidades nuevas.",
-  proyectos: [
-    {
-      key: "afiniajobs",
-      nombre: "AfinIA Jobs",
-      que: "Producto propio en beta: lee cada aviso de empleo contra tu perfil y te dice qué tan afín es y qué te falta.",
-      demuestra: "IA que lee, puntúa y resume información a escala, con Next.js y PostgreSQL.",
-      href: agenciaLinks.afinia,
-      parecido: "Sistema a medida y Clasificador con IA",
-    },
-    {
-      key: "quepintasalta",
-      nombre: "Qué Pinta Salta",
-      que: "La agenda cultural de Salta, cargada sola con IA desde varias fuentes.",
-      demuestra: "Directorio con mapa, filtros y carga automática: está en producción.",
-      href: agenciaLinks.qps,
-      parecido: "Directorio o guía con mapa",
-    },
-    {
-      key: "tuki",
-      nombre: "Tuki",
-      que: "Asistente de trámites que responde con fuentes oficiales, concebido en NOA Innova 2026 para un municipio de capital provincial.",
-      demuestra: "Asistente con IA acotado a información oficial, que cita fuentes y deriva a una persona.",
-      href: agenciaLinks.tuki,
-      parecido: "Asistente IA para tu web",
-    },
-    {
-      key: "maestria",
-      nombre: "MaestrIA",
-      que: "Producto propio en desarrollo: el docente sube su programa y la IA arma evaluaciones alineadas; cuando el alumno se equivoca, primero diagnostica el error.",
-      demuestra: "Plataforma con roles docente y alumno, IA aplicada a la enseñanza.",
-      href: agenciaLinks.maestria,
-      parecido: "Plataforma educativa con IA",
-    },
-  ],
+  proyectos: proyectos.map((p) => ({ ...p, parecido: nombres(p.parecidoIds) })),
   portfolio: { label: "Portfolio de Mauro", href: "/portfolio" },
   faq: [
     {
       id: "plazos",
       q: "¿Cuánto tarda mi web?",
-      a: "Una landing está lista en 3 a 10 días hábiles según el paquete; un sitio de hasta 5 páginas, en unas 2 semanas. El plazo corre desde que recibo tu material.",
+      a: "Una página web está lista en 3 a 10 días hábiles según el plan; una web de hasta 5 páginas, en unas 2 semanas. El plazo corre desde que recibo tu material.",
     },
     {
       id: "cambios",
-      q: "¿Qué es un cambio menor y qué un cambio mayor?",
-      a: "Un cambio menor lleva hasta 30 minutos y no toca la estructura: un texto, una foto, un precio o un horario. Uno mayor —una sección, una funcionalidad o un rediseño— se cotiza antes. Fuera de plan: $10.000 cada 30 minutos.",
+      q: "¿Qué es un cambio chico y qué un cambio grande?",
+      a: "Un cambio chico lleva hasta 30 minutos: un texto, una foto, un precio o un horario. Uno grande —una sección nueva, una función o un rediseño— se cotiza antes. Fuera de plan: $10.000 cada 30 minutos.",
     },
     {
       id: "pagos",
       q: "¿Cómo pago?",
-      a: `Por transferencia, al precio publicado, o con Mercado Pago con un ${pct} de recargo y hasta 6 cuotas. El total se paga 50% al aprobar la demo y 50% en la entrega.`,
+      a: `Por transferencia, al precio publicado, o con Mercado Pago con un ${pct} de recargo y hasta 6 cuotas. El total se paga 50% al aprobar la demo y 50% al recibir tu proyecto.`,
     },
     {
       id: "cuotas",
@@ -142,12 +172,12 @@ export const conocimiento: Conocimiento = {
     {
       id: "demo-gratis",
       q: "¿Puedo ver una demo sin pagar la seña?",
-      a: "La demo con tu marca lleva una seña de {SENA}, que se descuenta del total. Si antes querés sacarte dudas, la videollamada con Mauro es sin cargo. Renová tu web incluye demo previa sin cargo.",
+      a: "La demo con tu marca lleva una seña de {SENA}, que se descuenta del total. Si antes querés sacarte dudas, la charla con Mauro es gratis. La renovación de tu web actual incluye demo previa sin cargo.",
     },
     {
       id: "primer-anio",
       q: "¿Qué pasa después del primer año?",
-      a: `Las webs incluyen 12 meses de hosting. Desde el mes 13 elegís: la renovación de ${ars(renovacion)} al año (hosting, SSL, backups y dominio) o un plan de mantenimiento desde ${ars(basico)} por mes, con cambios incluidos.`,
+      a: `Las webs incluyen el primer año online. Desde el segundo elegís: ${ars(renovacion)} por año para que siga online y segura, con copia de seguridad y tu dirección web, o un plan desde ${ars(basico)} por mes con cambios incluidos.`,
     },
     {
       id: "baja-mantenimiento",
@@ -156,18 +186,23 @@ export const conocimiento: Conocimiento = {
     },
     {
       id: "codigo",
-      q: "¿De quién es el código?",
-      a: "Tuyo. Una vez pagado el total, el código, los accesos y el dominio son tuyos: si algún día querés llevarte el sitio a otro lado, te lo llevás entero.",
+      q: "¿De quién es la página?",
+      a: "Tuya. Una vez pagado el total, la página, los accesos y tu dirección web son tuyos: si algún día querés llevártela a otro lado, te la llevás entera.",
+    },
+    {
+      id: "codigo-medida",
+      q: "¿De quién es el código del sistema?",
+      a: "En los sistemas, los asistentes con IA y los proyectos a medida, la propiedad del código se define en la propuesta escrita, antes de empezar.",
     },
     {
       id: "dominio",
-      q: "¿El dominio está incluido?",
-      a: "El dominio queda a tu nombre y su costo va aparte del plan, según la tarifa vigente de NIC.ar. Lo registro y lo configuro yo.",
+      q: "¿La dirección web está incluida?",
+      a: "Tu dirección web (tunegocio.com.ar) queda a tu nombre y su costo va aparte del plan, según la tarifa vigente de NIC.ar. La registro y la configuro yo.",
     },
     {
       id: "tecnologia",
-      q: "¿Usan WordPress?",
-      a: "No usamos WordPress: trabajamos con Next.js, que es más rápido, más seguro y no depende de plugins.",
+      q: "¿Con qué hacen la página?",
+      a: "Con tecnología propia, más rápida y segura que las plantillas: no se cae por un plugin ni hay que actualizarla.",
     },
     {
       id: "usd",
@@ -182,7 +217,7 @@ export const conocimiento: Conocimiento = {
     {
       id: "respuesta",
       q: "¿Cuánto tarda Mauro en responder?",
-      a: "Hasta 2 días hábiles por WhatsApp. El asistente responde al momento y Mauro supervisa las charlas.",
+      a: "Hasta 2 días hábiles por WhatsApp. El asistente responde al momento; Mauro revisa cómo responde, pero no lee las charlas.",
     },
     {
       id: "garantia",
@@ -192,7 +227,37 @@ export const conocimiento: Conocimiento = {
     {
       id: "malejo",
       q: "¿Qué hace el asistente Malejo?",
-      a: "Es el asistente de este sitio: te cotiza con los precios publicados, te arma el pedido de demo y, si vos querés, le pasa tu contacto a Mauro. Lo supervisa Mauro y no guarda tu conversación.",
+      a: "Es el asistente de este sitio, con IA de Anthropic: entiende qué necesita tu negocio y te dice qué te conviene y cuánto sale. No guarda tu conversación; si querés, le pasa tu contacto a Mauro.",
+    },
+    {
+      id: "costos-aparte",
+      q: "¿Qué se paga aparte?",
+      a: "Lo que cobra WhatsApp por cada mensaje automático y lo que cobra el servicio de inteligencia artificial por uso. Los pagás vos, directo, según cuánto se use. Te los estimo antes de empezar.",
+    },
+    {
+      id: "comision-mp",
+      q: "¿Me cobrás comisión por cada venta?",
+      a: "No. Mercado Pago cobra su propia comisión por cada venta online; yo no cobro nada por venta.",
+    },
+    {
+      id: "grandes-pagos",
+      q: "¿Cómo se paga un proyecto a medida?",
+      a: `El plan del proyecto por escrito (${ars(planEscrito)}) se paga por adelantado. Después, cada etapa de 2 semanas se paga 50% al arrancarla y 50% al entregarla, con un avance funcionando.`,
+    },
+    {
+      id: "grandes-plan",
+      q: "¿Qué incluye el plan por escrito?",
+      a: "Qué hay que hacer y qué no, cómo se va a construir explicado simple, en cuántas etapas y cuánto sale cada una. Con eso decidís si seguís, sin compromiso.",
+    },
+    {
+      id: "grandes-plazos",
+      q: "¿Cuánto tarda un proyecto a medida?",
+      a: "Depende del alcance: el plan escrito dice cuántas etapas de 2 semanas lleva. Cada etapa termina con algo funcionando que ves y probás antes de pagar la siguiente.",
+    },
+    {
+      id: "grandes-mant",
+      q: "¿Y el mantenimiento después?",
+      a: `Es el ${mantGrandes} mensual del precio del proyecto: lo mantengo online, vigilado y con copia de seguridad, con correcciones y ajustes chicos. Sin permanencia mínima.`,
     },
   ],
 };

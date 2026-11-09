@@ -3,7 +3,7 @@ import { POST } from "@/app/(agencia)/api/chat/route";
 import { mockAnthropic, type MockAnthropic } from "../mock-anthropic";
 import { generales, preguntas, RUTA_CRUDA } from "./aserciones";
 import { casos } from "./casos";
-import { correrCaso } from "./runner";
+import { correrCaso, objetivo } from "./runner";
 
 describe("aserciones generales", () => {
   const t = (texto: string) => ({ usuario: "", texto, cards: [], ms: 0 });
@@ -28,8 +28,10 @@ describe("aserciones generales", () => {
 });
 
 describe("casos", () => {
-  it("son los 24 de A a X, con turnos y checks", () => {
-    expect(casos.map((c) => c.id).join("")).toBe("ABCDEFGHIJKLMNOPQRSTUVWX");
+  it("son los 24 de A a X, los de R2 (Y a AD) y los de R3 (AE a AJ), con turnos y checks", () => {
+    expect(casos.map((c) => c.id).join(",")).toBe("A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,AA,AB,AC,AD,AE,AF,AG,AH,AI,AJ");
+    expect(objetivo(24)).toBe(22);
+    expect(objetivo(casos.length)).toBe(33);
     for (const c of casos) {
       expect(c.turnos.length, c.id).toBeGreaterThan(0);
       expect(c.checks.length, c.id).toBeGreaterThan(0);
@@ -49,6 +51,8 @@ describe("runner punta a punta (runner → /api/chat → modelo simulado)", () =
     env.ANTHROPIC_BASE_URL = mock.url;
     env.ANTHROPIC_API_KEY = "test-no-es-una-clave";
     env.CHAT_DAILY_LIMIT_TOTAL = "0";
+  env.CHAT_DAILY_LIMIT_IP = "0";
+  env.CHAT_BURST_LIMIT = "0";
     globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input instanceof Request ? input.url : input);
       if (url.includes("dolarapi.com")) return Response.json({ venta: 1000 });

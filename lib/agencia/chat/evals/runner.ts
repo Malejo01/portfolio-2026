@@ -23,7 +23,9 @@ async function turno(base: string, msgs: ChatMsg[], ficha: Ficha, usuario: strin
   const inicio = Date.now();
   const res = await fetch(new URL("/api/chat", base), {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    // Con `CHAT_TEST_TOKEN` en el entorno del script, la llave de pruebas
+    // saltea los topes por IP (no el global): las evals salen de una sola IP.
+    headers: { "content-type": "application/json", ...(process.env.CHAT_TEST_TOKEN ? { "x-malejo-test": process.env.CHAT_TEST_TOKEN } : {}) },
     body: JSON.stringify({
       messages: armarHistorial([...msgs, { role: "user", text: usuario, cards: [] }]),
       ficha,
@@ -43,6 +45,11 @@ async function turno(base: string, msgs: ChatMsg[], ficha: Ficha, usuario: strin
     if (ev.type === "ficha" && ev.ficha) f = mergeFicha(f, ev.ficha);
   }
   return { t: { usuario, texto: texto.trim(), cards, ms: Date.now() - inicio }, ficha: f };
+}
+
+/** Objetivo de casos que pasan: el mismo 22 de 24 de CHAT-R1, proporcional. */
+export function objetivo(total: number): number {
+  return Math.ceil((total * 22) / 24);
 }
 
 export async function correrCaso(base: string, caso: Caso): Promise<Corrida> {
@@ -99,7 +106,7 @@ export function informe(corridas: Corrida[], meta: { base: string; fecha: string
   return [
     `# Evals del chat de Malejo · ${meta.fecha}`,
     "",
-    `Contra \`${meta.base}\`. **${pasan} de ${corridas.length}** casos pasan (objetivo: 22). Latencia mediana por turno: ${(p50 / 1000).toFixed(1)} s.`,
+    `Contra \`${meta.base}\`. **${pasan} de ${corridas.length}** casos pasan (objetivo: ${objetivo(corridas.length)}). Latencia mediana por turno: ${(p50 / 1000).toFixed(1)} s.`,
     "",
     "Aserciones generales por turno: sin rutas ni URLs, sin \"te corrijo\" ni \"como dije\", 60 palabras (90 en los casos que piden detalle), una sola pregunta, sin doble voz. Las de cada caso están en `lib/agencia/chat/evals/casos.ts`.",
     "",

@@ -1,6 +1,10 @@
 import Link from "next/link";
+import { WHATSAPP_TEXTO } from "@/content/agencia/home";
 import { site } from "@/content/agencia/site";
+import { waLink } from "@/lib/agencia/config";
+import { Icon } from "./icons";
 import { MalejoMark } from "./MalejoMark";
+import { AbrirChat } from "./client/AbrirChat";
 import { MobileMenu } from "./client/MobileMenu";
 import { SectionSpy } from "./client/SectionSpy";
 import { ThemeTextToggle, ThemeToggle } from "./client/ThemeToggle";
@@ -10,11 +14,14 @@ import { ThemeTextToggle, ThemeToggle } from "./client/ThemeToggle";
  * "Estilo": no va en v1.
  *
  * Server Component: los links son HTML del servidor. Las únicas islas son
- * el botón de tema, el explorador de celular y `SectionSpy`, que marca el
- * link activo con `aria-current`.
+ * el botón de tema, el explorador de celular, `AbrirChat` (el botón
+ * principal abre a Malejo; sin JS, WhatsApp) y `SectionSpy`, que marca el
+ * link activo con `aria-current`. En celular, al lado del ☰ va un acceso
+ * directo a WhatsApp de 44 × 44 (auditoría P1-2).
  */
 export function Header() {
   const { nav, explorer } = site;
+  const wa = waLink(WHATSAPP_TEXTO);
 
   return (
     // El blur va en `::before` y no en el header: `backdrop-filter` vuelve al
@@ -32,7 +39,7 @@ export function Header() {
           aria-label={nav.ariaLabel}
           className="card flex items-center gap-[18px] rounded-[18px] py-2 pl-[22px] pr-2"
         >
-          <Link href="/" aria-label={nav.home} className="inline-flex items-center gap-2.5 no-underline">
+          <Link href="/" aria-label={nav.home} className="inline-flex min-h-11 items-center gap-2.5 no-underline">
             <MalejoMark size={30} className="text-acc" />
             <span className="h text-[22px]">{site.name}</span>
           </Link>
@@ -46,17 +53,20 @@ export function Header() {
                   className="inline-flex items-center gap-1.5 rounded-[14px] px-3.5 py-2 text-[15px] text-muted no-underline transition-colors hover:text-text aria-[current=true]:bg-ic-bg aria-[current=true]:text-acc-text"
                 >
                   {l.label}
-                  {l.chip ? <span className="tag tag-xs">{l.chip}</span> : null}
                 </Link>
               </li>
             ))}
           </ul>
 
-          <div className="ml-auto flex items-center gap-[18px] lg:ml-0">
+          <div className="ml-auto flex items-center gap-2.5 lg:ml-0 lg:gap-[18px]">
             <ThemeToggle toLight={nav.themeToLight} toDark={nav.themeToDark} className="hidden lg:inline-flex" />
-            <Link href={nav.cta.href} className="btn btn-p btn-sm hidden lg:inline-flex">
-              {nav.cta.label}
-            </Link>
+            <AbrirChat href={wa} className="btn btn-p btn-sm hidden lg:inline-flex">
+              <Icon name="chat" size={16} />
+              {nav.cta}
+            </AbrirChat>
+            <a href={wa} target="_blank" rel="noopener" aria-label={nav.whatsapp} className="ibtn text-acc-text lg:hidden">
+              <Icon name="whatsapp" size={20} />
+            </a>
             <MobileMenu openLabel={explorer.open} closeLabel={explorer.close} title={explorer.title}>
               <nav aria-label={nav.ariaLabel} className="flex-1 overflow-y-auto px-2.5 py-3.5">
                 <ul className="flex flex-col gap-1">
@@ -66,17 +76,12 @@ export function Header() {
                     </li>
                   ))}
                 </ul>
-                <hr className="mx-3.5 my-3.5 border-0 border-t border-border" />
-                <ExplorerLink
-                  href={explorer.portfolio.href}
-                  label={explorer.portfolio.label}
-                  chip={explorer.portfolio.chip}
-                />
               </nav>
               <div className="flex flex-none flex-col gap-3 border-t border-border p-[18px]">
-                <Link href={nav.cta.href} className="btn btn-p w-full">
-                  {nav.cta.label}
-                </Link>
+                <AbrirChat href={wa} className="btn btn-p w-full">
+                  <Icon name="chat" size={18} />
+                  {nav.cta}
+                </AbrirChat>
                 <div className="flex justify-end">
                   <ThemeTextToggle
                     darkLabel={explorer.darkLabel}
@@ -95,17 +100,7 @@ export function Header() {
   );
 }
 
-function ExplorerLink({
-  href,
-  label,
-  section,
-  chip,
-}: {
-  href: string;
-  label: string;
-  section?: string;
-  chip?: string;
-}) {
+function ExplorerLink({ href, label, section }: { href: string; label: string; section?: string }) {
   return (
     <Link
       href={href}
@@ -116,7 +111,6 @@ function ExplorerLink({
         ▸
       </span>
       <span className="flex-1">{label}</span>
-      {chip ? <span className="tag tag-xs">{chip}</span> : null}
     </Link>
   );
 }

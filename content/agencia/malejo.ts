@@ -1,36 +1,40 @@
-/** Copy del flotante de Malejo (DISENO.md §5, `11-flotante-*.png`). */
+/** Copy del flotante de Malejo (DISENO.md §5, `11-flotante-*.png`). Sin toast del portfolio desde R2. */
 export const malejoCopy = {
   open: "Abrir chat con Malejo",
   close: "Cerrar chat con Malejo",
   chip: "Chat",
   chipOpen: "Cerrar",
   spriteAlt: "",
-  toast: {
-    title: "¿Querés ver mi portfolio?",
-    body: "Proyectos, stack y experiencia. En inglés.",
-    cta: "Ver portfolio →",
-    href: "/portfolio/en",
-    close: "Cerrar aviso",
-  },
   header: {
     name: "Malejo",
-    status: "Responde al instante · Lo supervisa Mauro",
+    status: "Asistente con IA · Responde al instante",
     close: "Cerrar chat",
+    restart: "Empezar una charla nueva",
     whatsapp: "Escribirle a Mauro por WhatsApp con el resumen de esta charla",
     whatsappTip: "WhatsApp con Mauro",
   },
   greeting:
-    "¡Hola! Soy Malejo, el asistente de Mauro. Contame qué tenés y qué necesitás, y te digo qué plan te conviene y cuánto sale.",
+    "Hola, soy Malejo, el asistente de Mauro. Contame qué te pasa en tu negocio y te digo qué te conviene y cuánto sale.",
   typing: "Malejo está escribiendo",
   placeholder: "Escribí tu consulta...",
   send: "Enviar",
   inputLabel: "Tu mensaje",
-  chips: {
-    whatsapp: "Hablar por WhatsApp",
-    plans: "Ver otros planes",
-    plansMessage: "¿Qué otros planes tenés?",
-    portfolio: "Ver portfolio",
-  },
+  /**
+   * Chips por problema (tanda R2): se ven hasta el primer mensaje. Cada uno
+   * se envía como mensaje del usuario; "Hablar con Mauro" abre WhatsApp con
+   * la ficha y queda siempre visible.
+   */
+  chipsLabel: "Elegí un tema o escribime",
+  chips: [
+    "Que me encuentren en Google",
+    "Vender por WhatsApp o internet",
+    "Que saquen turno solos",
+    "Ordenar stock y pedidos",
+    "Responder las 24 h",
+    "No sé qué necesito",
+  ],
+  mauro: "Hablar con Mauro",
+  opcionesLabel: "Respuestas sugeridas",
   privacy: "Si me dejás tu nombre y WhatsApp, los uso solo para contactarte.",
   privacyLink: "Privacidad",
   quote: {
@@ -49,9 +53,22 @@ export const malejoCopy = {
     recommended: "Recomendado",
     perMonth: "/mes",
     usd: "Dólares al oficial del día",
+    alt: "Otra forma de pago:",
     choose: "Pedir demo",
   },
   proyectos: { label: "Proyectos de Mauro", portfolio: "Ver todo en el portfolio" },
+  form: {
+    label: "Que Mauro te escriba",
+    nombre: "Tu nombre",
+    whatsapp: "Tu WhatsApp (con código de área)",
+    check: "Acepto que Mauro me contacte por WhatsApp",
+    privacy: "Política de privacidad",
+    save: "Que me escriba",
+    saving: "Enviando…",
+    saved: "Listo: Mauro te escribe por WhatsApp en hasta 2 días hábiles.",
+    needCheck: "Marcá la casilla para que pueda guardar tus datos.",
+    invalid: "Revisá el nombre y el WhatsApp (con código de área).",
+  },
   demo: { label: "Tu demo", demo: "Pedir mi demo", agenda: "Agendar videollamada" },
   whatsapp: { label: "WhatsApp", cta: "Escribirle a Mauro" },
   consent: {

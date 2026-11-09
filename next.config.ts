@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { FUENTE_AGENCIA, HEADERS_AGENCIA } from "./lib/agencia/headers";
 
 /**
  * El portfolio se mudó de la raíz a `/portfolio` (noviembre 2026) para que
@@ -11,6 +12,10 @@ import type { NextConfig } from "next";
  * `/public/casos/<caso>/<archivo>.png`.
  */
 const nextConfig: NextConfig = {
+  /** Headers de seguridad solo para la agencia (S10): `lib/agencia/headers.ts`. */
+  async headers() {
+    return [{ source: FUENTE_AGENCIA, headers: HEADERS_AGENCIA }];
+  },
   async redirects() {
     return [
       { source: "/casos/:slug", destination: "/portfolio/casos/:slug", permanent: true },

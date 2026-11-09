@@ -380,3 +380,269 @@ Corre después del deploy: ver los pasos para Mauro.
    si querés publicar un monto, el `precio` de los dominios.
 5. **Confirmá las decisiones 1 (10%) y 2 (50/50)**: si alguna era distinta,
    es una línea en `precios.json` o en `conocimiento.ts`.
+
+---
+
+# Tanda R2 · home corta, lenguaje simple, Malejo como asesor y seguridad
+
+Implementación del prompt de la tanda R2 sobre la auditoría UX del 8-11
+(`docs/agencia/auditoria-ux-2026-11-08.md`, sumada desde la rama
+`fix/chat-texto-duplicado`). Rama `claude/compassionate-ride-ypvfbj`,
+reiniciada desde `main` (el PR #5 de esta rama ya estaba mergeado y `main`
+ya tenía el PR #6). Un commit por fase (`feat(agencia): R2-Fn …`).
+`npm test` (137 tests), `npm run lint` y `npm run build` en verde: todas las
+rutas de la agencia y del portfolio en `○`/`●` salvo los catch-all y
+`/api/*`; la página nueva `/precios` sale `○`. El portfolio no cambió.
+
+## Qué se hizo, por fase
+
+### F1 · Ids fijos, nombres nuevos y glosario
+- `precios.json`: `id` explícito en **cada** plan, combo y extra, con el
+  valor que tenía `slugify(nombre)`. `content/agencia/pricing.ts` usa el id
+  del JSON; los combos traen sus `planIds` en el JSON (antes, `COMBO_PARTS`
+  por nombre). Tests: falta de id, ids repetidos, ids viejos que siguen
+  existiendo, combos que apuntan a planes reales.
+- Nombres de planes, combos y categorías de la auditoría §5, con
+  `paraQuien` (debajo del nombre en `PlanCard` y en `comparar`).
+- **"Combo Web + Turnos" se eliminó** y quedó el combo "Página + turnos"
+  (`combo-negocio-con-turnos`). El id viejo es un **alias** (`aliases` en el
+  JSON, `resolverId()`): `getCombo`, `cotizar`, `comparar` y `/demo?plan=`
+  lo resuelven. En Turnos, el recomendado pasa a ser "Agenda de turnos
+  online" y la nota de la categoría invita al combo.
+- Glosario §4.1–4.3 en `content/agencia/*`, el blog (con `<Plan id>` para
+  citar nombres vigentes), `conocimiento.ts`, `cotizador.ts`, `demo.ts` y los
+  legales (con paréntesis explicativos). La etiqueta de precio salió de
+  `lib/agencia/pricing.ts` a `content/agencia/pricing.ts`
+  (`etiquetasPrecio`, `resumenCopy`); `precioDePlan` devuelve un `tipo` para
+  la lógica y la copy no se compara nunca.
+- "El código es tuyo": solo en webs, catálogos, tiendas, turnos y
+  mantenimiento (FAQ `codigo`: "¿De quién es la página?"). En gestión, IA y
+  proyectos a medida: FAQ `codigo-medida` ("se define en la propuesta
+  escrita"), y lo mismo en `conocimiento.propiedad`, el prompt y los
+  Términos §6. Un test verifica que ninguna FAQ de esas tres soluciones lo afirme.
+- Pagos: 50/50 en todo; en proyectos a medida, plan escrito por adelantado
+  y cada etapa 50% al arrancarla y 50% al entregarla (catálogo, FAQ,
+  conocimiento, prompt, herramienta y Términos §3). "Pagos por hito" y
+  "Pagás sprint por sprint" ya no existen. La opción por cuotas de la
+  página para aparecer en Google ("$90.000 de entrada y $49.000 por mes")
+  pasó a "Otras formas de pago", fuera de la tarjeta.
+- Diagnóstico: "Charla gratis (20 min)" y "Plan del proyecto por escrito ($60.000)".
+- Test de glosario (`lib/agencia/glosario.test.ts`): recorre toda la copy de
+  `content/agencia/` salvo los legales, el catálogo y el blog, y falla con
+  "Landing", "SEO", "hosting", "abono", "API", "n8n", "sprint",
+  "Implementación", "micro-apps", "AI Developer", "brief" o "foto profesional".
+
+### F2 · Home corta y `/precios`
+- Home: hero (título y tecleo iguales; etiqueta "Mauro Lizárraga · Salta,
+  Argentina"; "micro-apps" → "sistemas"; "Contame qué necesitás" abre el
+  chat, WhatsApp secundario; las 3 tarjetas son garantías) → "¿Qué
+  necesitás?" (6 baldosas `card lift`, 2 columnas en celular, cada una a
+  `/servicios/[slug]` y con "Preguntale a Malejo") → Cómo trabajo en 5 pasos
+  con el 50/50 (una sola tarjeta en celular) → "Quién te va a atender"
+  (sprite o foto + 3 proyectos por problema, sin etiquetas de stack, con
+  "Se parece a: <plan>") → cierre con el chat primario, WhatsApp y
+  videollamada y 3 preguntas en `<details>`. Se borraron `About`,
+  `Projects`, `Services`, el FAQ largo y `ServiceLink`.
+- `/precios` (estática): el `PricingCatalog`. En celular, `<select>` en vez
+  de pestañas. En la home quedó `id="precios"` junto a "Ver todos los
+  precios →"; `#servicios`, `#proyectos`, `#sobre-mi` y `#faq` siguen vivos.
+- Menú: Soluciones · Precios · Cómo trabajo · Proyectos · Blog + "Hablá con
+  Malejo". `SectionSpy` marca el ítem de cada página (Precios ya no se
+  marca en `/servicios` ni en `/cotizador`). En celular, WhatsApp 44×44 al
+  lado del ☰. El portfolio sale del menú y va al pie como "Mi CV (en inglés)".
+- `/servicios/[slug]` con plantilla única (§6.2): H1 con el problema, para
+  quién es, 3 beneficios, el recomendado junto a sus combos, "Ver los otros
+  N planes" en `<details>`, proyecto parecido, cómo se paga, FAQ propio y
+  cierre (chat, demo, WhatsApp). Proyectos a medida: pasos en vez de planes,
+  FAQ propio (pagos por etapa, plan escrito, plazos, 10%), sin "la página es
+  tuya", sin el FAQ del primer año y sin cotizador. `/servicios/mant` aclara
+  el 10% de los proyectos a medida. Títulos SEO por problema; slugs iguales.
+- La foto: `components/agencia/home/Team.tsx` usa
+  `public/agencia/marca/mauro.jpg` si existe (se resuelve en el build con
+  `existsSync`, la home sigue `○`); si no, solo el sprite.
+- `DISENO.md` describe lo vigente (orden, menú, hero, baldosas, pasos,
+  "Quién te va a atender", cierre, pie, `/precios`, flotante, celular) y
+  `referencia.html` ya no dice "3 pagos sin recargo".
+
+### F3 · Malejo como asesor principal
+- Evento `malejo:abrir` (`lib/agencia/abrir-chat.ts`). La isla `AbrirChat`
+  es un `<a>` a WhatsApp con el texto genérico que, con JS, dispara el
+  evento **cancelable**; `MalejoLoader` lo cancela ("lo atiendo yo"), fuerza
+  la carga del widget si todavía no cargó y se lo pasa como `pedido`: el
+  widget se abre y, si hay tema, lo manda como primer mensaje. Si el chunk
+  del widget falla, el loader deja de cancelar y el botón sigue a WhatsApp.
+- Saludo nuevo y chips por problema hasta el primer mensaje; "Hablar con
+  Mauro" (WhatsApp con la ficha) siempre. Toast del portfolio apagado.
+- En celular, el botón flotante es solo la cabeza del sprite (56×64, medido).
+- Prompt: rol de asesor (hasta 2 preguntas de a una, una sola
+  recomendación con su porqué, después cotizar y el paso siguiente),
+  vocabulario simple, propiedad del código acotada y reglas para Q, K, F,
+  C, B y T. `cotizar` devuelve `pagoUnico`/`cuotaMensual` y un recordatorio
+  de costos por uso cuando hay WhatsApp o IA.
+- Evals: casos nuevos **Y** (veterinaria sin saber qué le conviene), **Z**
+  (propiedad del código en gestión), **AA** (abierto desde "Que saquen turno
+  solos") y los de abuso **AB–AD** (F4). Objetivo proporcional: 28 de 30.
+
+### F4 · Seguridad
+- **S1** `CHAT_BURST_LIMIT` (20 cada 10 min por IP hasheada, tabla
+  `chat_burst`), `CHAT_DAILY_LIMIT_IP` con default 150 y `CHAT_TEST_TOKEN`
+  (header `x-malejo-test`, comparación en tiempo constante) que saltea solo
+  los topes por IP. Migración `drizzle/0001_rafaga_chat.sql`, **sin aplicar**.
+  Al llegar al tope: mensaje amable + WhatsApp con la ficha.
+- **S7** Si la base falla, el global cae a un contador en memoria con tope 100.
+- **S8** Historial recortado a 12.000 caracteres conservando el último mensaje.
+- **S6** 403 con `Origin` ajeno en `/api/chat`, `/api/contacto` y la acción
+  de `/demo` (dominio, `NEXT_PUBLIC_SITE_URL`, URLs de Vercel del despliegue
+  y `CHAT_ALLOWED_ORIGINS`; `localhost` fuera de producción).
+- **S4/S5** Turnstile también en `/demo` (sin claves no se exige), campo
+  trampa `sitio_web` y los topes por IP en la acción (contados aparte del chat).
+- **S9** El cron avisa si ayer el chat pasó `CHAT_ALERT_THRESHOLD` (300):
+  email con Resend o `console.warn` sin datos personales.
+- **S10** Headers en `next.config.ts` solo para la agencia
+  (`lib/agencia/headers.ts`): `X-Frame-Options`, `Referrer-Policy`,
+  `Permissions-Policy`, `nosniff` y CSP **report-only**. Verificado con
+  `curl`: `/portfolio` y `/portfolio/en` no los llevan. Navegando `/`,
+  `/precios`, `/demo`, `/servicios/ia`, `/cotizador` y el blog no aparece
+  ninguna violación de la CSP en consola.
+- **S11** Tres evals de abuso (juego de rol, insulto, ensayo de 2000 palabras).
+
+### F5 · Celular y accesibilidad
+- 44 px de área táctil en links de tarjetas, pie, logo, medio de pago,
+  chips del cotizador, "Lo quiero", CTA de proyectos a medida y la fila de
+  la casilla de `/demo` (auditado con Playwright a 390 px).
+- "IA." y el cursor en `--acc-text` en modo claro (5,6:1). No contradice
+  DISENO.md: §2 ya decía "texto naranja sobre fondo: `--acc-text`, nunca `--acc`".
+- `/cotizador` arranca con "¿Qué necesitás?" y abre solo esa categoría; las
+  demás en `<details>`; en celular el total queda fijo abajo.
+- Sin overflow horizontal en 360, 390 y 1440 px en las 15 páginas revisadas.
+
+### F6 · Verificación visual
+Capturas de página completa en `docs/agencia/verificacion/r2/` (escritorio
+1440 y celular 390, con `data-reveal` en su estado final y los videos en el
+póster), más el "antes" del commit auditado (`ea4ee29`, armado con
+`next build --webpack` porque Turbopack no acepta un `node_modules`
+enlazado). Script: `docs/agencia/verificacion/r2/capturas.js`. Fuentes
+reales (Google Fonts respondió). El texto de `main` de cada página revisada
+no tiene jerga; en el "antes" aparecían Landing, SEO, hosting, abono,
+sprint y "FOTO PROFESIONAL".
+
+## Mediciones (Playwright, fuentes reales)
+
+"Pantallas" = alto total / alto del viewport (1440 × 900 y 390 × 844).
+
+| Ruta | Antes, escritorio | Después, escritorio | Antes, celular | Después, celular |
+|---|---:|---:|---:|---:|
+| `/` | 7.126 px · **7,9** | 3.086 px · **3,4** | 13.359 px · **15,8** | 4.634 px · **5,5** |
+| `/precios` | (en la home) | 2.646 · 2,9 | (en la home) | 6.056 · 7,2 |
+| `/servicios` | 1.650 · 1,8 | 1.457 · 1,6 | 3.577 · 4,2 | 2.140 · 2,5 |
+| `/servicios/webs` | 3.050 · 3,4 | 3.373 · 3,7 | 6.106 · 7,2 | 4.992 · 5,9 |
+| `/servicios/grandes` | 2.108 · 2,3 | 3.055 · 3,4 | 3.401 · 4,0 | 4.620 · 5,5 |
+| `/cotizador` | 3.318 · 3,7 | 1.897 · 2,1 | 6.127 · 7,3 | 3.055 · 3,6 |
+| `/demo` | 1.383 · 1,5 | 1.431 · 1,6 | 2.402 · 2,8 | 2.298 · 2,7 |
+
+Objetivo de la home: ≤ 3,5 en escritorio y ≤ 5,5 en celular → **cumplido**
+(3,43 y 5,49). El margen en celular es chico: cualquier línea más en la
+home lo pasa; medilo de nuevo con el script si cambia la copy. Las páginas
+de solución crecen en escritorio porque ahora tienen beneficios, proyecto
+parecido, cómo se paga y cierre (antes era el catálogo y el FAQ de pagos);
+el resto de las soluciones mide entre 3,1 y 3,7 en escritorio y entre 4,2 y
+6,0 en celular.
+
+## Evals
+
+No corrieron contra el modelo real: el entorno de la tanda no tiene
+`ANTHROPIC_API_KEY`. Los 30 casos (24 + Y, Z, AA, AB, AC, AD) y sus
+aserciones están cubiertos por los tests con el modelo simulado. **Correr
+después del deploy** (paso manual 6).
+
+## Tanda R2 · Decisiones
+
+1. **Rama.** El PR #5 de esta rama estaba mergeado: la rama se reinició
+   desde `main` (que ya tenía el PR #6) y se mergeó `fix/chat-texto-duplicado`
+   por el commit de la auditoría, que no estaba en `main`.
+2. **Recomendado de Turnos.** Al borrar "Combo Web + Turnos" (era el
+   recomendado), el recomendado pasa a "Agenda de turnos online" y la nota
+   de la categoría dice "¿No tenés página? Mirá el combo Página + turnos".
+3. **Nombres que no están en la auditoría.** "Mantenimiento mensual del
+   proyecto" (sin el 10% en el nombre, para no duplicar el número de
+   `mantenimientoPct`) y los extras ("Te escribo los textos", "Blog de
+   novedades", "Página en dos idiomas", "Vuelta de correcciones extra",
+   "Tu dirección web .com.ar (por año)").
+4. **Gestión e IA.** Siguen con 50/50 (no son "proyectos grandes" para el
+   pago), pero sin "la página es tuya": la propiedad se define en la
+   propuesta, como en grandes. "Sistema a tu medida" lleva el 50/50 en sus ítems.
+5. **Precios en las soluciones, en transferencia.** Las páginas de solución
+   son HTML del servidor sin el selector de Mercado Pago (está en
+   `/precios`); "Cómo se paga" dice el +6% y las cuotas.
+6. **Las 3 garantías del hero** son una lista (`<ul>`) y no tarjetas `lift`:
+   no son links.
+7. **Chips del chat.** Los 7 de problema solo hasta el primer mensaje;
+   después queda "Hablar con Mauro", para no ocupar la ventana.
+8. **Abiertos desde una baldosa**, los temas van en primera persona
+   ("Quiero que mis clientes saquen turno solos").
+9. **Fallback del botón del chat.** Sin temporizador ni ventanas
+   emergentes: el evento es cancelable y el `href` del botón es WhatsApp.
+10. **Origen en un build local de producción.** `next start` corre en
+    modo producción y `localhost` no está permitido ahí: para probar el
+    chat o `/demo` local, `CHAT_ALLOWED_ORIGINS=http://localhost:3005`.
+11. **Topes del formulario.** Usan los mismos topes por IP del chat
+    (ráfaga y diario), contados aparte (`demo:<hash>`) y fuera del global.
+    Un pedido con el campo trampa recibe "listo" y no se guarda ni se avisa.
+12. **Evals de abuso en F3.** Se sumaron junto con Y, Z y AA (un solo cambio
+    de `casos.ts`); son los de S11.
+13. **Capturas en JPEG** (calidad 70) para no sumar 20 MB al repo.
+
+## Pasos manuales para Mauro
+
+1. **Aplicar la migración** `drizzle/0001_rafaga_chat.sql` (tabla
+   `chat_burst`): `DATABASE_URL=… npm run db:migrate`. Sin ella, el tope
+   por ráfaga falla y el chat cuenta en memoria con tope global 100 (falla
+   cerrado): aplicala antes o junto con el deploy.
+2. **Límite de gasto mensual y alertas** en el workspace de Anthropic
+   (Console → Settings → Limits): tope mensual y aviso por email al 50% y al 80%.
+3. **Claves de Turnstile**: Cloudflare → Turnstile → Add widget, dominio
+   `malejo.com.ar` (y `www`), modo "Managed". Cargá `TURNSTILE_SITE_KEY` y
+   `TURNSTILE_SECRET_KEY` en Vercel y redeploy. Se exige en el chat (casilla
+   de contacto) y en `/demo`.
+4. **Firewall de Vercel** (Project → Firewall → Configure → New rule):
+   path `/api/chat` **o** `/api/contacto`, rate limit **30 pedidos por
+   minuto por IP**, acción **429**. Activá también **Bot Protection**
+   (Firewall → Bot Management) en modo "Challenge".
+5. **Variables nuevas en Vercel**: `CHAT_TEST_TOKEN` (`openssl rand -hex 24`),
+   y si querés cambiar los defaults `CHAT_BURST_LIMIT` (20),
+   `CHAT_DAILY_LIMIT_IP` (150; si quedó en `0` de la etapa de pruebas,
+   borrala para tomar el default) y `CHAT_ALERT_THRESHOLD` (300). Para la
+   alerta por email: `RESEND_API_KEY` y `EMAIL_TO`. Redeploy después.
+6. **Evals con el modelo real** después del deploy:
+   `CHAT_TEST_TOKEN=<el mismo> npm run eval:chat -- --url https://malejo.com.ar`.
+   Objetivo: 28 de 30. Revisá `docs/agencia/evals/<fecha>.md`.
+7. **La foto**: subí `public/agencia/marca/mauro.jpg` (cuadrada, ≥ 320 px)
+   y redeploy; la home la toma sola.
+8. **Search Console**: pedí reindexar `/`, `/precios` y `/servicios/*`
+   (cambiaron títulos y nombres de planes).
+
+---
+
+# Tanda R3 · revisión como usuario y el agente como vendedor
+
+Pedido de Mauro (9-11, noche): recorrer el sitio como cliente, probar muchas conversaciones con Malejo, armar un plan y ejecutarlo en loop. Sigue en el mismo PR (#7), con commits `R3-n`. El detalle (hallazgos, simulación, lo que solo Mauro puede responder y el plan para vender el asesor) está en **`docs/agencia/revision-r3.md`**. `npm test` (152 tests), `npm run lint` y `npm run build` en verde. Todas las rutas siguen `○`/`●`. La home mide 3,43 pantallas en escritorio y 5,46 en celular.
+
+**Sin clave de Anthropic en el entorno** (y sin permiso para leer las variables del proyecto en Vercel), las conversaciones se probaron con una simulación de 22 charlas (`docs/agencia/evals/2026-11-09-simulacion.md`) y con el modelo simulado de los tests. Las evals reales siguen pendientes: 36 casos, objetivo 33.
+
+## Qué se hizo
+- **R3-1** Contexto de página en el prompt (validado contra las rutas), la charla persiste en `sessionStorage` con "Empezar de nuevo", y eventos de Vercel Analytics del embudo, sin datos personales.
+- **R3-2** Respuestas sugeridas (`sugerir_respuestas`) y formulario de contacto en el chat (`pedir_contacto`, con ticket firmado, que también acepta `/api/contacto`). Prompt con "No inventes" (funciones, fechas, cuotas, medios de pago, terceros, marca blanca, memoria). Renovación sin seña. Privacidad coherente. `cotizar` con aviso de costos por uso correcto, otra forma de pago y regla de cuotas. Evals AE–AJ.
+- **R3-3** `/demo` se completa con la ficha del chat y ofrece avisar por WhatsApp al enviar. Beneficios compactos en celular. Título "Soy Mauro, detrás de Malejo.". Combos con el mismo sufijo de cuota.
+
+## Decisiones
+1. **Simulación como sustituto, con aviso.** No es Haiku en producción; las fallas que encontró se convirtieron en reglas y en evals reales (AE–AJ) para confirmarlas con el modelo.
+2. **Descuentos:** se mantuvo "opción accesible + derivar en el mismo turno", porque es lo que pide la eval C de producción. La simulación sugería derivar solo si insiste.
+3. **`pedir_contacto` firma solo el rubro y el resumen**; el nombre y el WhatsApp los escribe la persona. Se mantiene que el modelo no puede guardar nada y que no existe ningún endpoint que lea contactos.
+4. **El precio "desde" del catálogo** se puede decir sin herramienta; las sumas, los totales y las combinaciones siguen saliendo de `cotizar`.
+5. **Eventos de Analytics:** solo conteos y tipos, nunca texto. En el plan Hobby de Vercel no se registran.
+
+## Pasos manuales nuevos para Mauro
+- Responder las 9 preguntas de `revision-r3.md` §2.3 (cada una saca una derivación).
+- Correr las evals reales: `CHAT_TEST_TOKEN=… npm run eval:chat -- --url <vista previa o producción>` (36 casos, objetivo 33).
+- Si querés ver el embudo: plan Pro de Vercel (eventos personalizados).
+

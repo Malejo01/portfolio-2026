@@ -3,9 +3,11 @@ import { z } from "zod";
 import type { Card } from "@/lib/agencia/chat/cards";
 import type { Ficha } from "@/lib/agencia/chat/ficha";
 import { FichaSchema, limpiarFicha } from "@/lib/agencia/chat/ficha-schema";
-import { consume } from "@/lib/agencia/chat/limits";
+import { consume, type Motivo } from "@/lib/agencia/chat/limits";
 import { systemBlocks } from "@/lib/agencia/chat/prompt";
-import { hashIp, ipFrom } from "@/lib/agencia/chat/security";
+import { contextoDePagina } from "@/lib/agencia/chat/pagina";
+import { recortarHistorial } from "@/lib/agencia/chat/recorte";
+import { TEST_HEADER, esTokenDePrueba, hashIp, ipFrom, origenPermitido, rechazarOrigen } from "@/lib/agencia/chat/security";
 import { nuevoContexto, runTool, tools, ultimaCotizacion, type ToolContext, type ToolOutcome } from "@/lib/agencia/chat/tools";
 import { mensajeWhatsApp } from "@/lib/agencia/chat/whatsapp";
 import { senaMonto, waLink } from "@/lib/agencia/config";
@@ -33,6 +35,11 @@ import { tipoDeCambio } from "@/lib/agencia/usd";
  * input inválido o una herramienta que tira vuelven al modelo como
  * `is_error` para que se recupere.
  *
+ * Seguridad (tanda R2): 403 si llega un `Origin` ajeno (S6); topes por
+ * ráfaga, por IP y global con fallo cerrado (S1, S7, `limits.ts`), que la
+ * llave `x-malejo-test` saltea solo por IP; y el historial recortado a
+ * 12.000 caracteres (S8, `recorte.ts`).
+ *
  * Sin `ANTHROPIC_API_KEY` responde un mensaje fijo con WhatsApp: la UI no
  * se rompe. Los logs no llevan datos personales: solo tipo de error y status.
  */
@@ -43,7 +50,7 @@ const MODEL = process.env.MALEJO_MODEL || "claude-haiku-5-5";
 const MAX_TURNS = 20;
 const MAX_TOOL_ROUNDS = 4;
 /** Herramientas que no muestran nada: no justifican otra ronda del modelo. */
-const SILENCIOSAS = new Set(["anotar_ficha"]);
+const SILENCIOSAS = new Set(["anotar_ficha", "sugerir_respuestas"]);
 
 function roundTimeout(): number {
   const n = Number(process.env.CHAT_ROUND_TIMEOUT_MS);
@@ -59,7 +66,16 @@ const Body = z.object({
   ficha: FichaSchema.optional(),
   /** Firmas de las tarjetas ya mostradas (`firmaCard`), para no repetirlas. */
   shownCards: z.array(z.string().max(300)).max(40).optional(),
+  /** `location.pathname` del widget. Se valida contra las rutas del sitio (`pagina.ts`). */
+  pagina: z.string().max(120).optional(),
 });
+
+/** Al llegar a un tope: mensaje amable y WhatsApp con la ficha. */
+const LIMITE: Record<Motivo, string> = {
+  rafaga: "Vamos muy rápido: esperá unos minutos y seguimos. Si preferís, escribile a Mauro por WhatsApp con lo que charlamos.",
+  ip: "Por hoy llegamos al límite de mensajes del chat. Escribile a Mauro por WhatsApp con lo que charlamos y seguimos por ahí.",
+  total: "Por hoy el chat llegó a su límite de mensajes. Escribile a Mauro por WhatsApp con lo que charlamos y seguimos por ahí.",
+};
 
 const FALLBACK = "Ahora no puedo responder. Escribile a Mauro por WhatsApp con tu consulta ya cargada: te contesta en hasta 2 días hábiles.";
 const TIMEOUT = "Se me está demorando la respuesta. Escribile a Mauro por WhatsApp con lo que charlamos: te contesta en hasta 2 días hábiles.";
@@ -93,6 +109,8 @@ function correrSeguro(name: string, input: unknown, ctx: ToolContext): ToolOutco
 }
 
 export async function POST(request: Request) {
+  if (!origenPermitido(request.headers.get("origin"))) return rechazarOrigen();
+
   let body: z.infer<typeof Body>;
   try {
     body = Body.parse(await request.json());
@@ -104,24 +122,22 @@ export async function POST(request: Request) {
   if (!process.env.ANTHROPIC_API_KEY) return fallback(FALLBACK, nuevoContexto(0, ficha, body.shownCards));
 
   const ip = ipFrom(request.headers);
-  const usage = await consume(hashIp(ip)).catch(() => ({ ok: true as const }));
-  if (!usage.ok) {
-    return fallback(
-      "Por hoy llegamos al límite de mensajes del chat. Escribile a Mauro por WhatsApp y seguimos por ahí.",
-      nuevoContexto(0, ficha, body.shownCards),
-    );
-  }
+  // `consume` no tira: si la base falla, cuenta en memoria con un tope conservador (S7).
+  const usage = await consume(hashIp(ip), { saltarIp: esTokenDePrueba(request.headers.get(TEST_HEADER)) });
+  if (!usage.ok) return fallback(LIMITE[usage.reason ?? "total"], nuevoContexto(0, ficha, body.shownCards));
 
-  // Últimos 20 turnos, empezando siempre por un mensaje del usuario.
-  let history = body.messages.slice(-MAX_TURNS);
+  // Últimos 20 turnos y 12.000 caracteres como mucho, empezando siempre por
+  // un mensaje del usuario y conservando el último (S8).
+  let history = recortarHistorial(body.messages.slice(-MAX_TURNS));
   while (history.length && history[0].role !== "user") history = history.slice(1);
+  if (!history.length) return Response.json({ error: "Pedido inválido" }, { status: 400 });
   const messages: Anthropic.MessageParam[] = history.map((m) => ({ role: m.role, content: m.content }));
 
   const ctx = nuevoContexto((await tipoDeCambio()).valor, ficha, body.shownCards);
   // Un reintento como mucho: el timeout por ronda manda sobre la espera total.
   const client = new Anthropic({ maxRetries: 1 });
   // La ficha del bloque final es la que llegó con el pedido: fija durante el turno.
-  const system = systemBlocks(senaMonto(), ctx.ficha);
+  const system = systemBlocks(senaMonto(), ctx.ficha, await contextoDePagina(body.pagina));
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream<Uint8Array>({

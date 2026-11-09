@@ -23,7 +23,7 @@ export const MAX_CONTENT = 2000;
 export const MAX_SHOWN = 40;
 
 export function contenidoDe(m: ChatMsg): string {
-  const lineas = m.role === "assistant" ? m.cards.map(lineaTarjeta) : [];
+  const lineas = m.role === "assistant" ? m.cards.map(lineaTarjeta).filter(Boolean) : [];
   const pie = lineas.join("\n");
   const espacio = MAX_CONTENT - (pie ? pie.length + 1 : 0);
   const texto = m.text.trim().slice(0, Math.max(0, espacio));

@@ -3,14 +3,11 @@ import { site } from "@/content/agencia/site";
 import { categories } from "@/content/agencia/pricing";
 import { WHATSAPP } from "@/lib/agencia/config";
 import { siteUrl } from "@/lib/links";
-import { About } from "./About";
 import { Cta } from "./Cta";
-import { Faq } from "./Faq";
 import { Hero } from "./Hero";
-import { Pricing } from "./Pricing";
-import { Projects } from "./Projects";
-import { Services } from "./Services";
+import { Needs } from "./Needs";
 import { Steps } from "./Steps";
+import { Team } from "./Team";
 
 /**
  * JSON-LD `ProfessionalService`. Se serializa con JSON.stringify y se escapa
@@ -37,18 +34,20 @@ function jsonLd(): string {
   }).replace(/</g, "\\u003c");
 }
 
-/** La home: orden de DISENO.md §4. */
+/**
+ * La home corta (tanda R2, auditoría §6.3): hero → ¿Qué necesitás? → cómo
+ * trabajo → quién te va a atender → cierre. Objetivo medido: ≤ 3,5
+ * pantallas en escritorio y ≤ 5,5 en celular (ver `docs/agencia/INFORME.md`).
+ * El catálogo completo está en `/precios`.
+ */
 export function HomePage() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd() }} />
       <Hero />
-      <Services />
+      <Needs />
       <Steps />
-      <Pricing />
-      <Projects />
-      <About />
-      <Faq />
+      <Team />
       <Cta />
     </>
   );

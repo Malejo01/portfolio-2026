@@ -1,10 +1,17 @@
 import { and, lt, eq } from "drizzle-orm";
+import { limpiarRafagas, mensajesDelDia } from "@/lib/agencia/chat/limits";
+import { alertaDeUso } from "@/lib/agencia/alerta";
 import { getDb, schema } from "@/lib/db";
 
 /**
  * Cron diario (`vercel.json`): borra leads y briefs no convertidos de más de
- * 12 meses (lo que promete `/legal/privacidad`) y los contadores del chat de
- * más de 30 días. Vercel manda `Authorization: Bearer $CRON_SECRET`.
+ * 12 meses (lo que promete `/legal/privacidad`), los contadores del chat de
+ * más de 30 días y las ventanas de ráfaga viejas. Vercel manda
+ * `Authorization: Bearer $CRON_SECRET`.
+ *
+ * S9 · Alerta de uso (tanda R2): si ayer el chat superó
+ * `CHAT_ALERT_THRESHOLD` mensajes (default 300), avisa por email con Resend;
+ * sin Resend deja un `console.warn`. Solo números: sin datos personales.
  */
 export const runtime = "nodejs";
 
@@ -19,6 +26,9 @@ export async function GET(request: Request) {
   const haceUnAno = new Date();
   haceUnAno.setFullYear(haceUnAno.getFullYear() - 1);
   const hace30 = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+  const ayer = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
+  const alerta = await alertaDeUso(ayer, await mensajesDelDia(ayer));
 
   const leads = await db
     .delete(schema.leads)
@@ -29,6 +39,7 @@ export async function GET(request: Request) {
     .where(and(eq(schema.briefs.convertido, false), lt(schema.briefs.createdAt, haceUnAno)))
     .returning({ id: schema.briefs.id });
   await db.delete(schema.chatUsage).where(lt(schema.chatUsage.dia, hace30));
+  await limpiarRafagas();
 
-  return Response.json({ ok: true, leads: leads.length, briefs: briefs.length });
+  return Response.json({ ok: true, leads: leads.length, briefs: briefs.length, alerta });
 }

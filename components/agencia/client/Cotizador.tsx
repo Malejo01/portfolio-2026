@@ -11,21 +11,41 @@ import { MedioSwitch } from "./MedioSwitch";
 
 /**
  * `/cotizador`: elegís planes y extras, el medio de pago, y el total sale de
- * `cotizar()` —la misma función que usan la home, `/servicios` y el agente—.
- * Termina en "Pedí tu demo" (con la selección en la URL) o en WhatsApp con
- * el resumen precargado.
+ * `cotizar()` —la misma función que usan `/precios`, las soluciones y el
+ * agente—. Termina en "Pedí tu demo" (con la selección en la URL) o en
+ * WhatsApp con el resumen precargado.
+ *
+ * Tanda R2 (auditoría P2-1): arranca con "¿Qué necesitás?" y abre solo esa
+ * categoría; las demás quedan en `<details>` cerradas (antes eran 30
+ * tarjetas a la vista, 7,3 pantallas en celular). `?cat=` abre una al
+ * entrar. En celular, mientras haya algo elegido, el total queda fijo abajo.
  */
 export function Cotizador({
   categories,
   extras,
   copy,
   medioCopy,
+  necesidades,
 }: {
   categories: Category[];
   extras: Extra[];
   copy: typeof cotizadorCopy;
   medioCopy: { medioLabel: string; transferencia: string; mp: string; mpChip: string };
+  /** El problema de cada categoría (`servicios.ts`), para las chips de "¿Qué necesitás?". */
+  necesidades: Partial<Record<Category["key"], string>>;
 }) {
+  const [abiertas, setAbiertas] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => {
+      const cat = new URLSearchParams(location.search).get("cat");
+      if (cat && categories.some((c) => c.key === cat)) setAbiertas(new Set([cat]));
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [categories]);
+  const elegir = (key: string) => {
+    setAbiertas((prev) => new Set([...prev, key]));
+    requestAnimationFrame(() => document.getElementById(`cot-${key}`)?.scrollIntoView({ block: "start" }));
+  };
   const [planIds, setPlanIds] = useState<string[]>([]);
   const [extraIds, setExtraIds] = useState<string[]>([]);
   const [medio, setMedio] = useState<Medio>("transferencia");
@@ -52,12 +72,59 @@ export function Cotizador({
 
   return (
     <div className="mt-8 grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
-      <div className="flex flex-col gap-10">
+      <div className="flex flex-col gap-6">
         <MedioSwitch value={medio} onChange={setMedio} label={medioCopy.medioLabel} transferencia={medioCopy.transferencia} mp={medioCopy.mp} mpChip={medioCopy.mpChip} className="self-start" />
 
-        {categories.map((cat) => (
-          <fieldset key={cat.key} className="m-0 border-0 p-0">
-            <legend className="h mb-3 text-[22px]">{cat.label}</legend>
+        <div className="card p-5">
+          <h2 className="h text-[22px]">{copy.pregunta}</h2>
+          <p className="m-0 mt-1 text-sm text-muted">{copy.preguntaHint}</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {categories.map((cat) => {
+              const on = abiertas.has(cat.key);
+              return (
+                <button
+                  key={cat.key}
+                  type="button"
+                  aria-pressed={on}
+                  aria-controls={`cot-${cat.key}`}
+                  onClick={() => elegir(cat.key)}
+                  className={`chip h-11 ${on ? "border-hi-t bg-ic-bg text-acc-text" : ""}`}
+                >
+                  {necesidades[cat.key] ?? cat.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {categories.map((cat) => {
+          const n = cat.plans.filter((p) => planIds.includes(p.id)).length;
+          return (
+          <details
+            key={cat.key}
+            id={`cot-${cat.key}`}
+            open={abiertas.has(cat.key)}
+            onToggle={(e) => {
+              const abierta = (e.currentTarget as HTMLDetailsElement).open;
+              setAbiertas((prev) => {
+                if (prev.has(cat.key) === abierta) return prev;
+                const next = new Set(prev);
+                if (abierta) next.add(cat.key);
+                else next.delete(cat.key);
+                return next;
+              });
+            }}
+            className="plans scroll-mt-[104px] border-t border-border pt-4"
+          >
+            <summary className="flex min-h-11 items-center justify-between gap-3">
+              <span className="h text-[20px] sm:text-[22px]">{cat.label}</span>
+              <span className="flex items-center gap-2 text-sm text-muted">
+                {n ? <span className="tag">{copy.elegidos.replace("{N}", String(n))}</span> : null}
+                <Icon name="arrow" size={16} className="plans-arrow" />
+              </span>
+            </summary>
+          <fieldset className="m-0 mt-3 border-0 p-0">
+            <legend className="sr-only">{cat.label}</legend>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {cat.plans.map((plan) => {
                 const on = planIds.includes(plan.id);
@@ -82,7 +149,7 @@ export function Cotizador({
                       </span>
                     </span>
                     <span className="text-sm text-muted">
-                      {p.etiqueta === "Desde" ? "Desde " : ""}
+                      {p.tipo === "desde" ? `${p.etiqueta} ` : ""}
                       <strong className="text-text">{p.precio == null ? p.texto : fmt(p.precio)}</strong> {p.unidad}
                       {p.abono ? ` + ${fmt(p.abono)}/mes` : ""}
                     </span>
@@ -92,9 +159,11 @@ export function Cotizador({
               })}
             </div>
           </fieldset>
-        ))}
+          </details>
+          );
+        })}
 
-        <fieldset className="m-0 border-0 p-0">
+        <fieldset className="m-0 border-0 border-t border-border p-0 pt-4">
           <legend className="h mb-3 text-[22px]">{copy.extrasLabel}</legend>
           <div className="flex flex-wrap gap-2">
             {extras.map((e) => {
@@ -105,7 +174,7 @@ export function Cotizador({
                   type="button"
                   aria-pressed={on}
                   onClick={() => setExtraIds((l) => toggle(l, e.id))}
-                  className={`chip h-[34px] ${on ? "border-hi-t bg-ic-bg text-acc-text" : ""}`}
+                  className={`chip h-11 ${on ? "border-hi-t bg-ic-bg text-acc-text" : ""}`}
                 >
                   {e.name} <strong>{montoDeExtra(e, medio)}</strong>
                 </button>
@@ -115,7 +184,19 @@ export function Cotizador({
         </fieldset>
       </div>
 
-      <aside aria-labelledby="cotizacion-titulo" className="card hi flex flex-col gap-4 p-6 lg:sticky lg:top-[104px]">
+      {c.items.length ? (
+        <div className="card hi fixed inset-x-2 bottom-2 z-50 flex items-center justify-between gap-3 rounded-[18px] py-2.5 pl-4 pr-20 lg:hidden">
+          <div className="min-w-0">
+            <span className="lbl block text-[10px]">{copy.total}</span>
+            <strong className="h text-[22px]">{fmt(c.total)}</strong>
+          </div>
+          <a href="#cotizacion" className="btn btn-s btn-sm min-h-11 flex-none">
+            {copy.verResumen}
+          </a>
+        </div>
+      ) : null}
+
+      <aside id="cotizacion" aria-labelledby="cotizacion-titulo" className="card hi flex scroll-mt-[104px] flex-col gap-4 p-6 mb-20 lg:mb-0 lg:sticky lg:top-[104px]">
         <div className="flex items-center justify-between">
           <span id="cotizacion-titulo" className="lbl lbl-o">
             {copy.summaryLabel}

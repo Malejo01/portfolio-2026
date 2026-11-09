@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ComboCard, GrandesSteps, PlanCard, type ComboCopy, type GrandesCopy, type PlanCopy } from "@/components/agencia/PlanCard";
 import type { Category, Combo, Extra } from "@/content/agencia/pricing";
-import { OPEN_CATEGORY_EVENT } from "@/lib/agencia/motion";
 import { MedioSwitch } from "./MedioSwitch";
 import { montoDeExtra, type Medio } from "@/lib/agencia/pricing";
 
@@ -14,9 +13,12 @@ import { montoDeExtra, type Medio } from "@/lib/agencia/pricing";
  *
  * - Medio de pago: `role="radiogroup"`; Mercado Pago recalcula todo (+6 %,
  *   redondeo a $100). Las líneas `alt` son texto literal y no se recalculan.
- * - Pestañas: `role="tablist"` con flechas, Inicio y Fin.
- * - "Ver precios →" de los servicios abre una pestaña por evento
- *   (`OPEN_CATEGORY_EVENT`); `?cat=<key>` en la URL también.
+ * - Pestañas: `role="tablist"` con flechas, Inicio y Fin, desde `sm`. En
+ *   celular las 7 pestañas no entraban y no se notaba que había más
+ *   (auditoría P1-6): ahí va un `<select>` nativo con las mismas opciones.
+ * - `?cat=<key>` en la URL abre esa pestaña.
+ * - Las "otras formas de pago" de la categoría (`plan.alt`) van debajo de
+ *   la grilla, no dentro de la tarjeta (tanda R2).
  *
  * `heading` es el encabezado de la sección (Server Component), para que el
  * selector quede a su derecha como en la captura.
@@ -30,6 +32,8 @@ export interface CatalogCopy extends PlanCopy, ComboCopy {
   mp: string;
   mpChip: string;
   tabsLabel: string;
+  selectLabel: string;
+  otrasFormasLabel: string;
   combosLabel: string;
   combosTitle: string;
   extrasLabel: string;
@@ -72,12 +76,7 @@ export function PricingCatalog({
       const fromUrl = new URLSearchParams(window.location.search).get("cat");
       if (fromUrl) open(fromUrl);
     });
-    const onOpen = (e: Event) => open(String((e as CustomEvent).detail));
-    window.addEventListener(OPEN_CATEGORY_EVENT, onOpen);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener(OPEN_CATEGORY_EVENT, onOpen);
-    };
+    return () => cancelAnimationFrame(raf);
   }, [open]);
 
   const onTabKey = (e: React.KeyboardEvent, i: number) => {
@@ -113,10 +112,31 @@ export function PricingCatalog({
       </div>
 
       {single ? null : (
+        <div className="mt-6 sm:hidden">
+          <label htmlFor={`${idPrefix}-select`} className="lbl mb-2 block">
+            {copy.selectLabel}
+          </label>
+          <select
+            id={`${idPrefix}-select`}
+            value={category.key}
+            onChange={(e) => setActive(e.target.value as Category["key"])}
+            aria-controls={`${idPrefix}-panel`}
+            className="h-12 w-full rounded-[14px] border border-border-2 bg-surf px-3.5 text-[16px] font-semibold text-text"
+          >
+            {categories.map((c) => (
+              <option key={c.key} value={c.key}>
+                {c.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {single ? null : (
         <div
           role="tablist"
           aria-label={copy.tabsLabel}
-          className="no-scrollbar mt-7 flex gap-1.5 overflow-x-auto rounded-[20px] border border-border bg-surf p-1.5 sm:flex-wrap sm:overflow-visible"
+          className="mt-7 hidden flex-wrap gap-1.5 rounded-[20px] border border-border bg-surf p-1.5 sm:flex"
         >
           {categories.map((c, i) => {
             const on = c.key === category.key;
@@ -161,6 +181,20 @@ export function PricingCatalog({
           </div>
         )}
         <p className="mb-0 mt-3.5 text-[13px] text-muted">{category.note}</p>
+        {category.plans.some((p) => p.alt) ? (
+          <div className="mt-3 text-[13px] text-muted">
+            <span className="lbl text-[10px]">{copy.otrasFormasLabel}</span>
+            <ul className="m-0 mt-1 list-none p-0">
+              {category.plans
+                .filter((p) => p.alt)
+                .map((p) => (
+                  <li key={p.id}>
+                    <strong className="text-text">{p.name}:</strong> {p.alt}
+                  </li>
+                ))}
+            </ul>
+          </div>
+        ) : null}
       </div>
 
       {combos.length ? (

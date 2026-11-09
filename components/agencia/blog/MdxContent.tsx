@@ -15,11 +15,18 @@ function Precio({ id }: { id: string }) {
   const p = precioDePlan(plan, "transferencia");
   return (
     <strong className="text-text">
-      {p.etiqueta === "Desde" ? "desde " : ""}
+      {p.tipo === "desde" ? "desde " : ""}
       {p.precio == null ? p.texto : fmt(p.precio)}
       {p.abono ? ` + ${fmt(p.abono)}/mes` : ""}
     </strong>
   );
+}
+
+/** El nombre vigente de un plan: el post no se desactualiza si cambia. */
+function Plan({ id }: { id: string }) {
+  const plan = getPlan(id);
+  if (!plan) return <mark>[plan desconocido: {id}]</mark>;
+  return <>{plan.name}</>;
 }
 
 function Combo({ id }: { id: string }) {
@@ -43,5 +50,5 @@ function A({ href = "", children }: { href?: string; children?: React.ReactNode 
 /** Compila el MDX en el build (Server Component). */
 export async function MdxContent({ source }: { source: string }) {
   const { default: Content } = await evaluate(source, { ...runtime, baseUrl: import.meta.url });
-  return <Content components={{ Precio, Combo, Recargo, a: A }} />;
+  return <Content components={{ Plan, Precio, Combo, Recargo, a: A }} />;
 }

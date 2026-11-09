@@ -1,11 +1,15 @@
 import {
+  etiquetasPrecio,
   getCombo,
   getExtra,
   getPlan,
   recargoMercadoPago,
+  resolverId,
+  resumenCopy,
   type Combo,
   type Extra,
   type Plan,
+  type TipoPrecio,
 } from "@/content/agencia/pricing";
 import { fmt, fmtUsd } from "./format";
 
@@ -115,7 +119,7 @@ function itemDeCombo(combo: Combo, medio: Medio): ItemCotizado {
   return {
     id: combo.id,
     tipo: "combo",
-    nombre: `Combo ${combo.name}`,
+    nombre: `${resumenCopy.combo} ${combo.name}`,
     implementacion: conRecargo(combo.price, medio),
     mensual: conRecargo(combo.monthly, medio),
     anual: 0,
@@ -148,7 +152,8 @@ export function cotizar({
   tipoDeCambio?: number;
 }): Cotizacion {
   const desconocidos: string[] = [];
-  const pedidos = [...planIds];
+  // Ids viejos (`combo-web-turnos`) se cotizan con su reemplazo.
+  const pedidos = planIds.map(resolverId);
   const extrasPedidos: string[] = [];
   for (const id of new Set(extras)) {
     if (getPlan(id) && !getExtra(id)) pedidos.push(id);
@@ -238,17 +243,24 @@ export function montoDeExtra(extra: Pick<Extra, "price" | "aCotizar">, medio: Me
   return extra.price == null ? extra.aCotizar : fmt(conRecargo(extra.price, medio));
 }
 
-/** Lo que se muestra en grande en la tarjeta de un plan (DISENO.md §4 Precios). */
+/**
+ * Lo que se muestra en grande en la tarjeta de un plan (DISENO.md §4 Precios).
+ * `tipo` es para la lógica; `etiqueta` es copy (`content/agencia/pricing.ts`).
+ * En los planes de pago único no se repite "pago único" como unidad: ya lo
+ * dice la etiqueta.
+ */
 export function precioDePlan(plan: Plan, medio: Medio) {
   const aCotizar = plan.impl == null && plan.monthly == null;
-  const soloAbono = plan.impl == null && !aCotizar;
+  const soloMensual = plan.impl == null && !aCotizar;
+  const tipo: TipoPrecio = aCotizar ? "aCotizar" : soloMensual ? "mensual" : plan.from ? "desde" : "unico";
   return {
-    etiqueta: aCotizar ? "A cotizar" : soloAbono ? "Abono" : plan.from ? "Desde" : "Implementación",
+    tipo,
+    etiqueta: etiquetasPrecio[tipo] as string,
     /** `null` = sin precio fijo: mostrar `texto`. */
-    precio: aCotizar ? null : conRecargo(soloAbono ? (plan.monthly ?? 0) : plan.impl!, medio),
+    precio: aCotizar ? null : conRecargo(soloMensual ? (plan.monthly ?? 0) : plan.impl!, medio),
     texto: plan.aCotizar,
-    unidad: soloAbono ? "/mes" : plan.unit,
-    abono: !soloAbono && plan.monthly ? conRecargo(plan.monthly, medio) : null,
+    unidad: soloMensual ? "/mes" : tipo === "unico" && plan.unit === "pago único" ? "" : plan.unit,
+    abono: !soloMensual && plan.monthly ? conRecargo(plan.monthly, medio) : null,
   };
 }
 
@@ -256,7 +268,8 @@ export function precioDePlan(plan: Plan, medio: Medio) {
 export interface FilaComparacion {
   id: string;
   nombre: string;
-  /** "Desde", "Implementación", "Abono", "Combo" o "A cotizar". */
+  tipo: TipoPrecio;
+  /** Copy de `etiquetasPrecio`: "Desde", "Pago único", "Cuota mensual", "Combo" o "A cotizar". */
   etiqueta: string;
   /** Monto principal. `null` = a cotizar (ver `texto`). */
   precio: number | null;
@@ -264,10 +277,10 @@ export interface FilaComparacion {
   unidad: string;
   /** Abono mensual aparte del precio principal, si hay. */
   abono: number | null;
-  /** Alternativa por abono del catálogo ("O por abono: …"), literal. */
+  /** Otra forma de pago del catálogo ("Otra forma de pago: …"), literal. */
   alt: string;
   plazo: string;
-  /** Para quién es: el primer ítem del plan o lo que incluye el combo. */
+  /** Para quién es (planes) o lo que incluye (combos). */
   paraQuien: string;
   recomendado: boolean;
   usd?: { precio: number; abono: number };
@@ -299,7 +312,7 @@ export function comparar({
   const desconocidos: string[] = [];
   const conUsd = tipoDeCambio && tipoDeCambio > 0 ? tipoDeCambio : undefined;
 
-  for (const id of new Set(ids)) {
+  for (const id of new Set(ids.map(resolverId))) {
     const plan = getPlan(id);
     const combo = getCombo(id);
     if (plan) {
@@ -307,6 +320,7 @@ export function comparar({
       filas.push({
         id,
         nombre: plan.name,
+        tipo: p.tipo,
         etiqueta: p.etiqueta,
         precio: p.precio,
         texto: p.texto,
@@ -314,7 +328,7 @@ export function comparar({
         abono: p.abono,
         alt: plan.alt,
         plazo: plan.time,
-        paraQuien: plan.items[0] ?? "",
+        paraQuien: plan.paraQuien || (plan.items[0] ?? ""),
         recomendado: plan.rec,
         ...(conUsd ? { usd: { precio: aUsd(p.precio ?? 0, conUsd), abono: aUsd(p.abono ?? 0, conUsd) } } : {}),
       });
@@ -323,11 +337,12 @@ export function comparar({
       const abono = conRecargo(combo.monthly, medio);
       filas.push({
         id,
-        nombre: `Combo ${combo.name}`,
-        etiqueta: "Combo",
+        nombre: `${resumenCopy.combo} ${combo.name}`,
+        tipo: "combo",
+        etiqueta: etiquetasPrecio.combo,
         precio,
         texto: "",
-        unidad: "pago único",
+        unidad: "",
         abono,
         alt: "",
         plazo: "",
@@ -341,24 +356,24 @@ export function comparar({
   return { medio, filas, desconocidos, ...(conUsd ? { tipoDeCambio: conUsd } : {}) };
 }
 
-/** Texto plano de una cotización, para WhatsApp y para el agente. */
+/** Texto plano de una cotización, para WhatsApp y para el agente. Copy: `resumenCopy`. */
 export function resumenCotizacion(c: Cotizacion): string {
+  const r = resumenCopy;
   const lineas = c.items.map((i) => {
     const partes = [
-      i.implementacion ? `${i.desde ? "desde " : ""}${fmt(i.implementacion)}` : "",
-      i.mensual ? `${fmt(i.mensual)}/mes` : "",
-      i.anual ? `${fmt(i.anual)}/año` : "",
+      i.implementacion ? `${i.desde ? `${r.desde} ` : ""}${fmt(i.implementacion)}` : "",
+      i.mensual ? `${fmt(i.mensual)}${r.porMes}` : "",
+      i.anual ? `${fmt(i.anual)}${r.porAnio}` : "",
       i.aCotizar,
     ].filter(Boolean);
     return `• ${i.nombre}: ${partes.join(" + ")}`;
   });
-  const medio = c.medio === "mp" ? "Mercado Pago" : "transferencia";
   return [
     ...lineas,
-    `Implementación: ${c.desde ? "desde " : ""}${fmt(c.implementacion)}`,
-    c.abonoMensual ? `Abono: ${fmt(c.abonoMensual)}/mes` : "",
-    c.usd ? `≈ ${fmtUsd(c.usd.implementacion)}${c.usd.abonoMensual ? ` + ${fmtUsd(c.usd.abonoMensual)}/mes` : ""} (dólar oficial del día)` : "",
-    `Pago por ${medio}.`,
+    `${r.unico}: ${c.desde ? `${r.desde} ` : ""}${fmt(c.implementacion)}`,
+    c.abonoMensual ? `${r.mensual}: ${fmt(c.abonoMensual)}${r.porMes}` : "",
+    c.usd ? `≈ ${fmtUsd(c.usd.implementacion)}${c.usd.abonoMensual ? ` + ${fmtUsd(c.usd.abonoMensual)}${r.porMes}` : ""} ${r.usd}` : "",
+    `${r.pagoPor} ${r.medio[c.medio]}.`,
   ]
     .filter(Boolean)
     .join("\n");

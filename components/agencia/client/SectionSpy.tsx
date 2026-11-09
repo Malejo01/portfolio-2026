@@ -8,12 +8,15 @@ import { useEffect } from "react";
  * explorador de celular) con `data-nav-section="<id>"`, y esto solo les
  * cambia el atributo. Así la copy del menú no viaja en el bundle.
  *
- * Fuera de la home la sección sale del pathname (`/blog/...` → blog).
+ * Fuera de la home la sección sale del pathname: cada página marca **su**
+ * ítem (`/servicios/*` → Soluciones, `/precios` → Precios, `/blog/*` →
+ * Blog). `/cotizador`, `/demo` y los legales no marcan ninguno: antes
+ * Precios quedaba activo en `/servicios` y `/cotizador` (auditoría P1-9).
  */
 const ROUTE_SECTIONS: [prefix: string, section: string][] = [
   ["/blog", "blog"],
-  ["/servicios", "precios"],
-  ["/cotizador", "precios"],
+  ["/servicios", "servicios"],
+  ["/precios", "precios"],
 ];
 
 function mark(section: string | null) {

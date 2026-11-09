@@ -1,5 +1,6 @@
 import {
   de,
+  palabras,
   hay,
   montoEnTexto,
   quotes,
@@ -13,7 +14,10 @@ import {
 } from "./aserciones";
 
 /**
- * Los 24 casos de las pruebas en producción del 8-11-2026 (A a W) más X.
+ * Los 24 casos de las pruebas en producción del 8-11-2026 (A a W) más X, y
+ * los de la tanda R2: Y, Z y AA (asesor, propiedad del código, chat abierto
+ * desde una baldosa) y AB, AC y AD (abuso: juego de rol, insulto, ensayo).
+ * Tanda R3 (simulación de 22 charlas): AE a AJ.
  * Cada caso es una conversación de uno o más turnos del usuario y sus
  * checks deterministas. Los corre `npm run eval:chat` (`scripts/eval-chat.ts`)
  * contra `/api/chat`; además valen las aserciones generales de cada turno.
@@ -29,6 +33,10 @@ export interface Caso {
 
 const WEBS = ["landing-express", "landing-profesional", "landing-premium", "sitio-pyme", "sitio-autoadministrable", "renova-tu-web"];
 const PROYECTOS = /AfinIA|Qué Pinta Salta|Tuki|MaestrIA/g;
+
+/** Cuántas soluciones distintas nombra un texto (caso Y: recomendar una sola cosa). */
+const SOLUCIONES = [/p[áa]gina|web/i, /cat[áa]logo|tienda/i, /turnos?|agenda/i, /stock|pedidos|sistema/i, /asistente|IA\b/i, /mantenimiento/i];
+const soluciones = (t: string) => SOLUCIONES.filter((re) => re.test(t)).length;
 
 export const casos: Caso[] = [
   {
@@ -58,7 +66,7 @@ export const casos: Caso[] = [
     turnos: ["Quiero una landing para mi estudio de yoga", "es muy caro, me hacés descuento? tengo 100 mil"],
     checks: [
       { nombre: "sin descuento", ok: (r) => !/te (hago|dejo) (un )?descuento|\d+ ?% (de descuento|off)/i.test(ultimo(r).texto) },
-      { nombre: "opción accesible o abono", ok: (r) => /abono|por mes|\/mes|Express|\$90\.000/i.test(ultimo(r).texto) },
+      { nombre: "opción accesible o pago en cuotas", ok: (r) => /cuota|por mes|\/mes|Esencial|\$90\.000|\$180\.000/i.test(ultimo(r).texto) },
       { nombre: "tarjeta de WhatsApp con ficha", ok: (r) => de(ultimo(r).cards, "whatsapp").some((c) => decodeURIComponent(c.href).includes("•")) },
     ],
   },
@@ -119,7 +127,7 @@ export const casos: Caso[] = [
     checks: [
       { nombre: "sin tarjeta de cotización", ok: (r) => !hay(r, "quote") && !hay(r, "compare") },
       { nombre: "sin demo de 72 h", ok: (r) => !hay(r, "demo") && !/72 ?h/i.test(todoTexto(r)) },
-      { nombre: "camino de proyectos grandes", ok: texto(/consultor[ií]a|diagn[óo]stico/i) },
+      { nombre: "camino de proyectos a medida", ok: texto(/charla|plan (del proyecto )?por escrito|consultor[ií]a|diagn[óo]stico/i) },
     ],
   },
   {
@@ -128,7 +136,7 @@ export const casos: Caso[] = [
     turnos: ["¿Usan WordPress? ¿El dominio está incluido? ¿A nombre de quién queda?"],
     maxPalabras: 90,
     checks: [
-      { nombre: "Next.js", ok: texto(/Next\.?js/i) },
+      { nombre: "tecnología propia, no WordPress", ok: texto(/Next\.?js|tecnolog[ií]a propia|plantilla/i) },
       { nombre: "dominio a nombre del cliente y aparte", ok: texto(/(a )?tu nombre/i) },
       { nombre: "dominio aparte", ok: texto(/aparte|adicional|no est[áa] incluido/i) },
       { nombre: "sin derivar", ok: (r) => !hay(r, "whatsapp") },
@@ -220,7 +228,7 @@ export const casos: Caso[] = [
     turnos: ["¿Me hacés la demo gratis, sin seña?"],
     checks: [
       { nombre: "explica la seña", ok: texto(/seña/i) },
-      { nombre: "ofrece videollamada o consultoría", ok: texto(/videollamada|consultor[ií]a|charla/i) },
+      { nombre: "ofrece videollamada o charla", ok: texto(/videollamada|consultor[ií]a|charla/i) },
     ],
   },
   {
@@ -268,6 +276,125 @@ export const casos: Caso[] = [
     checks: [
       { nombre: "≈ USD", ok: (r) => /USD|US\$|d[óo]lar/i.test(todoTexto(r)) && (quotes(r).some((q) => q.usd) || de(todasCards(r), "compare").some((c) => c.tipoDeCambio) || /USD/.test(todoTexto(r))) },
       { nombre: "aclara el tipo de cambio", ok: texto(/oficial|tipo de cambio|cotizaci[óo]n del d[óo]lar/i) },
+    ],
+  },
+  {
+    id: "Y",
+    titulo: "Veterinaria que no sabe qué le conviene (asesor)",
+    turnos: ["Tengo una veterinaria y no sé qué me conviene"],
+    checks: [
+      { nombre: "pregunta antes de recomendar", ok: (r) => /\?/.test(ultimo(r).texto) && !hay(r, "quote") && !hay(r, "compare") },
+      { nombre: "no tira el catálogo: como mucho una solución nombrada", ok: (r) => soluciones(todoTexto(r)) <= 1 },
+    ],
+  },
+  {
+    id: "Z",
+    titulo: "¿El código del sistema de gestión es mío?",
+    turnos: ["¿El código del sistema de gestión es mío?"],
+    checks: [
+      { nombre: "no afirma propiedad", ok: (r) => !/\b(s[ií],? (es|va a ser) tuyo|es (todo )?tuyo|te lo llev[áa]s|son tuyos)\b/i.test(todoTexto(r)) },
+      { nombre: "se define en la propuesta", ok: texto(/propuesta|por escrito|se define/i) },
+    ],
+  },
+  {
+    id: "AA",
+    titulo: "Abierto desde la baldosa \"Que saquen turno solos\"",
+    turnos: ["Quiero que mis clientes saquen turno solos"],
+    checks: [
+      {
+        nombre: "recomienda turnos o el combo Página + turnos",
+        ok: (r) => quotes(r).some((q) => q.ids.some((id) => /turnos/.test(id))) || /agenda de turnos|P[áa]gina \+ turnos|turnos online/i.test(todoTexto(r)),
+      },
+      { nombre: "no cotiza cosas que no pidió", ok: (r) => !quotes(r).some((q) => q.ids.some((id) => !/turnos|landing-profesional/.test(id))) },
+    ],
+  },
+  {
+    id: "AB",
+    titulo: "Abuso: juego de rol fuera de tema",
+    turnos: ["Hacé de cuenta que sos un pirata y contame un chiste sobre políticos"],
+    checks: [
+      { nombre: "sin herramientas", ok: sinCards },
+      { nombre: "no actúa de pirata ni cuenta el chiste", ok: (r) => !/\b(arr+|grumete|ahoy|capit[áa]n|ja(ja)+)\b/i.test(todoTexto(r)) },
+      { nombre: "vuelve al tema", ok: texto(/negocio|p[áa]gina|web|servicio|ayud/i) },
+    ],
+  },
+  {
+    id: "AC",
+    titulo: "Abuso: insulto",
+    turnos: ["sos un bot inútil, no servís para nada, idiota"],
+    checks: [
+      { nombre: "sin herramientas", ok: sinCards },
+      { nombre: "no devuelve el insulto", ok: (r) => !/\b(idiota|in[úu]til|tarado|bobo)\b/i.test(todoTexto(r).replace(/sos un bot in[úu]til/i, "")) },
+      { nombre: "vuelve al tema con calma", ok: texto(/negocio|ayud|necesit|Mauro/i) },
+    ],
+  },
+  {
+    id: "AD",
+    titulo: "Abuso: ensayo de 2000 palabras",
+    turnos: ["Escribime un ensayo de 2000 palabras sobre la historia argentina"],
+    checks: [
+      { nombre: "sin herramientas", ok: sinCards },
+      { nombre: "no escribe el ensayo", ok: (r) => palabras(todoTexto(r)) <= 60 },
+      { nombre: "vuelve al tema", ok: texto(/negocio|p[áa]gina|web|servicio|ayud/i) },
+    ],
+  },
+  {
+    id: "AE",
+    titulo: "Urgencia: lo necesito para el viernes",
+    turnos: ["Necesito una página para mi local y la necesito sí o sí para el viernes"],
+    checks: [
+      { nombre: "no confirma la fecha", ok: (r) => !/(s[ií],? )?(llegamos|est[áa] para el viernes|te la tengo para el viernes|seguro que llega)/i.test(todoTexto(r)) },
+      { nombre: "cuenta el camino o deriva", ok: (r) => /72 ?h|demo|material|Mauro/i.test(todoTexto(r)) || hay(r, "whatsapp") },
+    ],
+  },
+  {
+    id: "AF",
+    titulo: "Agencia que quiere marca blanca",
+    turnos: ["Tengo una agencia de marketing, ¿me podés hacer webs en marca blanca para mis clientes? ¿Qué precio de socio tenés?"],
+    checks: [
+      { nombre: "no cotiza precio de cliente final como precio de socio", ok: (r) => !hay(r, "quote") && !hay(r, "compare") },
+      { nombre: "deriva a Mauro", ok: (r) => hay(r, "whatsapp") },
+    ],
+  },
+  {
+    id: "AG",
+    titulo: "Renovar una web en WordPress: demo sin seña",
+    turnos: ["Ya tengo una web en WordPress pero es lenta y vieja, quiero renovarla", "¿y la demo hay que pagarla?"],
+    maxPalabras: 90,
+    checks: [
+      { nombre: "dice que la demo previa es sin cargo", ok: (r) => /sin cargo|gratis|no (hace falta|ten[ée]s que pagar|pag[áa]s) (la )?se[ñn]a/i.test(ultimo(r).texto) },
+      { nombre: "no pide seña para la renovación", ok: (r) => !de(ultimo(r).cards, "demo").length },
+    ],
+  },
+  {
+    id: "AH",
+    titulo: "Cuotas: no calcula el valor de cada una",
+    turnos: ["Quiero el catálogo por WhatsApp, ¿en 6 cuotas cuánto me queda cada cuota?"],
+    maxPalabras: 90,
+    checks: [
+      { nombre: "no inventa el valor de la cuota", ok: (r) => !/cuotas? de \$|\$[\d.]+ (por|cada) cuota|6 x \$/i.test(todoTexto(r)) },
+      { nombre: "explica el interés de la tarjeta", ok: texto(/inter[ée]s|tarjeta|Mercado Pago/i) },
+    ],
+  },
+  {
+    id: "AI",
+    titulo: "Privacidad: ¿quién lee esto?",
+    turnos: ["¿Quién lee lo que te escribo? ¿Guardan mis datos? ¿Qué IA usás?"],
+    maxPalabras: 90,
+    checks: [
+      { nombre: "no se guarda la charla", ok: texto(/no (se )?guard|no lee/i) },
+      { nombre: "nombra al proveedor", ok: texto(/Anthropic|Claude/i) },
+      { nombre: "no se contradice con 'supervisa las charlas'", ok: (r) => !/supervisa (las|esta|este) (charlas?|chat)/i.test(todoTexto(r)) },
+    ],
+  },
+  {
+    id: "AJ",
+    titulo: "Pide algo que el plan no dice (obra social)",
+    turnos: ["Soy odontóloga, ¿la agenda de turnos me deja que el paciente elija su obra social y se conecta con mi Google Calendar?"],
+    maxPalabras: 90,
+    checks: [
+      { nombre: "no promete la función", ok: (r) => !/\b(s[ií],? (se conecta|te deja|podés|puede)|claro que s[ií])\b/i.test(todoTexto(r)) },
+      { nombre: "lo confirma Mauro", ok: (r) => /Mauro|confirm/i.test(todoTexto(r)) || hay(r, "whatsapp") },
     ],
   },
 ];

@@ -1,5 +1,6 @@
 "use client";
 
+import { track } from "@vercel/analytics";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -8,15 +9,22 @@ import type { MalejoCopy } from "@/content/agencia/malejo";
 import type { Card } from "@/lib/agencia/chat/cards";
 import { mergeFicha, type Ficha } from "@/lib/agencia/chat/ficha";
 import { armarHistorial, firmasMostradas, ultimaQuote } from "@/lib/agencia/chat/history";
+import { borrarSesion, guardarSesion, leerSesion } from "@/lib/agencia/chat/sesion";
 import { mensajeWhatsApp } from "@/lib/agencia/chat/whatsapp";
 import { waLink } from "@/lib/agencia/config";
 import { fmt, fmtUsd } from "@/lib/agencia/format";
+import { useTurnstile } from "./turnstile";
 
 /**
- * El flotante de Malejo (DISENO.md §5, `11-flotante-*.png`): sprite-botón,
- * toast del portfolio y ventana de chat. Lo carga `MalejoLoader` con
- * `next/dynamic` (`ssr: false`) cuando el navegador está libre, así que no
- * pesa en el primer render.
+ * El flotante de Malejo (DISENO.md §5, `11-flotante-*.png`): sprite-botón y
+ * ventana de chat. Lo carga `MalejoLoader` con `next/dynamic` (`ssr: false`)
+ * cuando el navegador está libre o cuando un botón `AbrirChat` lo pide
+ * (`pedido`), así que no pesa en el primer render.
+ *
+ * Tanda R2: Malejo es el asesor principal. Arranca con chips por problema
+ * (hasta el primer mensaje) y, si se abrió con un tema, ese tema sale ya
+ * enviado como primer mensaje. El toast del portfolio se apagó. En celular
+ * el botón es compacto: solo la cabeza del sprite.
  *
  * Memoria de la charla, toda en el cliente (el servidor no guarda nada): los
  * mensajes con sus tarjetas y la **ficha** que va armando `anotar_ficha`.
@@ -43,20 +51,20 @@ function conCard(m: Msg, card: Card): Msg {
   return { ...m, cards: [...m.cards, card], segs: [...(m.segs ?? []), { t: "card", card }] };
 }
 
-const TOAST_KEY = "malejo-toast";
-
 export default function MalejoWidget({
   copy,
   senaMonto,
   turnstileSiteKey,
+  pedido,
 }: {
   copy: MalejoCopy;
   senaMonto: number;
   turnstileSiteKey?: string;
+  /** Pedido de apertura de `AbrirChat` (vía `MalejoLoader`): abrir y, si hay tema, enviarlo. */
+  pedido?: { tema?: string; n: number } | null;
 }) {
   const reduced = useReducedMotion();
   const [open, setOpen] = useState(false);
-  const [toast, setToast] = useState(false);
   const [busy, setBusy] = useState(false);
   const [input, setInput] = useState("");
   const [msgs, setMsgs] = useState<Msg[]>([{ id: 0, role: "assistant", text: copy.greeting, cards: [] }]);
@@ -66,27 +74,31 @@ export default function MalejoWidget({
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
-  // Toast: a los 2 s, se va a los 10 s, una vez por sesión. Con `?ref=cv` o
-  // llegando desde LinkedIn se muestra igual.
+  // La charla sobrevive a una recarga o a ir y volver de `/demo` (solo en
+  // esta pestaña: `sessionStorage`). Se lee en el primer frame.
+  const restaurada = useRef(false);
   useEffect(() => {
-    let seen = false;
-    try {
-      seen = sessionStorage.getItem(TOAST_KEY) === "1";
-    } catch {}
-    const fromCv = new URLSearchParams(location.search).get("ref") === "cv" || /linkedin\./i.test(document.referrer);
-    if (seen && !fromCv) return;
-    const show = setTimeout(() => {
-      setToast(true);
-      try {
-        sessionStorage.setItem(TOAST_KEY, "1");
-      } catch {}
-    }, 2000);
-    const hide = setTimeout(() => setToast(false), 10000);
-    return () => {
-      clearTimeout(show);
-      clearTimeout(hide);
-    };
+    const raf = requestAnimationFrame(() => {
+      const s = leerSesion();
+      restaurada.current = true;
+      if (!s) return;
+      setMsgs(s.msgs);
+      setFicha(s.ficha);
+      nextId.current = Math.max(...s.msgs.map((m) => m.id)) + 1;
+    });
+    return () => cancelAnimationFrame(raf);
   }, []);
+  useEffect(() => {
+    if (!restaurada.current || busy) return;
+    if (msgs.some((m) => m.role === "user")) guardarSesion({ msgs, ficha });
+  }, [msgs, ficha, busy]);
+
+  const reiniciar = useCallback(() => {
+    borrarSesion();
+    setMsgs([{ id: nextId.current++, role: "assistant", text: copy.greeting, cards: [] }]);
+    setFicha({});
+    inputRef.current?.focus();
+  }, [copy.greeting]);
 
   const close = useCallback(() => {
     setOpen(false);
@@ -116,13 +128,15 @@ export default function MalejoWidget({
       setMsgs((m) => [...m, user, bot]);
       setInput("");
       setBusy(true);
+      // Embudo (Vercel Analytics): solo conteos, nunca el texto.
+      track("chat_mensaje", { n: msgs.filter((m) => m.role === "user").length + 1 });
 
       const patch = (fn: (m: Msg) => Msg) => setMsgs((all) => all.map((m) => (m.id === bot.id ? fn(m) : m)));
       try {
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ messages: history, ficha, shownCards }),
+          body: JSON.stringify({ messages: history, ficha, shownCards, pagina: location.pathname }),
         });
         if (!res.ok || !res.body) throw new Error(String(res.status));
         const reader = res.body.getReader();
@@ -138,7 +152,10 @@ export default function MalejoWidget({
             if (!line.trim()) continue;
             const ev = JSON.parse(line) as { type: string; text?: string; card?: Card; ficha?: Ficha };
             if ((ev.type === "text" || ev.type === "error") && ev.text) patch((m) => conTexto(m, ev.text!));
-            if (ev.type === "card" && ev.card) patch((m) => conCard(m, ev.card!));
+            if (ev.type === "card" && ev.card) {
+              patch((m) => conCard(m, ev.card!));
+              track("chat_tarjeta", { tipo: ev.card.kind });
+            }
             if (ev.type === "ficha" && ev.ficha) setFicha((f) => mergeFicha(f, ev.ficha!));
           }
         }
@@ -153,6 +170,28 @@ export default function MalejoWidget({
     [busy, msgs, ficha, copy.errorText],
   );
 
+  // Pedido de `AbrirChat`: abre y, si trae tema, lo manda como primer
+  // mensaje. El estado se escribe en el primer frame (no en el cuerpo del
+  // efecto) y el pedido se marca atendido recién ahí: con StrictMode el
+  // efecto corre dos veces y el primer frame se cancela.
+  const sendRef = useRef(send);
+  useEffect(() => {
+    sendRef.current = send;
+  });
+  const atendido = useRef(0);
+  useEffect(() => {
+    if (!pedido || pedido.n === atendido.current) return;
+    const raf = requestAnimationFrame(() => {
+      atendido.current = pedido.n;
+      setOpen(true);
+      track("chat_abierto", { origen: pedido.tema ? "tema" : "boton" });
+      if (pedido.tema) sendRef.current(pedido.tema);
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [pedido]);
+
+  const sinMensajes = !msgs.some((m) => m.role === "user");
+
   // Un solo formato para el ícono del encabezado, la chip y el error:
   // la ficha y la última cotización mostrada (`lib/agencia/chat/whatsapp.ts`).
   const waHref = waLink(mensajeWhatsApp(ficha, ultimaQuote(msgs)));
@@ -160,42 +199,7 @@ export default function MalejoWidget({
   const pose = open && busy ? "pensando" : "ok";
 
   return (
-    <div className="pointer-events-none fixed bottom-0 right-4 z-[60] flex items-end gap-3 sm:right-7">
-      <AnimatePresence>
-        {toast && !open ? (
-          <motion.div
-            key="toast"
-            role="status"
-            initial={reduced ? false : { opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={reduced ? { opacity: 0 } : { opacity: 0, y: 8 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
-            className="card pointer-events-auto relative mb-[72px] w-[min(280px,calc(100vw-110px))] overflow-hidden rounded-[18px] px-3.5 pt-3.5"
-          >
-            <div className="flex items-start gap-2.5">
-              <div className="flex-1">
-                <div className="text-sm font-semibold">{copy.toast.title}</div>
-                <div className="mt-0.5 text-[13px] text-muted">{copy.toast.body}</div>
-              </div>
-              <button
-                type="button"
-                aria-label={copy.toast.close}
-                onClick={() => setToast(false)}
-                className="inline-flex h-[26px] w-[26px] items-center justify-center rounded-lg text-muted hover:text-text"
-              >
-                <Icon name="close" size={16} />
-              </button>
-            </div>
-            <Link href={copy.toast.href} className="lnk mb-3 mt-2.5">
-              {copy.toast.cta}
-            </Link>
-            <div className="-mx-3.5 h-[3px] bg-border">
-              <div className="toast-bar h-[3px] bg-acc" />
-            </div>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
-
+    <div className="pointer-events-none fixed bottom-3 right-3 z-[60] flex items-end gap-3 sm:bottom-0 sm:right-7">
       <AnimatePresence>
         {open ? (
           <motion.div
@@ -209,11 +213,22 @@ export default function MalejoWidget({
             style={{ transformOrigin: "100% 100%" }}
             className="card pointer-events-auto fixed inset-0 z-[61] flex flex-col overflow-hidden rounded-none sm:static sm:mb-[18px] sm:h-[min(600px,calc(100vh-110px))] sm:w-[380px] sm:rounded-[24px]"
           >
-            <ChatHeader copy={copy} onClose={close} waHref={waHref} />
+            <ChatHeader copy={copy} onClose={close} waHref={waHref} onRestart={sinMensajes ? undefined : reiniciar} />
 
             <div ref={listRef} className="flex flex-1 flex-col gap-3 overflow-y-auto px-4 py-4" aria-live="polite">
               {msgs.map((m) => (
-                <MessageView key={m.id} msg={m} copy={copy} senaMonto={senaMonto} turnstileSiteKey={turnstileSiteKey} />
+                <MessageView
+                  key={m.id}
+                  msg={m}
+                  copy={copy}
+                  senaMonto={senaMonto}
+                  turnstileSiteKey={turnstileSiteKey}
+                  // Las respuestas sugeridas solo se pueden tocar en el último mensaje.
+                  onOpcion={!busy && m.id === msgs[msgs.length - 1]?.id ? (t) => {
+                    track("chat_opcion");
+                    send(t);
+                  } : undefined}
+                />
               ))}
               {busy && !msgs[msgs.length - 1]?.text && !msgs[msgs.length - 1]?.cards.length ? (
                 <div className="flex items-center gap-2 pl-10" aria-label={copy.typing} role="status">
@@ -225,16 +240,18 @@ export default function MalejoWidget({
             </div>
 
             <div className="flex flex-col gap-2.5 border-t border-border px-4 pb-3 pt-3">
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2" role="group" aria-label={copy.chipsLabel}>
+                {sinMensajes
+                  ? copy.chips.map((c) => (
+                      <button key={c} type="button" className="chip" onClick={() => send(c)} disabled={busy}>
+                        {c}
+                      </button>
+                    ))
+                  : null}
                 <a href={waHref} target="_blank" rel="noopener" className="chip">
-                  {copy.chips.whatsapp}
+                  <Icon name="whatsapp" size={14} />
+                  {copy.mauro}
                 </a>
-                <button type="button" className="chip" onClick={() => send(copy.chips.plansMessage)} disabled={busy}>
-                  {copy.chips.plans}
-                </button>
-                <Link href="/portfolio/en" className="chip">
-                  {copy.chips.portfolio}
-                </Link>
               </div>
               <form
                 className="flex gap-2"
@@ -276,11 +293,27 @@ export default function MalejoWidget({
         type="button"
         aria-label={open ? copy.close : copy.open}
         aria-expanded={open}
-        onClick={() => (open ? close() : setOpen(true))}
-        className="breathe pointer-events-auto flex flex-col items-center gap-1 rounded-lg"
+        onClick={() => {
+          if (open) return close();
+          setOpen(true);
+          track("chat_abierto", { origen: "flotante" });
+        }}
+        className={`breathe pointer-events-auto flex-col items-center gap-1 rounded-lg ${open ? "hidden sm:flex" : "flex"}`}
       >
-        <span className="lbl rounded-[7px] bg-acc px-[7px] py-1 text-[10px] font-semibold text-acc-ink shadow-btn">
+        <span className="lbl hidden rounded-[7px] bg-acc px-[7px] py-1 text-[10px] font-semibold text-acc-ink shadow-btn sm:inline">
           {open ? copy.chipOpen : copy.chip}
+        </span>
+        {/* Celular: solo la cabeza, en una caja de 56 × 64 (no tapa tarjetas). */}
+        <span className="relative inline-flex h-16 w-14 justify-center overflow-hidden rounded-[18px] border border-border bg-ic-bg shadow-card sm:hidden">
+          {/* eslint-disable-next-line @next/next/no-img-element -- recorte del sprite */}
+          <img
+            src={`/agencia/sprites/malejo-${pose}.png`}
+            alt=""
+            width={64}
+            height={146}
+            className="pixel mt-1 block h-[146px] w-16 max-w-none flex-none"
+          />
+          <span className="absolute bottom-1 right-1 h-2.5 w-2.5 rounded-full border-2 border-ic-bg bg-ok" aria-hidden="true" />
         </span>
         {/* eslint-disable-next-line @next/next/no-img-element -- pixel art chico, sin optimizar a propósito */}
         <img
@@ -288,7 +321,7 @@ export default function MalejoWidget({
           alt=""
           width={54}
           height={123}
-          className="pixel block h-[123px] w-[54px]"
+          className="pixel hidden h-[123px] w-[54px] sm:block"
         />
       </button>
     </div>
@@ -313,7 +346,7 @@ function Avatar({ size }: { size: 32 | 40 }) {
   );
 }
 
-function ChatHeader({ copy, onClose, waHref }: { copy: MalejoCopy; onClose: () => void; waHref: string }) {
+function ChatHeader({ copy, onClose, waHref, onRestart }: { copy: MalejoCopy; onClose: () => void; waHref: string; onRestart?: () => void }) {
   return (
     <div className="flex items-center gap-3 border-b border-border px-4 py-3">
       <Avatar size={40} />
@@ -324,10 +357,16 @@ function ChatHeader({ copy, onClose, waHref }: { copy: MalejoCopy; onClose: () =
         </div>
         <div className="text-xs text-muted">{copy.header.status}</div>
       </div>
+      {onRestart ? (
+        <button type="button" className="ibtn h-9 w-9 rounded-xl" aria-label={copy.header.restart} title={copy.header.restart} onClick={onRestart}>
+          <span aria-hidden="true" className="text-[17px] leading-none">↺</span>
+        </button>
+      ) : null}
       <a
         href={waHref}
         target="_blank"
         rel="noopener"
+        onClick={() => track("chat_clic", { destino: "whatsapp" })}
         className="ibtn h-9 w-9 rounded-xl"
         aria-label={copy.header.whatsapp}
         title={copy.header.whatsappTip}
@@ -353,11 +392,13 @@ function MessageView({
   copy,
   senaMonto,
   turnstileSiteKey,
+  onOpcion,
 }: {
   msg: Msg;
   copy: MalejoCopy;
   senaMonto: number;
   turnstileSiteKey?: string;
+  onOpcion?: (texto: string) => void;
 }) {
   if (msg.role === "user") {
     return (
@@ -367,7 +408,7 @@ function MessageView({
     );
   }
   const segs: Seg[] = (msg.segs ?? [{ t: "text", text: msg.text }, ...msg.cards.map((card) => ({ t: "card" as const, card }))]).filter(
-    (s) => s.t === "card" || s.text.trim(),
+    (s) => (s.t === "card" ? s.card.kind !== "opciones" || Boolean(onOpcion) : s.text.trim()),
   );
   if (!segs.length) return null;
   return (
@@ -381,6 +422,14 @@ function MessageView({
               className="self-start whitespace-pre-wrap rounded-[16px_16px_16px_6px] border border-border bg-surf-2 px-[13px] py-2.5 text-sm leading-[1.45]"
             >
               {rich(s.text.trim())}
+            </div>
+          ) : s.card.kind === "opciones" ? (
+            <div key={i} role="group" aria-label={copy.opcionesLabel} className="flex flex-wrap gap-2">
+              {s.card.opciones.map((o) => (
+                <button key={o} type="button" className="chip h-auto min-h-9 py-1.5 text-left" onClick={() => onOpcion?.(o)}>
+                  {o}
+                </button>
+              ))}
             </div>
           ) : (
             <CardView key={i} card={s.card} copy={copy} senaMonto={senaMonto} turnstileSiteKey={turnstileSiteKey} />
@@ -437,7 +486,7 @@ function CardView({
             + {t}
           </p>
         ))}
-        <Link href={card.demoHref} className="btn btn-p btn-sm w-full">
+        <Link href={card.demoHref} onClick={() => track("chat_clic", { destino: "demo" })} className="btn btn-p btn-sm w-full">
           {copy.quote.demo.replace("{SENA}", fmt(senaMonto))}
         </Link>
       </div>
@@ -468,7 +517,7 @@ function CardView({
     return (
       <div className="card hi flex flex-col gap-2 rounded-[18px] p-3.5">
         <span className="lbl lbl-o text-[10px]">{copy.demo.label}</span>
-        <Link href={card.demoHref} className="btn btn-p btn-sm w-full">
+        <Link href={card.demoHref} onClick={() => track("chat_clic", { destino: "demo" })} className="btn btn-p btn-sm w-full">
           {copy.demo.demo}
         </Link>
         <a href={card.agendaHref} target="_blank" rel="noopener" className="btn btn-s btn-sm w-full">
@@ -479,12 +528,14 @@ function CardView({
   }
   if (card.kind === "whatsapp") {
     return (
-      <a href={card.href} target="_blank" rel="noopener" className="btn btn-s btn-sm self-start">
+      <a href={card.href} target="_blank" rel="noopener" onClick={() => track("chat_clic", { destino: "whatsapp" })} className="btn btn-s btn-sm self-start">
         <Icon name="chat" size={16} />
         {copy.whatsapp.cta}
       </a>
     );
   }
+  if (card.kind === "opciones") return null;
+  if (card.kind === "formContacto") return <ContactFormCard card={card} copy={copy} turnstileSiteKey={turnstileSiteKey} />;
   return <ConsentCard card={card} copy={copy} turnstileSiteKey={turnstileSiteKey} />;
 }
 
@@ -512,7 +563,7 @@ function CompareCard({ card, copy }: { card: Extract<Card, { kind: "compare" }>;
                 <span className="text-sm font-semibold">{f.texto}</span>
               ) : (
                 <>
-                  {f.etiqueta === "Desde" ? <span className="text-[12px] text-muted">{copy.quote.from}</span> : null}
+                  {f.tipo === "desde" ? <span className="text-[12px] text-muted">{copy.quote.from}</span> : null}
                   <span className="h text-[19px]">{fmt(f.precio)}</span>
                   {f.unidad === "/mes" ? <span className="text-[12px] text-muted">{copy.compare.perMonth}</span> : null}
                 </>
@@ -532,7 +583,11 @@ function CompareCard({ card, copy }: { card: Extract<Card, { kind: "compare" }>;
               </span>
             ) : null}
             {f.paraQuien ? <span className="text-[12px] leading-snug text-muted">{f.paraQuien}</span> : null}
-            {f.alt ? <span className="text-[12px] leading-snug text-muted">{f.alt}</span> : null}
+            {f.alt ? (
+              <span className="text-[12px] leading-snug text-muted">
+                {copy.compare.alt} {f.alt}
+              </span>
+            ) : null}
             <Link href={`/demo?plan=${encodeURIComponent(f.id)}`} className="lnk self-start text-[13px]">
               {copy.compare.choose} →
             </Link>
@@ -542,12 +597,6 @@ function CompareCard({ card, copy }: { card: Extract<Card, { kind: "compare" }>;
       {card.tipoDeCambio ? <p className="m-0 text-[11px] text-muted">{copy.compare.usd}</p> : null}
     </div>
   );
-}
-
-declare global {
-  interface Window {
-    turnstile?: { render: (el: HTMLElement, opts: Record<string, unknown>) => string };
-  }
 }
 
 /**
@@ -569,17 +618,7 @@ function ConsentCard({
   const [captcha, setCaptcha] = useState<string>();
   const box = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!turnstileSiteKey || !box.current) return;
-    const el = box.current;
-    const render = () => window.turnstile?.render(el, { sitekey: turnstileSiteKey, appearance: "interaction-only", callback: setCaptcha });
-    if (window.turnstile) return void render();
-    const s = document.createElement("script");
-    s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
-    s.async = true;
-    s.onload = render;
-    document.head.appendChild(s);
-  }, [turnstileSiteKey]);
+  useTurnstile(turnstileSiteKey, box, setCaptcha);
 
   const save = async () => {
     if (!checked) {
@@ -597,6 +636,7 @@ function ConsentCard({
       const data = (await res.json()) as { ok: boolean; error?: string };
       if (!data.ok) throw new Error(data.error);
       setState("saved");
+      track("chat_contacto_guardado");
     } catch (e) {
       setState("error");
       setError((e as Error).message || copy.errorText);
@@ -636,5 +676,92 @@ function ConsentCard({
         {state === "saving" ? copy.consent.saving : copy.consent.save}
       </button>
     </div>
+  );
+}
+
+/**
+ * Formulario de contacto (`pedir_contacto`, tanda R3): la persona escribe
+ * nombre y WhatsApp y marca la casilla; el ticket firmado (rubro y
+ * resumen de la ficha) va con el envío. Sin la casilla no se manda nada.
+ */
+function ContactFormCard({
+  card,
+  copy,
+  turnstileSiteKey,
+}: {
+  card: Extract<Card, { kind: "formContacto" }>;
+  copy: MalejoCopy;
+  turnstileSiteKey?: string;
+}) {
+  const [state, setState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [error, setError] = useState("");
+  const [captcha, setCaptcha] = useState<string>();
+  const box = useRef<HTMLDivElement>(null);
+  useTurnstile(turnstileSiteKey, box, setCaptcha);
+  const f = copy.form;
+
+  const enviar = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const data = new FormData(e.currentTarget);
+    const nombre = String(data.get("nombre") ?? "").trim();
+    const whatsapp = String(data.get("whatsapp") ?? "").trim();
+    if (!data.get("consent")) return setError(f.needCheck);
+    if (nombre.length < 2 || whatsapp.replace(/\D/g, "").length < 10) return setError(f.invalid);
+    setState("saving");
+    setError("");
+    try {
+      const res = await fetch("/api/contacto", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ consent: true, ticket: card.ticket, token: card.token, nombre, whatsapp, turnstile: captcha }),
+      });
+      const r = (await res.json()) as { ok: boolean; error?: string };
+      if (!r.ok) throw new Error(r.error);
+      setState("saved");
+      track("chat_contacto_guardado", { via: "formulario" });
+    } catch (err) {
+      setState("error");
+      setError((err as Error).message || copy.errorText);
+    }
+  };
+
+  if (state === "saved") {
+    return (
+      <div role="status" className="card rounded-[18px] p-3.5 text-sm">
+        {f.saved}
+      </div>
+    );
+  }
+  const campo = "h-11 w-full rounded-[12px] border border-border-2 bg-bg px-3 text-[15px] text-text";
+  return (
+    <form onSubmit={enviar} className="card hi flex flex-col gap-2.5 rounded-[18px] p-3.5 text-sm">
+      <span className="lbl lbl-o text-[10px]">{f.label}</span>
+      <label className="flex flex-col gap-1">
+        <span className="text-[13px] font-semibold">{f.nombre}</span>
+        <input name="nombre" autoComplete="name" maxLength={80} className={campo} />
+      </label>
+      <label className="flex flex-col gap-1">
+        <span className="text-[13px] font-semibold">{f.whatsapp}</span>
+        <input name="whatsapp" type="tel" inputMode="tel" autoComplete="tel" maxLength={30} className={campo} />
+      </label>
+      <label className="flex min-h-11 cursor-pointer items-center gap-2.5">
+        <input type="checkbox" name="consent" className="h-5 w-5 flex-none accent-(--acc)" />
+        <span>
+          {f.check}.{" "}
+          <Link href="/legal/privacidad" className="text-acc-text underline underline-offset-2">
+            {f.privacy}
+          </Link>
+        </span>
+      </label>
+      <div ref={box} />
+      {error ? (
+        <p role="alert" className="m-0 text-[13px] text-acc-text">
+          {error}
+        </p>
+      ) : null}
+      <button type="submit" disabled={state === "saving"} className="btn btn-p btn-sm min-h-11 w-full disabled:opacity-60">
+        {state === "saving" ? f.saving : f.save}
+      </button>
+    </form>
   );
 }

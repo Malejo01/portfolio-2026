@@ -3,7 +3,8 @@ import raw from "@/docs/agencia/datos/precios.json";
 /**
  * Catálogo de precios tipado. **Un solo origen**: los datos salen de
  * `docs/agencia/datos/precios.json` (el archivo del handoff; para cambiar un
- * precio se edita ahí) y acá solo se tipan y se les da un `id` estable.
+ * precio se edita ahí) y acá solo se tipan. Cada plan, combo y extra tiene
+ * un `id` fijo en el JSON (tanda R2): los nombres pueden cambiar, los ids no.
  * La home, `/servicios`, `/cotizador` y el agente Malejo leen de este módulo,
  * y toda la aritmética pasa por `lib/agencia/pricing.ts`.
  */
@@ -11,20 +12,27 @@ import raw from "@/docs/agencia/datos/precios.json";
 export type CategoryKey = "webs" | "tiendas" | "turnos" | "gestion" | "ia" | "mant" | "grandes";
 
 export interface Plan {
-  /** Slug del nombre: `landing-profesional`. Estable: va en `/demo?plan=`. */
+  /**
+   * Id **fijo**, escrito en `precios.json` (tanda R2). Es el valor que tenía
+   * `slugify(nombre)` antes del cambio de nombres: va en `/demo?plan=`, en los
+   * `<Precio id>` del blog, en los combos, en los tests y en las evals.
+   * Cambiar el nombre de un plan nunca cambia su id.
+   */
   id: string;
   category: CategoryKey;
   name: string;
+  /** Para quién es, en una línea (va debajo del nombre en la tarjeta). */
+  paraQuien: string;
   /**
-   * Implementación en pesos. `null` = plan de solo abono o, si tampoco tiene
-   * abono, un ítem **a cotizar** (ver `aCotizar`).
+   * Pago único en pesos. `null` = plan de solo cuota mensual o, si tampoco
+   * tiene cuota, un ítem **a cotizar** (ver `aCotizar`).
    */
   impl: number | null;
   /** `true` = precio "desde" (el final depende del alcance). */
   from: boolean;
-  /** Abono mensual en pesos. */
+  /** Cuota mensual en pesos. */
   monthly: number | null;
-  /** "pago único", "por flujo", "por año" o vacío. */
+  /** "pago único", "por cada tarea automatizada", "por año" o vacío. */
   unit: string;
   /** Plazo: "5 a 7 días", "según alcance" o vacío. */
   time: string;
@@ -33,14 +41,18 @@ export interface Plan {
   items: string[];
   /** Prueba social: "Como Tuki". */
   proof: string;
-  /** Línea gris alternativa ("O por abono: …"). Texto literal del catálogo. */
+  /**
+   * Otra forma de pago ("Otra forma de pago: $90.000 de entrada…"). Texto
+   * literal del catálogo. No va en la tarjeta: se muestra en "Otras formas
+   * de pago" de la solución y de `/precios`.
+   */
   alt: string;
   /**
-   * Sin precio fijo: el texto que va en lugar del monto ("se cotiza con el
-   * diagnóstico"). Vacío en los planes con precio.
+   * Sin precio fijo: el texto que va en lugar del monto ("se cotiza en el
+   * plan escrito"). Vacío en los planes con precio.
    */
   aCotizar: string;
-  /** Mantenimiento como porcentaje mensual de la implementación (proyectos grandes). */
+  /** Mantenimiento como porcentaje mensual del precio del proyecto (proyectos grandes). */
   mantenimientoPct: number | null;
 }
 
@@ -55,6 +67,7 @@ export interface Category {
 export interface Combo {
   id: string;
   name: string;
+  paraQuien: string;
   parts: string;
   /** Planes que el combo reemplaza. `cotizar()` lo aplica si están todos. */
   planIds: string[];
@@ -77,7 +90,9 @@ export interface Extra {
 
 /** Forma del JSON: los campos opcionales no están en todos los planes. */
 interface RawPlan {
+  id: string;
   name: string;
+  paraQuien: string;
   impl: number | null;
   from: boolean;
   monthly: number | null;
@@ -93,8 +108,10 @@ interface RawPlan {
 
 interface RawCatalog {
   categorias: { key: string; label: string; intro: string; note: string; plans: RawPlan[] }[];
-  combos: { name: string; parts: string; list: number; price: number; monthly: number }[];
-  extras: { nombre: string; precio: number | null; unidad?: string; aCotizar?: string }[];
+  combos: { id: string; name: string; paraQuien: string; parts: string; planIds: string[]; list: number; price: number; monthly: number }[];
+  /** Ids viejos que ya no existen → el id que los reemplaza (links compartidos). */
+  aliases: Record<string, string>;
+  extras: { id: string; nombre: string; precio: number | null; unidad?: string; aCotizar?: string }[];
   vigencia: string;
   recargoMercadoPago: number;
   usd: { fallback: number; fuente: string };
@@ -102,11 +119,14 @@ interface RawCatalog {
 
 const catalog = raw as RawCatalog;
 
-/** "Catálogo con pedidos por WhatsApp" → "catalogo-con-pedidos-por-whatsapp". */
+/**
+ * "Catálogo con pedidos por WhatsApp" → "catalogo-con-pedidos-por-whatsapp".
+ * Ya no arma los ids (son fijos en el JSON); queda para slugs de texto libre.
+ */
 export function slugify(text: string): string {
   return text
     .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
+    .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
@@ -118,9 +138,10 @@ export const categories: Category[] = catalog.categorias.map((c) => ({
   intro: c.intro,
   note: c.note,
   plans: c.plans.map((p) => ({
-    id: slugify(p.name),
+    id: p.id,
     category: c.key as CategoryKey,
     name: p.name,
+    paraQuien: p.paraQuien,
     impl: p.impl,
     from: p.from,
     monthly: p.monthly,
@@ -137,35 +158,36 @@ export const categories: Category[] = catalog.categorias.map((c) => ({
 
 export const plans: Plan[] = categories.flatMap((c) => c.plans);
 
-/**
- * Qué planes reemplaza cada combo. Es lo único que no está en el JSON (ahí
- * `parts` es texto): se declara acá por nombre del combo y un test verifica
- * que la suma de lista de las partes coincida con `list` del catálogo.
- */
-const COMBO_PARTS: Record<string, string[]> = {
-  Arranque: ["landing-profesional", "catalogo-con-pedidos-por-whatsapp"],
-  "Atención 24 h": ["landing-profesional", "asistente-ia-para-tu-web"],
-  "Negocio con turnos": ["landing-profesional", "turnos-online"],
-  "Pyme digital": ["sitio-pyme", "pedidos-y-clientes", "asistente-ia-para-tu-web"],
-};
-
+/** Qué planes reemplaza cada combo: `planIds` en el JSON, por id fijo. */
 export const combos: Combo[] = catalog.combos.map((c) => ({
-  id: `combo-${slugify(c.name)}`,
+  id: c.id,
   name: c.name,
+  paraQuien: c.paraQuien,
   parts: c.parts,
-  planIds: COMBO_PARTS[c.name] ?? [],
+  planIds: c.planIds,
   list: c.list,
   price: c.price,
   monthly: c.monthly,
 }));
 
 export const extras: Extra[] = catalog.extras.map((e) => ({
-  id: slugify(e.nombre),
+  id: e.id,
   name: e.nombre,
   price: e.precio,
   unit: e.unidad ?? "",
   aCotizar: e.aCotizar ?? "",
 }));
+
+/**
+ * Ids viejos → ids vigentes. El plan "Combo Web + Turnos" se unificó con el
+ * combo "Página + turnos" (R2): `/demo?plan=combo-web-turnos` sigue andando.
+ */
+export const aliases: Readonly<Record<string, string>> = catalog.aliases ?? {};
+
+/** El id vigente: el mismo, o al que apunta su alias. */
+export function resolverId(id: string): string {
+  return aliases[id] ?? id;
+}
 
 /** "2027-01-31" → "31/01/2027". */
 export const vigencia: string = catalog.vigencia.split("-").reverse().join("/");
@@ -180,8 +202,8 @@ export const usdFallback: { valor: number; fuente: string } = { valor: catalog.u
 
 /**
  * Mantenimiento mensual de los proyectos grandes, como fracción de la
- * implementación (0,10 = 10 %). **Un solo lugar**: el plan "Mantenimiento de
- * proyectos grandes" de `precios.json`.
+ * precio del proyecto (0,10 = 10 %). **Un solo lugar**: el plan
+ * `mantenimiento-de-proyectos-grandes` de `precios.json`.
  */
 export const mantenimientoGrandesPct: number =
   categories.flatMap((c) => c.plans).find((p) => p.mantenimientoPct != null)?.mantenimientoPct ?? 0.1;
@@ -191,13 +213,43 @@ export function getCategory(key: string): Category | undefined {
 }
 
 export function getPlan(id: string): Plan | undefined {
-  return plans.find((p) => p.id === id);
+  const real = resolverId(id);
+  return plans.find((p) => p.id === real);
 }
 
 export function getCombo(id: string): Combo | undefined {
-  return combos.find((c) => c.id === id);
+  const real = resolverId(id);
+  return combos.find((c) => c.id === real);
 }
 
 export function getExtra(id: string): Extra | undefined {
   return extras.find((e) => e.id === id);
 }
+
+/**
+ * Copy de la etiqueta de precio de cada tarjeta (antes vivía en
+ * `lib/agencia/pricing.ts`). `precioDePlan()` decide el **tipo** y acá está
+ * el texto: la lógica compara tipos, nunca textos.
+ */
+export const etiquetasPrecio = {
+  aCotizar: "A cotizar",
+  mensual: "Cuota mensual",
+  desde: "Desde",
+  unico: "Pago único",
+  combo: "Combo",
+} as const;
+
+export type TipoPrecio = keyof typeof etiquetasPrecio;
+
+/** Textos de las cotizaciones en texto plano (WhatsApp y el agente). */
+export const resumenCopy = {
+  unico: "Pago único",
+  mensual: "Cuota mensual",
+  desde: "desde",
+  porMes: "/mes",
+  porAnio: "/año",
+  usd: "(dólar oficial del día)",
+  medio: { transferencia: "transferencia", mp: "Mercado Pago" },
+  pagoPor: "Pago por",
+  combo: "Combo",
+} as const;

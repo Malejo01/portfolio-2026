@@ -112,7 +112,7 @@ volvía dinámicas las tres rutas del sitio.
 ### Las rutas son estáticas — mantenelas así
 
 El build tiene que mostrar `○` en `/portfolio`, `/portfolio/en`, las seis de casos y todas
-las páginas de la agencia (`/`, `/servicios/*`, `/cotizador`, `/demo`, `/blog/*`, `/legal/*`). Cualquier
+las páginas de la agencia (`/`, `/precios`, `/servicios/*`, `/cotizador`, `/demo`, `/blog/*`, `/legal/*`). Cualquier
 Dynamic API (`cookies()`, `headers()`) en un layout o page las devuelve a `ƒ`
 y tira abajo el cacheo en CDN. Si necesitás algo por request, empujalo al
 cliente o al proxy.
@@ -252,17 +252,46 @@ npm run db:migrate  # las aplica Mauro, con DATABASE_URL
   `app/(es)` ni a `app/(en)`.
 - **Copy y datos** en `content/agencia/*.ts`, nunca en componentes. Los
   precios salen de `docs/agencia/datos/precios.json` vía
-  `content/agencia/pricing.ts` (tipos + `id` estable por plan) y toda la
-  aritmética pasa por `lib/agencia/pricing.ts` (`fmt`, `conRecargo`,
-  `cotizar`): la home, `/servicios`, `/cotizador`, el blog y el agente usan
-  la misma función. La seña sale de `SENA_MONTO` (`lib/agencia/config.ts`).
+  `content/agencia/pricing.ts` (tipos) y toda la aritmética pasa por
+  `lib/agencia/pricing.ts` (`fmt`, `conRecargo`, `cotizar`): `/precios`,
+  `/servicios`, `/cotizador`, el blog y el agente usan la misma función. La
+  seña sale de `SENA_MONTO` (`lib/agencia/config.ts`).
+- **Ids fijos de planes (R2).** Cada plan, combo y extra tiene su `id`
+  **escrito en `precios.json`** (el slug que tenía antes de renombrar). El
+  nombre se puede cambiar; el id nunca: va en `/demo?plan=`, en los
+  `<Precio id>`/`<Plan id>` del blog, en los `planIds` de los combos, en los
+  tests y en las evals. Un id que deja de existir va a `aliases` del JSON
+  (hoy `combo-web-turnos` → `combo-negocio-con-turnos`) y lo resuelven
+  `getPlan`/`getCombo`/`cotizar`/`comparar` y `/demo`. La copy de la
+  etiqueta de precio está en `etiquetasPrecio`; la lógica usa `tipo`.
+- **Lenguaje simple (R2).** Nada de jerga en la copy: `lib/agencia/glosario.test.ts`
+  recorre `content/agencia/` (salvo los legales) y el blog y falla con
+  "Landing", "SEO", "hosting", "abono", "API", "n8n", "sprint",
+  "Implementación" o "foto profesional". El glosario completo está en
+  `docs/agencia/auditoria-ux-2026-11-08.md` §4.
+- **Home corta (R2):** hero → "¿Qué necesitás?" → cómo trabajo → quién te va
+  a atender → cierre; ≤ 3,5 pantallas en escritorio y ≤ 5,5 en celular (hoy
+  3,43 y 5,49: medí con `docs/agencia/verificacion/r2/capturas.js` si
+  cambiás la copy). El catálogo completo está en **`/precios`**; las
+  soluciones (`/servicios/[slug]`, copy en `content/agencia/servicios.ts`)
+  comparten plantilla. "El código es tuyo" solo en webs, tiendas, turnos y
+  mantenimiento: nunca en gestión, IA ni proyectos a medida.
 - **Islas `"use client"` de la agencia**, todas en `components/agencia/client/`:
   `ThemeToggle` (+ el hook `theme.ts`), `MobileMenu`, `SectionSpy`,
-  `Typewriter`, `ServiceLink`, `PricingCatalog`, `MedioSwitch`, `Cotizador`,
-  `ProjectVideo`, `Reveal`, `DemoForm`, `MalejoLoader` y `MalejoWidget`
-  (cargado con `next/dynamic`, `ssr: false`, cuando el navegador está libre).
-  FAQ e historia son `<details>`, sin JS. `PlanCard` no tiene estado y sirve
-  en los dos lados.
+  `Typewriter`, `PricingCatalog`, `MedioSwitch`, `Cotizador`,
+  `ProjectVideo`, `Reveal`, `DemoForm` (+ el hook `turnstile.ts`),
+  `AbrirChat`, `MalejoLoader` y `MalejoWidget` (cargado con `next/dynamic`,
+  `ssr: false`, cuando el navegador está libre o cuando alguien lo pide).
+  FAQ y "Ver los otros planes" son `<details>`, sin JS. `PlanCard` no tiene
+  estado y sirve en los dos lados.
+- **Abrir el chat desde cualquier botón (R2):** la isla `AbrirChat` es un
+  `<a>` a WhatsApp con el texto genérico (`WHATSAPP_TEXTO`) que, con JS,
+  dispara el evento **`malejo:abrir`** (`lib/agencia/abrir-chat.ts`,
+  `detail: { tema? }`, cancelable). `MalejoLoader` lo cancela para decir "lo
+  atiendo yo", fuerza la carga del widget y lo abre; si hay `tema`, sale
+  como primer mensaje. Si nadie lo cancela (sin loader o el chunk falló),
+  el link sigue a WhatsApp. Malejo es la acción principal del sitio;
+  WhatsApp, la secundaria; "Pedí tu demo", el paso siguiente.
 - **Tema:** cookie `malejo-theme` (independiente de la del portfolio) y, sin
   cookie, **oscuro** — no sigue a `prefers-color-scheme`. Mismo patrón que
   el portfolio: script inline en el `<head>` del layout, respaldo para el 404
@@ -293,7 +322,23 @@ npm run db:migrate  # las aplica Mauro, con DATABASE_URL
     contrata junto, suma) y `comparar` (alternativas, nunca suma) pasan por
     `lib/agencia/pricing.ts`. Ninguna cotiza proyectos grandes (`grandes`).
   - **Herramientas:** `cotizar`, `comparar`, `anotar_ficha` (silenciosa),
-    `mostrar_proyectos`, `pedir_demo`, `derivar_whatsapp`, `guardar_contacto`.
+    `mostrar_proyectos`, `pedir_demo`, `derivar_whatsapp`, `guardar_contacto`,
+    y desde R3 `pedir_contacto` (formulario en el chat; firma un *ticket* con
+    rubro y resumen, la persona escribe nombre y WhatsApp) y
+    `sugerir_respuestas` (2–3 botones; silenciosa, no entra al historial).
+  - **Contexto y memoria (R3):** el widget manda `pagina`
+    (`location.pathname`); `chat/pagina.ts` la valida contra las rutas y va al
+    bloque sin caché. La charla y la ficha viven en `sessionStorage`
+    (`chat/sesion.ts`), solo en la pestaña; `/demo` las usa para completar
+    el formulario. Nada de eso va a la base.
+  - **"No inventes" (R3):** el prompt deriva a Mauro todo lo que no está en
+    el catálogo ni en el conocimiento (funciones, fechas, valor de cuotas,
+    medios de pago, sitios de terceros, marca blanca). Para responderlo, se
+    agrega el dato a `conocimiento.ts`; la lista está en
+    `docs/agencia/revision-r3.md` §2.3.
+  - **Embudo (R3):** eventos de Vercel Analytics `cta_chat`, `chat_abierto`,
+    `chat_mensaje`, `chat_tarjeta`, `chat_opcion`, `chat_clic`,
+    `chat_contacto_guardado`. Solo conteos y tipos, nunca texto.
   - **Ficha:** lo que se aprende del cliente. La anota el modelo, el servidor
     la valida (`ficha-schema.ts`) y la emite como evento `ficha`; **vive solo
     en la memoria del widget**, que la reenvía con cada pedido. Nunca va a la
@@ -309,15 +354,34 @@ npm run db:migrate  # las aplica Mauro, con DATABASE_URL
   - **USD:** `lib/agencia/usd.ts` (dolarapi.com, respaldo `USD_ARS_FALLBACK`
     o `precios.json → usd.fallback`), solo servidor; `/api/dolar` para el
     cotizador en el cliente.
-  - **Límites:** `CHAT_DAILY_LIMIT_IP` (0/vacío = sin límite, default) y
-    `CHAT_DAILY_LIMIT_TOTAL` (default 1000, 0 = sin límite). Timeout por
+  - **Límites (R2, `limits.ts`):** `CHAT_BURST_LIMIT` (20 cada 10 min por
+    IP hasheada, tabla `chat_burst`), `CHAT_DAILY_LIMIT_IP` (default 150) y
+    `CHAT_DAILY_LIMIT_TOTAL` (default 1000); `0` = sin tope, vacío =
+    default. `CHAT_TEST_TOKEN` + header `x-malejo-test` saltea solo los
+    topes por IP (las evals lo mandan si la variable está). Si la base
+    falla, **falla cerrado**: global en memoria con tope 100. El historial
+    llega recortado a 12.000 caracteres (`recorte.ts`). `/demo` usa los
+    mismos topes por IP, contados aparte. `CHAT_ALERT_THRESHOLD` (300): el
+    cron avisa por Resend o `console.warn` si ayer se pasó. Timeout por
     ronda: `CHAT_ROUND_TIMEOUT_MS` (20 s).
+  - **Origen y anti-bot (R2):** `/api/chat`, `/api/contacto` y la acción de
+    `/demo` rechazan con 403 un `Origin` ajeno (`origenPermitido` en
+    `security.ts`: dominio, `NEXT_PUBLIC_SITE_URL`, URLs de Vercel,
+    `CHAT_ALLOWED_ORIGINS`; `localhost` fuera de producción). Turnstile (sin
+    claves no se exige) y campo trampa en `/demo`.
   - **Pruebas sin clave:** `lib/agencia/chat/mock-anthropic.ts` imita la API
     con SSE; se apunta el SDK con `ANTHROPIC_BASE_URL` (lo usan
     `route.test.ts` y `evals/evals.test.ts`). **Evals reales:**
-    `npm run eval:chat` corre los 24 casos de `lib/agencia/chat/evals/casos.ts`
+    `npm run eval:chat` corre los 36 casos de `lib/agencia/chat/evals/casos.ts`
     contra `/api/chat` y escribe `docs/agencia/evals/<fecha>.md`; objetivo
-    22 de 24. Gasta tokens: necesita la clave en el servidor.
+    33 de 36 (`objetivo()`: 22 de 24 proporcional). Gasta tokens: necesita
+    la clave en el servidor.
+- **Headers de seguridad (R2):** `next.config.ts` suma, **solo para la
+  agencia** (`FUENTE_AGENCIA` excluye `/portfolio`), los de
+  `lib/agencia/headers.ts`: `X-Frame-Options: DENY`, `nosniff`,
+  `Referrer-Policy`, `Permissions-Policy` y una CSP en modo
+  **report-only**. Si sumás un servicio externo (script, iframe, fetch),
+  agregalo a la CSP antes de pasarla a modo estricto.
 
 ## Verificación
 
@@ -339,3 +403,7 @@ Para probar el camino del 404 y de los error boundaries usá un build de
 producción en otro puerto —`npm run build` y después `npx next start -p 3001`—
 porque en desarrollo ese camino tiene un aviso de consola propio y un ciclo
 de refetch que no existe en producción. Matá el proceso al terminar.
+
+En un build de producción local, `localhost` no es un origen permitido para
+el chat, `/api/contacto` ni `/demo` (S6): arrancalo con
+`CHAT_ALLOWED_ORIGINS=http://localhost:3001 npx next start -p 3001`.

@@ -440,13 +440,23 @@ html:not(.js) [data-reveal] {
    DETAILS: FAQ e historia sin JS (§4 "Sobre mí, FAQ")
    ============================================================ */
 .faq-item summary,
-.story summary {
+.story summary,
+.plans summary {
   list-style: none;
   cursor: pointer;
 }
 .faq-item summary::-webkit-details-marker,
-.story summary::-webkit-details-marker {
+.story summary::-webkit-details-marker,
+.plans summary::-webkit-details-marker {
   display: none;
+}
+/* "Ver los otros N planes" de cada solución: la flecha baja al abrir. */
+.plans .plans-arrow {
+  transform: rotate(90deg);
+  transition: transform 0.2s ease;
+}
+.plans[open] .plans-arrow {
+  transform: rotate(-90deg);
 }
 .faq-item .faq-minus,
 .faq-item[open] .faq-plus {
@@ -490,9 +500,16 @@ html:not(.js) [data-reveal] {
     opacity: 1;
   }
 }
+/* El "IA." y el cursor: en claro, `--acc-text` (el naranja puro da 2,9:1
+   sobre el fondo claro y el texto grande pide 3:1; DISENO.md §2 ya dice
+   "texto naranja sobre fondo: --acc-text, nunca --acc"). En oscuro, `--acc`
+   (≈ 6,4:1). Tanda R2, auditoría P2-4. */
 .tw-cur {
-  color: var(--acc);
+  color: var(--acc-text);
   font-weight: 400;
+}
+.dark .tw-cur {
+  color: var(--acc);
 }
 .tw-cur[data-blink] {
   animation: tw-blink 0.9s steps(1) infinite;
@@ -515,19 +532,6 @@ html:not(.js) [data-reveal] {
 }
 .breathe {
   animation: breathe 3s ease-in-out infinite;
-}
-
-/* Barra del toast (10 s). */
-@keyframes toast-bar {
-  from {
-    width: 100%;
-  }
-  to {
-    width: 0;
-  }
-}
-.toast-bar {
-  animation: toast-bar 8s linear forwards;
 }
 
 @keyframes dots {

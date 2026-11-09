@@ -92,6 +92,8 @@ export function PlanCard({
 export interface ComboCopy {
   saveLabel: string;
   comboCta: string;
+  /** El mismo sufijo de la cuota que en los planes: " por mes (incluye que siga funcionando)". */
+  monthlySuffix: string;
 }
 
 export function ComboCard({
@@ -118,7 +120,7 @@ export function ComboCard({
         <div className="h text-[28px]">{fmt(conRecargo(combo.price, medio))}</div>
         <div className="text-[13px]">
           + <strong>{fmt(conRecargo(combo.monthly, medio))}</strong>
-          <span className="text-muted">/mes</span>
+          <span className="text-muted">{copy.monthlySuffix}</span>
         </div>
       </div>
       <Link

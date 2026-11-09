@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState, useEffect, useRef, useState } from "react";
 import { enviarBrief, type BriefState } from "@/app/(agencia)/demo/actions";
 import type { demoCopy } from "@/content/agencia/demo";
+import { leerSesion } from "@/lib/agencia/chat/sesion";
 import { CAMPO_TRAMPA, planDesdeUrl, type OpcionPlan } from "@/lib/agencia/demo-plan";
 import { useTurnstile } from "./turnstile";
 
@@ -30,6 +31,12 @@ export function DemoForm({
 }) {
   const [state, action, pending] = useActionState<BriefState, FormData>(enviarBrief, { status: "idle" });
   const [plan, setPlan] = useState("");
+  /**
+   * Si la persona ya le contó a Malejo su nombre, su rubro o qué necesita,
+   * el formulario arranca con eso (tanda R3). Sale de la ficha guardada en
+   * `sessionStorage` de esta pestaña: no viaja a ningún lado hasta enviar.
+   */
+  const [delChat, setDelChat] = useState<{ nombre?: string; rubro?: string; necesidad?: string } | null>(null);
   const [extraOption, setExtraOption] = useState<{ id: string; name: string } | null>(null);
   const summary = useRef<HTMLDivElement>(null);
   const done = useRef<HTMLDivElement>(null);
@@ -39,6 +46,8 @@ export function DemoForm({
 
   useEffect(() => {
     const raf = requestAnimationFrame(() => {
+      const ficha = leerSesion()?.ficha;
+      if (ficha && (ficha.nombre || ficha.rubro || ficha.necesidad)) setDelChat({ nombre: ficha.nombre, rubro: ficha.rubro, necesidad: ficha.necesidad });
       const elegido = planDesdeUrl(new URLSearchParams(location.search).get("plan"), plans, aliases);
       if (!elegido) return;
       setExtraOption(elegido.extra);
@@ -79,7 +88,8 @@ export function DemoForm({
     ) : null;
 
   return (
-    <form action={action} noValidate className="flex flex-col gap-4">
+    <form key={delChat ? "con-chat" : "vacio"} action={action} noValidate className="flex flex-col gap-4">
+      {delChat && state.status === "idle" ? <p className="m-0 rounded-[12px] bg-surf-2 px-3.5 py-2.5 text-[13px] text-muted">{b.delChat}</p> : null}
       {state.status === "bloqueado" ? (
         <div role="alert" className="rounded-[14px] border border-hi-b bg-ic-bg p-4 text-sm text-user-text">
           {b.bloqueado}
@@ -104,7 +114,7 @@ export function DemoForm({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="nombre" className="mb-1.5 block text-sm font-semibold">{b.nombre}</label>
-          <input id="nombre" name="nombre" autoComplete="name" required defaultValue={v.nombre} className={field} {...describe("nombre")} />
+          <input id="nombre" name="nombre" autoComplete="name" required defaultValue={v.nombre ?? delChat?.nombre} className={field} {...describe("nombre")} />
           {fieldError("nombre")}
         </div>
         <div>
@@ -115,7 +125,7 @@ export function DemoForm({
       </div>
       <div>
         <label htmlFor="rubro" className="mb-1.5 block text-sm font-semibold">{b.rubro}</label>
-        <input id="rubro" name="rubro" required placeholder={b.rubroPlaceholder} defaultValue={v.rubro} className={field} {...describe("rubro")} />
+        <input id="rubro" name="rubro" required placeholder={b.rubroPlaceholder} defaultValue={v.rubro ?? delChat?.rubro} className={field} {...describe("rubro")} />
         {fieldError("rubro")}
       </div>
       <div>
@@ -126,7 +136,7 @@ export function DemoForm({
           required
           rows={5}
           placeholder={b.necesidadPlaceholder}
-          defaultValue={v.necesidad}
+          defaultValue={v.necesidad ?? delChat?.necesidad}
           className={`${field} h-auto py-3 leading-relaxed`}
           {...describe("necesidad")}
         />

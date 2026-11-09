@@ -26,6 +26,7 @@ export const demoCopy = {
     errorsTitle: "Revisá estos campos:",
     /** Campo trampa (invisible): solo lo ven los lectores de pantalla que lo ignoran por `aria-hidden`. */
     trampa: "No completes este campo",
+    delChat: "Completé lo que ya le contaste a Malejo. Revisalo y cambiá lo que haga falta.",
     bloqueado: "No pude verificar el envío. Probá de nuevo en unos minutos o mandámelo por WhatsApp.",
   },
   success: {

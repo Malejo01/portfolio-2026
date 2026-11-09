@@ -15,6 +15,8 @@ export type Moneda = "ars" | "usd";
 export interface FilaCard {
   id: string;
   nombre: string;
+  /** "desde", "unico", "mensual", "combo" o "aCotizar" (`TipoPrecio`). */
+  tipo: string;
   etiqueta: string;
   precio: number | null;
   texto: string;

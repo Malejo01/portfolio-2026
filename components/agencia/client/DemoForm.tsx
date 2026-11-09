@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState, useEffect, useRef, useState } from "react";
 import { enviarBrief, type BriefState } from "@/app/(agencia)/demo/actions";
 import type { demoCopy } from "@/content/agencia/demo";
+import { planDesdeUrl, type OpcionPlan } from "@/lib/agencia/demo-plan";
 
 /**
  * Formulario del brief (`/demo`). Isla mínima: `useActionState` para los
@@ -13,7 +14,16 @@ import type { demoCopy } from "@/content/agencia/demo";
  */
 type Copy = typeof demoCopy;
 
-export function DemoForm({ copy, plans }: { copy: Copy; plans: { id: string; name: string }[] }) {
+export function DemoForm({
+  copy,
+  plans,
+  aliases,
+}: {
+  copy: Copy;
+  plans: OpcionPlan[];
+  /** Ids viejos → vigentes (`combo-web-turnos`), para links ya compartidos. */
+  aliases: Record<string, string>;
+}) {
   const [state, action, pending] = useActionState<BriefState, FormData>(enviarBrief, { status: "idle" });
   const [plan, setPlan] = useState("");
   const [extraOption, setExtraOption] = useState<{ id: string; name: string } | null>(null);
@@ -23,20 +33,13 @@ export function DemoForm({ copy, plans }: { copy: Copy; plans: { id: string; nam
 
   useEffect(() => {
     const raf = requestAnimationFrame(() => {
-      const fromUrl = new URLSearchParams(location.search).get("plan");
-      if (!fromUrl) return;
-      const known = plans.find((p) => p.id === fromUrl);
-      if (known) setPlan(known.id);
-      else {
-        const names = fromUrl.split(",").map((id) => plans.find((p) => p.id === id)?.name).filter(Boolean);
-        if (names.length) {
-          setExtraOption({ id: fromUrl, name: names.join(" + ") });
-          setPlan(fromUrl);
-        }
-      }
+      const elegido = planDesdeUrl(new URLSearchParams(location.search).get("plan"), plans, aliases);
+      if (!elegido) return;
+      setExtraOption(elegido.extra);
+      setPlan(elegido.id);
     });
     return () => cancelAnimationFrame(raf);
-  }, [plans]);
+  }, [plans, aliases]);
 
   useEffect(() => {
     if (state.status === "error") summary.current?.focus();

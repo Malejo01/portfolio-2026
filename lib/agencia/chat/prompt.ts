@@ -33,7 +33,7 @@ export function catalogo(): string {
   for (const c of combos) lineas.push(`- [${c.id}] ${c.name}: ${c.parts}. ${fmt(c.price)} + ${fmt(c.monthly)}/mes (lista ${fmt(c.list)}).`);
   lineas.push("\n## Extras");
   lineas.push(extras.map((e) => `[${e.id}] ${e.name} ${montoDeExtra(e, "transferencia")}`).join(" · "));
-  lineas.push(`\nMantenimiento de proyectos grandes: ${Math.round(mantenimientoGrandesPct * 100)}% mensual del valor de implementación.`);
+  lineas.push(`\nMantenimiento de proyectos a medida (grandes): ${Math.round(mantenimientoGrandesPct * 100)}% mensual del precio del proyecto.`);
   return lineas.join("\n");
 }
 

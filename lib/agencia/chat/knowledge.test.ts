@@ -21,7 +21,7 @@ describe("base de conocimiento", () => {
 
   it("cubre todo F12: cuotas, seña, dominio, tecnología, baja, USD y factura", () => {
     const todo = conocimiento.faq.map((f) => `${f.q} ${f.a}`).join(" ");
-    for (const tema of [/6 cuotas/, /seña.*no|no.*seña/i, /dominio/i, /Next\.js/, /30 días/, /dólar/i, /factura/i]) {
+    for (const tema of [/6 cuotas/, /seña.*no|no.*seña/i, /dirección web/i, /tecnología propia/, /30 días/, /dólar/i, /factura/i]) {
       expect(todo).toMatch(tema);
     }
   });

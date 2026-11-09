@@ -23,7 +23,7 @@ export const site = {
   name: "Malejo",
   title: "Malejo · Webs y apps potenciadas con IA",
   description:
-    "Webs, micro-apps y asistentes con IA para tu negocio. Listos en días, con precios publicados.",
+    "Webs, sistemas y asistentes con IA para tu negocio. Listos en días, con precios publicados.",
   skip: "Saltar al contenido",
 
   nav: {
@@ -46,7 +46,7 @@ export const site = {
   explorer: {
     open: "Abrir menú",
     close: "Cerrar menú",
-    title: "Explorador · Malejo",
+    title: "Menú",
     links: [
       { label: "Inicio", href: "/#inicio", section: "inicio" },
       { label: "Servicios", href: "/#servicios", section: "servicios" },
@@ -77,7 +77,7 @@ export const site = {
       {
         label: "Mauro",
         links: [
-          { label: "Portfolio (EN)", href: "/portfolio/en" },
+          { label: "Mi CV (en inglés)", href: "/portfolio/en" },
           { label: "Mi historia", href: "/#sobre-mi" },
         ],
       },

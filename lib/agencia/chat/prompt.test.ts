@@ -16,14 +16,14 @@ describe("system prompt", () => {
     expect([...pos].sort((a, b) => a - b)).toEqual(pos);
   });
 
-  it("incluye el conocimiento y el catálogo con alternativas por abono y proyectos grandes", () => {
+  it("incluye el conocimiento y el catálogo con otras formas de pago y proyectos a medida", () => {
     expect(base).toContain("Mauro Lizárraga");
     expect(base).toContain("hasta 6 cuotas");
-    expect(base).toContain("O por abono: $90.000 de entrada + $49.000/mes");
-    expect(base).toContain("[sprint-con-demo] Sprint con demo: se cotiza con el diagnóstico");
-    expect(base).toContain("[diagnostico-escrito] Diagnóstico escrito: implementación $60.000");
-    expect(base).toContain("10% mensual del valor de implementación");
-    expect(base).toContain("Dominio .com.ar (NIC.ar, por año) según tarifa vigente de NIC.ar");
+    expect(base).toContain("Otra forma de pago: $90.000 de entrada y $49.000 por mes");
+    expect(base).toContain("[sprint-con-demo] Etapa de 2 semanas con avance funcionando: se cotiza en el plan escrito");
+    expect(base).toContain("[diagnostico-escrito] Plan del proyecto por escrito: pago único $60.000");
+    expect(base).toContain("10% mensual del precio del proyecto");
+    expect(base).toContain("Tu dirección web .com.ar (por año) según tarifa vigente de NIC.ar");
     expect(catalogo()).toContain("RECOMENDADO");
   });
 

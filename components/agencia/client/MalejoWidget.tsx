@@ -512,7 +512,7 @@ function CompareCard({ card, copy }: { card: Extract<Card, { kind: "compare" }>;
                 <span className="text-sm font-semibold">{f.texto}</span>
               ) : (
                 <>
-                  {f.etiqueta === "Desde" ? <span className="text-[12px] text-muted">{copy.quote.from}</span> : null}
+                  {f.tipo === "desde" ? <span className="text-[12px] text-muted">{copy.quote.from}</span> : null}
                   <span className="h text-[19px]">{fmt(f.precio)}</span>
                   {f.unidad === "/mes" ? <span className="text-[12px] text-muted">{copy.compare.perMonth}</span> : null}
                 </>

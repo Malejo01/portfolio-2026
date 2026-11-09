@@ -16,7 +16,6 @@ export function About() {
       <Reveal>
         <div className="card card-big grid grid-cols-1 items-center gap-11 p-7 sm:grid-cols-[260px_minmax(0,1fr)] sm:p-11">
           <div className="relative mx-auto flex h-[300px] w-full max-w-[260px] items-center justify-center rounded-[22px] border border-dashed border-border-2 bg-(--mock-bg)">
-            <span className="lbl">{about.photo}</span>
             <Image
               src="/agencia/sprites/malejo-bolsillos.png"
               alt={about.spriteAlt}

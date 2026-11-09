@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { categories, combos, extras, getCategory, getExtra, getPlan, mantenimientoGrandesPct, plans } from "@/content/agencia/pricing";
+import raw from "@/docs/agencia/datos/precios.json";
+import { aliases, categories, combos, extras, getCategory, getCombo, getExtra, getPlan, mantenimientoGrandesPct, plans, resolverId } from "@/content/agencia/pricing";
 import { aUsd, ahorro, comparar, conRecargo, cotizar, fmt, fmtUsd, precioDePlan, resumenCotizacion } from "./pricing";
 
 describe("fmt", () => {
@@ -37,10 +38,9 @@ describe("catálogo", () => {
     const ids = [...plans.map((p) => p.id), ...combos.map((c) => c.id), ...extras.map((e) => e.id)];
     expect(new Set(ids).size).toBe(ids.length);
     expect(getPlan("landing-profesional")?.impl).toBe(320000);
-    expect(getPlan("combo-web-turnos")?.monthly).toBe(45000);
   });
 
-  it("siete categorías (con proyectos grandes) y un recomendado cada una", () => {
+  it("siete categorías (con proyectos a medida) y un recomendado cada una", () => {
     expect(categories.map((c) => c.key)).toEqual(["webs", "tiendas", "turnos", "gestion", "ia", "mant", "grandes"]);
     for (const c of categories) expect(c.plans.filter((p) => p.rec)).toHaveLength(1);
   });
@@ -57,26 +57,83 @@ describe("catálogo", () => {
   });
 });
 
+describe("ids fijos (R2)", () => {
+  type ConId = { id?: unknown };
+  const json = raw as unknown as {
+    categorias: { plans: ConId[] }[];
+    combos: (ConId & { planIds?: unknown })[];
+    extras: ConId[];
+  };
+  const todos: ConId[] = [...json.categorias.flatMap((c) => c.plans), ...json.combos, ...json.extras];
+
+  it("cada plan, combo y extra del JSON trae su id escrito", () => {
+    for (const x of todos) expect(typeof x.id === "string" && /^[a-z0-9-]+$/.test(x.id as string), JSON.stringify(x).slice(0, 80)).toBe(true);
+  });
+
+  it("ningún id se repite", () => {
+    const ids = todos.map((x) => x.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("los ids de antes de renombrar siguen existiendo", () => {
+    const antes = [
+      "landing-express", "landing-profesional", "landing-premium", "sitio-pyme", "sitio-autoadministrable", "renova-tu-web",
+      "menu-digital-qr", "catalogo-con-pedidos-por-whatsapp", "directorio-o-guia-con-mapa", "tienda-online-con-mercado-pago",
+      "turnos-online", "reservas-con-sena", "inscripciones-a-eventos-y-salidas",
+      "control-de-stock-con-qr", "pedidos-y-clientes", "tablero-de-ventas", "sistema-a-medida",
+      "asistente-ia-para-tu-web", "asistente-por-whatsapp", "agente-de-ventas", "automatizacion", "plataforma-educativa-con-ia", "clasificador-con-ia",
+      "renovacion", "mantenimiento-basico", "mantenimiento-pro",
+      "consultoria-inicial", "diagnostico-escrito", "sprint-con-demo", "mantenimiento-de-proyectos-grandes",
+    ];
+    for (const id of antes) expect(getPlan(id), id).toBeDefined();
+    for (const id of ["combo-arranque", "combo-atencion-24-h", "combo-negocio-con-turnos", "combo-pyme-digital"]) expect(getCombo(id), id).toBeDefined();
+    for (const id of ["pagina-adicional", "blog", "dominio-com-ar-nic-ar-por-ano"]) expect(getExtra(id), id).toBeDefined();
+  });
+
+  it("los combos apuntan a planes que existen", () => {
+    for (const c of combos) {
+      expect(c.planIds.length, c.id).toBeGreaterThan(1);
+      for (const id of c.planIds) expect(getPlan(id), `${c.id} → ${id}`).toBeDefined();
+    }
+  });
+
+  it("combo-web-turnos es un alias del combo Página + turnos (links viejos)", () => {
+    expect(aliases["combo-web-turnos"]).toBe("combo-negocio-con-turnos");
+    expect(resolverId("combo-web-turnos")).toBe("combo-negocio-con-turnos");
+    expect(getCombo("combo-web-turnos")?.id).toBe("combo-negocio-con-turnos");
+    expect(getPlan("combo-web-turnos")).toBeUndefined();
+    for (const destino of Object.values(aliases)) expect(getPlan(destino) ?? getCombo(destino), destino).toBeDefined();
+  });
+
+  it("cada plan y cada combo dice para quién es", () => {
+    for (const p of plans) expect(p.paraQuien.length, p.id).toBeGreaterThan(10);
+    for (const c of combos) expect(c.paraQuien.length, c.id).toBeGreaterThan(10);
+  });
+});
+
 describe("precioDePlan", () => {
   it("plan con implementación y abono", () => {
     expect(precioDePlan(getPlan("turnos-online")!, "transferencia")).toEqual({
-      etiqueta: "Implementación",
+      tipo: "unico",
+      etiqueta: "Pago único",
       precio: 180000,
       texto: "",
-      unidad: "pago único",
+      unidad: "",
       abono: 22000,
     });
   });
 
   it("plan desde", () => {
     const p = precioDePlan(getPlan("automatizacion")!, "transferencia");
+    expect(p.tipo).toBe("desde");
     expect(p.etiqueta).toBe("Desde");
-    expect(p.unidad).toBe("por flujo");
+    expect(p.unidad).toBe("por cada tarea automatizada");
   });
 
   it("plan de solo abono", () => {
     expect(precioDePlan(getPlan("mantenimiento-pro")!, "mp")).toEqual({
-      etiqueta: "Abono",
+      tipo: "mensual",
+      etiqueta: "Cuota mensual",
       precio: 58300,
       texto: "",
       unidad: "/mes",
@@ -94,8 +151,9 @@ describe("cotizar", () => {
     expect(c.desde).toBe(false);
   });
 
-  it("veterinaria con turnos: el Combo Web + Turnos", () => {
+  it("veterinaria con turnos: el id viejo combo-web-turnos cotiza el combo Página + turnos", () => {
     const c = cotizar({ planIds: ["combo-web-turnos"] });
+    expect(c.items.map((i) => i.id)).toEqual(["combo-negocio-con-turnos"]);
     expect(c.implementacion).toBe(450000);
     expect(c.abonoMensual).toBe(45000);
     expect(c.total).toBe(450000 + 45000 * 12);
@@ -160,20 +218,21 @@ describe("cotizar vs comparar (F1 de las pruebas)", () => {
   it("comparar mantenimiento Básico y Pro muestra cada abono, no $80.000", () => {
     const c = comparar({ ids: ["mantenimiento-basico", "mantenimiento-pro"] });
     expect(c.filas.map((f) => [f.etiqueta, f.precio, f.unidad])).toEqual([
-      ["Abono", 25000, "/mes"],
-      ["Abono", 55000, "/mes"],
+      ["Cuota mensual", 25000, "/mes"],
+      ["Cuota mensual", 55000, "/mes"],
     ]);
   });
 
-  it("comparar trae la alternativa por abono y el recomendado", () => {
+  it("comparar trae la otra forma de pago, para quién es y el recomendado", () => {
     const pro = comparar({ ids: ["landing-express", "landing-profesional"] }).filas[1];
-    expect(pro.alt).toContain("$49.000/mes");
+    expect(pro.alt).toContain("$49.000 por mes");
+    expect(pro.paraQuien).toBe(getPlan("landing-profesional")!.paraQuien);
     expect(pro.recomendado).toBe(true);
   });
 
   it("comparar con combos y con ids inventados", () => {
     const c = comparar({ ids: ["turnos-online", "combo-negocio-con-turnos", "app-tipo-uber"], medio: "mp" });
-    expect(c.filas[1]).toMatchObject({ etiqueta: "Combo", precio: 477000, abono: 47700 });
+    expect(c.filas[1]).toMatchObject({ tipo: "combo", etiqueta: "Combo", precio: 477000, abono: 47700 });
     expect(c.desconocidos).toEqual(["app-tipo-uber"]);
   });
 
@@ -202,6 +261,7 @@ describe("dólares", () => {
 
   it("comparar en USD fila por fila", () => {
     const c = comparar({ ids: ["turnos-online", "combo-web-turnos"], tipoDeCambio: 1000 });
+    expect(c.filas[1].id).toBe("combo-negocio-con-turnos");
     expect(c.filas[0].usd).toEqual({ precio: 180, abono: 22 });
     expect(c.tipoDeCambio).toBe(1000);
   });
@@ -233,12 +293,12 @@ describe("proyectos grandes", () => {
 
   it("impl: null sin abono es 'a cotizar' y no rompe cotizar ni precioDePlan", () => {
     const sprint = getPlan("sprint-con-demo")!;
-    expect(precioDePlan(sprint, "mp")).toMatchObject({ etiqueta: "A cotizar", precio: null, texto: "se cotiza con el diagnóstico" });
+    expect(precioDePlan(sprint, "mp")).toMatchObject({ tipo: "aCotizar", etiqueta: "A cotizar", precio: null, texto: "se cotiza en el plan escrito" });
     const c = cotizar({ planIds: ["sprint-con-demo"], medio: "mp" });
     expect(c.implementacion).toBe(0);
     expect(c.total).toBe(0);
-    expect(c.aCotizar).toEqual(["Sprint con demo: se cotiza con el diagnóstico"]);
-    expect(resumenCotizacion(c)).toContain("se cotiza con el diagnóstico");
+    expect(c.aCotizar).toEqual(["Etapa de 2 semanas con avance funcionando: se cotiza en el plan escrito"]);
+    expect(resumenCotizacion(c)).toContain("se cotiza en el plan escrito");
   });
 
   it("la consultoría inicial es sin cargo", () => {
@@ -252,7 +312,7 @@ describe("dominio", () => {
     expect(d).toMatchObject({ price: null, unit: "por año", aCotizar: "según tarifa vigente de NIC.ar" });
     const c = cotizar({ planIds: ["landing-profesional"], extras: [d.id] });
     expect(c.implementacion).toBe(320000);
-    expect(c.aCotizar).toEqual(["Dominio .com.ar (NIC.ar, por año): según tarifa vigente de NIC.ar"]);
+    expect(c.aCotizar).toEqual(["Tu dirección web .com.ar (por año): según tarifa vigente de NIC.ar"]);
   });
 
   it("todos los extras tienen precio o texto", () => {

@@ -82,7 +82,7 @@ export function Cotizador({
                       </span>
                     </span>
                     <span className="text-sm text-muted">
-                      {p.etiqueta === "Desde" ? "Desde " : ""}
+                      {p.tipo === "desde" ? `${p.etiqueta} ` : ""}
                       <strong className="text-text">{p.precio == null ? p.texto : fmt(p.precio)}</strong> {p.unidad}
                       {p.abono ? ` + ${fmt(p.abono)}/mes` : ""}
                     </span>

@@ -58,7 +58,7 @@ export const casos: Caso[] = [
     turnos: ["Quiero una landing para mi estudio de yoga", "es muy caro, me hacés descuento? tengo 100 mil"],
     checks: [
       { nombre: "sin descuento", ok: (r) => !/te (hago|dejo) (un )?descuento|\d+ ?% (de descuento|off)/i.test(ultimo(r).texto) },
-      { nombre: "opción accesible o abono", ok: (r) => /abono|por mes|\/mes|Express|\$90\.000/i.test(ultimo(r).texto) },
+      { nombre: "opción accesible o pago en cuotas", ok: (r) => /cuota|por mes|\/mes|Esencial|\$90\.000|\$180\.000/i.test(ultimo(r).texto) },
       { nombre: "tarjeta de WhatsApp con ficha", ok: (r) => de(ultimo(r).cards, "whatsapp").some((c) => decodeURIComponent(c.href).includes("•")) },
     ],
   },
@@ -119,7 +119,7 @@ export const casos: Caso[] = [
     checks: [
       { nombre: "sin tarjeta de cotización", ok: (r) => !hay(r, "quote") && !hay(r, "compare") },
       { nombre: "sin demo de 72 h", ok: (r) => !hay(r, "demo") && !/72 ?h/i.test(todoTexto(r)) },
-      { nombre: "camino de proyectos grandes", ok: texto(/consultor[ií]a|diagn[óo]stico/i) },
+      { nombre: "camino de proyectos a medida", ok: texto(/charla|plan (del proyecto )?por escrito|consultor[ií]a|diagn[óo]stico/i) },
     ],
   },
   {
@@ -128,7 +128,7 @@ export const casos: Caso[] = [
     turnos: ["¿Usan WordPress? ¿El dominio está incluido? ¿A nombre de quién queda?"],
     maxPalabras: 90,
     checks: [
-      { nombre: "Next.js", ok: texto(/Next\.?js/i) },
+      { nombre: "tecnología propia, no WordPress", ok: texto(/Next\.?js|tecnolog[ií]a propia|plantilla/i) },
       { nombre: "dominio a nombre del cliente y aparte", ok: texto(/(a )?tu nombre/i) },
       { nombre: "dominio aparte", ok: texto(/aparte|adicional|no est[áa] incluido/i) },
       { nombre: "sin derivar", ok: (r) => !hay(r, "whatsapp") },
@@ -220,7 +220,7 @@ export const casos: Caso[] = [
     turnos: ["¿Me hacés la demo gratis, sin seña?"],
     checks: [
       { nombre: "explica la seña", ok: texto(/seña/i) },
-      { nombre: "ofrece videollamada o consultoría", ok: texto(/videollamada|consultor[ií]a|charla/i) },
+      { nombre: "ofrece videollamada o charla", ok: texto(/videollamada|consultor[ií]a|charla/i) },
     ],
   },
   {

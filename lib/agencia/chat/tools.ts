@@ -1,9 +1,9 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 import { conocimiento } from "@/content/agencia/conocimiento";
-import { combos, extras, getCombo, getPlan, plans } from "@/content/agencia/pricing";
+import { combos, extras, getCombo, getPlan, plans, resolverId } from "@/content/agencia/pricing";
 import { CALCOM_URL, waLink } from "@/lib/agencia/config";
-import { comparar, cotizar, resumenCotizacion } from "@/lib/agencia/pricing";
+import { comparar, cotizar, fmt, resumenCotizacion } from "@/lib/agencia/pricing";
 import { deduplicable, firmaCard, leerFirmaQuote, type Card, type Medio, type Moneda, type QuoteCard } from "./cards";
 import { mergeFicha, type Ficha } from "./ficha";
 import { FichaSchema, limpiarFicha } from "./ficha-schema";
@@ -76,7 +76,7 @@ export const tools: Anthropic.Tool[] = [
   {
     name: "cotizar",
     description:
-      "Precio exacto de lo que la persona contrataría JUNTO (suma todo: implementación, abono y total del primer año). Usala antes de decir cualquier monto de una selección. Para comparar opciones alternativas usá comparar: cotizar nunca es para alternativas. Si están todas las partes de un combo, aplica el combo sola. No sirve para proyectos grandes.",
+      "Precio exacto de lo que la persona contrataría JUNTO (suma todo: pago único, cuota mensual y total del primer año). Usala antes de decir cualquier monto de una selección. Para comparar opciones alternativas usá comparar: cotizar nunca es para alternativas. Si están todas las partes de un combo, aplica el combo sola. No sirve para proyectos a medida (grandes).",
     eager_input_streaming: true,
     input_schema: {
       type: "object",
@@ -92,7 +92,7 @@ export const tools: Anthropic.Tool[] = [
   {
     name: "comparar",
     description:
-      "Muestra de 2 a 4 opciones ALTERNATIVAS lado a lado (precio, abono, plazo y para quién es), sin sumarlas ni dar un total. Usala cuando la persona elige entre opciones: Landing Express o Profesional, Mantenimiento Básico o Pro.",
+      "Muestra de 2 a 4 opciones ALTERNATIVAS lado a lado (precio, cuota mensual, plazo y para quién es), sin sumarlas ni dar un total. Usala cuando la persona elige entre opciones: dos páginas web distintas, o dos planes de mantenimiento.",
     eager_input_streaming: true,
     input_schema: {
       type: "object",
@@ -184,7 +184,7 @@ export function quoteCard(args: { planIds: string[]; extras?: string[]; medio?: 
   const principal = c.items.filter((i) => i.tipo !== "extra");
   const card: QuoteCard = {
     kind: "quote",
-    ids: [...new Set(args.planIds)],
+    ids: [...new Set(args.planIds.map(resolverId))],
     extras: [...new Set(args.extras ?? [])],
     titulo: c.items.length === 1 ? c.items[0].nombre : principal.map((i) => i.nombre).join(" + ") || "Tu cotización",
     implementacion: c.implementacion,
@@ -223,8 +223,8 @@ function conDedup(ctx: ToolContext, out: ToolOutcome): ToolOutcome {
   return out;
 }
 
-const GRANDES =
-  "Es un proyecto grande: no va con tarjeta de cotización ni con la demo de 72 horas. Proponé el camino consultoría inicial sin cargo → diagnóstico escrito ($60.000) → sprint con demo, y ofrecé la consultoría por WhatsApp con derivar_whatsapp.";
+const planEscrito = fmt(getPlan("diagnostico-escrito")?.impl ?? 0);
+const GRANDES = `Es un proyecto a medida (grande): no va con tarjeta de cotización ni con la demo de 72 horas. Proponé el camino charla gratis (20 min) → plan del proyecto por escrito (${planEscrito}, por adelantado) → etapas de 2 semanas con avance funcionando, cada una 50% al arrancarla y 50% al entregarla. Ofrecé la charla por WhatsApp con derivar_whatsapp.`;
 
 export function runTool(name: string, input: unknown, ctx: ToolContext): ToolOutcome {
   if (!(name in schemas)) return { content: `Herramienta desconocida: ${name}`, isError: true };

@@ -42,8 +42,8 @@ export const legalDocs: Record<LegalDoc["slug"], LegalDoc> = {
         blocks: [
           "Los servicios y sus precios están publicados en malejo.com.ar. Los precios están en pesos argentinos, son finales para el alcance descripto en cada plan y están vigentes hasta el 31/01/2027.",
           "Si lo que necesitás no entra en un plan publicado, te paso una cotización por escrito antes de empezar. Nada se cobra fuera de lo acordado por escrito.",
-          "Los costos de terceros van aparte y los paga el cliente directamente: mensajes de la API oficial de WhatsApp (Meta), consumo del modelo de IA, comisiones de Mercado Pago por venta y el registro del dominio.",
-          "Los proyectos grandes (marketplaces, apps a medida o sistemas complejos) no tienen precio cerrado: empiezan con una consultoría sin cargo y un diagnóstico escrito, y se desarrollan por sprints que se cotizan con ese diagnóstico. Su mantenimiento mensual es el {MANT_GRANDES} del valor de implementación.",
+          "Los costos de terceros van aparte y los paga el cliente directamente: mensajes de la API oficial de WhatsApp (la conexión oficial que cobra Meta por cada mensaje automático), consumo del modelo de IA (lo que cobra el servicio de inteligencia artificial por uso), comisiones de Mercado Pago por venta y el registro del dominio (la dirección web).",
+          "Los proyectos a medida (proyectos grandes: marketplaces, apps o sistemas complejos) no tienen precio cerrado: empiezan con una charla gratis de 20 minutos y un plan del proyecto por escrito, y se desarrollan por etapas de 2 semanas (sprints) que se cotizan en ese plan. Su mantenimiento mensual es el {MANT_GRANDES} del precio del proyecto.",
         ],
       },
       {
@@ -63,8 +63,8 @@ export const legalDocs: Record<LegalDoc["slug"], LegalDoc> = {
               "Transferencia bancaria: precio publicado, sin recargo.",
               "Mercado Pago: {RECARGO} de recargo sobre el precio publicado, en hasta 6 cuotas. El interés de las cuotas lo define Mercado Pago según la tarjeta.",
               "El total de la implementación se paga 50 % al aprobar la demo y 50 % en la entrega, con la seña descontada.",
-              "Proyectos grandes: cada sprint se paga según la cotización del diagnóstico.",
-              "Abonos mensuales: se pagan por mes adelantado. Pagando el año por adelantado, pagás 10 meses.",
+              "Proyectos a medida: el plan del proyecto por escrito se paga por adelantado, y cada etapa de 2 semanas se paga 50 % al arrancarla y 50 % al entregarla, según lo cotizado en ese plan.",
+              "Abonos (cuotas mensuales): se pagan por mes adelantado. Pagando el año por adelantado, pagás 10 meses.",
             ],
           },
         ],
@@ -78,7 +78,7 @@ export const legalDocs: Record<LegalDoc["slug"], LegalDoc> = {
       {
         heading: "5. Hosting, dominio y renovación",
         blocks: [
-          "Las webs incluyen 12 meses de hosting. Desde el mes 13 se renueva por $90.000 al año o se pasa a un plan de mantenimiento. Si no se renueva, te entrego el código y los accesos para que lo alojes donde quieras.",
+          "Las webs incluyen 12 meses de hosting (el servicio que mantiene la página online). Desde el mes 13 se renueva por $90.000 al año o se pasa a un plan de mantenimiento. Si no se renueva, te entrego el código y los accesos para que lo alojes donde quieras.",
           "El dominio se registra a nombre del cliente. Su costo va aparte del precio del plan, según la tarifa vigente de NIC.ar (o del registrador, para otros dominios), y yo me ocupo de registrarlo y configurarlo.",
           "Los planes de mantenimiento no tienen permanencia mínima: se dan de baja avisando con 30 días de anticipación.",
         ],
@@ -86,7 +86,7 @@ export const legalDocs: Record<LegalDoc["slug"], LegalDoc> = {
       {
         heading: "6. Propiedad del código y del contenido",
         blocks: [
-          "El código del proyecto es tuyo una vez pagado el total. El contenido que aportás (textos, fotos, marcas) sigue siendo tuyo. Puedo mostrar el trabajo terminado en mi portfolio salvo que pidas lo contrario por escrito.",
+          "En páginas web, catálogos, tiendas, turnos y mantenimiento, el código del proyecto es tuyo una vez pagado el total. En sistemas de gestión, asistentes con IA y proyectos a medida, la propiedad del código se define en la propuesta escrita, antes de empezar. El contenido que aportás (textos, fotos, marcas) sigue siendo tuyo. Puedo mostrar el trabajo terminado en mi portfolio salvo que pidas lo contrario por escrito.",
         ],
       },
       {
@@ -187,7 +187,7 @@ export const legalDocs: Record<LegalDoc["slug"], LegalDoc> = {
               "Vercel: aloja el sitio y mide visitas de forma agregada, sin cookies.",
               "Neon: base de datos donde se guardan los contactos.",
               "Anthropic: procesa los mensajes del chat para generar las respuestas del asistente.",
-              "Resend: envía el aviso por email cuando completás el brief de la demo.",
+              "Resend: envía el aviso por email cuando completás el formulario de la demo.",
             ],
           },
           "Algunos de estos proveedores procesan datos fuera de Argentina. [REVISAR CON UN ABOGADO: transferencia internacional de datos.]",

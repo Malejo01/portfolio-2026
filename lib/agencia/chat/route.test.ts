@@ -78,7 +78,7 @@ describe("/api/chat con modelo simulado", () => {
     const evs = await chat({ ...user("Tengo una peluquería, ¿cuánto salen los turnos con Mercado Pago?"), ficha: { ciudad: "Salta" } });
 
     expect(evs.map((e) => e.type)).toEqual(["text", "ficha", "card", "text", "done"]);
-    expect(evs[1].ficha).toEqual({ rubro: "Peluquería", planesInteres: ["Turnos online"] });
+    expect(evs[1].ficha).toEqual({ rubro: "Peluquería", planesInteres: ["Agenda de turnos online"] });
     expect(cards(evs)[0]).toMatchObject({ kind: "quote", implementacion: 190800, mensual: 23300, medio: "mp" });
     expect(textos(evs)).toBe("Te lo calculo.\nSon **$190.800** más el abono. ¿Querés ver la demo?");
 

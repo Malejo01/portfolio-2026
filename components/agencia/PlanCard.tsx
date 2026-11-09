@@ -15,8 +15,19 @@ export interface PlanCopy {
   monthlySuffix: string;
 }
 
-export function PlanCard({ plan, medio, copy }: { plan: Plan; medio: Medio; copy: PlanCopy }) {
+export function PlanCard({
+  plan,
+  medio,
+  copy,
+  heading = "h3",
+}: {
+  plan: Plan;
+  medio: Medio;
+  copy: PlanCopy;
+  heading?: "h2" | "h3";
+}) {
   const p = precioDePlan(plan, medio);
+  const H = heading;
 
   return (
     <article className={`card lift relative flex flex-col gap-4 p-[26px] ${plan.rec ? "hi" : ""}`}>
@@ -25,9 +36,12 @@ export function PlanCard({ plan, medio, copy }: { plan: Plan; medio: Medio; copy
           {copy.recommended}
         </span>
       ) : null}
-      <div className="flex items-start justify-between gap-2.5">
-        <h3 className="h text-xl">{plan.name}</h3>
-        {plan.time ? <span className="tag flex-none">⏱ {plan.time}</span> : null}
+      <div className="flex flex-col gap-1.5">
+        <div className="flex items-start justify-between gap-2.5">
+          <H className="h text-xl">{plan.name}</H>
+          {plan.time ? <span className="tag flex-none">⏱ {plan.time}</span> : null}
+        </div>
+        {plan.paraQuien ? <p className="m-0 text-[13px] leading-[1.45] text-muted">{plan.paraQuien}</p> : null}
       </div>
       <div>
         <span className="lbl text-[10px]">{p.etiqueta}</span>
@@ -45,7 +59,6 @@ export function PlanCard({ plan, medio, copy }: { plan: Plan; medio: Medio; copy
             <span className="text-muted">{copy.monthlySuffix}</span>
           </div>
         ) : null}
-        {plan.alt ? <div className="mt-1 text-[13px] text-muted">{plan.alt}</div> : null}
       </div>
       <ul className="m-0 flex list-none flex-col gap-[9px] p-0 text-sm">
         {plan.items.map((item) => (
@@ -66,7 +79,7 @@ export function PlanCard({ plan, medio, copy }: { plan: Plan; medio: Medio; copy
         ) : null}
         <Link
           href={`/demo?plan=${plan.id}`}
-          className={`btn btn-sm w-full ${plan.rec ? "btn-p" : "btn-s"}`}
+          className={`btn btn-sm min-h-11 w-full ${plan.rec ? "btn-p" : "btn-s"}`}
           aria-label={`${copy.planCta}: ${plan.name}`}
         >
           {copy.planCta}
@@ -98,6 +111,7 @@ export function ComboCard({
         {copy.saveLabel} {ahorro(combo)}%
       </span>
       <h4 className="h m-0 pr-[92px] text-[19px]">{combo.name}</h4>
+      {combo.paraQuien ? <p className="m-0 text-[13px] font-semibold leading-[1.45]">{combo.paraQuien}</p> : null}
       <p className="m-0 text-[13px] leading-[1.45] text-muted">{combo.parts}</p>
       <div className="mt-auto">
         <div className="text-[13px] text-muted line-through">{fmt(conRecargo(combo.list, medio))}</div>
@@ -109,7 +123,7 @@ export function ComboCard({
       </div>
       <Link
         href={`/demo?plan=${combo.id}`}
-        className="btn btn-s btn-sm w-full"
+        className="btn btn-s btn-sm min-h-11 w-full"
         aria-label={`${copy.comboCta}: ${combo.name}`}
       >
         {copy.comboCta}

@@ -50,19 +50,19 @@ const pct = `${Math.round(recargoMercadoPago * 100)}%`;
 
 export const home = {
   hero: {
-    label: "AI Developer · Argentina y LATAM",
+    label: "Mauro Lizárraga · Salta, Argentina",
     /** El H1 tecleado: dos líneas, palabra por palabra. `accent` = naranja. */
     lines: [
       [{ text: "Webs" }, { text: "y" }, { text: "apps" }],
       [{ text: "potenciadas" }, { text: "con" }, { text: "IA.", accent: true }],
     ] as { text: string; accent?: boolean }[][],
     ariaLabel: "Webs y apps potenciadas con IA.",
-    lead: "Webs, micro-apps y asistentes con IA para tu negocio. Listos en días, con precios publicados.",
+    lead: "Webs, sistemas y asistentes con IA para tu negocio. Listos en días, con precios publicados.",
     primary: { label: "Pedí tu demo", href: "/demo" },
     secondary: { label: "Ver servicios", href: "#servicios" },
     cards: [
-      { icon: "web", label: "Web", title: "Webs que venden", body: "Landing pages y sitios rápidos para tu negocio." },
-      { icon: "app", label: "Apps", title: "Apps a tu medida", body: "Turnos, reservas y paneles fáciles de usar." },
+      { icon: "web", label: "Web", title: "Webs que venden", body: "Una página para que te encuentren en Google y te escriban por WhatsApp." },
+      { icon: "app", label: "Apps", title: "Apps a tu medida", body: "Tus clientes sacan turno solos y vos ves la agenda en el celular." },
       { icon: "ia", label: "IA", title: "IA que atiende por vos", body: "Asistentes que responden las 24 horas." },
     ] satisfies HeroCard[],
   },
@@ -78,8 +78,8 @@ export const home = {
         icon: "web",
         label: "Web",
         title: "Webs que venden",
-        description: "Landings y sitios rápidos, con SEO local y botón de WhatsApp.",
-        items: ["Lista en 3 a 10 días", "12 meses de hosting incluidos", "El código es tuyo"],
+        description: "Tu página web, preparada para aparecer en Google cuando buscan tu rubro en tu ciudad, con botón de WhatsApp.",
+        items: ["Lista en 3 a 10 días", "El primer año online incluido, sin pagar nada más", "El código es tuyo"],
         from: { basis: "impl", suffix: "" },
       },
       {
@@ -87,8 +87,8 @@ export const home = {
         icon: "cart",
         label: "Ventas",
         title: "Catálogos y tiendas",
-        description: "Menú QR, catálogo con pedidos por WhatsApp o tienda con Mercado Pago.",
-        items: ["Sin comisiones por venta", "Cambiás precios en segundos", "Panel para cargar productos"],
+        description: "Mostrá tus productos con precio y recibí los pedidos armados por WhatsApp, o cobrá online.",
+        items: ["Sin comisiones por venta", "Cambiás precios en segundos", "Cargás y cambiás productos vos, desde el celular"],
         from: { basis: "impl", suffix: "" },
       },
       {
@@ -97,8 +97,8 @@ export const home = {
         label: "Agenda",
         title: "Turnos y reservas",
         description: "Tus clientes reservan solos y te llega todo ordenado.",
-        items: ["Recordatorios automáticos", "Seña con Mercado Pago", "Panel de horarios"],
-        from: { basis: "impl", suffix: " + abono" },
+        items: ["Recordatorios automáticos", "Seña con Mercado Pago", "Ves y cambiás tus horarios desde el celular"],
+        from: { basis: "impl", suffix: " + cuota mensual" },
       },
       {
         category: "gestion",
@@ -106,8 +106,8 @@ export const home = {
         label: "Gestión",
         title: "Sistemas para el día a día",
         description: "Stock, pedidos y clientes sin planillas sueltas.",
-        items: ["Stock con QR", "Pedidos y clientes", "Tablero de ventas"],
-        from: { basis: "impl", suffix: " + abono" },
+        items: ["Control de mercadería escaneando con el celular", "Pedidos y clientes en orden", "Tus ventas del mes en una sola pantalla"],
+        from: { basis: "impl", suffix: " + cuota mensual" },
       },
       {
         category: "ia",
@@ -115,7 +115,7 @@ export const home = {
         label: "IA",
         title: "IA que atiende por vos",
         description: "Asistentes en tu web o WhatsApp y automatizaciones que ahorran horas.",
-        items: ["Responde las 24 horas", "Cita fuentes reales", "Te pasa los contactos"],
+        items: ["Responde las 24 horas", "Responde solo con la información de tu negocio, no inventa", "Te pasa los contactos"],
         from: { basis: "impl", suffix: "" },
       },
       {
@@ -123,8 +123,8 @@ export const home = {
         icon: "wrench",
         label: "Soporte",
         title: "Mantenimiento",
-        description: "Hosting, backups y cambios incluidos para que no te preocupes.",
-        items: ["Respuesta en 24 a 48 h", "Cambios menores incluidos", "Reporte mensual (Pro)"],
+        description: "Tu página siempre funcionando, con copia de seguridad y alguien que te hace los cambios.",
+        items: ["Respuesta en 24 a 48 h", "Cambios chicos incluidos", "Informe mensual de visitas y consultas"],
         from: { basis: "monthly", suffix: "/mes" },
       },
     ] satisfies ServiceCard[],
@@ -136,7 +136,7 @@ export const home = {
     /** `{SENA}` = monto de `SENA_MONTO` formateado. */
     lead: "Te armo una demo de tu web antes de que pagues el total. Solo una seña de {SENA}.",
     items: [
-      { label: "Paso 1", title: "Contame tu idea", body: "Completás un brief corto o agendás un diagnóstico gratis de 20 minutos." },
+      { label: "Paso 1", title: "Contame tu idea", body: "Completás un formulario corto o agendás una charla gratis de 20 minutos." },
       { label: "Paso 2", title: "Seña de {SENA}", body: "Se descuenta completa del total si contratás." },
       { label: "Paso 3", title: "Demo en 72 h", body: "Te armo una demo con tu marca en 72 horas hábiles." },
       { label: "Paso 4", title: "Videollamada", body: "La vemos juntos en 20 minutos y decidís sin compromiso." },
@@ -154,34 +154,34 @@ export const home = {
     tabsLabel: "Categorías de servicios",
     recommended: "Recomendado",
     planCta: "Lo quiero",
-    monthlySuffix: "/mes de servicio",
+    monthlySuffix: " por mes (incluye que siga funcionando)",
     combosLabel: "Combos",
     combosTitle: "Juntá servicios y ahorrá",
     saveLabel: "Ahorrás",
     comboCta: "Quiero este combo",
     extrasLabel: "Extras",
-    legal: `Precios en pesos, vigentes hasta el ${vigencia}. Webs: 12 meses de hosting y 30 días de garantía incluidos. El total se paga 50% al aprobar la demo y 50% en la entrega; con Mercado Pago, hasta 6 cuotas. El dominio, los costos de Meta (WhatsApp) y los del modelo de IA van aparte.`,
+    legal: `Precios en pesos, vigentes hasta el ${vigencia}. Webs: el primer año online y 30 días de garantía incluidos. El total se paga 50% al aprobar la demo y 50% en la entrega; con Mercado Pago, hasta 6 cuotas. Tu dirección web, lo que cobra WhatsApp por cada mensaje automático y lo que cobra el servicio de inteligencia artificial van aparte.`,
     legalCta: { label: "¿No ves lo tuyo? Pedí una cotización", href: "/cotizador" },
     /** Pestaña "Proyectos grandes": tres pasos en vez de planes. */
     grandes: {
       stepLabel: "Paso",
       free: "Sin cargo",
-      maintenance: `Mantenimiento: ${Math.round(mantenimientoGrandesPct * 100)}% mensual del valor de implementación, sin permanencia.`,
-      cta: { label: "Agendá la consultoría", href: agendaGrandesHref },
+      maintenance: `Mantenimiento: ${Math.round(mantenimientoGrandesPct * 100)}% mensual del precio del proyecto, sin permanencia.`,
+      cta: { label: "Agendá la charla gratis", href: agendaGrandesHref },
     },
   },
 
   projects: {
     label: "Proyectos",
     title: "Lo que ya está andando",
-    lead: "Productos propios y trabajos para clientes.",
+    lead: "Proyectos propios que ya están funcionando.",
     all: { label: "Ver todo en el portfolio →", href: "/portfolio#casos" },
     featured: {
       key: "afiniajobs",
       name: "AfinIA Jobs",
-      label: "Producto propio · beta",
+      label: "Proyecto propio · en prueba",
       description: "Lee cada aviso contra tu perfil y te dice qué tan afín es y qué te falta.",
-      tags: ["Next.js", "IA", "PostgreSQL"],
+      tags: ["Empleo", "Ordena avisos solo"],
       href: agenciaLinks.afinia,
       alt: "AfinIA Jobs: portada con ofertas de empleo puntuadas según el perfil",
     } satisfies Project,
@@ -209,10 +209,10 @@ export const home = {
     wide: {
       key: "maestria",
       name: "MaestrIA",
-      label: "Producto propio · en desarrollo",
+      label: "Proyecto propio · en construcción",
       description:
         "El docente sube su programa y la IA arma evaluaciones alineadas. Cuando el alumno se equivoca, primero diagnostica el error y después da la respuesta.",
-      tags: ["Next.js", "IA", "Neon", "EdTech"],
+      tags: ["Educación", "Arma evaluaciones"],
       href: agenciaLinks.maestria,
       alt: "MaestrIA: inicio para practicar con cuestionarios generados con IA",
     } satisfies Project,
@@ -222,16 +222,15 @@ export const home = {
 
   about: {
     label: "Quién está detrás",
-    title: "De profe de matemática a AI Developer.",
+    title: "De profe de matemática a desarrollador: explico simple y entrego rápido.",
     body: "Soy Mauro Lizárraga. Durante años expliqué matemática en institutos terciarios; hoy uso ese mismo oficio para que la tecnología se entienda y funcione para tu negocio.",
     story: [
       "Desde 2023 doy clases de matemática a nivel terciario, donde también fui formador y evaluador docente.",
-      "En 2025 trabajé como desarrollador full-stack en Accenture, en plataformas internas y chatbots con IA. Hoy construyo mis propios productos: Qué Pinta Salta, AfinIA Jobs, Tuki y MaestrIA.",
+      "En 2025 trabajé como desarrollador en Accenture, armando sistemas internos y asistentes con IA para una multinacional. Hoy construyo mis propios productos: Qué Pinta Salta, AfinIA Jobs, Tuki y MaestrIA.",
       "Me formé en IA aplicada con DataCamp y Anthropic Academy. Mi forma de trabajar: entender primero, explicar claro y entregar rápido.",
     ],
     more: "Leer la historia completa",
     less: "Ver menos",
-    photo: "Foto profesional",
     spriteAlt: "Mauro en pixel art con las manos en los bolsillos",
   },
 

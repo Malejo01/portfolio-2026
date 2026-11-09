@@ -12,7 +12,7 @@ describe("herramientas del agente", () => {
   it("cotizar usa cotizar() y arma la tarjeta", () => {
     const out = runTool("cotizar", { planIds: ["combo-web-turnos"] }, ctx());
     expect(out.isError).toBeUndefined();
-    expect(out.card).toMatchObject({ kind: "quote", implementacion: 450000, mensual: 45000, demoHref: "/demo?plan=combo-web-turnos" });
+    expect(out.card).toMatchObject({ kind: "quote", implementacion: 450000, mensual: 45000, demoHref: "/demo?plan=combo-negocio-con-turnos" });
   });
 
   it("rechaza input inválido o ids inventados", () => {
@@ -91,7 +91,7 @@ describe("cotizar vs comparar (F1 de producción)", () => {
       const out = runTool(name, input, ctx());
       expect(out.isError, name).toBe(true);
       expect(out.card, name).toBeUndefined();
-      expect(out.content).toContain("consultoría");
+      expect(out.content).toContain("charla gratis (20 min)");
     }
   });
 });
@@ -136,7 +136,7 @@ describe("ficha", () => {
     expect(out.card).toBeUndefined();
     expect(out.ficha?.rubro).toBe("Peluquería");
     expect(out.ficha?.necesidad).toHaveLength(300);
-    expect(out.ficha?.planesInteres).toEqual(["Turnos online", "Combo Negocio con turnos"]);
+    expect(out.ficha?.planesInteres).toEqual(["Agenda de turnos online", "Combo Página + turnos"]);
     expect(c.ficha.rubro).toBe("Peluquería");
   });
 
@@ -155,11 +155,11 @@ describe("ficha", () => {
 
   it("derivar_whatsapp arma el mensaje desde la ficha y la última cotización", () => {
     const firma = firmaCard(runTool("cotizar", { planIds: ["turnos-online"] }, ctx()).card!);
-    const out = runTool("derivar_whatsapp", { resumen: "Quiere avanzar" }, ctx({ rubro: "Peluquería", necesidad: "Turnos online" }, [firma]));
+    const out = runTool("derivar_whatsapp", { resumen: "Quiere avanzar" }, ctx({ rubro: "Peluquería", necesidad: "Agenda de turnos online" }, [firma]));
     expect(out.card?.kind).toBe("whatsapp");
     const texto = decodeURIComponent((out.card as Extract<Card, { kind: "whatsapp" }>).href.split("text=")[1]);
     expect(texto).toContain("Rubro: Peluquería");
-    expect(texto).toContain("Cotización: Turnos online · $180.000 + $22.000/mes");
+    expect(texto).toContain("Cotización: Agenda de turnos online · $180.000 + $22.000/mes");
     expect(out.ficha).toEqual({ etapa: "derivado" });
   });
 });
@@ -167,9 +167,9 @@ describe("ficha", () => {
 describe("tarjetas en el historial (F4)", () => {
   it("una línea compacta por tarjeta", () => {
     const quote = runTool("cotizar", { planIds: ["turnos-online"], medio: "mp", moneda: "usd" }, ctx()).card!;
-    expect(lineaTarjeta(quote)).toBe("[Tarjeta mostrada · Cotización: Turnos online · MP · $190.800 + $23.300/mes · ≈ USD 190 + USD 23/mes]");
+    expect(lineaTarjeta(quote)).toBe("[Tarjeta mostrada · Cotización: Agenda de turnos online · MP · $190.800 + $23.300/mes · ≈ USD 190 + USD 23/mes]");
     const cmp = runTool("comparar", { ids: ["landing-express", "landing-profesional"] }, ctx()).card!;
-    expect(lineaTarjeta(cmp)).toBe("[Tarjeta mostrada · Comparación: Landing Express | Landing Profesional]");
+    expect(lineaTarjeta(cmp)).toBe("[Tarjeta mostrada · Comparación: Página Esencial | Página para aparecer en Google]");
     expect(lineaTarjeta({ kind: "demo", demoHref: "/demo", agendaHref: "" })).toBe("[Tarjeta mostrada · Demo]");
     expect(lineaTarjeta({ kind: "whatsapp", href: "" })).toBe("[Tarjeta mostrada · WhatsApp]");
   });

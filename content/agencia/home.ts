@@ -63,7 +63,7 @@ export const home = {
     label: "Cómo trabajo",
     title: "Primero ves tu demo, después decidís",
     /** `{SENA}` = monto de `SENA_MONTO` formateado. */
-    lead: "Te armo una demo antes de que pagues el total. Solo una seña de {SENA}, que se descuenta.",
+    lead: "Ves tu demo antes de pagar el total. La seña de {SENA} se descuenta.",
     items: [
       { title: "Me contás", body: "Por el chat, por WhatsApp o en una charla gratis de 20 minutos." },
       { title: "Seña de {SENA}", body: "Se descuenta completa del total si contratás." },
@@ -77,7 +77,7 @@ export const home = {
 
   team: {
     label: "Quién te va a atender",
-    title: "Soy Mauro: Malejo te orienta y yo hago tu proyecto.",
+    title: "Soy Mauro, detrás de Malejo.",
     body: [
       "Fui profe de matemática en institutos terciarios: explico simple y sin vueltas.",
       "Trabajé en Accenture y hoy armo páginas, sistemas y asistentes para negocios de Salta y de toda Argentina.",

@@ -1,35 +1,57 @@
+import Link from "next/link";
 import { home } from "@/content/agencia/home";
 import { senaMonto } from "@/lib/agencia/config";
 import { fmt } from "@/lib/agencia/pricing";
-import { Reveal, RevealGroup, RevealItem } from "../client/Reveal";
+import { Reveal } from "../client/Reveal";
 
 /** Reemplaza `{SENA}` por el monto de `SENA_MONTO` (default $20.000). */
 export function withSena(text: string): string {
   return text.replaceAll("{SENA}", fmt(senaMonto()));
 }
 
-/** Cómo trabajo: 4 pasos (`04-como-trabajo-*.png`). */
+/**
+ * Cómo trabajo: 5 pasos, el último es el 50/50 (tanda R2). Una sola lista:
+ * en celular es una tarjeta con los pasos numerados (auditoría §6.4); desde
+ * `sm` cada paso es su propia tarjeta, en fila de 5 en escritorio.
+ */
 export function Steps() {
   const { steps } = home;
 
   return (
-    <section id="como-trabajo" className="wrap pt-[72px] sm:pt-24">
+    <section id="como-trabajo" className="wrap pt-14 sm:pt-16">
       <Reveal>
         <span className="lbl lbl-o">{steps.label}</span>
         <h2 className="h h2">{steps.title}</h2>
         <p className="mb-0 mt-2 text-[17px] text-muted">{withSena(steps.lead)}</p>
       </Reveal>
-      <RevealGroup className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {steps.items.map((s) => (
-          <RevealItem key={s.label} className="flex">
-            <div className="card flex flex-1 flex-col gap-2.5 p-6">
-              <span className="lbl lbl-o">{s.label}</span>
-              <h3 className="h text-xl">{withSena(s.title)}</h3>
-              <p className="m-0 text-sm leading-normal text-muted">{s.body}</p>
-            </div>
-          </RevealItem>
-        ))}
-      </RevealGroup>
+      <Reveal>
+        <ol className="card m-0 mt-6 flex list-none flex-col gap-3 p-5 sm:mt-7 sm:grid sm:grid-cols-2 sm:gap-5 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none lg:grid-cols-5">
+          {steps.items.map((s, i) => (
+            <li key={s.title} className="flex gap-3.5 sm:flex-col sm:gap-2.5 sm:rounded-[22px] sm:border sm:border-border sm:border-t-hl sm:bg-surf sm:p-5 sm:shadow-card">
+              <span
+                aria-hidden="true"
+                className="inline-flex h-8 w-8 flex-none items-center justify-center rounded-[10px] bg-ic-bg font-mono text-sm font-semibold text-acc-text"
+              >
+                {i + 1}
+              </span>
+              <div className="flex flex-col gap-1">
+                <h3 className="h text-[17px] sm:text-xl">
+                  <span className="sr-only">
+                    {steps.stepLabel} {i + 1}:{" "}
+                  </span>
+                  {withSena(s.title)}
+                </h3>
+                <p className="m-0 text-sm leading-normal text-muted">{s.body}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </Reveal>
+      <div className="mt-3 sm:mt-4">
+        <Link href={steps.demo.href} className="lnk min-h-11 text-[15px]">
+          {steps.demo.label}
+        </Link>
+      </div>
     </section>
   );
 }

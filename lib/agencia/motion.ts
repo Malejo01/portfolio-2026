@@ -27,6 +27,3 @@ export const STATIC: Variants = {
 };
 
 export const NO_STAGGER: Variants = { hidden: {}, show: {} };
-
-/** Evento con el que "Ver precios →" abre una pestaña del catálogo. */
-export const OPEN_CATEGORY_EVENT = "malejo:abrir-categoria";

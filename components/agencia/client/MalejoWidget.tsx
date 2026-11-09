@@ -532,7 +532,11 @@ function CompareCard({ card, copy }: { card: Extract<Card, { kind: "compare" }>;
               </span>
             ) : null}
             {f.paraQuien ? <span className="text-[12px] leading-snug text-muted">{f.paraQuien}</span> : null}
-            {f.alt ? <span className="text-[12px] leading-snug text-muted">{f.alt}</span> : null}
+            {f.alt ? (
+              <span className="text-[12px] leading-snug text-muted">
+                {copy.compare.alt} {f.alt}
+              </span>
+            ) : null}
             <Link href={`/demo?plan=${encodeURIComponent(f.id)}`} className="lnk self-start text-[13px]">
               {copy.compare.choose} →
             </Link>

@@ -225,7 +225,7 @@ describe("cotizar vs comparar (F1 de las pruebas)", () => {
 
   it("comparar trae la otra forma de pago, para quién es y el recomendado", () => {
     const pro = comparar({ ids: ["landing-express", "landing-profesional"] }).filas[1];
-    expect(pro.alt).toContain("$49.000 por mes");
+    expect(pro.alt).toMatch(/^\$90\.000 de entrada y \$49\.000 por mes/);
     expect(pro.paraQuien).toBe(getPlan("landing-profesional")!.paraQuien);
     expect(pro.recomendado).toBe(true);
   });

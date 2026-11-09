@@ -49,6 +49,7 @@ export const malejoCopy = {
     recommended: "Recomendado",
     perMonth: "/mes",
     usd: "Dólares al oficial del día",
+    alt: "Otra forma de pago:",
     choose: "Pedir demo",
   },
   proyectos: { label: "Proyectos de Mauro", portfolio: "Ver todo en el portfolio" },

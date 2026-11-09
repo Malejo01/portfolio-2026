@@ -25,7 +25,7 @@ export function catalogo(): string {
       const abono = d.abono ? ` + ${fmt(d.abono)}/mes` : "";
       const plazo = p.time ? ` · plazo ${p.time}` : "";
       const rec = p.rec ? " · RECOMENDADO" : "";
-      const alt = p.alt ? ` ${p.alt}` : "";
+      const alt = p.alt ? ` Otra forma de pago: ${p.alt}` : "";
       lineas.push(`- [${p.id}] ${p.name}: ${precio}${abono}${plazo}${rec}. ${p.items.join("; ")}.${alt}`);
     }
   }

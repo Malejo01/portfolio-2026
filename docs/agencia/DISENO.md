@@ -2,6 +2,8 @@
 
 Este documento y `referencia.html` son **la fuente de verdad** para construir la home de la agencia en `app/(agencia)`. El diseño está aprobado: se implementa tal cual, sin reinterpretarlo. Si algo de acá choca con una regla del repo, avisá la discrepancia en vez de resolverla en silencio.
 
+> **Tanda R2 (9-11-2026).** Mauro aprobó la home corta de la auditoría (`auditoria-ux-2026-11-08.md` §6). Este documento ya describe **lo vigente**: orden de la home, menú, hero, "¿Qué necesitás?", "Cómo trabajo" en 5 pasos, "Quién te va a atender", cierre, pie, `/precios` y el flotante sin toast. La piel visual (tokens, forma, tipografía, movimiento) no cambió. `referencia.html` sigue sirviendo para medidas y piezas, pero **su orden de secciones y su copy son históricos**: ante una diferencia, gana este documento.
+
 | Archivo | Qué es |
 |---|---|
 | `docs/agencia/capturas-diseno/*.png` | **39 capturas** de cada sección y estado, en oscuro y claro (índice en `PROMPT.md` §2). |
@@ -86,62 +88,69 @@ Oscuro es el modo por defecto. La clase `dark` en `<html>` la escribe un script 
 
 ## 4. Layout
 - Contenedor: `max-width: 1240px`, padding lateral 32 px. Secciones: `padding-top: 96px`; cierre con `padding-bottom: 96px`.
-- Orden de la home: **Menú → Hero → Servicios → Cómo trabajo → Precios → Proyectos → Sobre mí → FAQ → Cierre → Pie** + flotante (sprite, toast y chat).
+- Orden de la home (R2): **Menú → Hero → ¿Qué necesitás? → Cómo trabajo → Quién te va a atender → Cierre (con 3 preguntas) → Pie** + flotante (sprite y chat). Objetivo medido: ≤ 3,5 pantallas en escritorio (1440 × 900) y ≤ 5,5 en celular (390 × 844).
+- Secciones: `padding-top` 64 px (56 en celular); cierre con `padding-bottom` 80 px.
+- El catálogo completo (pestañas, combos, extras, medio de pago) vive en **`/precios`**, no en la home. La home deja un ancla `id="precios"` junto a "Ver todos los precios →" para no romper los `/#precios` compartidos.
 
 ### Menú (sticky)
-`header` sticky arriba, padding 16 px 0, fondo `--nav-bg` con `backdrop-filter: blur(12px)`. Adentro, una tarjeta-píldora (radio 18, padding 8/8/8/22): isotipo naranja 30 px + "Malejo" (Outfit 800, 22 px) · links (Servicios activo con fondo `--ic-bg` y texto `--acc-text`, Precios, Proyectos, Cómo trabajo, Blog, Portfolio + chip "EN") · botón de tema 44×44 (sol en oscuro, luna en claro) · "Pedí tu demo" (botón chico).
+`header` sticky arriba, padding 16 px 0, fondo `--nav-bg` con `backdrop-filter: blur(12px)`. Adentro, una tarjeta-píldora (radio 18, padding 8/8/8/22): isotipo naranja 30 px + "Malejo" (Outfit 800, 22 px) · links **Soluciones** (`/servicios`) · **Precios** (`/precios`) · Cómo trabajo · Proyectos · Blog (el activo con fondo `--ic-bg` y texto `--acc-text`; cada página marca el suyo) · botón de tema 44×44 (sol en oscuro, luna en claro) · **"Hablá con Malejo"** (botón chico, abre el chat). El portfolio **no** va en el menú: está en el pie como "Mi CV (en inglés)".
+- En celular: logo · botón de WhatsApp 44×44 · ☰.
 - El botón **"Estilo"** de la referencia **no va en v1** (vuelve cuando existan Sobrio, Brillante y Didáctico).
 
 ### Hero
 Grilla `2fr 1fr`, gap 20, alto mínimo 560.
 - Izquierda: bloque grande, padding 56, contenido centrado vertical, gap 24. Marca de agua: isotipo de 420 px en `right:-90px; bottom:-120px`, color `--acc`, opacidad .07, trazo 3,2, `pointer-events:none`.
-  - Etiqueta: "AI Developer · Argentina y LATAM".
-  - H1 tecleado (§7).
-  - Bajada: "Webs, micro-apps y asistentes con IA para tu negocio. Listos en días, con precios publicados." (19 px, máx. 28em).
-  - Botones: "Pedí tu demo" (primario) y "Ver servicios" (secundario).
-- Derecha: 3 tarjetas apiladas (gap 16): ícono + etiqueta mono, título 21 px y una línea. Web · "Webs que venden" · Apps · "Apps a tu medida" · IA · "IA que atiende por vos".
+  - Etiqueta: "Mauro Lizárraga · Salta, Argentina".
+  - H1 tecleado (§7), **sin cambios**: "Webs y apps potenciadas con **IA.**".
+  - Bajada: "Webs, sistemas y asistentes con IA para tu negocio. Listos en días, con precios publicados." (19 px, máx. 28em).
+  - Botones: "Contame qué necesitás" (primario, **abre el chat de Malejo**; sin JS, WhatsApp) y "Escribime por WhatsApp" (secundario).
+- Derecha: 3 tarjetas-garantía apiladas (gap 16), con ✓ en caja `.ic`: "Precios publicados" · "Ves tu demo antes de pagar el total" · "50% al aprobar, 50% al recibir". En celular van en lista (no en carrusel), compactas. Alto mínimo del bloque: 480 px.
 
-### Servicios
-Etiqueta "Servicios" + H2 "Qué hago por tu negocio". Grilla de 3 columnas × 2 filas, gap 20. Cada tarjeta (padding 26): ícono + etiqueta · título 24 · descripción · 3 ítems con ✓ verde (`--ok`) · pie con borde superior: "Desde **$…**" y link "Ver precios →", que lleva a `#precios` **y abre la pestaña de esa categoría**. Textos y precios en `referencia.html`.
+### ¿Qué necesitás? (antes "Servicios")
+Etiqueta "¿Qué necesitás?" + H2 "Elegí lo que le pasa a tu negocio". **6 baldosas** `card lift` (3 columnas en escritorio, **2 en celular**, gap 20/12): ícono · el problema como título (link a `/servicios/[slug]` que cubre toda la tarjeta) · una línea · pie con borde superior: "Desde **$…** →" y el link chico "Preguntale a Malejo" (abre el chat con ese tema). Sin lista de ítems. Debajo: "¿Algo más grande? Proyectos a medida →" y "Ver todos los precios →". Las mismas baldosas arman `/servicios`.
 
 ### Cómo trabajo
-H2 "Primero ves tu demo, después decidís" + bajada sobre la seña. 4 tarjetas: Paso 1 Contame tu idea · Paso 2 Seña · Paso 3 Demo en 72 h · Paso 4 Videollamada. **El monto de la seña sale de configuración** (`SENA_MONTO`, hoy $20.000), nunca escrito en la copy.
+H2 "Primero ves tu demo, después decidís" + bajada sobre la seña. **5 pasos** numerados: Me contás (charla gratis) · Seña de $X (se descuenta) · Demo en 72 h · La vemos juntos (20 min) · **50% y 50%**. En escritorio, 5 tarjetas en fila; en celular, **una sola tarjeta** con la lista numerada. Debajo, "Pedí tu demo →". **El monto de la seña sale de configuración** (`SENA_MONTO`, hoy $20.000), nunca escrito en la copy.
 
-### Precios (estilo catálogo)
+### Precios (estilo catálogo) — página `/precios`
+- Desde R2 vive en `/precios` (H1), no en la home.
 - Encabezado a dos columnas: H2 "Todo con precio publicado" + bajada; a la derecha, **selector de medio de pago** (`role="radiogroup"`): "Transferencia" | "Mercado Pago +6%". El activo va en naranja con halo; cambiarlo **recalcula todos los precios** (×1,06, redondeado a $100).
-- **Pestañas** (`role="tablist"`) dentro de una tarjeta con padding 6 y radio 20: Webs · Catálogos y tiendas · Turnos y reservas · Sistemas de gestión · IA y automatización · Mantenimiento. Activa: fondo `--ic-bg`, texto `--acc-text`.
+- **Pestañas** (`role="tablist"`) dentro de una tarjeta con padding 6 y radio 20, con nombre de problema: Que te encuentren · Vender por internet · Turnos y reservas · Ordenar tu negocio · Atender 24 h con IA · Que siga funcionando · Proyectos a medida. Activa: fondo `--ic-bg`, texto `--acc-text`. **En celular** (< 640 px) las pestañas se reemplazan por un `<select>` nativo: las 7 no entraban y no se notaba que había más.
 - Debajo, la introducción de la categoría (`intro`) y la grilla de planes (3 columnas, gap 20). Tarjeta de plan (padding 26, gap 16):
   - Badge "RECOMENDADO" (píldora naranja arriba a la izquierda, `top:-12px`) solo en el plan con `rec`. Ese plan usa la variante `.hi` y su botón es primario.
-  - Nombre (20 px) + chip de plazo "⏱ 5 a 7 días".
-  - Etiqueta "Implementación" / "Desde" / "Abono" · precio 34 px · unidad ("pago único", "por flujo", "/mes"). Si tiene abono: "+ **$X**/mes de servicio". Si tiene `alt`, una línea gris.
-  - Ítems con ✓ · al pie, la prueba ("● Como en Tuki") y el botón "Lo quiero".
-- Nota de la categoría (`note`) en 13 px.
-- **Combos**: etiqueta + H3 "Juntá servicios y ahorrá" · 4 tarjetas (el segundo en `.hi`): badge verde "AHORRÁS X%" arriba a la derecha, nombre, qué incluye, precio de lista tachado, precio del combo, abono y "Quiero este combo".
+  - Nombre (20 px) + chip de plazo "⏱ 5 a 7 días" y, debajo, **"para quién es"** en 13 px gris.
+  - Etiqueta "Pago único" / "Desde" / "Cuota mensual" · precio 34 px · unidad ("por cada tarea automatizada", "/mes"; "pago único" no se repite). Si tiene cuota: "+ **$X** por mes (incluye que siga funcionando)". La "otra forma de pago" (`alt`) **ya no va en la tarjeta**.
+  - Ítems con ✓ · al pie, la prueba ("● Como en Tuki") y el botón "Lo quiero" (44 px de alto).
+- Nota de la categoría (`note`) en 13 px y, si hay, "Otras formas de pago" debajo.
+- **Combos**: etiqueta + H3 "Juntá soluciones y ahorrá" · 4 tarjetas (el segundo en `.hi`): badge verde "AHORRÁS X%" arriba a la derecha, nombre, para quién es, qué incluye, precio de lista tachado, precio del combo, cuota mensual y "Quiero este combo".
 - **Extras**: tarjeta con la etiqueta "Extras" y chips "Nombre **$precio**".
-- Pie legal en 13 px: vigencia, 12 meses de hosting, 3 pagos sin recargo desde $450.000, costos de Meta e IA aparte, link "¿No ves lo tuyo? Pedí una cotización".
+- Pie legal en 13 px: vigencia, primer año online y garantía incluidos, **50% al aprobar la demo y 50% en la entrega** (ya no hay "3 pagos sin recargo"), lo que cobran WhatsApp y el servicio de IA aparte, link "¿No ves lo tuyo? Contame qué necesitás".
 - Datos: `docs/agencia/datos/precios.json` → `content/agencia/pricing.ts` tipado. **Un solo origen**: la sección de precios, `/servicios/[slug]`, el cotizador y el agente Malejo leen de ahí.
 
-### Proyectos
-Encabezado con "Ver todo en el portfolio →" a la derecha. Grilla `1.35fr 1fr`, gap 20:
-1. **AfinIA Jobs** (izquierda, bloque grande): captura (relación 960/439, radio 20, `object-fit: cover`, `object-position: top`) y debajo etiqueta "Producto propio · beta", título 32, descripción, tags y botón cuadrado 48 px con flecha (link a afiniajobs.com.ar).
-2. Derecha, dos tarjetas apiladas: **Qué Pinta Salta** (Web + app) y **Tuki** (Web + app, "Concebido en NOA Innova 2026").
-3. **MaestrIA** a todo el ancho (`grid-column: 1 / -1`): captura a la izquierda (`1.35fr`) y texto a la derecha con "Producto propio · en desarrollo", título, descripción, tags y "Ver MaestrIA →".
-- En el sitio las capturas son `<video autoplay muted loop playsinline preload="none" poster="/agencia/proyectos/<x>.jpg">` con `/agencia/proyectos/<x>.mp4`. Con reducir movimiento: solo el póster.
+### Quién te va a atender (une Proyectos y Sobre mí)
+Conserva los `id` `#proyectos` y `#sobre-mi`. Etiqueta con isotipo de 18 px "Quién te va a atender". Grilla `1fr 2.1fr` (una columna en celular):
+1. Bloque grande: **foto** de Mauro (si existe `public/agencia/marca/mauro.jpg`, se resuelve en el build) o, mientras no esté, **solo el sprite** "bolsillos" en una caja `--ic-bg` de radio 22 — **sin el recuadro punteado ni "Foto profesional"**. H2 "Soy Mauro, y te atiendo yo." y dos líneas (profe de matemática; Accenture y negocios de Salta). El H2 viejo "De profe de matemática a AI Developer." y la historia en `<details>` salieron.
+2. "Proyectos propios que ya están funcionando": 3 tarjetas `card lift` (Qué Pinta Salta, Tuki, AfinIA Jobs) con la captura (relación 960/439, MP4 sobre póster; el video no suma alto), el nombre como etiqueta, **el problema que resuelve** como título y "Se parece a: <plan>" con link a la solución. **Sin etiquetas de tecnología.** En celular, carrusel horizontal. Debajo, "Ver más proyectos →" a `/portfolio#casos`.
 
-### Sobre mí, FAQ, cierre y pie
-- **Sobre mí**: bloque grande, grilla `260px 1fr`. Foto profesional (placeholder punteado hasta tenerla) con el sprite "bolsillos" asomando abajo a la derecha. Etiqueta con isotipo de 18 px, H2 "De profe de matemática a AI Developer.", párrafo y "Leer la historia completa" (con `<details>`, sin JS).
-- **FAQ**: máx. 920 px, 6 preguntas en tarjetas; la primera abierta. Signo +/− en caja de 32 px con fondo `--ic-bg`.
-- **Cierre**: bloque grande `.hi` con fondo `radial-gradient(80% 120% at 100% 0%, var(--ic-bg) 0%, var(--surf) 55%)`, grilla `1.4fr 1fr`: isotipo de 56 px, etiqueta "Empecemos", H2 52 px "¿Lo charlamos?", bajada; a la derecha "Escribime por WhatsApp" (primario, 56 px de alto), "Agendá una videollamada" y "O preguntale a Malejo, abajo a la derecha."
-- **Pie**: borde superior, grilla `1.4fr repeat(3, 1fr)`: isotipo + "Malejo" y "Desarrollado y gestionado por Mauro Lizárraga · Salta, Argentina." · Agencia (Servicios, Precios, Cotizador, Proyectos, Blog) · Mauro (Portfolio (EN), Mi historia) · Legal (Términos y política de cambios, Privacidad y datos personales).
+### Cierre, FAQ y pie
+- **FAQ**: el FAQ largo salió de la home. Cada solución tiene el suyo (máx. 920 px, tarjetas, la primera abierta, signo +/− en caja de 32 px con fondo `--ic-bg`). En la home quedan 3 preguntas compactas dentro del cierre (cerradas, en fila de 3 en escritorio).
+- **Cierre**: bloque grande `.hi` con fondo `radial-gradient(80% 120% at 100% 0%, var(--ic-bg) 0%, var(--surf) 55%)`, grilla `1.4fr 1fr`: isotipo de 48 px (oculto en celular), etiqueta "Empecemos", H2 52 px "¿Lo charlamos?", bajada; a la derecha **"Contame qué necesitás"** (primario, 56 px de alto, abre el chat), "Escribime por WhatsApp" y "Agendá una videollamada" (secundarios). Debajo, a todo el ancho, las 3 preguntas.
+- **Pie**: borde superior, grilla `1.4fr repeat(3, 1fr)` (2 columnas en celular): isotipo + "Malejo" y "Desarrollado y gestionado por Mauro Lizárraga · Salta, Argentina." · Agencia (Soluciones, Precios, Cotizador, Proyectos, Blog) · Mauro (Quién soy, **Mi CV (en inglés)**) · Legal (Términos y política de cambios, Privacidad y datos personales). Links de 44 px de alto en celular.
+
+### Página de cada solución (`/servicios/[slug]`)
+Plantilla única (auditoría §6.2): volver · etiqueta de la categoría · H1 con el problema · bajada · "Para quién es" · 3 beneficios en tarjetas con ✓ · **"Lo que te recomiendo"**: el plan recomendado (`.hi`) junto a los combos que lo incluyen y "Ver los otros N planes" en `<details>` (sin JS) · un proyecto parecido (póster + problema + qué demuestra) · "Cómo se paga" (50/50, Mercado Pago, cuota mensual, lo que se paga aparte, otras formas de pago) · preguntas propias · cierre `.hi` con el chat (primario), "Pedí tu demo" y WhatsApp. En **Proyectos a medida**: los 3 pasos en vez de planes, pago por etapas, sin demo de 72 h, sin cotizador y sin "la página es tuya".
 
 ## 5. Flotante: sprite, toast y chat de Malejo
 Contenedor `position: fixed; right: 28px; bottom: 0; z-index: 60`, flex alineado abajo, gap 12.
 - **Sprite = botón** (`aria-label="Abrir chat con Malejo"`, `aria-expanded`): etiqueta naranja "CHAT" (mono 10 px, pasa a "CERRAR" con el chat abierto) sobre el pixel art de 54×123. Pose **ok** cerrado; **pensando** con el chat abierto mientras responde. Respira 1 px cada 3 s.
-- **Toast del portfolio** (`role="status"`), 280 px, radio 18: "¿Querés ver mi portfolio?" · "Proyectos, stack y experiencia. En inglés." · "Ver portfolio →" (a `/portfolio/en`) · botón ✕ · barra de tiempo naranja de 3 px. Aparece a los **2 s**, se va solo a los **10 s**, no vuelve en la sesión (`sessionStorage`) y no se muestra con el chat abierto.
+- **En celular** (< 640 px) el botón es compacto: **solo la cabeza del sprite** en una caja de 56 × 64 con fondo `--ic-bg`, radio 18 y borde `--border`, a 12 px del borde inferior y derecho, para no tapar tarjetas (auditoría P1-7).
+- **Malejo es el asesor principal** (R2): cualquier botón "Contame qué necesitás", "Hablá con Malejo" o "Preguntale a Malejo" abre el chat con el evento `malejo:abrir` (con un tema opcional, que sale ya enviado). Sin JS o si el widget no carga, esos botones son links a WhatsApp.
+- **Toast del portfolio: apagado en el sitio de la agencia** (R2). El portfolio está en el pie como "Mi CV (en inglés)".
 - **Ventana de chat** (`role="dialog"`), 380×600, radio 24, al lado del sprite, entra con `opacity` + `scale .96→1` en 220 ms desde abajo a la derecha:
   - Encabezado: avatar 40 px (sprite recortado sobre `--ic-bg`), "Malejo" + punto verde, "Responde al instante · Lo supervisa Mauro", ✕.
   - Mensajes: bot con burbuja `--surf-2` y borde (radio 16/16/16/6) y avatar 32 px; usuario con fondo `--ic-bg` y texto `--user-text` (radio 16/16/6/16). Las respuestas de herramientas son tarjetas `.hi` (cotización: etiqueta, nombre, precio, abono, botón "Pedir demo con seña de $X").
-  - Abajo: chips (Hablar por WhatsApp · Ver otros planes · Ver portfolio), campo hundido + botón enviar 44×44 y el aviso "Si me dejás tu nombre y WhatsApp, los uso solo para contactarte. Privacidad".
+  - Saludo: "Hola, soy Malejo, el asistente de Mauro. Contame qué te pasa en tu negocio y te digo qué te conviene y cuánto sale."
+  - Abajo: **chips por problema** mientras no hay mensajes del usuario (Que me encuentren en Google · Vender por WhatsApp o internet · Que saquen turno solos · Ordenar stock y pedidos · Responder las 24 h · No sé qué necesito · Hablar con Mauro); después queda solo "Hablar con Mauro" (WhatsApp con la ficha). Campo hundido + botón enviar 44×44 y el aviso "Si me dejás tu nombre y WhatsApp, los uso solo para contactarte. Privacidad".
   - En celular: hoja a pantalla completa.
 
 ## 6. Islas cliente (lo único con `"use client"`)
@@ -150,8 +159,8 @@ Contenedor `position: fixed; right: 28px; bottom: 0; z-index: 60`, flex alineado
 | `ThemeToggle` | cambia la clase `dark` y la cookie |
 | `Typewriter` | anima el H1 |
 | `PricingCatalog` | pestaña activa + medio de pago (los datos llegan como props desde el servidor) |
-| `ServiceLink` | "Ver precios" que abre la pestaña (comparte estado con `PricingCatalog` por `?cat=` en el hash o un store mínimo) |
-| `MalejoWidget` | sprite, toast y chat; se carga con `next/dynamic` (`ssr: false`) cuando el navegador está libre |
+| `AbrirChat` | botón que abre el chat (`malejo:abrir`); sin JS es un link a WhatsApp |
+| `MalejoWidget` | sprite y chat; se carga con `next/dynamic` (`ssr: false`) cuando el navegador está libre, o antes si alguien pide abrirlo |
 | `Reveal` | entrada al scroll |
 FAQ e historia: `<details>`, sin JS.
 
@@ -166,10 +175,10 @@ FAQ e historia: `<details>`, sin JS.
 | Reducir movimiento | `useReducedMotion()`: todo aparece en su estado final, H1 completo y sin cursor, videos en póster |
 
 ## 8. Celular (no hay diseño aparte: adaptar con estas reglas)
-- `< 1024px`: hero en una columna (las 3 tarjetas debajo, en fila con scroll horizontal), servicios y planes en 2 columnas, combos en 2.
-- `< 640px`: todo en 1 columna; pestañas de precios con scroll horizontal; H1 a 44 px; padding de bloques 28.
-- Menú: botón hamburguesa → **explorador lateral** (aprobado en la ronda 3): panel desde la izquierda con la lista de secciones con "▸", la activa en naranja, "Portfolio EN" y "Pedí tu demo" abajo.
-- Chat: hoja completa; sprite y toast se mantienen abajo a la derecha.
+- `< 1024px`: hero en una columna (las 3 garantías debajo, en lista), baldosas y planes en 2 columnas, combos en 2.
+- `< 640px`: las baldosas de "¿Qué necesitás?" **siguen en 2 columnas**; lo demás en 1 columna; pestañas de precios → `<select>`; H1 a 44 px; padding de bloques 20–24.
+- Menú: botón hamburguesa → **menú lateral** (título "Menú"): panel desde la izquierda con la lista de secciones con "▸", la activa en naranja, y "Hablá con Malejo" abajo. Al lado del ☰, un botón de WhatsApp de 44 × 44.
+- Chat: hoja completa; el botón compacto (cabeza del sprite) se mantiene abajo a la derecha.
 
 ## 9. Accesibilidad
 Pestañas con `role="tab"`/`aria-selected` y flechas del teclado; medio de pago con `role="radiogroup"`/`aria-checked`; chat con `role="dialog"`, foco al abrir y `Escape` para cerrar; foco visible `outline: 2px solid var(--acc-text); outline-offset: 3px`; alt descriptivo en capturas y sprites; objetivos táctiles de 44 px; contraste AA en los dos modos.

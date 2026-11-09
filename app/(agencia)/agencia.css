@@ -440,13 +440,23 @@ html:not(.js) [data-reveal] {
    DETAILS: FAQ e historia sin JS (§4 "Sobre mí, FAQ")
    ============================================================ */
 .faq-item summary,
-.story summary {
+.story summary,
+.plans summary {
   list-style: none;
   cursor: pointer;
 }
 .faq-item summary::-webkit-details-marker,
-.story summary::-webkit-details-marker {
+.story summary::-webkit-details-marker,
+.plans summary::-webkit-details-marker {
   display: none;
+}
+/* "Ver los otros N planes" de cada solución: la flecha baja al abrir. */
+.plans .plans-arrow {
+  transform: rotate(90deg);
+  transition: transform 0.2s ease;
+}
+.plans[open] .plans-arrow {
+  transform: rotate(-90deg);
 }
 .faq-item .faq-minus,
 .faq-item[open] .faq-plus {

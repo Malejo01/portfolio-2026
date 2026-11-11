@@ -19,13 +19,27 @@ export interface Corrida {
 
 type Ev = { type: string; text?: string; card?: Card; ficha?: Ficha };
 
+/**
+ * Sin `CHAT_TEST_TOKEN`, el tope de ráfaga por IP (20 cada 10 min) corta las
+ * evals: `EVAL_PAUSA_MS` espera antes de cada turno (31000 con `--paralelo 1`
+ * entra en el tope). `EVAL_COOKIE` va como `Cookie`: el `_vercel_jwt` de un
+ * link de acceso de Vercel para correr contra un preview protegido.
+ */
+const espera = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 async function turno(base: string, msgs: ChatMsg[], ficha: Ficha, usuario: string): Promise<{ t: Turno; ficha: Ficha }> {
+  const pausa = Number(process.env.EVAL_PAUSA_MS ?? 0);
+  if (pausa > 0) await espera(pausa);
   const inicio = Date.now();
   const res = await fetch(new URL("/api/chat", base), {
     method: "POST",
     // Con `CHAT_TEST_TOKEN` en el entorno del script, la llave de pruebas
     // saltea los topes por IP (no el global): las evals salen de una sola IP.
-    headers: { "content-type": "application/json", ...(process.env.CHAT_TEST_TOKEN ? { "x-malejo-test": process.env.CHAT_TEST_TOKEN } : {}) },
+    headers: {
+      "content-type": "application/json",
+      ...(process.env.CHAT_TEST_TOKEN ? { "x-malejo-test": process.env.CHAT_TEST_TOKEN } : {}),
+      ...(process.env.EVAL_COOKIE ? { cookie: process.env.EVAL_COOKIE } : {}),
+    },
     body: JSON.stringify({
       messages: armarHistorial([...msgs, { role: "user", text: usuario, cards: [] }]),
       ficha,

@@ -131,6 +131,14 @@ describe("/api/chat con modelo simulado", () => {
     expect(textos(evs)).toBe("Eso lo ve Mauro directamente.");
   });
 
+  it("tanda P1: si promete derivar sin llamar a derivar_whatsapp, el botón igual sale", async () => {
+    mock.guion([{ bloques: [{ type: "text", text: "Eso lo confirma Mauro. Le dejo tu consulta lista por WhatsApp." }], stop: "end_turn" }]);
+    const evs = await chat({ ...user("¿Se conecta con Google Calendar?"), ficha: { rubro: "Odontología" } });
+    expect(evs.map((e) => e.type)).toEqual(["text", "card", "done"]);
+    const wa = cards(evs)[0] as Extract<Card, { kind: "whatsapp" }>;
+    expect(decodeURIComponent(wa.href)).toContain("Rubro: Odontología");
+  });
+
   it("solo anotar_ficha sin texto sí sigue a otra ronda para responder", async () => {
     mock.guion([
       { bloques: [{ type: "tool_use", name: "anotar_ficha", input: { rubro: "Ferretería" } }], stop: "tool_use" },

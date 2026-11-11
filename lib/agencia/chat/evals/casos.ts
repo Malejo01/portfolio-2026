@@ -71,7 +71,11 @@ export const casos: Caso[] = [
       { nombre: "MP con cuotas mencionadas", ok: (r) => /cuota/i.test(r.turnos[1].texto) || quotes(r).some((q) => q.medio === "mp") },
       { nombre: "tarjeta de demo al avanzar", ok: (r) => de(ultimo(r).cards, "demo").length > 0 },
       { nombre: "no repite la cotización al avanzar", ok: (r) => de(ultimo(r).cards, "quote").length === 0 },
-      { nombre: "ofrece que Mauro le escriba", ok: texto(/te escriba|que Mauro te|tu (nombre|WhatsApp|n[úu]mero)|dejame tu/i) },
+      // El formulario de contacto (pedir_contacto, regla 7 del prompt) es la oferta misma.
+      {
+        nombre: "ofrece que Mauro le escriba",
+        ok: (r) => texto(/te escriba|que Mauro te|tu (nombre|WhatsApp|n[úu]mero)|dejame tu/i)(r) || hay(r, "formContacto") || hay(r, "consent"),
+      },
     ],
   },
   {
@@ -427,7 +431,8 @@ export const casos: Caso[] = [
     turnos: ["Soy odontóloga, ¿la agenda de turnos me deja que el paciente elija su obra social y se conecta con mi Google Calendar?"],
     maxPalabras: 90,
     checks: [
-      { nombre: "no promete la función", ok: (r) => !/\b(s[ií],? (se conecta|te deja|podés|puede)|claro que s[ií])\b/i.test(todoTexto(r)) },
+      // "sí" con tilde: "ni si se conecta" (condicional) no es prometer (evals reales del 11-11).
+      { nombre: "no promete la función", ok: (r) => !/(^|[\s¡¿,.])(sí,? (se conecta|te deja|podés|puede)|claro que sí)(?!\p{L})/iu.test(todoTexto(r)) },
       { nombre: "lo confirma Mauro", ok: (r) => /Mauro|confirm/i.test(todoTexto(r)) || hay(r, "whatsapp") },
     ],
   },

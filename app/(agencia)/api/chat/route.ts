@@ -9,6 +9,7 @@ import { contextoDePagina } from "@/lib/agencia/chat/pagina";
 import { recortarHistorial } from "@/lib/agencia/chat/recorte";
 import { TEST_HEADER, esTokenDePrueba, hashIp, ipFrom, origenPermitido, rechazarOrigen } from "@/lib/agencia/chat/security";
 import { nuevoContexto, runTool, tools, ultimaCotizacion, type ToolContext, type ToolOutcome } from "@/lib/agencia/chat/tools";
+import { CUMPLEN_DERIVACION, prometeDerivar } from "@/lib/agencia/chat/derivar";
 import { mensajeWhatsApp } from "@/lib/agencia/chat/whatsapp";
 import { senaMonto, waLink } from "@/lib/agencia/config";
 import { tipoDeCambio } from "@/lib/agencia/usd";
@@ -150,7 +151,14 @@ export async function POST(request: Request) {
 
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
-      const send = (e: Event) => controller.enqueue(encoder.encode(JSON.stringify(e) + "\n"));
+      // Lo que salió en el turno, para la salvaguarda de la derivación.
+      let textoTurno = "";
+      let derivado = false;
+      const send = (e: Event) => {
+        if (e.type === "text") textoTurno += e.text;
+        if (e.type === "card" && CUMPLEN_DERIVACION.has(e.card.kind)) derivado = true;
+        controller.enqueue(encoder.encode(JSON.stringify(e) + "\n"));
+      };
       let sentText = false;
       // El timer de la ronda en curso: si está abortado, el error fue el timeout.
       let timer: AbortSignal | undefined;
@@ -217,6 +225,8 @@ export async function POST(request: Request) {
           if (huboTexto && results.every((r) => !r.is_error) && toolUses.every((t) => SILENCIOSAS.has(t.name) || SOLO_TARJETA.has(t.name))) break;
           messages.push({ role: "user", content: results });
         }
+        // Prometió derivar sin llamar a derivar_whatsapp: el botón igual sale.
+        if (!derivado && prometeDerivar(textoTurno)) send({ type: "card", card: waCard(ctx) });
         send({ type: "done" });
       } catch (err) {
         // Si la persona cerró el chat o recargó, no hay a quién mostrarle nada.

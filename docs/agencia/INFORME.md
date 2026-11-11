@@ -700,7 +700,20 @@ Medido con `docs/agencia/verificacion/p1/verificar.js` contra builds de producci
 4. **`/demo` cotiza en el cliente.** Así un `?plan=a,b` del cotizador o del chat da el mismo total que en el resto del sitio, y la ruta sigue estática.
 5. **Cuota de tarjeta redondeada a $100**, como el recargo: es orientativa, porque el interés lo pone Mercado Pago.
 
+## Evals reales (11-11, contra el preview de la rama)
+
+Corridas con `npm run eval:chat` contra el preview de Vercel, que tiene la clave del lado del servidor. El acceso se hizo con un link de acceso del preview (cookie en `EVAL_COOKIE`) y los pedidos se espaciaron con `EVAL_PAUSA_MS=31000`, porque sin `CHAT_TEST_TOKEN` rige el tope de ráfaga por IP. Hubo cuatro corridas con arreglos entre medio:
+
+| Corrida | Commit | Pasan | Qué se arregló después |
+|---|---|---|---|
+| 1 · `evals/2026-11-11T2058.md` | `bfd7617` | 34 de 41 | `max_tokens` 800 → 4000: el pensamiento adaptativo de Haiku 5.5 cuenta dentro del techo y cortaba respuestas (vacías en M y R; sin `tool_use` en C y AF). Descuento → 3 pagos y derivar. Sin `sugerir_respuestas` ante insultos. Regex de Y y Z. |
+| 2 · `evals/2026-11-11T2135.md` | `53bea70` | 35 de 41 | Texto + herramienta que solo muestra una tarjeta cierra el turno (la segunda ronda anunciaba el botón). No anunciar tarjetas. Nombrar los proyectos. No nombrar soluciones mientras pregunta. |
+| 3 · `evals/2026-11-11T2209.md` | `3f17ab7` | 37 de 41 | Salvaguarda de derivación en el servidor (`chat/derivar.ts`): si promete derivar y no salió la tarjeta, la agrega. Recomendar directo si el pedido ya dice qué necesita. Regex de AJ y B. |
+| 4 · `evals/2026-11-11T2244.md` | `eb5bb3e` | **38 de 41** ✅ | — |
+
+Los 5 casos nuevos de P1 (AK a AO) pasan en las cuatro corridas. Entre corridas la variación es de ±2 casos, y las fallas de la última son menores y no se repiten: B (largo: 74 palabras), F ("lo ves antes de pagar el total" sin decir "demo") y Q (recomienda el catálogo y menciona la tienda como alternativa).
+
 ## Pasos manuales para Mauro
 - Revisar los `noIncluye` (la lista está en el PR).
-- Correr las evals reales con la clave: `npm run eval:chat -- --url <vista previa>` (41 casos, objetivo 38).
 - Search Console: reindexar `/precios` y `/servicios/*` (cambiaron precios y estructura).
+- El link de acceso del preview que se usó para las evals vence solo a las 23 h. El entorno `portfolio-2026` de Claude Code quedó con el host del preview de esta rama habilitado; se puede sacar en la configuración del entorno.

@@ -372,6 +372,12 @@ npm run db:migrate  # las aplica Mauro, con DATABASE_URL
   - **Prompt:** `system` en dos bloques, el base (instrucciones +
     conocimiento + catálogo generados) con `cache_control` y la ficha al
     final sin caché. Nada variable (fechas, ficha) antes del corte.
+  - **Rondas (P1):** `max_tokens` 4000. Haiku 5.5 piensa siempre y el
+    pensamiento cuenta dentro del techo: con 800 cortaba respuestas y
+    `tool_use`. Si se corta sin texto, mensaje fijo + WhatsApp. Texto +
+    herramientas silenciosas o que solo muestran tarjeta (`SOLO_TARJETA`)
+    cierra el turno. Si el texto promete derivar y no salió tarjeta de
+    WhatsApp ni de contacto, la ruta la agrega (`chat/derivar.ts`).
   - **USD:** `lib/agencia/usd.ts` (dolarapi.com, respaldo `USD_ARS_FALLBACK`
     o `precios.json → usd.fallback`), solo servidor; `/api/dolar` para el
     cotizador en el cliente.
@@ -396,7 +402,9 @@ npm run db:migrate  # las aplica Mauro, con DATABASE_URL
     `npm run eval:chat` corre los 41 casos de `lib/agencia/chat/evals/casos.ts`
     contra `/api/chat` y escribe `docs/agencia/evals/<fecha>.md`; objetivo
     38 de 41 (`objetivo()`: 22 de 24 proporcional). Gasta tokens: necesita
-    la clave en el servidor.
+    la clave en el servidor. Contra un preview protegido de Vercel y sin
+    `CHAT_TEST_TOKEN`: `EVAL_COOKIE` (la cookie de un link de acceso) y
+    `EVAL_PAUSA_MS=31000` con `--paralelo 1` (ver `scripts/eval-chat.ts`).
 - **Headers de seguridad (R2):** `next.config.ts` suma, **solo para la
   agencia** (`FUENTE_AGENCIA` excluye `/portfolio`), los de
   `lib/agencia/headers.ts`: `X-Frame-Options: DENY`, `nosniff`,

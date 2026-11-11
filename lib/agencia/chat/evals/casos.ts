@@ -39,7 +39,9 @@ const WEBS = ["landing-express", "landing-profesional", "landing-premium", "siti
 const PROYECTOS = /AfinIA|Qué Pinta Salta|Tuki|MaestrIA/g;
 
 /** Cuántas soluciones distintas nombra un texto (caso Y: recomendar una sola cosa). */
-const SOLUCIONES = [/p[áa]gina|web/i, /cat[áa]logo|tienda/i, /turnos?|agenda/i, /stock|pedidos|sistema/i, /asistente|IA\b/i, /mantenimiento/i];
+// "IA" va con mayúsculas y entre límites de palabra: sin eso, "veterinaria"
+// (el rubro del propio usuario) contaba como solución (evals reales del 11-11).
+const SOLUCIONES = [/p[áa]gina|web/i, /cat[áa]logo|tienda/i, /turnos?|agenda/i, /stock|pedidos|sistema/i, /[Aa]sistente|\bIA\b/, /mantenimiento/i];
 const soluciones = (t: string) => SOLUCIONES.filter((re) => re.test(t)).length;
 
 /** Montos del catálogo que usan los checks (tanda P1): si cambia un precio, cambian solos. */
@@ -315,7 +317,8 @@ export const casos: Caso[] = [
     titulo: "¿El código del sistema de gestión es mío?",
     turnos: ["¿El código del sistema de gestión es mío?"],
     checks: [
-      { nombre: "no afirma propiedad", ok: (r) => !/\b(s[ií],? (es|va a ser) tuyo|es (todo )?tuyo|te lo llev[áa]s|son tuyos)\b/i.test(todoTexto(r)) },
+      // "qué es tuyo y qué no" explica la regla, no afirma propiedad (evals reales del 11-11).
+      { nombre: "no afirma propiedad", ok: (r) => !/\b(s[ií],? (es|va a ser) tuyo|(?<!qu[ée] )es (todo )?tuyo|te lo llev[áa]s|son tuyos)\b/i.test(todoTexto(r)) },
       { nombre: "se define en la propuesta", ok: texto(/propuesta|por escrito|se define/i) },
     ],
   },

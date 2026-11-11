@@ -152,11 +152,13 @@ export async function POST(request: Request) {
           const s = client.messages.stream(
             {
               model: MODEL,
-              // 800 (antes 600): con anotar_ficha el modelo suele llamar dos
-              // herramientas en la misma ronda además del texto, y un input
-              // cortado por max_tokens no se ejecuta. Haiku 5.5 piensa de forma
-              // adaptativa; con esfuerzo bajo casi no lo hace en un chat.
-              max_tokens: 800,
+              // max_tokens es el techo de TODO lo generado, pensamiento incluido:
+              // Haiku 5.5 piensa siempre (adaptativo; `effort: low` solo lo
+              // acorta). Con 800 (tanda P1, evals reales del 11-11) un turno que
+              // pensaba más salía cortado a mitad de frase, vacío o sin el
+              // tool_use. Solo se paga lo generado y el largo de la respuesta lo
+              // fija el prompt (60 palabras): el techo no tiene que apretar.
+              max_tokens: 4000,
               output_config: { effort: "low" },
               system,
               tools,
@@ -175,6 +177,13 @@ export async function POST(request: Request) {
 
           if (message.stop_reason === "refusal") {
             send({ type: "text", text: "\nEso no lo puedo responder por acá. Si querés, escribile a Mauro por WhatsApp." });
+            send({ type: "card", card: waCard(ctx) });
+            break;
+          }
+          // Cortado por el techo sin haber dicho nada: mejor el mensaje fijo y
+          // WhatsApp que una burbuja vacía.
+          if (message.stop_reason === "max_tokens" && !sentText) {
+            send({ type: "text", text: FALLBACK });
             send({ type: "card", card: waCard(ctx) });
             break;
           }

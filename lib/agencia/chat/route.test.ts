@@ -148,6 +148,20 @@ describe("/api/chat con modelo simulado", () => {
     expect(evs.at(-1)?.type).toBe("done");
   });
 
+  it("tanda P1: cortado por max_tokens sin texto → mensaje fijo y WhatsApp, no una burbuja vacía", async () => {
+    mock.guion([{ bloques: [], stop: "max_tokens" }]);
+    const evs = await chat(user("¿Esto no es una estafa?"));
+    expect(evs.map((e) => e.type)).toEqual(["text", "card", "done"]);
+    expect(textos(evs)).toMatch(/^Ahora no puedo responder/);
+    expect(cards(evs)[0]).toMatchObject({ kind: "whatsapp" });
+  });
+
+  it("tanda P1: cortado por max_tokens con texto ya enviado no agrega el fallback ni corre herramientas", async () => {
+    mock.guion([{ bloques: [{ type: "text", text: "La seña" }, { type: "tool_use", name: "derivar_whatsapp", input: { resumen: "x" } }], stop: "max_tokens" }]);
+    const evs = await chat(user("¿Esto no es una estafa?"));
+    expect(evs.map((e) => e.type)).toEqual(["text", "done"]);
+  });
+
   it("error del modelo → mensaje fijo y WhatsApp con la ficha", async () => {
     mock.guion([{ status: 400, error: "boom" }]);
     const evs = await chat({ ...user("hola"), ficha: { rubro: "Veterinaria", necesidad: "Turnos" } });

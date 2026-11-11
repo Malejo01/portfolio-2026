@@ -6,7 +6,18 @@ import { Icon } from "@/components/agencia/icons";
 import type { cotizadorCopy } from "@/content/agencia/cotizador";
 import type { Category, Extra } from "@/content/agencia/pricing";
 import { waLink } from "@/lib/agencia/config";
-import { cotizar, fmt, fmtUsd, montoDeExtra, precioDePlan, resumenCotizacion, type Medio } from "@/lib/agencia/pricing";
+import {
+  cotizar,
+  fmt,
+  fmtUsd,
+  lineaDeTarjeta,
+  lineaTopeTres,
+  montoDeExtra,
+  precioDePlan,
+  resumenCotizacion,
+  totalConTarjeta,
+  type Medio,
+} from "@/lib/agencia/pricing";
 import { MedioSwitch } from "./MedioSwitch";
 
 /**
@@ -63,6 +74,11 @@ export function Cotizador({
   }, []);
 
   const c = useMemo(() => cotizar({ planIds, extras: extraIds, medio, tipoDeCambio }), [planIds, extraIds, medio, tipoDeCambio]);
+  /** "2 × $208.500"; si el último pago absorbe una diferencia, se muestran los montos. */
+  const pagosValor = (lista: number[]) =>
+    lista.every((x) => x === lista[0])
+      ? copy.pagosValor.replace("{N}", String(lista.length)).replace("{MONTO}", fmt(lista[0]))
+      : lista.map(fmt).join(" + ");
   const toggle = (list: string[], id: string) => (list.includes(id) ? list.filter((x) => x !== id) : [...list, id]);
 
   const demoHref = `/demo?plan=${encodeURIComponent(c.items.filter((i) => i.tipo !== "extra").map((i) => i.id).join(","))}${
@@ -244,6 +260,17 @@ export function Cotizador({
             <Row label={copy.abono} value={`${fmt(c.abonoMensual)}/mes`} />
             {c.anual ? <Row label={copy.anual} value={`${fmt(c.anual)}/año`} /> : null}
           </dl>
+          {/* §4.4: el pago único en 2 o 3 pagos (por transferencia) y con tarjeta. */}
+          {c.pagos ? (
+            <dl aria-label={copy.pagosLabel} className="m-0 flex flex-col gap-1.5 rounded-[14px] bg-surf-2 p-3 text-sm">
+              <Row label={copy.dosPagos} value={pagosValor(c.pagos.dos)} />
+              {c.pagos.tres ? <Row label={copy.tresPagos} value={pagosValor(c.pagos.tres)} /> : null}
+              {c.pagos.tres ? null : <p className="m-0 text-xs text-muted">{lineaTopeTres()}</p>}
+              <p className="m-0 text-xs text-muted">
+                {totalConTarjeta(c.pagos)} · {lineaDeTarjeta(c.pagos)}
+              </p>
+            </dl>
+          ) : null}
           <div>
             <span className="lbl text-[10px]">{copy.total}</span>
             <div className="h text-[34px]">{fmt(c.total)}</div>

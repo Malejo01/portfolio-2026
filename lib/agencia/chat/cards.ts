@@ -26,6 +26,8 @@ export interface FilaCard {
   plazo: string;
   paraQuien: string;
   recomendado: boolean;
+  /** "o 3 pagos de $83.000 sin interés", ya escrita por `lineaDePagos()` en el servidor. */
+  pagos?: string | null;
   usd?: { precio: number; abono: number };
 }
 
@@ -45,6 +47,11 @@ export type Card =
       /** "Dominio .com.ar: según tarifa vigente de NIC.ar". */
       aCotizar: string[];
       usd?: { implementacion: number; mensual: number; tipoDeCambio: number };
+      /**
+       * "o 3 pagos de $83.000 sin interés" (tanda P1), escrita en el servidor
+       * por `lineaDePagos()`: este módulo no conoce el catálogo.
+       */
+      pagos?: string;
       demoHref: string;
     }
   | { kind: "compare"; ids: string[]; medio: Medio; moneda: Moneda; filas: FilaCard[]; tipoDeCambio?: number }

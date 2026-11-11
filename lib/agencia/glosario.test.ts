@@ -30,10 +30,14 @@ const PROHIBIDOS: [nombre: string, re: RegExp][] = [
   ["micro-apps", /micro-?apps?/i],
   ["AI Developer", /\bAI Developer\b/i],
   ["brief", /\bbrief\b/i],
+  // Tanda P1: "cuota" es solo partir el pago; lo de cada mes es "por mes".
+  ["cuota mensual", /cuotas? mensual(es)?/i],
+  ["permanencia", /permanencia/i],
+  ["tokens", /\btokens?\b/i],
 ];
 
 /** Claves que no son copy: ids, slugs, links y nombres de íconos. */
-const NO_COPY = new Set(["id", "ids", "href", "key", "planIds", "parecidoIds", "solucion", "category", "icon", "section", "slug", "tema"]);
+const NO_COPY = new Set(["id", "ids", "href", "key", "planIds", "parecidoIds", "solucion", "category", "icon", "section", "slug", "tema", "visibles", "categorias", "usaServiciosDeTerceros", "plan"]);
 
 function textos(valor: unknown, ruta: string, out: [string, string][] = []): [string, string][] {
   if (typeof valor === "string") {

@@ -156,6 +156,35 @@ html:not(.js) [data-reveal] {
   transform: none !important;
 }
 
+/* Tanda P1: los modales. Con JS se abre el `<dialog>`; sin JS, el
+   disparador lleva al detalle en un `<details>` (`.nojs-only`). */
+html.js .nojs-only,
+html:not(.js) .js-only {
+  display: none !important;
+}
+
+/* `<dialog>` nativo (PlanDialog): sin marco propio; la tarjeta de adentro es
+   la superficie, así el clic en el fondo cae en el `<dialog>` y lo cierra. */
+.dlg {
+  width: min(560px, calc(100vw - 24px));
+  max-width: none;
+  max-height: calc(100dvh - 24px);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  overflow: visible;
+}
+.dlg::backdrop {
+  /* El mismo velo que el menú del celular (`bg-black/50`). */
+  background: rgb(0 0 0 / 0.5);
+}
+.dlg-panel {
+  max-height: calc(100dvh - 24px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
 /* ============================================================
    CLASES DE FORMA (§2 "Forma") — definidas una sola vez
    ============================================================ */

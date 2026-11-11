@@ -1,5 +1,6 @@
 import { agenciaLinks } from "./links";
-import { getPlan, mantenimientoGrandesPct, recargoMercadoPago, type CategoryKey } from "./pricing";
+import { anualPorMes } from "@/lib/agencia/pricing";
+import { getPlan, mantenimientoGrandesPct, pagosConfig, recargoMercadoPago, type CategoryKey } from "./pricing";
 
 /**
  * Base de conocimiento **única** de Malejo: quién es Mauro, cómo se trabaja,
@@ -40,6 +41,25 @@ export interface Proyecto {
   solucion: CategoryKey;
 }
 
+/**
+ * Una parte del modelo de costos (Fase 3 bis E): "El sistema es como un
+ * auto: lo comprás una vez." Se arma con `fraseDeCosto()`, así la franja,
+ * el modal, el FAQ y el chat usan **las mismas palabras**.
+ */
+export interface ParteDeCosto {
+  etiqueta: string;
+  /** "como un auto". */
+  es: string;
+  texto: string;
+}
+
+export interface ModeloDeCostos {
+  titulo: string;
+  sistema: ParteDeCosto;
+  mantenimiento: ParteDeCosto;
+  uso: ParteDeCosto;
+}
+
 export interface Conocimiento {
   quienSoy: string;
   proceso: string;
@@ -50,6 +70,7 @@ export interface Conocimiento {
   mantenimiento: string;
   tiempoRespuesta: string;
   garantia: string;
+  modeloDeCostos: ModeloDeCostos;
   proyectos: Proyecto[];
   portfolio: { label: string; href: string };
   faq: FaqEntry[];
@@ -57,10 +78,42 @@ export interface Conocimiento {
 
 const pct = `${Math.round(recargoMercadoPago * 100)}%`;
 const ars = (n: number) => `$${new Intl.NumberFormat("es-AR").format(n)}`;
-const renovacion = getPlan("renovacion")?.impl ?? 0;
+const renovacionPlan = getPlan("renovacion");
+/** "$7.500 por mes, pagás el año junto": calculado, no escrito a mano. */
+const renovacionPorMes = (renovacionPlan && anualPorMes(renovacionPlan)) ?? "";
 const basico = getPlan("mantenimiento-basico")?.monthly ?? 0;
 const planEscrito = getPlan("diagnostico-escrito")?.impl ?? 0;
 const mantGrandes = `${Math.round(mantenimientoGrandesPct * 100)}%`;
+const tope = ars(pagosConfig.topeTres);
+const cuotasTarjeta = pagosConfig.tarjetaMaxCuotas;
+/** "⅓ al aprobar la demo, ⅓ al entregar y ⅓ a los 30 días", desde `precios.json`. */
+export const calendarioTres = pagosConfig.calendarioTres
+  .map((c) => `⅓ ${c}`)
+  .join(", ")
+  .replace(/, ([^,]*)$/, " y $1");
+/** Lo das de baja… (Fase 3 bis D): reemplaza a "sin permanencia". */
+export const bajaMantenimiento = "lo das de baja cuando quieras, avisando 30 días antes";
+
+const modeloDeCostos: ModeloDeCostos = {
+  titulo: "Qué pagás y a quién",
+  sistema: { etiqueta: "El sistema", es: "como un auto", texto: "lo comprás una vez." },
+  mantenimiento: {
+    etiqueta: "El mantenimiento",
+    es: "como el taller",
+    texto: "lo pagás por mes para que ande y se arregle si falla.",
+  },
+  uso: {
+    etiqueta: "El uso",
+    es: "como la nafta",
+    texto:
+      "lo que gastan la inteligencia artificial y WhatsApp depende de cuánto lo uses. Lo cobran esas empresas, no Malejo, y va aparte.",
+  },
+};
+
+/** "El uso es como la nafta: lo que gastan…". La única forma de decirlo. */
+export function fraseDeCosto(parte: ParteDeCosto): string {
+  return `${parte.etiqueta} es ${parte.es}: ${parte.texto}`;
+}
 
 /** "Como Tuki" → los nombres vigentes de los planes, por id. */
 function nombres(ids: string[]): string {
@@ -119,15 +172,15 @@ export const conocimiento: Conocimiento = {
   quienSoy:
     "Mauro Lizárraga, desarrollador en Salta, Argentina. Desde 2023 da clases de matemática a nivel terciario, donde también fue formador y evaluador docente. En 2025 trabajó como desarrollador en Accenture, armando sistemas internos y asistentes con IA para una multinacional. Se formó en IA aplicada con DataCamp y Anthropic Academy. Hoy construye proyectos propios: Qué Pinta Salta, AfinIA Jobs, Tuki y MaestrIA.",
   proceso:
-    "1) Me contás qué necesitás (por WhatsApp, por este chat o en una charla gratis de 20 minutos). 2) Seña de {SENA}, que se descuenta del total. 3) Demo con tu marca en 72 horas hábiles. 4) La vemos juntos en 20 minutos y decidís sin compromiso. 5) Si contratás: 50% al aprobar la demo y 50% al recibir el proyecto, con la seña descontada.",
+    "1) Me contás qué necesitás (por WhatsApp, por este chat o en una charla gratis de 20 minutos). 2) Seña de {SENA}, que se descuenta del primer pago. 3) Demo con tu marca en 72 horas hábiles. 4) La vemos juntos en 20 minutos y decidís sin compromiso. 5) Si contratás, pagás en 2 o 3 veces (ver pagos).",
   pagos: [
-    "Transferencia al precio publicado.",
-    `Mercado Pago con ${pct} de recargo.`,
-    `Hasta 6 cuotas con Mercado Pago, sobre el precio con el ${pct}; el interés de las cuotas lo define Mercado Pago según la tarjeta.`,
-    "El total se paga 50% al aprobar la demo y 50% en la entrega.",
-    `Proyectos a medida (grandes): el plan del proyecto por escrito (${ars(planEscrito)}) se paga por adelantado, y cada etapa de 2 semanas se paga 50% al arrancarla y 50% al entregarla.`,
-    "La seña no se devuelve: paga el trabajo de la demo. Si contratás, se descuenta completa del total.",
-    "Las cuotas mensuales se pagan por mes adelantado; pagando el año por adelantado se pagan 10 meses.",
+    "Por transferencia, al precio publicado, en 2 pagos sin interés: 50% al aprobar la demo y 50% al entregar.",
+    `O en 3 pagos sin interés por transferencia (${calendarioTres}), solo si el total contratado es de hasta ${tope}. Arriba de ${tope}: 2 pagos o tarjeta.`,
+    `Con tarjeta por Mercado Pago: el precio con ${pct} de recargo, en hasta ${cuotasTarjeta} cuotas; el interés de las cuotas lo define Mercado Pago según la tarjeta.`,
+    "La seña se descuenta del primer pago. No se devuelve: paga el trabajo de la demo.",
+    "El código y la dirección web se transfieren con el último pago; la página está online desde la entrega.",
+    `Proyectos a medida (grandes): el plan del proyecto por escrito (${ars(planEscrito)}) se paga por adelantado, y cada etapa de 2 semanas se paga 50% al arrancarla y 50% al entregarla. Ahí no hay 3 pagos.`,
+    "Lo que se paga por mes se paga por mes adelantado; pagando el año junto, se pagan 10 meses.",
     "Todavía no emite factura (lo va a hacer más adelante). Si el cliente la necesita, lo habla con Mauro.",
   ],
   dominio:
@@ -136,11 +189,12 @@ export const conocimiento: Conocimiento = {
     "En páginas web, catálogos, tiendas, turnos y mantenimiento, la página y el dominio son del cliente una vez pagado el total: si algún día quiere llevársela, se la lleva entera. En sistemas para ordenar el negocio, asistentes con IA y proyectos a medida NO digas que el código es del cliente: la propiedad del código se define en la propuesta escrita.",
   tecnologia:
     "No se usan plantillas como WordPress: se trabaja con tecnología propia (Next.js), más rápida y segura, que no se cae por un plugin ni hay que actualizarla.",
-  mantenimiento: `Sin permanencia mínima: se da de baja avisando con 30 días. Después del primer año, mantener online cubre que la página siga funcionando y segura, con copia de seguridad y la dirección web; los planes de mantenimiento suman cambios incluidos. En los proyectos a medida, el mantenimiento es el ${mantGrandes} mensual del precio del proyecto.`,
+  mantenimiento: `El mantenimiento incluye soporte funcional, y ${bajaMantenimiento}. Después del primer año, mantener online cubre que la página siga funcionando y segura, con copia de seguridad y la dirección web; los planes de mantenimiento suman cambios incluidos. En los proyectos a medida, el mantenimiento es el ${mantGrandes} mensual del precio del proyecto.`,
   tiempoRespuesta:
     "Mauro responde por WhatsApp en hasta 2 días hábiles. Nunca prometer que responde al instante ni en el día.",
   garantia:
     "30 días de garantía desde cada entrega (en las webs está incluida en el precio): si algo no funciona como se acordó, se corrige sin cargo. Cubre errores, no funcionalidades nuevas.",
+  modeloDeCostos,
   proyectos: proyectos.map((p) => ({ ...p, parecido: nombres(p.parecidoIds) })),
   portfolio: { label: "Portfolio de Mauro", href: "/portfolio" },
   faq: [
@@ -157,17 +211,17 @@ export const conocimiento: Conocimiento = {
     {
       id: "pagos",
       q: "¿Cómo pago?",
-      a: `Por transferencia, al precio publicado, o con Mercado Pago con un ${pct} de recargo y hasta 6 cuotas. El total se paga 50% al aprobar la demo y 50% al recibir tu proyecto.`,
+      a: `Por transferencia: 50% al aprobar la demo y 50% al entregar, o en 3 pagos sin interés si el total es de hasta ${tope}. Con tarjeta, por Mercado Pago (+${pct}) en hasta ${cuotasTarjeta} cuotas.`,
     },
     {
       id: "cuotas",
       q: "¿Se puede pagar en cuotas?",
-      a: `Sí: hasta 6 cuotas con Mercado Pago, sobre el precio con el ${pct} de recargo. El interés de las cuotas lo define Mercado Pago según tu tarjeta.`,
+      a: `Sí: 3 pagos sin interés por transferencia (${calendarioTres}) si el total es de hasta ${tope}. Con tarjeta, hasta ${cuotasTarjeta} cuotas por Mercado Pago (+${pct}).`,
     },
     {
       id: "sena",
       q: "¿La seña se devuelve?",
-      a: "No: la seña de {SENA} paga el trabajo de armar tu demo. Si contratás, se descuenta completa del total.",
+      a: "No: la seña de {SENA} paga el trabajo de armar tu demo. Si contratás, se descuenta completa del primer pago.",
     },
     {
       id: "demo-gratis",
@@ -177,12 +231,12 @@ export const conocimiento: Conocimiento = {
     {
       id: "primer-anio",
       q: "¿Qué pasa después del primer año?",
-      a: `Las webs incluyen el primer año online. Desde el segundo elegís: ${ars(renovacion)} por año para que siga online y segura, con copia de seguridad y tu dirección web, o un plan desde ${ars(basico)} por mes con cambios incluidos.`,
+      a: `Las webs incluyen el primer año online. Desde el segundo elegís: Mantener online (${renovacionPorMes}), con copia de seguridad y tu dirección web, o un plan desde ${ars(basico)} por mes con cambios incluidos.`,
     },
     {
       id: "baja-mantenimiento",
       q: "¿Puedo dar de baja el mantenimiento?",
-      a: "Sí. No hay permanencia mínima: avisás con 30 días de anticipación y se da de baja.",
+      a: `Sí: ${bajaMantenimiento}.`,
     },
     {
       id: "codigo",
@@ -231,8 +285,13 @@ export const conocimiento: Conocimiento = {
     },
     {
       id: "costos-aparte",
-      q: "¿Qué se paga aparte?",
-      a: "Lo que cobra WhatsApp por cada mensaje automático y lo que cobra el servicio de inteligencia artificial por uso. Los pagás vos, directo, según cuánto se use. Te los estimo antes de empezar.",
+      q: "¿Qué se paga aparte del plan?",
+      a: "Tu dirección web (la tarifa de NIC.ar), la comisión de Mercado Pago si cobrás online y, en los planes con inteligencia artificial o WhatsApp, lo que se gasta por uso.",
+    },
+    {
+      id: "costos-de-uso",
+      q: "¿Qué gastos van aparte?",
+      a: fraseDeCosto(modeloDeCostos.uso),
     },
     {
       id: "comision-mp",
@@ -257,7 +316,7 @@ export const conocimiento: Conocimiento = {
     {
       id: "grandes-mant",
       q: "¿Y el mantenimiento después?",
-      a: `Es el ${mantGrandes} mensual del precio del proyecto: lo mantengo online, vigilado y con copia de seguridad, con correcciones y ajustes chicos. Sin permanencia mínima.`,
+      a: `Es el ${mantGrandes} mensual del precio del proyecto: lo mantengo online, vigilado y con copia de seguridad, con correcciones y ajustes chicos. Lo das de baja cuando quieras, avisando 30 días antes.`,
     },
   ],
 };

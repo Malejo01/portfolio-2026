@@ -17,7 +17,7 @@ describe("historial con memoria de tarjetas", () => {
 
   it("agrega una línea por tarjeta al mensaje del asistente", () => {
     const h = armarHistorial(msgs);
-    expect(h[2].content).toBe("Te lo calculo.\n[Tarjeta mostrada · Cotización: Agenda de turnos online · MP · $190.800 + $23.300/mes]");
+    expect(h[2].content).toBe("Te lo calculo.\n[Tarjeta mostrada · Cotización: Agenda de turnos online · MP · $187.600 + $23.300/mes]");
     // Un mensaje con solo tarjetas ya no se pierde del historial.
     expect(h[3]).toEqual({ role: "assistant", content: "[Tarjeta mostrada · Demo]" });
   });

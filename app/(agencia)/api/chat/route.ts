@@ -9,6 +9,7 @@ import { contextoDePagina } from "@/lib/agencia/chat/pagina";
 import { recortarHistorial } from "@/lib/agencia/chat/recorte";
 import { TEST_HEADER, esTokenDePrueba, hashIp, ipFrom, origenPermitido, rechazarOrigen } from "@/lib/agencia/chat/security";
 import { nuevoContexto, runTool, tools, ultimaCotizacion, type ToolContext, type ToolOutcome } from "@/lib/agencia/chat/tools";
+import { CUMPLEN_DERIVACION, prometeDerivar } from "@/lib/agencia/chat/derivar";
 import { mensajeWhatsApp } from "@/lib/agencia/chat/whatsapp";
 import { senaMonto, waLink } from "@/lib/agencia/config";
 import { tipoDeCambio } from "@/lib/agencia/usd";
@@ -51,6 +52,14 @@ const MAX_TURNS = 20;
 const MAX_TOOL_ROUNDS = 4;
 /** Herramientas que no muestran nada: no justifican otra ronda del modelo. */
 const SILENCIOSAS = new Set(["anotar_ficha", "sugerir_respuestas"]);
+/**
+ * Herramientas que solo muestran una tarjeta (WhatsApp, proyectos, el
+ * formulario o la casilla de contacto): su resultado no trae nada que el
+ * modelo tenga que contar. Si la ronda ya respondió con texto, otra ronda
+ * solo agregaba "Ya te dejé el botón…" (evals reales del 11-11: U, AF).
+ * `pedir_demo` no está: después de la demo el modelo ofrece el contacto.
+ */
+const SOLO_TARJETA = new Set(["derivar_whatsapp", "mostrar_proyectos", "pedir_contacto", "guardar_contacto"]);
 
 function roundTimeout(): number {
   const n = Number(process.env.CHAT_ROUND_TIMEOUT_MS);
@@ -142,7 +151,14 @@ export async function POST(request: Request) {
 
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
-      const send = (e: Event) => controller.enqueue(encoder.encode(JSON.stringify(e) + "\n"));
+      // Lo que salió en el turno, para la salvaguarda de la derivación.
+      let textoTurno = "";
+      let derivado = false;
+      const send = (e: Event) => {
+        if (e.type === "text") textoTurno += e.text;
+        if (e.type === "card" && CUMPLEN_DERIVACION.has(e.card.kind)) derivado = true;
+        controller.enqueue(encoder.encode(JSON.stringify(e) + "\n"));
+      };
       let sentText = false;
       // El timer de la ronda en curso: si está abortado, el error fue el timeout.
       let timer: AbortSignal | undefined;
@@ -152,11 +168,13 @@ export async function POST(request: Request) {
           const s = client.messages.stream(
             {
               model: MODEL,
-              // 800 (antes 600): con anotar_ficha el modelo suele llamar dos
-              // herramientas en la misma ronda además del texto, y un input
-              // cortado por max_tokens no se ejecuta. Haiku 5.5 piensa de forma
-              // adaptativa; con esfuerzo bajo casi no lo hace en un chat.
-              max_tokens: 800,
+              // max_tokens es el techo de TODO lo generado, pensamiento incluido:
+              // Haiku 5.5 piensa siempre (adaptativo; `effort: low` solo lo
+              // acorta). Con 800 (tanda P1, evals reales del 11-11) un turno que
+              // pensaba más salía cortado a mitad de frase, vacío o sin el
+              // tool_use. Solo se paga lo generado y el largo de la respuesta lo
+              // fija el prompt (60 palabras): el techo no tiene que apretar.
+              max_tokens: 4000,
               output_config: { effort: "low" },
               system,
               tools,
@@ -178,6 +196,13 @@ export async function POST(request: Request) {
             send({ type: "card", card: waCard(ctx) });
             break;
           }
+          // Cortado por el techo sin haber dicho nada: mejor el mensaje fijo y
+          // WhatsApp que una burbuja vacía.
+          if (message.stop_reason === "max_tokens" && !sentText) {
+            send({ type: "text", text: FALLBACK });
+            send({ type: "card", card: waCard(ctx) });
+            break;
+          }
           const toolUses = message.content.filter((b): b is Anthropic.ToolUseBlock => b.type === "tool_use");
           // Solo se ejecutan herramientas con stop_reason "tool_use": un input
           // cortado por max_tokens puede parecer válido y no se corre.
@@ -195,8 +220,13 @@ export async function POST(request: Request) {
           // (evals del 8-11 en producción: 6 de 24 casos con el texto duplicado).
           const huboTexto = message.content.some((b) => b.type === "text" && b.text.trim() !== "");
           if (huboTexto && toolUses.every((t) => SILENCIOSAS.has(t.name))) break;
+          // Lo mismo con las que solo muestran una tarjeta, si ninguna falló
+          // (con un error, el modelo tiene que poder explicarlo).
+          if (huboTexto && results.every((r) => !r.is_error) && toolUses.every((t) => SILENCIOSAS.has(t.name) || SOLO_TARJETA.has(t.name))) break;
           messages.push({ role: "user", content: results });
         }
+        // Prometió derivar sin llamar a derivar_whatsapp: el botón igual sale.
+        if (!derivado && prometeDerivar(textoTurno)) send({ type: "card", card: waCard(ctx) });
         send({ type: "done" });
       } catch (err) {
         // Si la persona cerró el chat o recargó, no hay a quién mostrarle nada.

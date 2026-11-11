@@ -21,8 +21,13 @@ export interface Plan {
   id: string;
   category: CategoryKey;
   name: string;
-  /** Para quién es, en una línea (va debajo del nombre en la tarjeta). */
+  /** Para quién es, completo: el modal y el chat (que lo usa para recomendar). */
   paraQuien: string;
+  /**
+   * Para quién es, en una línea: va en la tarjeta (tanda P1, §1.6). Si el
+   * JSON no lo trae, es `paraQuien`.
+   */
+  enUnaLinea: string;
   /**
    * Pago único en pesos. `null` = plan de solo cuota mensual o, si tampoco
    * tiene cuota, un ítem **a cotizar** (ver `aCotizar`).
@@ -54,13 +59,29 @@ export interface Plan {
   aCotizar: string;
   /** Mantenimiento como porcentaje mensual del precio del proyecto (proyectos grandes). */
   mantenimientoPct: number | null;
+  /**
+   * Hasta 3 viñetas de la tarjeta: lo que cambia frente al escalón anterior
+   * (tanda P1). Si el JSON no las trae, son las 3 primeras de `items`.
+   */
+  destacados: string[];
+  /** Qué no incluye (modal "Ver qué incluye" y chat). Nunca vacío. */
+  noIncluye: string[];
+  /** Usa IA o WhatsApp oficial: el uso lo cobran esas empresas (`modeloDeCostos`). */
+  usaServiciosDeTerceros: ServicioDeTerceros[];
 }
+
+export type ServicioDeTerceros = "ia" | "whatsapp";
 
 export interface Category {
   key: CategoryKey;
   label: string;
   intro: string;
   note: string;
+  /**
+   * Los 3 ids que se muestran como tarjetas (tanda P1, §3 "Visible"). El
+   * resto va a "Ver otras opciones". Vacío en `grandes`, que muestra pasos.
+   */
+  visibles: string[];
   plans: Plan[];
 }
 
@@ -75,6 +96,10 @@ export interface Combo {
   list: number;
   price: number;
   monthly: number;
+  /** Pestañas de `/precios` donde aparece (tanda P1). */
+  categorias: CategoryKey[];
+  noIncluye: string[];
+  usaServiciosDeTerceros: ServicioDeTerceros[];
 }
 
 export interface Extra {
@@ -93,6 +118,7 @@ interface RawPlan {
   id: string;
   name: string;
   paraQuien: string;
+  enUnaLinea?: string;
   impl: number | null;
   from: boolean;
   monthly: number | null;
@@ -104,17 +130,43 @@ interface RawPlan {
   alt: string;
   aCotizar?: string;
   mantenimientoPct?: number;
+  destacados?: string[];
+  noIncluye: string[];
+  usaServiciosDeTerceros?: ServicioDeTerceros[];
 }
 
 interface RawCatalog {
-  categorias: { key: string; label: string; intro: string; note: string; plans: RawPlan[] }[];
-  combos: { id: string; name: string; paraQuien: string; parts: string; planIds: string[]; list: number; price: number; monthly: number }[];
+  categorias: { key: string; label: string; intro: string; note: string; visibles?: string[]; plans: RawPlan[] }[];
+  combos: {
+    id: string;
+    name: string;
+    paraQuien: string;
+    parts: string;
+    planIds: string[];
+    list: number;
+    price: number;
+    monthly: number;
+    categorias: string[];
+    noIncluye: string[];
+    usaServiciosDeTerceros?: ServicioDeTerceros[];
+  }[];
   /** Ids viejos que ya no existen → el id que los reemplaza (links compartidos). */
   aliases: Record<string, string>;
   extras: { id: string; nombre: string; precio: number | null; unidad?: string; aCotizar?: string }[];
   vigencia: string;
   recargoMercadoPago: number;
   usd: { fallback: number; fuente: string };
+  pagos: PagosConfig;
+}
+
+/** Formas de pago (tanda P1, §2). Fracciones del total, en orden. */
+export interface PagosConfig {
+  tres: number[];
+  calendarioTres: string[];
+  /** Los 3 pagos se ofrecen solo si el total contratado no lo pasa. */
+  topeTres: number;
+  dos: number[];
+  tarjetaMaxCuotas: number;
 }
 
 const catalog = raw as RawCatalog;
@@ -137,11 +189,13 @@ export const categories: Category[] = catalog.categorias.map((c) => ({
   label: c.label,
   intro: c.intro,
   note: c.note,
+  visibles: c.visibles ?? [],
   plans: c.plans.map((p) => ({
     id: p.id,
     category: c.key as CategoryKey,
     name: p.name,
     paraQuien: p.paraQuien,
+    enUnaLinea: p.enUnaLinea ?? p.paraQuien,
     impl: p.impl,
     from: p.from,
     monthly: p.monthly,
@@ -153,6 +207,9 @@ export const categories: Category[] = catalog.categorias.map((c) => ({
     alt: p.alt,
     aCotizar: p.aCotizar ?? "",
     mantenimientoPct: p.mantenimientoPct ?? null,
+    destacados: (p.destacados ?? p.items).slice(0, 3),
+    noIncluye: p.noIncluye,
+    usaServiciosDeTerceros: p.usaServiciosDeTerceros ?? [],
   })),
 }));
 
@@ -168,6 +225,9 @@ export const combos: Combo[] = catalog.combos.map((c) => ({
   list: c.list,
   price: c.price,
   monthly: c.monthly,
+  categorias: c.categorias as CategoryKey[],
+  noIncluye: c.noIncluye,
+  usaServiciosDeTerceros: c.usaServiciosDeTerceros ?? [],
 }));
 
 export const extras: Extra[] = catalog.extras.map((e) => ({
@@ -194,6 +254,8 @@ export const vigencia: string = catalog.vigencia.split("-").reverse().join("/");
 
 export const recargoMercadoPago: number = catalog.recargoMercadoPago;
 
+export const pagosConfig: PagosConfig = catalog.pagos;
+
 /**
  * Tipo de cambio de respaldo (ARS por USD) si dolarapi.com no responde y no
  * hay `USD_ARS_FALLBACK`. Ver `lib/agencia/usd.ts`.
@@ -210,6 +272,12 @@ export const mantenimientoGrandesPct: number =
 
 export function getCategory(key: string): Category | undefined {
   return categories.find((c) => c.key === key);
+}
+
+/** Los planes `visibles` de una categoría, en su orden; el resto va a "Ver otras opciones". */
+export function planesDe(category: Category): { visibles: Plan[]; otras: Plan[] } {
+  const visibles = category.visibles.map((id) => category.plans.find((p) => p.id === id)).filter((p): p is Plan => Boolean(p));
+  return { visibles, otras: category.plans.filter((p) => !visibles.includes(p)) };
 }
 
 export function getPlan(id: string): Plan | undefined {
@@ -233,7 +301,7 @@ export function getExtra(id: string): Extra | undefined {
  */
 export const etiquetasPrecio = {
   aCotizar: "A cotizar",
-  mensual: "Cuota mensual",
+  mensual: "Por mes",
   desde: "Desde",
   unico: "Pago único",
   combo: "Combo",
@@ -244,7 +312,7 @@ export type TipoPrecio = keyof typeof etiquetasPrecio;
 /** Textos de las cotizaciones en texto plano (WhatsApp y el agente). */
 export const resumenCopy = {
   unico: "Pago único",
-  mensual: "Cuota mensual",
+  mensual: "Por mes",
   desde: "desde",
   porMes: "/mes",
   porAnio: "/año",
@@ -252,4 +320,22 @@ export const resumenCopy = {
   medio: { transferencia: "transferencia", mp: "Mercado Pago" },
   pagoPor: "Pago por",
   combo: "Combo",
+} as const;
+
+/**
+ * Copy de las formas de pago (tanda P1, §2). `lineaDePagos()` y
+ * `pagosDe()` de `lib/agencia/pricing.ts` deciden los montos; acá está el
+ * texto. `{n}` y `{monto}` se reemplazan.
+ */
+export const pagosCopy = {
+  linea: "o {n} pagos de {monto} sin interés",
+  /** Corto, para las baldosas de la home: "3 × $59.000". */
+  corto: "{n} × {monto}",
+  tarjeta: "con tarjeta: hasta {n} cuotas de {monto}",
+  tarjetaTotal: "Con tarjeta (Mercado Pago, +{pct}%): {monto}",
+  topeTres: "3 pagos: hasta {monto}",
+  /** "$7.500 por mes, pagás el año junto" (Mantener online). */
+  anualPorMes: "{monto} por mes, pagás el año junto",
+  /** La tarjeta de un plan anual: el monto grande y esto al lado. */
+  anualUnidad: "por mes, pagás el año junto",
 } as const;

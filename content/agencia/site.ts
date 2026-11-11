@@ -42,6 +42,8 @@ export const site = {
       { label: "Proyectos", href: "/#proyectos", section: "proyectos" },
       { label: "Blog", href: "/blog", section: "blog" },
     ] satisfies NavLink[],
+    /** Fase 3 bis B: "Precios" a la vista en el celular, al lado del ☰. */
+    precios: { label: "Precios", href: "/precios", section: "precios" },
     /** El botón principal del menú abre el chat de Malejo. */
     cta: "Hablá con Malejo",
     /** Celular: el header suma WhatsApp al lado del ☰. */

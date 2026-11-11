@@ -646,3 +646,74 @@ Pedido de Mauro (9-11, noche): recorrer el sitio como cliente, probar muchas con
 - Correr las evals reales: `CHAT_TEST_TOKEN=… npm run eval:chat -- --url <vista previa o producción>` (36 casos, objetivo 33).
 - Si querés ver el embudo: plan Pro de Vercel (eventos personalizados).
 
+
+---
+
+# Tanda P1 · precios nuevos, 3 pagos sin interés y modales "Qué incluye"
+
+Fuente de verdad: `docs/agencia/precios-psicologia-2026-11-10.md` (§2 pagos, §3 tabla, §4 pantallas, §5 modal); pedido en `docs/agencia/tanda-p1-malejo-precios-modales.md`, con las decisiones tomadas al arrancar al final. `npm test` (184 tests), `npm run lint` y `npm run build` en verde. Todas las rutas de la agencia siguen `○`/`●`.
+
+## Qué se hizo
+- **Datos** (`precios.json`): la tabla §3 completa; combos con `list` = suma real por separado; mantenimiento pro a $49.000 y el recomendado pasa a "Cambios chicos"; `landing-premium` pasa a "Página completa" (sin asistente, mismo id). Campos nuevos: `noIncluye` (todos), `destacados`, `enUnaLinea`, `usaServiciosDeTerceros`, `visibles` por categoría, `categorias` por combo y `pagos`.
+- **Aritmética** (`lib/agencia/pricing.ts`): `pagosDe`, `lineaDePagos` (la única fuente de "o 3 pagos de $X sin interés"), `pagosCortos`, `desdeDeCategoria`, `mensualDeAnual`/`anualPorMes` y los pagos dentro de `cotizar` y `comparar`. El tope de $600.000 se mira sobre el total contratado, sin `grandes` ni montos solo mensuales.
+- **Copy**: "por mes" o "servicio mensual" en vez de "cuota mensual"; "lo das de baja cuando quieras, avisando 30 días antes"; "incluye soporte funcional"; el auto, el taller y la nafta en `conocimiento.modeloDeCostos`, con `fraseDeCosto()`. Glosario: suma "cuota mensual", "permanencia" y "tokens".
+- **Componentes**: `PlanDialog` (isla con `<dialog>` nativo y `LazyMotion`), `PlanDetalle`/`ComboDetalle`, `InfoPagos` (franja y modal de formas de pago, franja de costos, extras y condiciones), `DemoResumen` (isla que cotiza `?plan=` en `/demo`). `PricingCatalog` queda como isla que solo elige la categoría: los paneles los arma el servidor.
+- **Pantallas**: home (§4.1 y Fase 3 bis B), `/precios` (§4.3 y Fase 3 bis A y C), `/servicios/[slug]` (§4.2), cotizador (§4.4), `/demo` (§4.5) y "Precios" en el encabezado del celular.
+- **Chat**: `cotizar` devuelve `formasDePago` y la tarjeta `quote` muestra la línea de pagos; `comparar` trae la línea de cada opción. En el prompt: 3 pagos ante dudas por el precio (nunca descuentos), "Incluye"/"No incluye" del catálogo y la regla de la nafta. Evals: O pasa a pedir los 3 pagos, más 5 nuevas (AK–AO): 41 casos, objetivo 38.
+
+## Antes y después
+
+Medido con `docs/agencia/verificacion/p1/verificar.js` contra builds de producción (`main` en 3002, esta rama en 3001). Palabras y precios visibles = `innerText` de `<main>`, sin header ni footer. Por eso no coinciden con los números de §0, que se midieron en producción con otro método. Resultado completo en `verificacion/p1/resultado.json`.
+
+| Pantalla | Palabras 1280 px | Palabras 390 px | Precios visibles |
+|---|---|---|---|
+| `/` | 479 → **287** | 479 → **287** | 8 → 11 |
+| `/precios` (pestaña webs) | 699 → **422** | 702 → **407** | 27 → 21 |
+| `/precios?cat=tiendas` | 554 → 346 | 557 → 331 | 26 → 14 |
+| `/precios?cat=turnos` | 474 → 315 | 477 → 300 | 23 → 12 |
+| `/precios?cat=gestion` | 552 → 355 | 555 → 340 | 26 → 14 |
+| `/precios?cat=ia` | 650 → 358 | 653 → 343 | 27 → 14 |
+| `/precios?cat=mant` | 470 → 263 | 473 → 248 | 22 → 3 |
+| `/precios?cat=grandes` | 461 → 263 | 464 → 248 | 19 → 1 |
+| `/servicios/webs` | 467 → **443** | 467 → 443 | 11 → 12 |
+| `/servicios/ia` | 490 → 447 | 490 → 447 | 9 → 15 |
+| `/servicios/tiendas` | 401 → 450 | 401 → 450 | 6 → 15 |
+| `/servicios/gestion` | 402 → 450 | 402 → 450 | 7 → 15 |
+| `/servicios/turnos` | 347 → 393 | 347 → 393 | 6 → 13 |
+| `/servicios/mant` | 318 → 366 | 318 → 366 | 3 → 3 |
+| `/servicios/grandes` | 379 → 361 | 379 → 361 | 3 → 2 |
+| `/cotizador` (vacío) | 190 → 192 | 190 → 192 | 6 → 6 |
+| `/demo?plan=landing-profesional` | 304 → 330 | 304 → 330 | 8 → 11 |
+
+- **Home**: 3,43 → **3,16** pantallas en escritorio y 5,46 → **4,64** en celular (mismo método que `r2/capturas.js`: 1440×900 y 390×844).
+- **Soluciones**: todas ≤ 450 palabras. Algunas suben respecto de `main` porque antes los otros planes estaban cerrados en un `<details>` y ahora van 3 tarjetas a la vista, "¿Cuál me conviene?", el combo y las franjas de pagos y de costos. Los precios visibles suben por la línea de los 3 pagos, que acompaña a cada total.
+- **`/precios`**: la pestaña webs queda en 422 (objetivo ~350) porque, por la decisión A, muestra 3 combos. Las demás quedan entre 263 y 358.
+- **Overflow horizontal**: 0 en todas las páginas, a 1280 y a 390.
+- **Modal** (`/`, `/precios`, `/servicios/webs`, `/servicios/ia`, a 1280 y a 390): abre como modal, el foco entra y en 30 Tab no sale a la página, el scroll queda bloqueado, cierra con Esc y con clic en el fondo, y el foco vuelve al disparador. 8 de 8.
+- **Sin JS**: los 30 "Ver qué incluye"/"Ver qué trae" de `/precios` llevan a `/servicios/<cat>#<id>`, donde el `<details>` se abre solo y el detalle queda en pantalla. El modal de la seña de la home cae en un `<details>` visible.
+- **Fase 3 bis C**: a 320, 360, 390 y 412 px, en las 7 categorías, sin rectángulos superpuestos en la grilla de categorías ni en las tarjetas, y nada del panel sale del ancho. El modal de extras, fila por fila, tampoco se pisa. 32 de 32.
+
+## Decisiones
+1. **Panel del servidor, isla mínima.** `/precios` renderiza las 7 pestañas en el servidor y la isla solo cambia el `hidden`: el contenido de los modales llega como `children` y la copy no entra al bundle.
+2. **`enUnaLinea`.** La tarjeta pide "para quién" en una línea. El `paraQuien` completo se queda en el modal y en el chat, que lo usa para recomendar.
+3. **La animación del modal no remonta el contenido.** Un `key` nuevo destruía el botón que `showModal()` había enfocado (lo detectó la verificación).
+4. **`/demo` cotiza en el cliente.** Así un `?plan=a,b` del cotizador o del chat da el mismo total que en el resto del sitio, y la ruta sigue estática.
+5. **Cuota de tarjeta redondeada a $100**, como el recargo: es orientativa, porque el interés lo pone Mercado Pago.
+
+## Evals reales (11-11, contra el preview de la rama)
+
+Corridas con `npm run eval:chat` contra el preview de Vercel, que tiene la clave del lado del servidor. El acceso se hizo con un link de acceso del preview (cookie en `EVAL_COOKIE`) y los pedidos se espaciaron con `EVAL_PAUSA_MS=31000`, porque sin `CHAT_TEST_TOKEN` rige el tope de ráfaga por IP. Hubo cuatro corridas con arreglos entre medio:
+
+| Corrida | Commit | Pasan | Qué se arregló después |
+|---|---|---|---|
+| 1 · `evals/2026-11-11T2058.md` | `bfd7617` | 34 de 41 | `max_tokens` 800 → 4000: el pensamiento adaptativo de Haiku 5.5 cuenta dentro del techo y cortaba respuestas (vacías en M y R; sin `tool_use` en C y AF). Descuento → 3 pagos y derivar. Sin `sugerir_respuestas` ante insultos. Regex de Y y Z. |
+| 2 · `evals/2026-11-11T2135.md` | `53bea70` | 35 de 41 | Texto + herramienta que solo muestra una tarjeta cierra el turno (la segunda ronda anunciaba el botón). No anunciar tarjetas. Nombrar los proyectos. No nombrar soluciones mientras pregunta. |
+| 3 · `evals/2026-11-11T2209.md` | `3f17ab7` | 37 de 41 | Salvaguarda de derivación en el servidor (`chat/derivar.ts`): si promete derivar y no salió la tarjeta, la agrega. Recomendar directo si el pedido ya dice qué necesita. Regex de AJ y B. |
+| 4 · `evals/2026-11-11T2244.md` | `eb5bb3e` | **38 de 41** ✅ | — |
+
+Los 5 casos nuevos de P1 (AK a AO) pasan en las cuatro corridas. Entre corridas la variación es de ±2 casos, y las fallas de la última son menores y no se repiten: B (largo: 74 palabras), F ("lo ves antes de pagar el total" sin decir "demo") y Q (recomienda el catálogo y menciona la tienda como alternativa).
+
+## Pasos manuales para Mauro
+- Revisar los `noIncluye` (la lista está en el PR).
+- Search Console: reindexar `/precios` y `/servicios/*` (cambiaron precios y estructura).
+- El link de acceso del preview que se usó para las evals vence solo a las 23 h. El entorno `portfolio-2026` de Claude Code quedó con el host del preview de esta rama habilitado; se puede sacar en la configuración del entorno.

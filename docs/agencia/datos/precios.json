@@ -4,13 +4,14 @@
       "key": "webs",
       "label": "Que te encuentren",
       "intro": "Pagás una sola vez. Incluye el primer año online, 30 días de garantía, y la página es tuya.",
-      "note": "Desde el segundo año: $90.000 por año para que siga online, o un plan con cambios incluidos.",
+      "note": "Desde el segundo año, para que siga en internet: el plan Mantener online o uno con cambios incluidos.",
       "plans": [
         {
           "id": "landing-express",
           "name": "Página Esencial",
           "paraQuien": "Recién arrancás o necesitás estar en internet ya: una página con lo básico y tu WhatsApp, en 3 días.",
-          "impl": 180000,
+          "enUnaLinea": "Recién arrancás y necesitás estar en internet ya.",
+          "impl": 177000,
           "from": false,
           "monthly": null,
           "unit": "pago único",
@@ -23,13 +24,20 @@
             "1 vuelta de correcciones"
           ],
           "proof": "",
-          "alt": ""
+          "alt": "",
+          "noIncluye": [
+            "Tu dirección web (.com.ar, la paga NIC.ar)",
+            "Sacar las fotos: usamos las tuyas",
+            "Aparecer en Google Maps cuando buscan tu rubro",
+            "Más de 1 vuelta de correcciones"
+          ]
         },
         {
           "id": "landing-profesional",
           "name": "Página para aparecer en Google",
           "paraQuien": "Querés que te encuentren cuando buscan \"veterinaria en Salta\" y que te escriban directo.",
-          "impl": 320000,
+          "enUnaLinea": "Querés que te encuentren cuando buscan tu rubro.",
+          "impl": 249000,
           "from": false,
           "monthly": null,
           "unit": "pago único",
@@ -42,13 +50,25 @@
             "2 vueltas de correcciones"
           ],
           "proof": "",
-          "alt": "$90.000 de entrada y $49.000 por mes durante 12 meses, con mantenimiento incluido."
+          "alt": "$59.000 de entrada y $42.000 por mes durante 12 meses, con cambios chicos incluidos.",
+          "destacados": [
+            "Diseño a medida, hasta 6 secciones",
+            "Aparecés en Google y en Google Maps cuando buscan tu rubro cerca",
+            "2 vueltas de correcciones"
+          ],
+          "noIncluye": [
+            "Tu dirección web (.com.ar, la paga NIC.ar)",
+            "Sacar las fotos: usamos las tuyas",
+            "Escribir los textos (es un extra)",
+            "Más de 6 secciones"
+          ]
         },
         {
           "id": "landing-premium",
-          "name": "Página que responde sola",
-          "paraQuien": "Te preguntan siempre lo mismo y querés que la página conteste y te deje los interesados.",
-          "impl": 480000,
+          "name": "Página completa",
+          "paraQuien": "Querés una página que cuente bien lo que hacés: con textos escritos por mí, animaciones y más vueltas de correcciones.",
+          "enUnaLinea": "Querés una página que cuente bien lo que hacés.",
+          "impl": 357000,
           "from": false,
           "monthly": null,
           "unit": "pago único",
@@ -56,18 +76,30 @@
           "rec": false,
           "items": [
             "Todo lo de la página para aparecer en Google",
-            "Animaciones y textos escritos por mí",
-            "Un asistente que responde las preguntas de siempre",
-            "Quien te escribe recibe respuesta al instante"
+            "Textos escritos por mí",
+            "Animaciones",
+            "3 vueltas de correcciones"
           ],
           "proof": "",
-          "alt": ""
+          "alt": "",
+          "destacados": [
+            "Todo lo de la página para aparecer en Google",
+            "Textos escritos por mí y animaciones",
+            "3 vueltas de correcciones"
+          ],
+          "noIncluye": [
+            "Tu dirección web (.com.ar, la paga NIC.ar)",
+            "Sacar las fotos: usamos las tuyas",
+            "Un asistente que responda solo (está en el combo Página que atiende 24 h)",
+            "Más de 6 secciones"
+          ]
         },
         {
           "id": "sitio-pyme",
           "name": "Web completa (hasta 5 páginas)",
           "paraQuien": "Ofrecés varios servicios o sedes y cada uno necesita su página (clínicas, inmobiliarias, agencias de viaje).",
-          "impl": 650000,
+          "enUnaLinea": "Varios servicios o sedes, cada uno con su página.",
+          "impl": 597000,
           "from": false,
           "monthly": null,
           "unit": "pago único",
@@ -75,17 +107,24 @@
           "rec": false,
           "items": [
             "Hasta 5 páginas",
-            "Todo lo de la página anterior, en varias páginas (sin asistente)",
+            "Todo lo de la página para aparecer en Google, en varias páginas",
             "2 vueltas de correcciones"
           ],
           "proof": "",
-          "alt": ""
+          "alt": "",
+          "noIncluye": [
+            "Tu dirección web (.com.ar, la paga NIC.ar)",
+            "Sacar las fotos: usamos las tuyas",
+            "Más de 5 páginas (cada una se suma aparte)",
+            "Cambiar vos los textos y las fotos (está en la Web que actualizás vos)"
+          ]
         },
         {
           "id": "sitio-autoadministrable",
           "name": "Web que actualizás vos",
           "paraQuien": "Cambiás precios, fotos o novedades seguido y no querés depender de nadie.",
-          "impl": 950000,
+          "enUnaLinea": "Cambiás precios, fotos o novedades seguido.",
+          "impl": 897000,
           "from": false,
           "monthly": null,
           "unit": "pago único",
@@ -97,13 +136,19 @@
             "3 vueltas de correcciones"
           ],
           "proof": "",
-          "alt": ""
+          "alt": "",
+          "noIncluye": [
+            "Tu dirección web (.com.ar, la paga NIC.ar)",
+            "Sacar las fotos: usamos las tuyas",
+            "Pasar a mano todo el contenido de una web vieja"
+          ]
         },
         {
           "id": "renova-tu-web",
           "name": "Renovación de tu web actual",
           "paraQuien": "Ya tenés una web vieja, lenta o que no se ve bien en el celular, y no querés perder Google.",
-          "impl": 550000,
+          "enUnaLinea": "Tu web es vieja, lenta o no se ve bien.",
+          "impl": 507000,
           "from": true,
           "monthly": null,
           "unit": "pago único",
@@ -115,21 +160,32 @@
             "Demo previa sin cargo"
           ],
           "proof": "",
-          "alt": ""
+          "alt": "",
+          "noIncluye": [
+            "Tu dirección web: si ya la tenés, sigue siendo tuya y se paga aparte",
+            "Sacar las fotos: usamos las tuyas",
+            "Funciones nuevas que tu web actual no tiene (se cotizan aparte)"
+          ]
         }
+      ],
+      "visibles": [
+        "landing-express",
+        "landing-profesional",
+        "landing-premium"
       ]
     },
     {
       "key": "tiendas",
       "label": "Vender por internet",
       "intro": "Vendé por WhatsApp o cobrá online, sin comisiones por venta para mí.",
-      "note": "La cuota mensual cubre que siga online, que puedas cargar productos y que te ayude si algo falla. Mercado Pago cobra su propia comisión por cada venta online.",
+      "note": "Lo que pagás por mes cubre que siga online, que puedas cargar productos y el soporte funcional. Mercado Pago cobra su propia comisión por cada venta online.",
       "plans": [
         {
           "id": "menu-digital-qr",
           "name": "Carta digital con QR",
           "paraQuien": "Bares, restós y cafés que cambian precios seguido.",
-          "impl": 120000,
+          "enUnaLinea": "Bares y restós: tu carta en el celular.",
+          "impl": 117000,
           "from": false,
           "monthly": 12000,
           "unit": "pago único",
@@ -141,13 +197,19 @@
             "QR listo para imprimir"
           ],
           "proof": "",
-          "alt": ""
+          "alt": "",
+          "noIncluye": [
+            "Imprimir los QR",
+            "Sacar las fotos de los platos",
+            "Tomar pedidos o cobrar desde la carta"
+          ]
         },
         {
           "id": "catalogo-con-pedidos-por-whatsapp",
           "name": "Catálogo que arma el pedido por WhatsApp",
           "paraQuien": "Vendés por WhatsApp o Instagram y estás cansado de pasar fotos y precios uno por uno.",
-          "impl": 280000,
+          "enUnaLinea": "Vendés por WhatsApp o Instagram y querés ordenar los pedidos.",
+          "impl": 249000,
           "from": false,
           "monthly": 15000,
           "unit": "pago único",
@@ -159,31 +221,19 @@
             "Cargás productos y stock desde el celular"
           ],
           "proof": "",
-          "alt": ""
-        },
-        {
-          "id": "directorio-o-guia-con-mapa",
-          "name": "Guía de lugares con mapa",
-          "paraQuien": "Cámaras, turismo o eventos: muchos lugares para mostrar, actualizados solos.",
-          "impl": 450000,
-          "from": false,
-          "monthly": 25000,
-          "unit": "pago único",
-          "time": "15 días",
-          "rec": false,
-          "items": [
-            "Cada lugar con su ficha y su ubicación en el mapa",
-            "Se actualiza sola",
-            "Filtros para encontrar rápido lo que buscás"
-          ],
-          "proof": "Como Qué Pinta Salta",
-          "alt": ""
+          "alt": "",
+          "noIncluye": [
+            "Cobro online con tarjeta (está en la Tienda que cobra sola)",
+            "Sacar las fotos de los productos",
+            "Coordinar los envíos"
+          ]
         },
         {
           "id": "tienda-online-con-mercado-pago",
           "name": "Tienda que cobra sola",
           "paraQuien": "Querés vender y cobrar online, con envío o retiro, sin comisión por venta para mí.",
-          "impl": 750000,
+          "enUnaLinea": "Querés cobrar online sin intervenir en cada venta.",
+          "impl": 747000,
           "from": true,
           "monthly": 35000,
           "unit": "pago único",
@@ -195,21 +245,57 @@
             "Envío o retiro en el local"
           ],
           "proof": "",
-          "alt": ""
+          "alt": "",
+          "noIncluye": [
+            "La comisión que cobra Mercado Pago por cada venta",
+            "Sacar las fotos de los productos",
+            "El costo de los envíos",
+            "Tu dirección web (.com.ar, la paga NIC.ar)"
+          ]
+        },
+        {
+          "id": "directorio-o-guia-con-mapa",
+          "name": "Guía de lugares con mapa",
+          "paraQuien": "Cámaras, turismo o eventos: muchos lugares para mostrar, actualizados solos.",
+          "enUnaLinea": "Una guía de lugares con mapa y filtros.",
+          "impl": 447000,
+          "from": false,
+          "monthly": 25000,
+          "unit": "pago único",
+          "time": "15 días",
+          "rec": false,
+          "items": [
+            "Cada lugar con su ficha y su ubicación en el mapa",
+            "Se actualiza sola",
+            "Filtros para encontrar rápido lo que buscás"
+          ],
+          "proof": "Como Qué Pinta Salta",
+          "alt": "",
+          "noIncluye": [
+            "Tu dirección web (.com.ar, la paga NIC.ar)",
+            "Cargar todos los lugares de entrada",
+            "Cobrarles a los lugares que aparecen"
+          ]
         }
+      ],
+      "visibles": [
+        "menu-digital-qr",
+        "catalogo-con-pedidos-por-whatsapp",
+        "tienda-online-con-mercado-pago"
       ]
     },
     {
       "key": "turnos",
       "label": "Turnos y reservas",
       "intro": "Tus clientes reservan solos y vos ves la agenda desde el celular.",
-      "note": "Los recordatorios salen por WhatsApp oficial: WhatsApp cobra aparte unos centavos por mensaje. ¿No tenés página? Mirá el combo Página + turnos.",
+      "note": "Los recordatorios salen por WhatsApp oficial: lo que cobra WhatsApp por mensaje va aparte. ¿No tenés página? Mirá el combo Página + turnos.",
       "plans": [
         {
           "id": "turnos-online",
           "name": "Agenda de turnos online",
           "paraQuien": "Peluquerías, consultorios, estética: dejá de dar turnos por WhatsApp.",
-          "impl": 180000,
+          "enUnaLinea": "Das turnos por profesional o por servicio.",
+          "impl": 177000,
           "from": false,
           "monthly": 22000,
           "unit": "pago único",
@@ -221,13 +307,22 @@
             "Ves la agenda del día desde el celular"
           ],
           "proof": "",
-          "alt": ""
+          "alt": "",
+          "noIncluye": [
+            "Lo que cobra WhatsApp por mensaje (recordatorios)",
+            "Cobrar una seña al reservar (está en Reservas con seña cobrada)",
+            "Tu página web (está en el combo Página + turnos)"
+          ],
+          "usaServiciosDeTerceros": [
+            "whatsapp"
+          ]
         },
         {
           "id": "reservas-con-sena",
           "name": "Reservas con seña cobrada",
           "paraQuien": "Canchas, cabañas o clases: que el que reserva pague la seña y no te deje plantado.",
-          "impl": 380000,
+          "enUnaLinea": "Canchas, cabañas o clases que cobran seña.",
+          "impl": 357000,
           "from": false,
           "monthly": 35000,
           "unit": "pago único",
@@ -239,12 +334,18 @@
             "Calendario de disponibilidad"
           ],
           "proof": "",
-          "alt": ""
+          "alt": "",
+          "noIncluye": [
+            "La comisión que cobra Mercado Pago por cada seña",
+            "Tu página web (se suma aparte)",
+            "Tu dirección web (.com.ar, la paga NIC.ar)"
+          ]
         },
         {
           "id": "inscripciones-a-eventos-y-salidas",
           "name": "Inscripciones con cupo",
           "paraQuien": "Talleres, salidas grupales y eventos con lugares limitados.",
+          "enUnaLinea": "Eventos o salidas con cupo y lista de espera.",
           "impl": null,
           "from": false,
           "monthly": 15000,
@@ -257,57 +358,31 @@
             "Gratis para grupos sin fines de lucro"
           ],
           "proof": "Como Agenda de salidas (en prueba)",
-          "alt": ""
+          "alt": "",
+          "noIncluye": [
+            "Cobrar la inscripción",
+            "Tu página web (se suma aparte)"
+          ]
         }
+      ],
+      "visibles": [
+        "turnos-online",
+        "reservas-con-sena",
+        "inscripciones-a-eventos-y-salidas"
       ]
     },
     {
       "key": "gestion",
       "label": "Ordenar tu negocio",
       "intro": "Dejá las planillas sueltas: sistemas simples para el día a día de tu negocio.",
-      "note": "El Sistema a tu medida (desde $900.000) arranca con un plan del proyecto por escrito y se construye por etapas, como los proyectos a medida.",
+      "note": "El Sistema a tu medida arranca con un plan del proyecto por escrito y se construye por etapas, como los proyectos a medida.",
       "plans": [
-        {
-          "id": "control-de-stock-con-qr",
-          "name": "Control de mercadería",
-          "paraQuien": "Comercios o depósitos que pierden la cuenta de lo que entra y sale.",
-          "impl": 450000,
-          "from": false,
-          "monthly": 30000,
-          "unit": "pago único",
-          "time": "15 días",
-          "rec": false,
-          "items": [
-            "Control de mercadería escaneando con el celular",
-            "Te avisa cuando queda poco de algo",
-            "Historial de lo que entra y sale"
-          ],
-          "proof": "",
-          "alt": ""
-        },
-        {
-          "id": "pedidos-y-clientes",
-          "name": "Pedidos y clientes en orden",
-          "paraQuien": "Tomás pedidos por varios lados y se te pierden o se atrasan.",
-          "impl": 550000,
-          "from": false,
-          "monthly": 35000,
-          "unit": "pago único",
-          "time": "20 días",
-          "rec": true,
-          "items": [
-            "Cada pedido con su estado",
-            "Ficha de cada cliente",
-            "Avisos automáticos por WhatsApp o email"
-          ],
-          "proof": "",
-          "alt": ""
-        },
         {
           "id": "tablero-de-ventas",
           "name": "Tus números en una pantalla",
           "paraQuien": "Querés saber cuánto vendiste sin abrir tres planillas.",
-          "impl": 350000,
+          "enUnaLinea": "Querés ver cuánto vendés sin armar planillas.",
+          "impl": 327000,
           "from": false,
           "monthly": 20000,
           "unit": "pago único",
@@ -319,13 +394,69 @@
             "Resumen semanal por email"
           ],
           "proof": "",
-          "alt": ""
+          "alt": "",
+          "noIncluye": [
+            "Facturación electrónica",
+            "Datos que no estén en tus planillas ni en Mercado Pago"
+          ]
+        },
+        {
+          "id": "control-de-stock-con-qr",
+          "name": "Control de mercadería",
+          "paraQuien": "Comercios o depósitos que pierden la cuenta de lo que entra y sale.",
+          "enUnaLinea": "Se te pierde mercadería o te quedás sin stock.",
+          "impl": 447000,
+          "from": false,
+          "monthly": 30000,
+          "unit": "pago único",
+          "time": "15 días",
+          "rec": false,
+          "items": [
+            "Control de mercadería escaneando con el celular",
+            "Te avisa cuando queda poco de algo",
+            "Historial de lo que entra y sale"
+          ],
+          "proof": "",
+          "alt": "",
+          "noIncluye": [
+            "Lectores o etiquetadoras: alcanza con el celular",
+            "Facturación electrónica",
+            "Cargar toda tu mercadería de entrada"
+          ]
+        },
+        {
+          "id": "pedidos-y-clientes",
+          "name": "Pedidos y clientes en orden",
+          "paraQuien": "Tomás pedidos por varios lados y se te pierden o se atrasan.",
+          "enUnaLinea": "Los pedidos se te atrasan o se pierden.",
+          "impl": 537000,
+          "from": false,
+          "monthly": 35000,
+          "unit": "pago único",
+          "time": "20 días",
+          "rec": true,
+          "items": [
+            "Cada pedido con su estado",
+            "Ficha de cada cliente",
+            "Avisos automáticos por WhatsApp o email"
+          ],
+          "proof": "",
+          "alt": "",
+          "noIncluye": [
+            "Lo que cobra WhatsApp por mensaje (avisos)",
+            "Facturación electrónica",
+            "Cobro online"
+          ],
+          "usaServiciosDeTerceros": [
+            "whatsapp"
+          ]
         },
         {
           "id": "sistema-a-medida",
           "name": "Sistema a tu medida",
           "paraQuien": "Tu forma de trabajar no entra en nada estándar.",
-          "impl": 900000,
+          "enUnaLinea": "Tu negocio no entra en un sistema armado.",
+          "impl": 897000,
           "from": true,
           "monthly": null,
           "unit": "pago único",
@@ -337,21 +468,32 @@
             "50% al aprobar la demo y 50% al entregar"
           ],
           "proof": "Como AfinIA Jobs",
-          "alt": ""
+          "alt": "",
+          "noIncluye": [
+            "Facturación electrónica (se cotiza si la necesitás)",
+            "Lo que cobran los servicios externos que se conecten",
+            "Equipos o computadoras"
+          ]
         }
+      ],
+      "visibles": [
+        "tablero-de-ventas",
+        "control-de-stock-con-qr",
+        "pedidos-y-clientes"
       ]
     },
     {
       "key": "ia",
       "label": "Atender 24 h con IA",
       "intro": "Un asistente que responde con la información de tu negocio, dice de dónde la sacó y te pasa los casos que necesitan una persona.",
-      "note": "Charla gratis (20 min) para ver si te sirve. Lo que cobran por uso WhatsApp y el servicio de inteligencia artificial lo pagás aparte, según cuánto se use.",
+      "note": "Charla gratis (20 min) para ver si te sirve. Lo que gasta la inteligencia artificial y lo que cobra WhatsApp por mensaje lo cobran esas empresas aparte, según cuánto se use.",
       "plans": [
         {
           "id": "asistente-ia-para-tu-web",
           "name": "Asistente que responde en tu web",
           "paraQuien": "Te preguntan precios, horarios o requisitos a cualquier hora.",
-          "impl": 350000,
+          "enUnaLinea": "Te preguntan siempre lo mismo en tu web.",
+          "impl": 327000,
           "from": false,
           "monthly": 45000,
           "unit": "pago único",
@@ -363,13 +505,22 @@
             "Te deja anotados a los interesados (si ellos aceptan)"
           ],
           "proof": "Como Tuki",
-          "alt": ""
+          "alt": "",
+          "noIncluye": [
+            "Lo que cobra la inteligencia artificial por uso",
+            "Tu página web (está en el combo Página que atiende 24 h)",
+            "Responder por WhatsApp (está en Asistente en tu WhatsApp)"
+          ],
+          "usaServiciosDeTerceros": [
+            "ia"
+          ]
         },
         {
           "id": "asistente-por-whatsapp",
           "name": "Asistente en tu WhatsApp",
           "paraQuien": "Te escriben más de lo que podés contestar y perdés clientes por demorar.",
-          "impl": 450000,
+          "enUnaLinea": "Las consultas te llegan por WhatsApp.",
+          "impl": 447000,
           "from": false,
           "monthly": 55000,
           "unit": "pago único",
@@ -381,13 +532,23 @@
             "Historial de conversaciones"
           ],
           "proof": "",
-          "alt": ""
+          "alt": "",
+          "noIncluye": [
+            "Lo que cobra la inteligencia artificial por uso",
+            "Lo que cobra WhatsApp por mensaje",
+            "El número de WhatsApp de tu negocio: lo ponés vos"
+          ],
+          "usaServiciosDeTerceros": [
+            "ia",
+            "whatsapp"
+          ]
         },
         {
           "id": "agente-de-ventas",
           "name": "Vendedor virtual",
           "paraQuien": "Querés que cotice, agende y haga el seguimiento por vos.",
-          "impl": 600000,
+          "enUnaLinea": "Querés que además cotice y haga seguimiento.",
+          "impl": 597000,
           "from": false,
           "monthly": 65000,
           "unit": "pago único",
@@ -399,13 +560,23 @@
             "Informe de consultas"
           ],
           "proof": "Como el asistente de ventas automotriz",
-          "alt": ""
+          "alt": "",
+          "noIncluye": [
+            "Lo que cobra la inteligencia artificial por uso",
+            "Lo que cobra WhatsApp por mensaje",
+            "Cobrar las ventas: lo hace tu medio de cobro"
+          ],
+          "usaServiciosDeTerceros": [
+            "ia",
+            "whatsapp"
+          ]
         },
         {
           "id": "automatizacion",
           "name": "Tareas que se hacen solas",
           "paraQuien": "Copiás datos de un lado a otro todos los días (formularios, planillas, mails).",
-          "impl": 250000,
+          "enUnaLinea": "Tareas repetidas que hoy hacés a mano.",
+          "impl": 249000,
           "from": true,
           "monthly": null,
           "unit": "por cada tarea automatizada",
@@ -417,13 +588,18 @@
             "No tenés que tocar nada"
           ],
           "proof": "",
-          "alt": ""
+          "alt": "",
+          "noIncluye": [
+            "Lo que cobran las herramientas que se conectan, si alguna es paga",
+            "Otras tareas: cada una se cotiza aparte"
+          ]
         },
         {
           "id": "plataforma-educativa-con-ia",
           "name": "Aula virtual con IA",
           "paraQuien": "Institutos y docentes que quieren evaluaciones y seguimiento por alumno.",
-          "impl": 900000,
+          "enUnaLinea": "Docentes y alumnos, con evaluaciones armadas con IA.",
+          "impl": 897000,
           "from": true,
           "monthly": null,
           "unit": "pago único",
@@ -435,13 +611,22 @@
             "Seguimiento de cada alumno"
           ],
           "proof": "Como MaestrIA",
-          "alt": ""
+          "alt": "",
+          "noIncluye": [
+            "Lo que cobra la inteligencia artificial por uso",
+            "Armar los contenidos de las clases",
+            "Tu dirección web (.com.ar, la paga NIC.ar)"
+          ],
+          "usaServiciosDeTerceros": [
+            "ia"
+          ]
         },
         {
           "id": "clasificador-con-ia",
           "name": "Ordenar y filtrar con IA",
           "paraQuien": "Recibís muchos CVs, pedidos o consultas y hoy los leés uno por uno.",
-          "impl": 700000,
+          "enUnaLinea": "Mucha información para leer, ordenar y filtrar.",
+          "impl": 699000,
           "from": true,
           "monthly": null,
           "unit": "pago único",
@@ -453,8 +638,20 @@
             "Avisos, CVs, pedidos o eventos"
           ],
           "proof": "Como AfinIA Jobs y Qué Pinta Salta",
-          "alt": ""
+          "alt": "",
+          "noIncluye": [
+            "Lo que cobra la inteligencia artificial por uso",
+            "Juntar la información: la cargás vos o la conectamos aparte"
+          ],
+          "usaServiciosDeTerceros": [
+            "ia"
+          ]
         }
+      ],
+      "visibles": [
+        "asistente-ia-para-tu-web",
+        "asistente-por-whatsapp",
+        "agente-de-ventas"
       ]
     },
     {
@@ -467,6 +664,7 @@
           "id": "renovacion",
           "name": "Mantener online (por año)",
           "paraQuien": "Tu web está bien y solo querés que siga andando, segura.",
+          "enUnaLinea": "Solo querés que tu página siga online.",
           "impl": 90000,
           "from": false,
           "monthly": null,
@@ -479,44 +677,76 @@
             "Cambios aparte"
           ],
           "proof": "",
-          "alt": ""
+          "alt": "",
+          "noIncluye": [
+            "Cambios en la página (se cobran aparte)",
+            "Funciones o páginas nuevas"
+          ]
         },
         {
           "id": "mantenimiento-basico",
           "name": "Cambios chicos todos los meses",
           "paraQuien": "Cada tanto cambiás un precio, una foto o un horario.",
+          "enUnaLinea": "Cambiás precios, fotos u horarios seguido.",
           "impl": null,
           "from": false,
           "monthly": 25000,
           "unit": "",
           "time": "",
-          "rec": false,
+          "rec": true,
           "items": [
             "Todo lo de mantener online",
             "30 minutos de cambios por mes",
+            "Incluye soporte funcional",
             "Respuesta en 48 h hábiles"
           ],
           "proof": "",
-          "alt": ""
+          "alt": "",
+          "destacados": [
+            "Todo lo de mantener online",
+            "30 minutos de cambios por mes",
+            "Incluye soporte funcional"
+          ],
+          "noIncluye": [
+            "Cambios de más de 30 minutos por mes (se cobran aparte)",
+            "Funciones o páginas nuevas",
+            "Informe mensual"
+          ]
         },
         {
           "id": "mantenimiento-pro",
           "name": "Cambios + informe mensual",
           "paraQuien": "Tu web es tu vidriera principal y querés mejorarla mes a mes.",
+          "enUnaLinea": "Querés cambios seguidos y que Google te muestre más.",
           "impl": null,
           "from": false,
-          "monthly": 55000,
+          "monthly": 49000,
           "unit": "",
           "time": "",
-          "rec": true,
+          "rec": false,
           "items": [
+            "2 horas de cambios por mes",
+            "Informe mensual y ajustes para que Google te muestre más",
+            "Incluye soporte funcional",
+            "Respuesta en 24 h hábiles"
+          ],
+          "proof": "",
+          "alt": "",
+          "destacados": [
             "2 horas de cambios por mes",
             "Informe mensual y ajustes para que Google te muestre más",
             "Respuesta en 24 h hábiles"
           ],
-          "proof": "",
-          "alt": ""
+          "noIncluye": [
+            "Funciones o páginas nuevas (se cotizan aparte)",
+            "Más de 2 horas de cambios por mes"
+          ]
         }
+      ],
+      "visibles": [
+        "renovacion",
+        "mantenimiento-basico",
+        "mantenimiento-pro"
       ]
     },
     {
@@ -541,7 +771,11 @@
             "Sin compromiso"
           ],
           "proof": "",
-          "alt": ""
+          "alt": "",
+          "noIncluye": [
+            "El plan del proyecto por escrito",
+            "Un presupuesto cerrado"
+          ]
         },
         {
           "id": "diagnostico-escrito",
@@ -560,7 +794,11 @@
             "Se paga por adelantado"
           ],
           "proof": "",
-          "alt": ""
+          "alt": "",
+          "noIncluye": [
+            "Construir el proyecto: cada etapa se cotiza en el plan",
+            "Lo que cobran los servicios externos"
+          ]
         },
         {
           "id": "sprint-con-demo",
@@ -579,7 +817,11 @@
           ],
           "proof": "Como AfinIA Jobs",
           "alt": "",
-          "aCotizar": "se cotiza en el plan escrito"
+          "aCotizar": "se cotiza en el plan escrito",
+          "noIncluye": [
+            "Cambiar los objetivos a mitad de etapa",
+            "Lo que cobran los servicios externos (inteligencia artificial, WhatsApp, servidores)"
+          ]
         },
         {
           "id": "mantenimiento-de-proyectos-grandes",
@@ -594,12 +836,16 @@
           "items": [
             "Lo mantengo online, vigilado y con copia de seguridad",
             "Correcciones y ajustes chicos",
-            "Sin permanencia mínima"
+            "Lo das de baja cuando quieras, avisando 30 días antes"
           ],
           "proof": "",
           "alt": "",
           "aCotizar": "10% mensual del precio del proyecto",
-          "mantenimientoPct": 0.1
+          "mantenimientoPct": 0.1,
+          "noIncluye": [
+            "Funciones nuevas (se cotizan como una etapa)",
+            "Lo que cobran los servicios externos por uso"
+          ]
         }
       ]
     }
@@ -610,40 +856,99 @@
       "name": "Página + catálogo por WhatsApp",
       "paraQuien": "Empezás a vender en serio por WhatsApp.",
       "parts": "Página para aparecer en Google + catálogo que arma el pedido por WhatsApp",
-      "planIds": ["landing-profesional", "catalogo-con-pedidos-por-whatsapp"],
-      "list": 600000,
-      "price": 520000,
-      "monthly": 15000
+      "planIds": [
+        "landing-profesional",
+        "catalogo-con-pedidos-por-whatsapp"
+      ],
+      "list": 498000,
+      "price": 417000,
+      "monthly": 15000,
+      "categorias": [
+        "webs",
+        "tiendas"
+      ],
+      "noIncluye": [
+        "Tu dirección web (.com.ar, la paga NIC.ar)",
+        "Cobro online con tarjeta (está en la Tienda que cobra sola)",
+        "Sacar las fotos: usamos las tuyas"
+      ]
     },
     {
       "id": "combo-atencion-24-h",
       "name": "Página que atiende 24 h",
       "paraQuien": "Te escriben mucho fuera de horario.",
       "parts": "Página para aparecer en Google + asistente que responde en tu web",
-      "planIds": ["landing-profesional", "asistente-ia-para-tu-web"],
-      "list": 670000,
-      "price": 590000,
-      "monthly": 45000
+      "planIds": [
+        "landing-profesional",
+        "asistente-ia-para-tu-web"
+      ],
+      "list": 576000,
+      "price": 489000,
+      "monthly": 45000,
+      "categorias": [
+        "webs",
+        "ia"
+      ],
+      "noIncluye": [
+        "Lo que cobra la inteligencia artificial por uso",
+        "Tu dirección web (.com.ar, la paga NIC.ar)",
+        "Responder por WhatsApp (está en Asistente en tu WhatsApp)"
+      ],
+      "usaServiciosDeTerceros": [
+        "ia"
+      ]
     },
     {
       "id": "combo-negocio-con-turnos",
       "name": "Página + turnos",
       "paraQuien": "Servicios con agenda que todavía no tienen página (consultorios, peluquerías).",
       "parts": "Página para aparecer en Google + agenda de turnos online, con mantenimiento",
-      "planIds": ["landing-profesional", "turnos-online"],
-      "list": 500000,
-      "price": 450000,
-      "monthly": 45000
+      "planIds": [
+        "landing-profesional",
+        "turnos-online"
+      ],
+      "list": 426000,
+      "price": 357000,
+      "monthly": 45000,
+      "categorias": [
+        "webs",
+        "turnos"
+      ],
+      "noIncluye": [
+        "Lo que cobra WhatsApp por mensaje (recordatorios)",
+        "Tu dirección web (.com.ar, la paga NIC.ar)",
+        "Cobrar una seña al reservar"
+      ],
+      "usaServiciosDeTerceros": [
+        "whatsapp"
+      ]
     },
     {
       "id": "combo-pyme-digital",
       "name": "Negocio ordenado",
       "paraQuien": "Pyme que quiere web, pedidos y atención en un solo paquete.",
       "parts": "Web completa + pedidos y clientes en orden + asistente que responde en tu web",
-      "planIds": ["sitio-pyme", "pedidos-y-clientes", "asistente-ia-para-tu-web"],
-      "list": 1550000,
-      "price": 1350000,
-      "monthly": 75000
+      "planIds": [
+        "sitio-pyme",
+        "pedidos-y-clientes",
+        "asistente-ia-para-tu-web"
+      ],
+      "list": 1461000,
+      "price": 1257000,
+      "monthly": 75000,
+      "categorias": [
+        "gestion"
+      ],
+      "noIncluye": [
+        "Lo que cobra la inteligencia artificial por uso",
+        "Lo que cobra WhatsApp por mensaje (avisos)",
+        "Tu dirección web (.com.ar, la paga NIC.ar)",
+        "Facturación electrónica"
+      ],
+      "usaServiciosDeTerceros": [
+        "ia",
+        "whatsapp"
+      ]
     }
   ],
   "aliases": {
@@ -702,5 +1007,23 @@
     "fallback": 1500,
     "fuente": "dólar oficial, venta (dolarapi.com)",
     "nota": "fallback: se usa solo si dolarapi.com no responde y no hay USD_ARS_FALLBACK. Actualizalo cada tanto."
+  },
+  "pagos": {
+    "tres": [
+      0.3333333333333333,
+      0.3333333333333333,
+      0.3333333333333333
+    ],
+    "calendarioTres": [
+      "al aprobar la demo",
+      "al entregar",
+      "a los 30 días"
+    ],
+    "topeTres": 600000,
+    "dos": [
+      0.5,
+      0.5
+    ],
+    "tarjetaMaxCuotas": 6
   }
 }

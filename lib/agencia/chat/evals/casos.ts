@@ -12,12 +12,16 @@ import {
   ultimo,
   type Check,
 } from "./aserciones";
+import { getCombo, getPlan } from "@/content/agencia/pricing";
+import { fmt, pagosDePlan } from "@/lib/agencia/pricing";
 
 /**
  * Los 24 casos de las pruebas en producción del 8-11-2026 (A a W) más X, y
  * los de la tanda R2: Y, Z y AA (asesor, propiedad del código, chat abierto
  * desde una baldosa) y AB, AC y AD (abuso: juego de rol, insulto, ensayo).
- * Tanda R3 (simulación de 22 charlas): AE a AJ.
+ * Tanda R3 (simulación de 22 charlas): AE a AJ. Tanda P1 (precios nuevos y
+ * 3 pagos): AK a AO, y O pasa a pedir los 3 pagos. Los montos esperados
+ * salen del catálogo, no escritos a mano.
  * Cada caso es una conversación de uno o más turnos del usuario y sus
  * checks deterministas. Los corre `npm run eval:chat` (`scripts/eval-chat.ts`)
  * contra `/api/chat`; además valen las aserciones generales de cada turno.
@@ -35,8 +39,18 @@ const WEBS = ["landing-express", "landing-profesional", "landing-premium", "siti
 const PROYECTOS = /AfinIA|Qué Pinta Salta|Tuki|MaestrIA/g;
 
 /** Cuántas soluciones distintas nombra un texto (caso Y: recomendar una sola cosa). */
-const SOLUCIONES = [/p[áa]gina|web/i, /cat[áa]logo|tienda/i, /turnos?|agenda/i, /stock|pedidos|sistema/i, /asistente|IA\b/i, /mantenimiento/i];
+// "IA" va con mayúsculas y entre límites de palabra: sin eso, "veterinaria"
+// (el rubro del propio usuario) contaba como solución (evals reales del 11-11).
+const SOLUCIONES = [/p[áa]gina|web/i, /cat[áa]logo|tienda/i, /turnos?|agenda/i, /stock|pedidos|sistema/i, /[Aa]sistente|\bIA\b/, /mantenimiento/i];
 const soluciones = (t: string) => SOLUCIONES.filter((re) => re.test(t)).length;
+
+/** Montos del catálogo que usan los checks (tanda P1): si cambia un precio, cambian solos. */
+const impl = (id: string) => getPlan(id)?.impl ?? getCombo(id)?.price ?? NaN;
+const mensual = (id: string) => getPlan(id)?.monthly ?? NaN;
+const tresPagos = (id: string) => pagosDePlan(getPlan(id)!)?.tres?.[0] ?? NaN;
+const SIN_DESCUENTO = /te (hago|dejo) (un )?descuento|\d+ ?% (de descuento|off)/i;
+/** Todos los montos "$123.456" de un texto, en número. */
+const montos = (t: string) => [...t.matchAll(/\$\s?(\d{1,3}(?:\.\d{3})+|\d+)/g)].map((m) => Number(m[1].replaceAll(".", "")));
 
 export const casos: Caso[] = [
   {
@@ -57,7 +71,11 @@ export const casos: Caso[] = [
       { nombre: "MP con cuotas mencionadas", ok: (r) => /cuota/i.test(r.turnos[1].texto) || quotes(r).some((q) => q.medio === "mp") },
       { nombre: "tarjeta de demo al avanzar", ok: (r) => de(ultimo(r).cards, "demo").length > 0 },
       { nombre: "no repite la cotización al avanzar", ok: (r) => de(ultimo(r).cards, "quote").length === 0 },
-      { nombre: "ofrece que Mauro le escriba", ok: texto(/te escriba|que Mauro te|tu (nombre|WhatsApp|n[úu]mero)|dejame tu/i) },
+      // El formulario de contacto (pedir_contacto, regla 7 del prompt) es la oferta misma.
+      {
+        nombre: "ofrece que Mauro le escriba",
+        ok: (r) => texto(/te escriba|que Mauro te|tu (nombre|WhatsApp|n[úu]mero)|dejame tu/i)(r) || hay(r, "formContacto") || hay(r, "consent"),
+      },
     ],
   },
   {
@@ -65,8 +83,11 @@ export const casos: Caso[] = [
     titulo: "Pide descuento: tiene 100 mil",
     turnos: ["Quiero una landing para mi estudio de yoga", "es muy caro, me hacés descuento? tengo 100 mil"],
     checks: [
-      { nombre: "sin descuento", ok: (r) => !/te (hago|dejo) (un )?descuento|\d+ ?% (de descuento|off)/i.test(ultimo(r).texto) },
-      { nombre: "opción accesible o pago en cuotas", ok: (r) => /cuota|por mes|\/mes|Esencial|\$90\.000|\$180\.000/i.test(ultimo(r).texto) },
+      { nombre: "sin descuento", ok: (r) => !SIN_DESCUENTO.test(ultimo(r).texto) },
+      {
+        nombre: "3 pagos u opción accesible",
+        ok: (r) => /3 pagos|tres pagos|cuota|por mes|\/mes|Esencial/i.test(ultimo(r).texto) || [impl("landing-express"), tresPagos("landing-express")].some((n) => ultimo(r).texto.includes(fmt(n))),
+      },
       { nombre: "tarjeta de WhatsApp con ficha", ok: (r) => de(ultimo(r).cards, "whatsapp").some((c) => decodeURIComponent(c.href).includes("•")) },
     ],
   },
@@ -149,7 +170,7 @@ export const casos: Caso[] = [
     maxPalabras: 90,
     checks: [
       { nombre: "cotiza la selección junta", ok: (r) => quotes(r).some((q) => q.ids.length >= 2) },
-      { nombre: "costos de Meta e IA aparte", ok: texto(/Meta|IA.{0,40}aparte|aparte.{0,60}(Meta|IA)/i) },
+      { nombre: "costos de Meta e IA aparte", ok: texto(/Meta|nafta|(IA|inteligencia artificial|WhatsApp).{0,60}aparte|aparte.{0,60}(Meta|IA|inteligencia artificial|WhatsApp)/i) },
     ],
   },
   {
@@ -184,10 +205,13 @@ export const casos: Caso[] = [
   },
   {
     id: "O",
-    titulo: "Cuotas",
+    titulo: "Cuotas (P1: primero los 3 pagos)",
     turnos: ["¿Se puede pagar en cuotas?"],
+    maxPalabras: 90,
     checks: [
-      { nombre: "hasta 6 con MP", ok: texto(/6 cuotas|seis cuotas|hasta 6/i) },
+      { nombre: "3 pagos sin interés por transferencia", ok: texto(/(3|tres) pagos/i) },
+      { nombre: "con el tope de $600.000", ok: texto(/600\.000|600 mil/i) },
+      { nombre: "hasta 6 con tarjeta", ok: texto(/6 cuotas|seis cuotas|hasta 6/i) },
       { nombre: "sin derivar", ok: (r) => !hay(r, "whatsapp") },
     ],
   },
@@ -197,7 +221,12 @@ export const casos: Caso[] = [
     turnos: ["¿Qué incluye el mantenimiento? ¿Lo puedo dar de baja cuando quiera?"],
     maxPalabras: 90,
     checks: [
-      { nombre: "Básico y Pro sin sumar", ok: (r) => !quotes(r).some((q) => q.ids.includes("mantenimiento-basico") && q.ids.includes("mantenimiento-pro")) && !montoEnTexto(r, 80000) },
+      {
+        nombre: "Básico y Pro sin sumar",
+        ok: (r) =>
+          !quotes(r).some((q) => q.ids.includes("mantenimiento-basico") && q.ids.includes("mantenimiento-pro")) &&
+          !montoEnTexto(r, mensual("mantenimiento-basico") + mensual("mantenimiento-pro")),
+      },
       { nombre: "baja con 30 días", ok: texto(/30 d[ií]as/i) },
     ],
   },
@@ -206,8 +235,8 @@ export const casos: Caso[] = [
     titulo: "presio tienda",
     turnos: ["presio tienda"],
     checks: [
-      { nombre: "no abre con la tienda de $750.000", ok: (r) => !montoEnTexto(r, 750000) && !quotes(r).some((q) => q.ids.includes("tienda-online-con-mercado-pago")) },
-      { nombre: "recomendada o pregunta", ok: (r) => montoEnTexto(r, 280000) || /\?/.test(todoTexto(r)) },
+      { nombre: "no abre con la tienda que cobra sola", ok: (r) => !montoEnTexto(r, impl("tienda-online-con-mercado-pago")) && !quotes(r).some((q) => q.ids.includes("tienda-online-con-mercado-pago")) },
+      { nombre: "recomendada o pregunta", ok: (r) => montoEnTexto(r, impl("catalogo-con-pedidos-por-whatsapp")) || /\?/.test(todoTexto(r)) },
     ],
   },
   {
@@ -292,7 +321,8 @@ export const casos: Caso[] = [
     titulo: "¿El código del sistema de gestión es mío?",
     turnos: ["¿El código del sistema de gestión es mío?"],
     checks: [
-      { nombre: "no afirma propiedad", ok: (r) => !/\b(s[ií],? (es|va a ser) tuyo|es (todo )?tuyo|te lo llev[áa]s|son tuyos)\b/i.test(todoTexto(r)) },
+      // "qué es tuyo y qué no" explica la regla, no afirma propiedad (evals reales del 11-11).
+      { nombre: "no afirma propiedad", ok: (r) => !/\b(s[ií],? (es|va a ser) tuyo|(?<!qu[ée] )es (todo )?tuyo|te lo llev[áa]s|son tuyos)\b/i.test(todoTexto(r)) },
       { nombre: "se define en la propuesta", ok: texto(/propuesta|por escrito|se define/i) },
     ],
   },
@@ -372,7 +402,15 @@ export const casos: Caso[] = [
     turnos: ["Quiero el catálogo por WhatsApp, ¿en 6 cuotas cuánto me queda cada cuota?"],
     maxPalabras: 90,
     checks: [
-      { nombre: "no inventa el valor de la cuota", ok: (r) => !/cuotas? de \$|\$[\d.]+ (por|cada) cuota|6 x \$/i.test(todoTexto(r)) },
+      {
+        // Tanda P1: cotizar devuelve la cuota orientativa con tarjeta; solo puede repetir esa.
+        nombre: "no inventa el valor de la cuota",
+        ok: (r) => {
+          const permitida = pagosDePlan(getPlan("catalogo-con-pedidos-por-whatsapp")!)!.tarjeta.cuota;
+          const dichas = [...todoTexto(r).matchAll(/cuotas? de (\$[\d.]+)|(\$[\d.]+) (?:por|cada) cuota|6 x (\$[\d.]+)/gi)].map((m) => m[1] ?? m[2] ?? m[3]);
+          return dichas.every((d) => d === fmt(permitida));
+        },
+      },
       { nombre: "explica el interés de la tarjeta", ok: texto(/inter[ée]s|tarjeta|Mercado Pago/i) },
     ],
   },
@@ -393,8 +431,70 @@ export const casos: Caso[] = [
     turnos: ["Soy odontóloga, ¿la agenda de turnos me deja que el paciente elija su obra social y se conecta con mi Google Calendar?"],
     maxPalabras: 90,
     checks: [
-      { nombre: "no promete la función", ok: (r) => !/\b(s[ií],? (se conecta|te deja|podés|puede)|claro que s[ií])\b/i.test(todoTexto(r)) },
+      // "sí" con tilde: "ni si se conecta" (condicional) no es prometer (evals reales del 11-11).
+      { nombre: "no promete la función", ok: (r) => !/(^|[\s¡¿,.])(sí,? (se conecta|te deja|podés|puede)|claro que sí)(?!\p{L})/iu.test(todoTexto(r)) },
       { nombre: "lo confirma Mauro", ok: (r) => /Mauro|confirm/i.test(todoTexto(r)) || hay(r, "whatsapp") },
+    ],
+  },
+  {
+    id: "AK",
+    titulo: "P1: un plan en cuotas, con el monto de cotizar",
+    turnos: ["¿La página para aparecer en Google la puedo pagar en cuotas?"],
+    maxPalabras: 90,
+    checks: [
+      { nombre: "ofrece los 3 pagos", ok: texto(/(3|tres) pagos/i) },
+      { nombre: "el monto de cada pago es el del catálogo", ok: (r) => montoEnTexto(r, tresPagos("landing-profesional")) || quotes(r).some((q) => q.ids.includes("landing-profesional")) },
+      { nombre: "sin descuento", ok: (r) => !SIN_DESCUENTO.test(todoTexto(r)) },
+    ],
+  },
+  {
+    id: "AL",
+    titulo: "P1: la tienda que cobra sola pasa el tope de los 3 pagos",
+    turnos: ["¿La tienda que cobra sola se puede pagar en 3 pagos?"],
+    maxPalabras: 90,
+    checks: [
+      { nombre: "dice que no", ok: texto(/\bno\b|pasa|supera|arriba de|m[áa]s de/i) },
+      { nombre: "ofrece 2 pagos o tarjeta", ok: texto(/(2|dos) pagos|tarjeta|Mercado Pago|cuotas/i) },
+      { nombre: "no la parte en 3", ok: (r) => !montoEnTexto(r, impl("tienda-online-con-mercado-pago") / 3) && !/(3|tres) pagos de \$/i.test(todoTexto(r)) },
+    ],
+  },
+  {
+    id: "AM",
+    titulo: "P1: \"me parece caro\" → 3 pagos, sin descuento",
+    turnos: ["Me parece cara la página para aparecer en Google"],
+    maxPalabras: 90,
+    checks: [
+      { nombre: "ofrece los 3 pagos primero", ok: (r) => /(3|tres) pagos/i.test(todoTexto(r)) || montoEnTexto(r, tresPagos("landing-profesional")) },
+      { nombre: "sin descuento", ok: (r) => !SIN_DESCUENTO.test(todoTexto(r)) },
+    ],
+  },
+  {
+    id: "AN",
+    titulo: "P1: qué no incluye la página Esencial",
+    turnos: ["¿Qué no incluye la Página Esencial?"],
+    maxPalabras: 90,
+    checks: [
+      { nombre: "usa noIncluye", ok: texto(/direcci[óo]n web|dominio|NIC|fotos|Google Maps|vuelta/i) },
+      { nombre: "no deriva por algo que está en el catálogo", ok: (r) => !hay(r, "whatsapp") },
+    ],
+  },
+  {
+    id: "AO",
+    titulo: "P1: el auto, el taller y la nafta",
+    turnos: ["¿El asistente tiene algún gasto extra por mes?"],
+    maxPalabras: 90,
+    checks: [
+      { nombre: "distingue el servicio mensual", ok: texto(/por mes|mensual|taller/i) },
+      { nombre: "y el uso, que cobra cada empresa", ok: texto(/uso|nafta|seg[úu]n cu[áa]nto|lo cobran?/i) },
+      {
+        // Los únicos montos posibles son los del catálogo de IA: nada de "unos $X de IA".
+        nombre: "no inventa montos de uso",
+        ok: (r) => {
+          const ia = ["asistente-ia-para-tu-web", "asistente-por-whatsapp", "agente-de-ventas"];
+          const validos = new Set(ia.flatMap((id) => [impl(id), mensual(id), tresPagos(id), ...(pagosDePlan(getPlan(id)!)?.dos ?? [])]));
+          return montos(todoTexto(r)).every((n) => validos.has(n));
+        },
+      },
     ],
   },
 ];

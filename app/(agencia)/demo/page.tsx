@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { DemoForm } from "@/components/agencia/client/DemoForm";
+import { DemoResumen } from "@/components/agencia/client/DemoResumen";
+import { home } from "@/content/agencia/home";
 import { demoCopy as copy } from "@/content/agencia/demo";
 import { aliases, combos, plans } from "@/content/agencia/pricing";
 import { CALCOM_URL, SENA_URL, senaAlias, senaMonto, waLink } from "@/lib/agencia/config";
@@ -21,7 +23,7 @@ function calEmbed(url: string): string {
 
 /**
  * `/demo`: brief → seña → agenda. Estática: el plan elegido (`?plan=`) lo
- * lee el formulario en el cliente, y todo lo demás sale de variables de
+ * leen en el cliente el formulario y el resumen (total, pagos y la seña), y todo lo demás sale de variables de
  * entorno en el build, con fallback a WhatsApp.
  */
 export default function DemoPage() {
@@ -33,6 +35,7 @@ export default function DemoPage() {
       <span className="lbl lbl-o">{copy.label}</span>
       <h1 className="h h2">{copy.title}</h1>
       <p className="mb-0 mt-2 max-w-[44em] text-[17px] text-muted">{sena(copy.lead)}</p>
+      <DemoResumen copy={{ ...copy.resumen, monthlySuffix: home.pricing.monthlySuffix }} sena={sena(copy.resumen.sena)} />
 
       <div className="mt-8 grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         <div className="card card-big p-6 sm:p-8">

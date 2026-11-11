@@ -3,9 +3,12 @@ import {
   getCombo,
   getExtra,
   getPlan,
+  pagosConfig,
+  pagosCopy,
   recargoMercadoPago,
   resolverId,
   resumenCopy,
+  type Category,
   type Combo,
   type Extra,
   type Plan,
@@ -49,6 +52,125 @@ export function aUsd(ars: number, tipoDeCambio: number): number {
 /** "AHORRÁS 13%": descuento del combo sobre la suma de lista, redondeado. */
 export function ahorro(combo: Pick<Combo, "list" | "price">): number {
   return Math.round((1 - combo.price / combo.list) * 100);
+}
+
+/** "Ahorrás $81.000": la diferencia en pesos entre la suma por separado y el combo. */
+export function ahorroEnPesos(combo: Pick<Combo, "list" | "price">): number {
+  return combo.list - combo.price;
+}
+
+/* ─── Formas de pago (tanda P1, §2) ─────────────────────────────────── */
+
+export interface Pagos {
+  /** Total por transferencia sobre el que se calculan los pagos. */
+  total: number;
+  /** 2 pagos sin interés: 50% al aprobar la demo y 50% al entregar. */
+  dos: number[];
+  /** 3 pagos sin interés. `null` si el total pasa el tope ($600.000). */
+  tres: number[] | null;
+  /** Mercado Pago: total con el recargo, hasta N cuotas. */
+  tarjeta: { total: number; cuotas: number; cuota: number };
+}
+
+/**
+ * Reparte `total` según `fracciones`, en pesos enteros: cada pago se
+ * redondea hacia abajo y el último absorbe la diferencia, así la suma es
+ * exacta siempre.
+ */
+function repartir(total: number, fracciones: number[]): number[] {
+  const pagos = fracciones.slice(0, -1).map((f) => Math.floor(total * f));
+  return [...pagos, total - pagos.reduce((s, p) => s + p, 0)];
+}
+
+/**
+ * Las formas de pago de un total por transferencia. El tope de los 3 pagos
+ * se mira sobre **el total contratado** (un combo, una cotización completa),
+ * nunca plan por plan. `null` si no hay pago único que partir.
+ */
+export function pagosDe(total: number): Pagos | null {
+  if (!(total > 0)) return null;
+  const tarjeta = conRecargo(total, "mp");
+  const cuotas = pagosConfig.tarjetaMaxCuotas;
+  return {
+    total,
+    dos: repartir(total, pagosConfig.dos),
+    tres: total > pagosConfig.topeTres ? null : repartir(total, pagosConfig.tres),
+    // La cuota se redondea a $100, como el recargo: es orientativa (el
+    // interés de las cuotas lo pone Mercado Pago).
+    tarjeta: { total: tarjeta, cuotas, cuota: Math.round(tarjeta / cuotas / 100) * 100 },
+  };
+}
+
+/** "o 3 pagos de $83.000 sin interés" — copy de `pagosCopy`, montos de `pagosDe`. */
+function textoPagos(pagos: Pagos): string {
+  const lista = pagos.tres ?? pagos.dos;
+  return pagosCopy.linea.replace("{n}", String(lista.length)).replace("{monto}", fmt(lista[0]));
+}
+
+/**
+ * **La única fuente** de la línea de pagos: tarjetas, modal, cotizador,
+ * `/demo` y el chat. "o 3 pagos de $X sin interés" si el total entra en el
+ * tope, "o 2 pagos de $X sin interés" si no. `null` si no hay pago único.
+ */
+export function lineaDePagos(total: number | null | undefined): string | null {
+  const pagos = pagosDe(total ?? 0);
+  return pagos ? textoPagos(pagos) : null;
+}
+
+/** "3 × $59.000" (o "2 × …" arriba del tope), para las baldosas de la home. */
+export function pagosCortos(total: number | null | undefined): string | null {
+  const pagos = pagosDe(total ?? 0);
+  if (!pagos) return null;
+  const lista = pagos.tres ?? pagos.dos;
+  return pagosCopy.corto.replace("{n}", String(lista.length)).replace("{monto}", fmt(lista[0]));
+}
+
+/** "con tarjeta: hasta 6 cuotas de $X" (con el recargo). */
+export function lineaDeTarjeta(pagos: Pagos): string {
+  return pagosCopy.tarjeta.replace("{n}", String(pagos.tarjeta.cuotas)).replace("{monto}", fmt(pagos.tarjeta.cuota));
+}
+
+/** "Con tarjeta (Mercado Pago, +6%): $X". */
+export function totalConTarjeta(pagos: Pagos): string {
+  return pagosCopy.tarjetaTotal.replace("{pct}", String(Math.round(recargoMercadoPago * 100))).replace("{monto}", fmt(pagos.tarjeta.total));
+}
+
+/** "3 pagos: hasta $600.000", cuando el total pasa el tope. */
+export function lineaTopeTres(): string {
+  return pagosCopy.topeTres.replace("{monto}", fmt(pagosConfig.topeTres));
+}
+
+/**
+ * Pagos de un plan: no aplican a `grandes` (se paga por etapa), a los planes
+ * de solo pago mensual ni a lo que se paga por año.
+ */
+export function pagosDePlan(plan: Plan): Pagos | null {
+  if (plan.category === "grandes" || plan.unit === "por año") return null;
+  return pagosDe(plan.impl ?? 0);
+}
+
+export function pagosDeCombo(combo: Pick<Combo, "price">): Pagos | null {
+  return pagosDe(combo.price);
+}
+
+/** La línea de pagos de un plan, con las mismas exclusiones que `pagosDePlan`. */
+export function lineaDePlan(plan: Plan): string | null {
+  const pagos = pagosDePlan(plan);
+  return pagos ? textoPagos(pagos) : null;
+}
+
+/**
+ * "$7.500 por mes, pagás el año junto": un plan que se paga por año,
+ * reencuadrado por mes (§1.7). `null` si el plan no es anual.
+ */
+export function anualPorMes(plan: Plan): string | null {
+  const porMes = mensualDeAnual(plan);
+  return porMes == null ? null : pagosCopy.anualPorMes.replace("{monto}", fmt(porMes));
+}
+
+/** Lo anual dividido 12, en pesos enteros. `null` si el plan no se paga por año. */
+export function mensualDeAnual(plan: Pick<Plan, "unit" | "impl">): number | null {
+  return plan.unit === "por año" && plan.impl ? Math.round(plan.impl / 12) : null;
 }
 
 export interface ItemCotizado {
@@ -99,6 +221,12 @@ export interface Cotizacion {
   desconocidos: string[];
   /** Equivalente en dólares, solo si se pasó un tipo de cambio. */
   usd?: CotizacionUsd;
+  /**
+   * Formas de pago del pago único **por transferencia** (sin el recargo,
+   * aunque `medio` sea Mercado Pago: la tarjeta va en `pagos.tarjeta`). Sin
+   * los ítems de proyectos a medida. `null` si no hay pago único.
+   */
+  pagos: Pagos | null;
 }
 
 function itemDePlan(plan: Plan, medio: Medio): ItemCotizado {
@@ -213,6 +341,11 @@ export function cotizar({
   const anual = items.reduce((s, i) => s + i.anual, 0);
   const total = implementacion + abonoMensual * 12 + anual;
 
+  // Los pagos se calculan sobre el pago único por transferencia: si el
+  // medio es Mercado Pago, se recotiza sin recargo. Proyectos a medida, afuera.
+  const base = medio === "transferencia" ? items : cotizar({ planIds, extras, medio: "transferencia" }).items;
+  const pagos = pagosDe(base.filter((i) => getPlan(i.id)?.category !== "grandes").reduce((s, i) => s + i.implementacion, 0));
+
   return {
     medio,
     items,
@@ -224,6 +357,7 @@ export function cotizar({
     aCotizar: items.filter((i) => i.aCotizar).map((i) => `${i.nombre}: ${i.aCotizar}`),
     combosAplicados,
     desconocidos,
+    pagos,
     ...(tipoDeCambio && tipoDeCambio > 0
       ? {
           usd: {
@@ -264,6 +398,26 @@ export function precioDePlan(plan: Plan, medio: Medio) {
   };
 }
 
+/**
+ * El "Desde" de una solución (baldosas de la home): el menor pago único de
+ * la categoría, con sus pagos cortos ("3 × $59.000"). Si la categoría no
+ * tiene pago único (mantenimiento), el menor monto **por mes**, contando lo
+ * anual dividido 12 ($90.000 por año → $7.500 por mes). Nunca escrito a mano.
+ */
+export function desdeDeCategoria(category: Pick<Category, "plans">): { precio: number; porMes: boolean; pagos: string | null } | null {
+  const unicos = category.plans
+    .filter((p) => p.unit !== "por año" && p.impl != null && p.impl > 0)
+    .map((p) => p.impl!);
+  if (unicos.length) {
+    const precio = Math.min(...unicos);
+    return { precio, porMes: false, pagos: pagosCortos(precio) };
+  }
+  const mensuales = category.plans.flatMap((p) =>
+    mensualDeAnual(p) != null ? [mensualDeAnual(p)!] : p.monthly ? [p.monthly] : [],
+  );
+  return mensuales.length ? { precio: Math.min(...mensuales), porMes: true, pagos: null } : null;
+}
+
 /** Una opción de `comparar()`: lo justo para elegir, sin totales. */
 export interface FilaComparacion {
   id: string;
@@ -283,6 +437,8 @@ export interface FilaComparacion {
   /** Para quién es (planes) o lo que incluye (combos). */
   paraQuien: string;
   recomendado: boolean;
+  /** Formas de pago de esta opción sola (transferencia). `null` si no aplica. */
+  pagos: Pagos | null;
   usd?: { precio: number; abono: number };
 }
 
@@ -330,6 +486,7 @@ export function comparar({
         plazo: plan.time,
         paraQuien: plan.paraQuien || (plan.items[0] ?? ""),
         recomendado: plan.rec,
+        pagos: pagosDePlan(plan),
         ...(conUsd ? { usd: { precio: aUsd(p.precio ?? 0, conUsd), abono: aUsd(p.abono ?? 0, conUsd) } } : {}),
       });
     } else if (combo) {
@@ -348,6 +505,7 @@ export function comparar({
         plazo: "",
         paraQuien: combo.parts,
         recomendado: false,
+        pagos: pagosDeCombo(combo),
         ...(conUsd ? { usd: { precio: aUsd(precio, conUsd), abono: aUsd(abono, conUsd) } } : {}),
       });
     } else desconocidos.push(id);
@@ -371,6 +529,7 @@ export function resumenCotizacion(c: Cotizacion): string {
   return [
     ...lineas,
     `${r.unico}: ${c.desde ? `${r.desde} ` : ""}${fmt(c.implementacion)}`,
+    c.pagos && c.medio === "transferencia" ? textoPagos(c.pagos) : "",
     c.abonoMensual ? `${r.mensual}: ${fmt(c.abonoMensual)}${r.porMes}` : "",
     c.usd ? `≈ ${fmtUsd(c.usd.implementacion)}${c.usd.abonoMensual ? ` + ${fmtUsd(c.usd.abonoMensual)}${r.porMes}` : ""} ${r.usd}` : "",
     `${r.pagoPor} ${r.medio[c.medio]}.`,

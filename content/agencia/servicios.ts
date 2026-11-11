@@ -8,9 +8,11 @@ import type { CategoryKey } from "./pricing";
  * categoría del catálogo (`/servicios/ia`), así no hay una segunda tabla que
  * se desincronice. Los slugs no cambian aunque cambien los títulos (R2).
  *
- * Plantilla de cada solución (auditoría §6.2): H1 con el problema y para
- * quién es → 3 beneficios → plan recomendado y los demás en `<details>` →
- * un proyecto parecido → cómo se paga → FAQ propio → cierre.
+ * Plantilla de cada solución (tanda P1, §4.2 de
+ * `docs/agencia/precios-psicologia-2026-11-10.md`): H1 con el problema y
+ * para quién es → 3 beneficios en chips → las 3 tarjetas en escalera →
+ * "¿Cuál me conviene?" → otras opciones → el combo de la solución → un
+ * proyecto parecido → franjas de pagos y de costos → FAQ de 3 → cierre.
  */
 export interface Solucion {
   category: CategoryKey;
@@ -27,13 +29,19 @@ export interface Solucion {
   /** `<title>` por problema (SEO, auditoría P2-3). */
   metaTitle: string;
   beneficios: [string, string, string];
-  /** Qué precio del catálogo es el "Desde": la menor implementación o la menor cuota mensual. */
-  from: { basis: "impl" | "monthly"; suffix: string };
+  /**
+   * "¿Cuál me conviene?" (§4.2.3): 3 filas "Si… → elegí…". `plan` es el id
+   * fijo de un plan visible de la categoría (lo verifica un test). Vacío en
+   * proyectos a medida, que muestran pasos.
+   */
+  conviene: { si: string; plan: string }[];
+  /** El combo de esta solución, uno solo (§4.2.5), y la pregunta que lo presenta. */
+  combo?: { id: string; gancho: string };
   /** Primer mensaje del chat cuando se abre desde esta solución. */
   tema: string;
-  /** Preguntas propias, por id de `conocimiento.faq`. */
-  faq: string[];
-  /** Lo que se paga aparte, en la sección "Cómo se paga". */
+  /** Las 3 preguntas propias (§4.2.8), por id de `conocimiento.faq`. */
+  faq: [string, string, string] | [string, string, string, string];
+  /** Lo que se paga aparte, en el modal "Formas de pago". */
   aparte: string[];
   /** Proyecto parecido para mostrar (sin proyecto: la sección no va). */
   proyecto?: Proyecto["key"];
@@ -54,9 +62,14 @@ const SOLUCIONES: Solucion[] = [
       "Te escriben directo por WhatsApp, con un toque",
       "El primer año online incluido, y la página es tuya",
     ],
-    from: { basis: "impl", suffix: "" },
+    conviene: [
+      { si: "Si recién arrancás", plan: "landing-express" },
+      { si: "Si querés que te encuentren cuando buscan tu rubro", plan: "landing-profesional" },
+      { si: "Si querés que la página cuente todo por vos", plan: "landing-premium" },
+    ],
+    combo: { id: "combo-arranque", gancho: "¿Además vendés por WhatsApp?" },
     tema: "Quiero que me encuentren en Google",
-    faq: ["plazos", "primer-anio", "codigo", "dominio", "tecnologia", "cambios"],
+    faq: ["plazos", "primer-anio", "dominio"],
     aparte: ["Tu dirección web (tunegocio.com.ar), según la tarifa vigente de NIC.ar."],
     proyecto: "quepintasalta",
   },
@@ -74,9 +87,14 @@ const SOLUCIONES: Solucion[] = [
       "Cargás y cambiás productos vos, desde el celular",
       "Sin comisiones por venta para mí",
     ],
-    from: { basis: "impl", suffix: "" },
+    conviene: [
+      { si: "Si tenés un bar o un restó", plan: "menu-digital-qr" },
+      { si: "Si vendés por WhatsApp o Instagram", plan: "catalogo-con-pedidos-por-whatsapp" },
+      { si: "Si querés cobrar online sin intervenir", plan: "tienda-online-con-mercado-pago" },
+    ],
+    combo: { id: "combo-arranque", gancho: "¿Todavía no tenés página?" },
     tema: "Quiero vender por WhatsApp o por internet",
-    faq: ["comision-mp", "pagos", "cuotas", "codigo", "sena"],
+    faq: ["comision-mp", "cuotas", "codigo"],
     aparte: ["La comisión de Mercado Pago por cada venta online (la cobra Mercado Pago, no yo)."],
     proyecto: "quepintasalta",
   },
@@ -94,10 +112,15 @@ const SOLUCIONES: Solucion[] = [
       "Recordatorio automático para que no falten",
       "Ves y cambiás tu agenda desde el celular",
     ],
-    from: { basis: "impl", suffix: " + cuota mensual" },
+    conviene: [
+      { si: "Si das turnos por profesional o por servicio", plan: "turnos-online" },
+      { si: "Si alquilás canchas, cabañas o clases y querés cobrar seña", plan: "reservas-con-sena" },
+      { si: "Si organizás eventos o salidas con cupo", plan: "inscripciones-a-eventos-y-salidas" },
+    ],
+    combo: { id: "combo-negocio-con-turnos", gancho: "¿Todavía no tenés página?" },
     tema: "Quiero que mis clientes saquen turno solos",
-    faq: ["pagos", "cuotas", "costos-aparte", "codigo", "sena"],
-    aparte: ["Lo que cobra WhatsApp por cada recordatorio automático (unos centavos por mensaje)."],
+    faq: ["costos-de-uso", "cuotas", "codigo"],
+    aparte: ["Lo que cobra WhatsApp por cada recordatorio automático."],
   },
   {
     category: "gestion",
@@ -106,16 +129,21 @@ const SOLUCIONES: Solucion[] = [
     problema: "Ordenar stock, pedidos y clientes",
     title: "Ordenar stock, pedidos y clientes",
     description: "Stock, pedidos y clientes en un solo lugar, sin planillas sueltas.",
-    paraQuien: "Para comercios, distribuidoras y pymes que hoy se organizan con planillas, cuadernos y mensajes.",
+    paraQuien: "Para comercios y pymes que hoy se organizan con planillas y cuadernos.",
     metaTitle: "Sistema de stock y pedidos para tu negocio: precios",
     beneficios: [
-      "Sabés qué tenés y qué falta sin contar a mano",
+      "Sabés qué tenés sin contar a mano",
       "Ningún pedido se pierde ni se atrasa",
       "Cada empleado ve solo lo que le toca",
     ],
-    from: { basis: "impl", suffix: " + cuota mensual" },
+    conviene: [
+      { si: "Si querés ver cuánto vendés", plan: "tablero-de-ventas" },
+      { si: "Si te quedás sin stock", plan: "control-de-stock-con-qr" },
+      { si: "Si los pedidos se te atrasan o se pierden", plan: "pedidos-y-clientes" },
+    ],
+    combo: { id: "combo-pyme-digital", gancho: "¿Querés todo en un solo paquete?" },
     tema: "Quiero ordenar el stock, los pedidos y los clientes",
-    faq: ["pagos", "cuotas", "codigo-medida", "sena", "garantia"],
+    faq: ["cuotas", "codigo-medida", "garantia"],
     aparte: ["Si el sistema manda avisos por WhatsApp, lo que cobra WhatsApp por cada mensaje automático."],
     proyecto: "afiniajobs",
   },
@@ -126,19 +154,24 @@ const SOLUCIONES: Solucion[] = [
     problema: "Responder las 24 h con IA",
     title: "Responder las 24 h sin estar pegado al celular",
     description: "Un asistente en tu web o en tu WhatsApp que responde las preguntas de siempre, a cualquier hora.",
-    paraQuien: "Para negocios que reciben muchas consultas repetidas: precios, horarios, requisitos o disponibilidad.",
+    paraQuien: "Para negocios que reciben muchas consultas repetidas.",
     metaTitle: "Asistente con IA para tu negocio: precios",
     beneficios: [
       "Responde las 24 horas, también los fines de semana",
-      "Responde solo con la información de tu negocio, no inventa",
+      "Responde solo con lo de tu negocio, no inventa",
       "Te pasa los contactos y los casos que necesitan una persona",
     ],
-    from: { basis: "impl", suffix: "" },
+    conviene: [
+      { si: "Si te preguntan siempre lo mismo en tu web", plan: "asistente-ia-para-tu-web" },
+      { si: "Si las consultas te llegan por WhatsApp", plan: "asistente-por-whatsapp" },
+      { si: "Si querés que además venda", plan: "agente-de-ventas" },
+    ],
+    combo: { id: "combo-atencion-24-h", gancho: "¿Todavía no tenés página?" },
     tema: "Quiero responder las consultas las 24 h",
-    faq: ["costos-aparte", "pagos", "codigo-medida", "sena", "malejo"],
+    faq: ["costos-de-uso", "codigo-medida", "malejo"],
     aparte: [
-      "Lo que cobra el servicio de inteligencia artificial por uso.",
-      "Si responde por WhatsApp, lo que cobra WhatsApp por cada mensaje automático.",
+      "Lo que gasta la inteligencia artificial por uso.",
+      "Si responde por WhatsApp, lo que cobra WhatsApp por mensaje.",
     ],
     proyecto: "tuki",
   },
@@ -156,9 +189,13 @@ const SOLUCIONES: Solucion[] = [
       "Cambios chicos incluidos todos los meses",
       "Respuesta en 24 a 48 h hábiles",
     ],
-    from: { basis: "monthly", suffix: "/mes" },
+    conviene: [
+      { si: "Si solo querés que siga online", plan: "renovacion" },
+      { si: "Si cambiás precios, fotos u horarios seguido", plan: "mantenimiento-basico" },
+      { si: "Si querés que Google te muestre más", plan: "mantenimiento-pro" },
+    ],
     tema: "Quiero que mi web siga funcionando",
-    faq: ["baja-mantenimiento", "cambios", "primer-anio", "codigo"],
+    faq: ["baja-mantenimiento", "cambios", "primer-anio"],
     aparte: [],
   },
   {
@@ -175,9 +212,9 @@ const SOLUCIONES: Solucion[] = [
       "Cada 2 semanas ves algo funcionando",
       "Pagás etapa por etapa: 50% al arrancar y 50% al entregar",
     ],
-    from: { basis: "impl", suffix: "" },
+    conviene: [],
     tema: "Tengo un proyecto grande, a medida",
-    faq: ["grandes-pagos", "grandes-plan", "grandes-plazos", "grandes-mant"],
+    faq: ["grandes-pagos", "grandes-plan", "grandes-mant"],
     aparte: ["Los servicios externos que use el sistema (inteligencia artificial, WhatsApp, mapas), según cuánto se usen."],
     proyecto: "afiniajobs",
   },
@@ -212,50 +249,53 @@ export const servicios = {
     back: { label: "← Todas las soluciones", href: "/servicios" },
     paraQuienLabel: "Para quién es",
     beneficiosLabel: "Qué ganás",
-    recomendadoLabel: "Lo que te recomiendo",
-    recomendadoTitle: "Empezá por acá",
-    /** `{N}` = cantidad de planes que quedan. */
-    otros: "Ver los otros {N} planes",
-    otro: "Ver el otro plan",
-    combosLabel: "Combos que lo incluyen",
-    extrasLabel: "Extras",
+    planesLabel: "Planes",
+    convieneTitle: "¿Cuál me conviene?",
+    convieneElegi: "elegí",
+    /** `{N}` = cantidad de opciones que quedan. */
+    otras: "Ver otras opciones ({N})",
+    comboLabel: "Combo",
+    /** `{GANCHO}` = la pregunta de la solución, `{AHORRO}` = el ahorro en pesos. */
+    comboTitle: "{GANCHO} Juntalo y ahorrás {AHORRO}",
     /** En `/servicios/grandes` no hay planes: hay pasos. */
     stepsLabel: "Así arrancamos",
     stepsTitle: "Tres pasos, sin sorpresas",
     proyectoLabel: "Un proyecto parecido",
     proyectoAbrir: "Ver el proyecto",
-    proyectoPropio: "Proyecto propio, ya funcionando",
-    pagosLabel: "Pagos",
-    pagosTitle: "Cómo se paga",
-    /** `{SENA}` = monto de la seña, `{PCT}` = recargo de Mercado Pago. */
-    pagos: [
-      "50% al aprobar la demo y 50% al recibir tu proyecto. La seña de {SENA} se descuenta del total.",
-      "Por transferencia, al precio publicado, o con Mercado Pago (+{PCT}) en hasta 6 cuotas.",
-    ],
-    pagosMensual: "La cuota mensual se paga por mes adelantado; pagando el año por adelantado, pagás 10 meses.",
+    pagosMensual: "Lo que pagás por mes se paga por mes adelantado; pagando el año junto, pagás 10 meses.",
     /** `{PLAN}` = precio del plan escrito, `{MANT}` = % de mantenimiento. */
     pagosGrandes: [
       "El plan del proyecto por escrito ({PLAN}) se paga por adelantado.",
       "Cada etapa de 2 semanas se paga 50% al arrancarla y 50% al entregarla.",
-      "Mantenimiento: {MANT} mensual del precio del proyecto, sin permanencia mínima.",
-      "Por transferencia, o con Mercado Pago (+{PCT}) en hasta 6 cuotas.",
+      "Mantenimiento: {MANT} mensual del precio del proyecto; lo das de baja cuando quieras, avisando 30 días antes.",
+      "Por transferencia, o con Mercado Pago (+{PCT}) en hasta {CUOTAS} cuotas.",
     ],
     aparteLabel: "Se paga aparte",
-    otrasFormasLabel: "Otras formas de pago",
     /** Aclaración de `/servicios/mant`. `{MANT}` = % de mantenimiento. */
     mantGrandes: { body: "¿Tenés un proyecto a medida? Su mantenimiento es el {MANT} mensual del precio del proyecto.", cta: "Ver proyectos a medida →", href: "/servicios/grandes" },
     faqLabel: "Preguntas",
     faqTitle: "Lo que más me preguntan",
+    faqOtra: "¿Otra duda? Preguntale a Malejo",
     cierre: {
       label: "Empecemos",
       title: "¿Te sirve?",
-      lead: "Contame qué necesitás y te digo qué te conviene y cuánto sale. Si ya lo tenés claro, pedí tu demo.",
+      lead: "Contame qué necesitás y te digo qué te conviene. Si ya lo tenés claro, pedí tu demo.",
       leadGrandes: "Contame tu idea y vemos si es un proyecto a medida. La primera charla es gratis.",
       chat: "Contame qué necesitás",
       demo: "Pedí tu demo",
       agenda: "Agendá la charla gratis",
       whatsapp: "Escribime por WhatsApp",
     },
-    cotizador: { label: "Sumar extras en el cotizador →", href: "/cotizador" },
   },
 };
+
+/**
+ * La página de la solución que muestra un combo (el `combo` de `SOLUCIONES`):
+ * a donde lleva "Ver qué trae" sin JavaScript. La primera que lo tenga.
+ */
+export function solucionDeCombo(comboId: string): CategoryKey | undefined {
+  return SOLUCIONES.find((s) => s.combo?.id === comboId)?.category;
+}
+
+/** Todas, con proyectos a medida (para tests y para recorrer la copy). */
+export const todasLasSoluciones: readonly Solucion[] = SOLUCIONES;

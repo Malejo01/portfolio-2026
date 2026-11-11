@@ -5,16 +5,22 @@
  *   npm run eval:chat -- --url https://malejo.com.ar
  *   npm run eval:chat -- --solo A,B,I        # algunos casos
  *
- * Corre los casos de `lib/agencia/chat/evals/casos.ts` (36 desde la tanda R3) como
+ * Corre los casos de `lib/agencia/chat/evals/casos.ts` (41 desde la tanda P1) como
  * conversaciones de varios turnos contra `/api/chat`, aplica las aserciones
  * deterministas y escribe `docs/agencia/evals/<fecha>.md`. Sale con código 1
- * si pasan menos del objetivo (22 de 24, proporcional: 33 de 36).
+ * si pasan menos del objetivo (22 de 24, proporcional: 38 de 41).
  *
  * Gasta tokens de verdad (unos 24 × 7 k de entrada, casi todo cacheado):
  * necesita `ANTHROPIC_API_KEY` en el servidor que recibe los pedidos. Con
  * los topes por IP activos (R2), exportá `CHAT_TEST_TOKEN` con el mismo
  * valor que el servidor: el runner manda `x-malejo-test` y saltea los topes
  * por IP (el global no). El tope global se puede subir con `CHAT_DAILY_LIMIT_TOTAL=0`.
+ *
+ * Contra un preview protegido de Vercel, sin `CHAT_TEST_TOKEN` (tanda P1):
+ *
+ *   EVAL_COOKIE="_vercel_jwt=…" EVAL_PAUSA_MS=31000 npm run eval:chat -- --url <preview> --paralelo 1
+ *
+ * La cookie sale de abrir un link de acceso del preview (`?_vercel_share=…`).
  */
 import { mkdirSync, writeFileSync } from "node:fs";
 import { casos } from "@/lib/agencia/chat/evals/casos";

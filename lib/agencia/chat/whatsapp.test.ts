@@ -38,7 +38,7 @@ describe("mensajeWhatsApp", () => {
         "• Rubro: Peluquería · Ciudad: Salta",
         "• Necesito: Turnos online para 3 peluqueras",
         "• Me interesa: Agenda de turnos online, Combo Página + turnos",
-        "• Cotización: Agenda de turnos online · $190.800 + $23.300/mes (≈ USD 190) · Mercado Pago · 6 cuotas",
+        "• Cotización: Agenda de turnos online · $187.600 + $23.300/mes (≈ USD 190) · Mercado Pago · 6 cuotas",
         "• Presupuesto: 200 mil · Urgencia: este mes",
         "• Dudas: ¿Factura?; ¿Dominio?",
       ].join("\n"),

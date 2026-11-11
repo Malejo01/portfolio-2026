@@ -1,0 +1,551 @@
+{
+ "despues": {
+  "pantallas": {
+   "escritorio": 3.16,
+   "celular": 4.64
+  },
+  "palabras": {
+   "/": {
+    "390": {
+     "palabras": 287,
+     "precios": 11,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 287,
+     "precios": 11,
+     "overflow": 0
+    }
+   },
+   "/precios": {
+    "390": {
+     "palabras": 407,
+     "precios": 21,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 422,
+     "precios": 21,
+     "overflow": 0
+    }
+   },
+   "/servicios/webs": {
+    "390": {
+     "palabras": 443,
+     "precios": 12,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 443,
+     "precios": 12,
+     "overflow": 0
+    }
+   },
+   "/servicios/ia": {
+    "390": {
+     "palabras": 447,
+     "precios": 15,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 447,
+     "precios": 15,
+     "overflow": 0
+    }
+   },
+   "/servicios/tiendas": {
+    "390": {
+     "palabras": 450,
+     "precios": 15,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 450,
+     "precios": 15,
+     "overflow": 0
+    }
+   },
+   "/servicios/gestion": {
+    "390": {
+     "palabras": 450,
+     "precios": 15,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 450,
+     "precios": 15,
+     "overflow": 0
+    }
+   },
+   "/servicios/turnos": {
+    "390": {
+     "palabras": 393,
+     "precios": 13,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 393,
+     "precios": 13,
+     "overflow": 0
+    }
+   },
+   "/servicios/mant": {
+    "390": {
+     "palabras": 366,
+     "precios": 3,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 366,
+     "precios": 3,
+     "overflow": 0
+    }
+   },
+   "/servicios/grandes": {
+    "390": {
+     "palabras": 361,
+     "precios": 2,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 361,
+     "precios": 2,
+     "overflow": 0
+    }
+   },
+   "/cotizador": {
+    "390": {
+     "palabras": 192,
+     "precios": 6,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 192,
+     "precios": 6,
+     "overflow": 0
+    }
+   },
+   "/demo": {
+    "390": {
+     "palabras": 303,
+     "precios": 8,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 303,
+     "precios": 8,
+     "overflow": 0
+    }
+   },
+   "/demo?plan=landing-profesional": {
+    "390": {
+     "palabras": 330,
+     "precios": 11,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 330,
+     "precios": 11,
+     "overflow": 0
+    }
+   },
+   "/precios?cat=webs": {
+    "390": {
+     "palabras": 407,
+     "precios": 21,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 422,
+     "precios": 21,
+     "overflow": 0
+    }
+   },
+   "/precios?cat=tiendas": {
+    "390": {
+     "palabras": 331,
+     "precios": 14,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 346,
+     "precios": 14,
+     "overflow": 0
+    }
+   },
+   "/precios?cat=turnos": {
+    "390": {
+     "palabras": 300,
+     "precios": 12,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 315,
+     "precios": 12,
+     "overflow": 0
+    }
+   },
+   "/precios?cat=gestion": {
+    "390": {
+     "palabras": 340,
+     "precios": 14,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 355,
+     "precios": 14,
+     "overflow": 0
+    }
+   },
+   "/precios?cat=ia": {
+    "390": {
+     "palabras": 343,
+     "precios": 14,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 358,
+     "precios": 14,
+     "overflow": 0
+    }
+   },
+   "/precios?cat=mant": {
+    "390": {
+     "palabras": 248,
+     "precios": 3,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 263,
+     "precios": 3,
+     "overflow": 0
+    }
+   },
+   "/precios?cat=grandes": {
+    "390": {
+     "palabras": 248,
+     "precios": 1,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 263,
+     "precios": 1,
+     "overflow": 0
+    }
+   }
+  }
+ },
+ "modal": [
+  "/@1280: ok",
+  "/precios@1280: ok",
+  "/servicios/webs@1280: ok",
+  "/servicios/ia@1280: ok",
+  "/@390: ok",
+  "/precios@390: ok",
+  "/servicios/webs@390: ok",
+  "/servicios/ia@390: ok"
+ ],
+ "sinJs": [
+  "/servicios/webs#landing-express: ok",
+  "/servicios/webs#landing-profesional: ok",
+  "/servicios/webs#landing-premium: ok",
+  "/servicios/webs#sitio-pyme: ok",
+  "/servicios/webs#sitio-autoadministrable: ok",
+  "/servicios/webs#renova-tu-web: ok",
+  "/servicios/webs#combo-arranque: ok",
+  "/servicios/ia#combo-atencion-24-h: ok",
+  "/servicios/turnos#combo-negocio-con-turnos: ok",
+  "/servicios/tiendas#menu-digital-qr: ok",
+  "/servicios/tiendas#catalogo-con-pedidos-por-whatsapp: ok",
+  "/servicios/tiendas#tienda-online-con-mercado-pago: ok",
+  "/servicios/tiendas#directorio-o-guia-con-mapa: ok",
+  "/servicios/turnos#turnos-online: ok",
+  "/servicios/turnos#reservas-con-sena: ok",
+  "/servicios/turnos#inscripciones-a-eventos-y-salidas: ok",
+  "/servicios/gestion#tablero-de-ventas: ok",
+  "/servicios/gestion#control-de-stock-con-qr: ok",
+  "/servicios/gestion#pedidos-y-clientes: ok",
+  "/servicios/gestion#sistema-a-medida: ok",
+  "/servicios/gestion#combo-pyme-digital: ok",
+  "/servicios/ia#asistente-ia-para-tu-web: ok",
+  "/servicios/ia#asistente-por-whatsapp: ok",
+  "/servicios/ia#agente-de-ventas: ok",
+  "/servicios/ia#automatizacion: ok",
+  "/servicios/ia#plataforma-educativa-con-ia: ok",
+  "/servicios/ia#clasificador-con-ia: ok",
+  "/servicios/mant#renovacion: ok",
+  "/servicios/mant#mantenimiento-basico: ok",
+  "/servicios/mant#mantenimiento-pro: ok"
+ ],
+ "solapes": [
+  "webs@320: ok",
+  "tiendas@320: ok",
+  "turnos@320: ok",
+  "gestion@320: ok",
+  "ia@320: ok",
+  "mant@320: ok",
+  "grandes@320: ok",
+  "extras@320: ok",
+  "webs@360: ok",
+  "tiendas@360: ok",
+  "turnos@360: ok",
+  "gestion@360: ok",
+  "ia@360: ok",
+  "mant@360: ok",
+  "grandes@360: ok",
+  "extras@360: ok",
+  "webs@390: ok",
+  "tiendas@390: ok",
+  "turnos@390: ok",
+  "gestion@390: ok",
+  "ia@390: ok",
+  "mant@390: ok",
+  "grandes@390: ok",
+  "extras@390: ok",
+  "webs@412: ok",
+  "tiendas@412: ok",
+  "turnos@412: ok",
+  "gestion@412: ok",
+  "ia@412: ok",
+  "mant@412: ok",
+  "grandes@412: ok",
+  "extras@412: ok"
+ ],
+ "antes": {
+  "pantallas": {
+   "escritorio": 3.43,
+   "celular": 5.46
+  },
+  "palabras": {
+   "/": {
+    "390": {
+     "palabras": 479,
+     "precios": 8,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 479,
+     "precios": 8,
+     "overflow": 0
+    }
+   },
+   "/precios": {
+    "390": {
+     "palabras": 702,
+     "precios": 27,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 699,
+     "precios": 27,
+     "overflow": 0
+    }
+   },
+   "/servicios/webs": {
+    "390": {
+     "palabras": 467,
+     "precios": 11,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 467,
+     "precios": 11,
+     "overflow": 0
+    }
+   },
+   "/servicios/ia": {
+    "390": {
+     "palabras": 490,
+     "precios": 9,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 490,
+     "precios": 9,
+     "overflow": 0
+    }
+   },
+   "/servicios/tiendas": {
+    "390": {
+     "palabras": 401,
+     "precios": 6,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 401,
+     "precios": 6,
+     "overflow": 0
+    }
+   },
+   "/servicios/gestion": {
+    "390": {
+     "palabras": 402,
+     "precios": 7,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 402,
+     "precios": 7,
+     "overflow": 0
+    }
+   },
+   "/servicios/turnos": {
+    "390": {
+     "palabras": 347,
+     "precios": 6,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 347,
+     "precios": 6,
+     "overflow": 0
+    }
+   },
+   "/servicios/mant": {
+    "390": {
+     "palabras": 318,
+     "precios": 3,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 318,
+     "precios": 3,
+     "overflow": 0
+    }
+   },
+   "/servicios/grandes": {
+    "390": {
+     "palabras": 379,
+     "precios": 3,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 379,
+     "precios": 3,
+     "overflow": 0
+    }
+   },
+   "/cotizador": {
+    "390": {
+     "palabras": 190,
+     "precios": 6,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 190,
+     "precios": 6,
+     "overflow": 0
+    }
+   },
+   "/demo": {
+    "390": {
+     "palabras": 304,
+     "precios": 8,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 304,
+     "precios": 8,
+     "overflow": 0
+    }
+   },
+   "/demo?plan=landing-profesional": {
+    "390": {
+     "palabras": 304,
+     "precios": 8,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 304,
+     "precios": 8,
+     "overflow": 0
+    }
+   },
+   "/precios?cat=webs": {
+    "390": {
+     "palabras": 702,
+     "precios": 27,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 699,
+     "precios": 27,
+     "overflow": 0
+    }
+   },
+   "/precios?cat=tiendas": {
+    "390": {
+     "palabras": 557,
+     "precios": 26,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 554,
+     "precios": 26,
+     "overflow": 0
+    }
+   },
+   "/precios?cat=turnos": {
+    "390": {
+     "palabras": 477,
+     "precios": 23,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 474,
+     "precios": 23,
+     "overflow": 0
+    }
+   },
+   "/precios?cat=gestion": {
+    "390": {
+     "palabras": 555,
+     "precios": 26,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 552,
+     "precios": 26,
+     "overflow": 0
+    }
+   },
+   "/precios?cat=ia": {
+    "390": {
+     "palabras": 653,
+     "precios": 27,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 650,
+     "precios": 27,
+     "overflow": 0
+    }
+   },
+   "/precios?cat=mant": {
+    "390": {
+     "palabras": 473,
+     "precios": 22,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 470,
+     "precios": 22,
+     "overflow": 0
+    }
+   },
+   "/precios?cat=grandes": {
+    "390": {
+     "palabras": 464,
+     "precios": 19,
+     "overflow": 0
+    },
+    "1280": {
+     "palabras": 461,
+     "precios": 19,
+     "overflow": 0
+    }
+   }
+  }
+ },
+ "fallas": []
+}

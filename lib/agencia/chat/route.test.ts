@@ -77,14 +77,14 @@ describe("/api/chat con modelo simulado", () => {
         ],
         stop: "tool_use",
       },
-      { bloques: [{ type: "text", text: "Son **$190.800** más el abono. ¿Querés ver la demo?" }], stop: "end_turn" },
+      { bloques: [{ type: "text", text: "Son **$187.600** más el abono. ¿Querés ver la demo?" }], stop: "end_turn" },
     ]);
     const evs = await chat({ ...user("Tengo una peluquería, ¿cuánto salen los turnos con Mercado Pago?"), ficha: { ciudad: "Salta" } });
 
     expect(evs.map((e) => e.type)).toEqual(["text", "ficha", "card", "text", "done"]);
     expect(evs[1].ficha).toEqual({ rubro: "Peluquería", planesInteres: ["Agenda de turnos online"] });
-    expect(cards(evs)[0]).toMatchObject({ kind: "quote", implementacion: 190800, mensual: 23300, medio: "mp" });
-    expect(textos(evs)).toBe("Te lo calculo.\nSon **$190.800** más el abono. ¿Querés ver la demo?");
+    expect(cards(evs)[0]).toMatchObject({ kind: "quote", implementacion: 187600, mensual: 23300, medio: "mp" });
+    expect(textos(evs)).toBe("Te lo calculo.\nSon **$187.600** más el abono. ¿Querés ver la demo?");
 
     const [p1, p2] = mock.pedidos as { system: { text: string; cache_control?: unknown }[]; messages: { role: string; content: unknown }[]; tools: unknown[] }[];
     expect(p1.system).toHaveLength(2);
@@ -113,6 +113,30 @@ describe("/api/chat con modelo simulado", () => {
     expect(evs.map((e) => e.type)).toEqual(["text", "ficha", "done"]);
     expect(textos(evs)).toBe("Para una peluquería te sirve Turnos online. ¿Ya tenés web?");
     expect(mock.pedidos.length - antes).toBe(1);
+  });
+
+  it("tanda P1: texto + derivar_whatsapp cierra el turno: no hay segunda ronda que anuncie el botón", async () => {
+    mock.guion([
+      {
+        bloques: [
+          { type: "text", text: "Eso lo ve Mauro directamente." },
+          { type: "tool_use", name: "derivar_whatsapp", input: { resumen: "Marca blanca" } },
+        ],
+        stop: "tool_use",
+      },
+      { bloques: [{ type: "text", text: "Ya te dejé el botón de WhatsApp." }], stop: "end_turn" },
+    ]);
+    const evs = await chat(user("¿Hacés marca blanca?"));
+    expect(evs.map((e) => e.type)).toEqual(["text", "card", "ficha", "done"]);
+    expect(textos(evs)).toBe("Eso lo ve Mauro directamente.");
+  });
+
+  it("tanda P1: si promete derivar sin llamar a derivar_whatsapp, el botón igual sale", async () => {
+    mock.guion([{ bloques: [{ type: "text", text: "Eso lo confirma Mauro. Le dejo tu consulta lista por WhatsApp." }], stop: "end_turn" }]);
+    const evs = await chat({ ...user("¿Se conecta con Google Calendar?"), ficha: { rubro: "Odontología" } });
+    expect(evs.map((e) => e.type)).toEqual(["text", "card", "done"]);
+    const wa = cards(evs)[0] as Extract<Card, { kind: "whatsapp" }>;
+    expect(decodeURIComponent(wa.href)).toContain("Rubro: Odontología");
   });
 
   it("solo anotar_ficha sin texto sí sigue a otra ronda para responder", async () => {
@@ -146,6 +170,20 @@ describe("/api/chat con modelo simulado", () => {
     expect(r.is_error).toBe(true);
     expect(textos(evs)).toContain("Profesional");
     expect(evs.at(-1)?.type).toBe("done");
+  });
+
+  it("tanda P1: cortado por max_tokens sin texto → mensaje fijo y WhatsApp, no una burbuja vacía", async () => {
+    mock.guion([{ bloques: [], stop: "max_tokens" }]);
+    const evs = await chat(user("¿Esto no es una estafa?"));
+    expect(evs.map((e) => e.type)).toEqual(["text", "card", "done"]);
+    expect(textos(evs)).toMatch(/^Ahora no puedo responder/);
+    expect(cards(evs)[0]).toMatchObject({ kind: "whatsapp" });
+  });
+
+  it("tanda P1: cortado por max_tokens con texto ya enviado no agrega el fallback ni corre herramientas", async () => {
+    mock.guion([{ bloques: [{ type: "text", text: "La seña" }, { type: "tool_use", name: "derivar_whatsapp", input: { resumen: "x" } }], stop: "max_tokens" }]);
+    const evs = await chat(user("¿Esto no es una estafa?"));
+    expect(evs.map((e) => e.type)).toEqual(["text", "done"]);
   });
 
   it("error del modelo → mensaje fijo y WhatsApp con la ficha", async () => {

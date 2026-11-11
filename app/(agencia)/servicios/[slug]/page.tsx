@@ -270,7 +270,7 @@ export default async function ServicioPage({ params }: Props) {
       <section className="wrap max-w-[920px] pt-10 sm:pt-12">
         <span className="lbl lbl-o">{detail.faqLabel}</span>
         <h2 className="h h2">{detail.faqTitle}</h2>
-        <FaqList items={faqPorIds(s.faq)} name={`faq-${category.key}`} />
+        <FaqList items={faqPorIds(s.faq)} name={`faq-${category.key}`} primeraAbierta={false} />
         <AbrirChat href={wa} tema={s.tema} className="lnk mt-3 min-h-11">
           {detail.faqOtra}
         </AbrirChat>

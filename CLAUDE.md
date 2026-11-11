@@ -256,6 +256,17 @@ npm run db:migrate  # las aplica Mauro, con DATABASE_URL
   `lib/agencia/pricing.ts` (`fmt`, `conRecargo`, `cotizar`): `/precios`,
   `/servicios`, `/cotizador`, el blog y el agente usan la misma función. La
   seña sale de `SENA_MONTO` (`lib/agencia/config.ts`).
+- **Formas de pago (P1, `docs/agencia/precios-psicologia-2026-11-10.md` §2):**
+  2 pagos, 3 pagos sin interés hasta `pagos.topeTres` ($600.000, sobre el
+  **total contratado**, nunca plan por plan) y tarjeta (+6 %, hasta 6
+  cuotas). `pagosDe()` reparte (el último pago absorbe la diferencia) y
+  `lineaDePagos()` es **la única fuente** de "o 3 pagos de $X sin
+  interés": tarjetas, modal, cotizador, `/demo` y chat. No aplica a
+  `grandes` ni a lo solo mensual. Regla de diseño de precios (la cubre un
+  test): todo pago único de hasta $600.000 es divisible por 3 en miles.
+  "Cuota" es solo partir el pago; lo de cada mes es "por mes" o "servicio
+  mensual". Cada categoría muestra 3 `visibles` (salvo `grandes`); el resto
+  va a "Ver otras opciones". Cada plan y combo tiene `noIncluye`.
 - **Ids fijos de planes (R2).** Cada plan, combo y extra tiene su `id`
   **escrito en `precios.json`** (el slug que tenía antes de renombrar). El
   nombre se puede cambiar; el id nunca: va en `/demo?plan=`, en los
@@ -267,23 +278,33 @@ npm run db:migrate  # las aplica Mauro, con DATABASE_URL
 - **Lenguaje simple (R2).** Nada de jerga en la copy: `lib/agencia/glosario.test.ts`
   recorre `content/agencia/` (salvo los legales) y el blog y falla con
   "Landing", "SEO", "hosting", "abono", "API", "n8n", "sprint",
-  "Implementación" o "foto profesional". El glosario completo está en
+  "Implementación", "foto profesional" y, desde P1, "cuota mensual",
+  "permanencia" y "tokens". El glosario completo está en
   `docs/agencia/auditoria-ux-2026-11-08.md` §4.
 - **Home corta (R2):** hero → "¿Qué necesitás?" → cómo trabajo → quién te va
   a atender → cierre; ≤ 3,5 pantallas en escritorio y ≤ 5,5 en celular (hoy
-  3,43 y 5,49: medí con `docs/agencia/verificacion/r2/capturas.js` si
-  cambiás la copy). El catálogo completo está en **`/precios`**; las
+  3,16 y 4,64: medí con `docs/agencia/verificacion/p1/verificar.js`, que
+  además verifica palabras, overflow, el modal, el camino sin JS y los
+  solapes de `/precios`, si cambiás la copy). Las soluciones van ≤ 450
+  palabras. El catálogo completo está en **`/precios`**; las
   soluciones (`/servicios/[slug]`, copy en `content/agencia/servicios.ts`)
   comparten plantilla. "El código es tuyo" solo en webs, tiendas, turnos y
   mantenimiento: nunca en gestión, IA ni proyectos a medida.
 - **Islas `"use client"` de la agencia**, todas en `components/agencia/client/`:
   `ThemeToggle` (+ el hook `theme.ts`), `MobileMenu`, `SectionSpy`,
-  `Typewriter`, `PricingCatalog`, `MedioSwitch`, `Cotizador`,
+  `Typewriter`, `PricingCatalog` (solo elige la categoría: los paneles los
+  arma el servidor), `MedioSwitch` (solo en el cotizador), `Cotizador`,
   `ProjectVideo`, `Reveal`, `DemoForm` (+ el hook `turnstile.ts`),
-  `AbrirChat`, `MalejoLoader` y `MalejoWidget` (cargado con `next/dynamic`,
-  `ssr: false`, cuando el navegador está libre o cuando alguien lo pide).
-  FAQ y "Ver los otros planes" son `<details>`, sin JS. `PlanCard` no tiene
-  estado y sirve en los dos lados.
+  `DemoResumen`, `PlanDialog`, `AbrirChat`, `MalejoLoader` y `MalejoWidget`
+  (cargado con `next/dynamic`, `ssr: false`, cuando el navegador está libre
+  o cuando alguien lo pide). FAQ y "Ver otras opciones" son `<details>`,
+  sin JS. `PlanCard`, `PlanDetalle` e `InfoPagos` son Server Components.
+- **Modales (P1):** `PlanDialog` es un `<dialog>` nativo con `showModal()`;
+  el contenido llega como `children` del servidor. Sin JS, "Ver qué
+  incluye" es un `<a href="/servicios/<cat>#<id>">` y ahí el detalle está
+  en un `<details>` `.nojs-only`; los modales chicos caen en un
+  `<details>`. `html.js .nojs-only` / `html:not(.js) .js-only` en
+  `agencia.css`. La animación no remonta el contenido (perdería el foco).
 - **Abrir el chat desde cualquier botón (R2):** la isla `AbrirChat` es un
   `<a>` a WhatsApp con el texto genérico (`WHATSAPP_TEXTO`) que, con JS,
   dispara el evento **`malejo:abrir`** (`lib/agencia/abrir-chat.ts`,
@@ -332,7 +353,7 @@ npm run db:migrate  # las aplica Mauro, con DATABASE_URL
     (`chat/sesion.ts`), solo en la pestaña; `/demo` las usa para completar
     el formulario. Nada de eso va a la base.
   - **"No inventes" (R3):** el prompt deriva a Mauro todo lo que no está en
-    el catálogo ni en el conocimiento (funciones, fechas, valor de cuotas,
+    el catálogo ni en el conocimiento (funciones, fechas, montos de pagos que no salgan de `cotizar`,
     medios de pago, sitios de terceros, marca blanca). Para responderlo, se
     agrega el dato a `conocimiento.ts`; la lista está en
     `docs/agencia/revision-r3.md` §2.3.

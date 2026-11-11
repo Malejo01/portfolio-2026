@@ -148,9 +148,9 @@ export function PlanDetalle({ plan }: { plan: Plan }) {
         <Nafta usa={plan.usaServiciosDeTerceros} />
       </Bloque>
 
-      {/* 5 · Después del primer año (o lo que hay que saber de la categoría) */}
+      {/* 5 · Después del primer año (webs) o lo que hay que saber de la categoría */}
       {despues.length ? (
-        <Bloque title={copy.despues}>
+        <Bloque title={plan.category === "webs" ? copy.despues : copy.nota}>
           {despues.map((t) => (
             <p key={t} className="m-0 text-[14px] leading-[1.5] text-muted">
               {t}

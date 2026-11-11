@@ -117,7 +117,7 @@ export function PlanCard({ plan, heading = "h3", enPagina = false }: { plan: Pla
           <H className="h text-xl">{plan.name}</H>
           {plan.time ? <span className="tag flex-none">⏱ {plan.time}</span> : null}
         </div>
-        {plan.paraQuien ? <p className="m-0 line-clamp-2 text-[13px] leading-[1.45] text-muted">{plan.paraQuien}</p> : null}
+        {plan.enUnaLinea ? <p className="m-0 line-clamp-2 text-[13px] leading-[1.45] text-muted">{plan.enUnaLinea}</p> : null}
       </div>
       <Precio plan={plan} />
       <ul className="m-0 flex list-none flex-col gap-[9px] p-0 text-sm">

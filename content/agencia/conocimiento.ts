@@ -100,13 +100,13 @@ const modeloDeCostos: ModeloDeCostos = {
   mantenimiento: {
     etiqueta: "El mantenimiento",
     es: "como el taller",
-    texto: "lo pagás por mes para que ande bien y se arregle si falla.",
+    texto: "lo pagás por mes para que ande y se arregle si falla.",
   },
   uso: {
     etiqueta: "El uso",
     es: "como la nafta",
     texto:
-      "lo que gastan la inteligencia artificial y los mensajes de WhatsApp depende de cuánto lo uses. Lo cobran esas empresas, no Malejo, y se cotiza aparte.",
+      "lo que gastan la inteligencia artificial y WhatsApp depende de cuánto lo uses. Lo cobran esas empresas, no Malejo, y va aparte.",
   },
 };
 

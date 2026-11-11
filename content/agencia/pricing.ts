@@ -21,8 +21,13 @@ export interface Plan {
   id: string;
   category: CategoryKey;
   name: string;
-  /** Para quién es, en una línea (va debajo del nombre en la tarjeta). */
+  /** Para quién es, completo: el modal y el chat (que lo usa para recomendar). */
   paraQuien: string;
+  /**
+   * Para quién es, en una línea: va en la tarjeta (tanda P1, §1.6). Si el
+   * JSON no lo trae, es `paraQuien`.
+   */
+  enUnaLinea: string;
   /**
    * Pago único en pesos. `null` = plan de solo cuota mensual o, si tampoco
    * tiene cuota, un ítem **a cotizar** (ver `aCotizar`).
@@ -113,6 +118,7 @@ interface RawPlan {
   id: string;
   name: string;
   paraQuien: string;
+  enUnaLinea?: string;
   impl: number | null;
   from: boolean;
   monthly: number | null;
@@ -189,6 +195,7 @@ export const categories: Category[] = catalog.categorias.map((c) => ({
     category: c.key as CategoryKey,
     name: p.name,
     paraQuien: p.paraQuien,
+    enUnaLinea: p.enUnaLinea ?? p.paraQuien,
     impl: p.impl,
     from: p.from,
     monthly: p.monthly,

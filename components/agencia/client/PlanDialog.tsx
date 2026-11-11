@@ -23,10 +23,20 @@ import { Icon } from "../icons";
  * Si alguien abre el chat de Malejo desde adentro ("Preguntale a Malejo"),
  * el modal se cierra para no tapar el widget.
  *
- * Entrada con Framer Motion (`LazyMotion` + `m`). No lleva `data-reveal`:
- * arranca cerrado y sin JS no se ve; el primer render no tiene estado
- * inicial animado. Con `prefers-reduced-motion`, aparece sin animación.
+ * Entrada con Framer Motion (`LazyMotion` + `m`), por variantes según el
+ * estado y **sin remontar** el contenido: un `key` nuevo al abrir destruiría
+ * el botón que `showModal()` acaba de enfocar y el foco caería en `body`.
+ * No lleva `data-reveal`: arranca cerrado y sin JS no se ve. Con
+ * `prefers-reduced-motion`, aparece sin animación.
  */
+const VARIANTES = {
+  cerrado: { opacity: 0, y: 16, scale: 0.98, transition: { duration: 0 } },
+  abierto: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.22, ease: [0.2, 0.7, 0.2, 1] as const } },
+};
+const SIN_MOVIMIENTO = {
+  cerrado: { opacity: 1, y: 0, scale: 1, transition: { duration: 0 } },
+  abierto: { opacity: 1, y: 0, scale: 1, transition: { duration: 0 } },
+};
 export function PlanDialog({
   label,
   title,
@@ -51,7 +61,7 @@ export function PlanDialog({
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
-  const [vez, setVez] = useState(0);
+  const [abierto, setAbierto] = useState(false);
   const reduced = useReducedMotion();
   const titleId = useId();
 
@@ -61,6 +71,7 @@ export function PlanDialog({
     const html = document.documentElement;
     const onClose = () => {
       html.style.overflow = "";
+      setAbierto(false);
       triggerRef.current?.focus();
     };
     const onChat = () => {
@@ -81,7 +92,7 @@ export function PlanDialog({
     if (!d || d.open) return;
     d.showModal();
     document.documentElement.style.overflow = "hidden";
-    setVez((v) => v + 1);
+    setAbierto(true);
   };
 
   const onTrigger = (e: React.MouseEvent) => {
@@ -137,10 +148,9 @@ export function PlanDialog({
       >
         <LazyMotion features={domAnimation}>
           <m.div
-            key={vez}
-            initial={vez === 0 || reduced ? false : { opacity: 0, y: 16, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.22, ease: [0.2, 0.7, 0.2, 1] }}
+            variants={reduced ? SIN_MOVIMIENTO : VARIANTES}
+            initial={false}
+            animate={abierto ? "abierto" : "cerrado"}
             className={`card card-big dlg-panel flex flex-col gap-4 p-5 sm:p-7 ${variant === "plan" ? "" : "text-[15px] leading-[1.55]"}`}
           >
             <div className="flex items-start justify-between gap-3">

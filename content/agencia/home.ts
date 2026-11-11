@@ -178,7 +178,8 @@ export const home = {
       noIncluye: "Qué no incluye",
       trae: "Qué trae",
       despues: "Después del primer año",
-      cadaMes: "Cada mes",
+      /** Para las categorías que no son webs: la nota de la categoría. */
+      nota: "A tener en cuenta",
       alt: "Otra forma de pago",
       /** "o 2 pagos de $X · o tarjeta hasta 6 cuotas". */
       otrasFormas: "o {N} pagos de {MONTO} · o tarjeta hasta {CUOTAS} cuotas",

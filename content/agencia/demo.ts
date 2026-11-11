@@ -1,11 +1,18 @@
 /** Copy de `/demo` (F5). `{SENA}` = monto de `SENA_MONTO` formateado. */
 export const demoCopy = {
   metaTitle: "Pedí tu demo",
-  description: "Contame tu idea, pagá la seña y en 72 horas hábiles tenés una demo con tu marca. La seña se descuenta del total.",
+  description: "Contame tu idea, pagá la seña y en 72 horas hábiles tenés una demo con tu marca. La seña se descuenta del primer pago.",
   label: "Tu demo",
   title: "Pedí tu demo",
   lead: "Tres pasos: me contás qué necesitás, pagás la seña de {SENA} y agendamos la videollamada para verla juntos.",
   steps: { brief: "Paso 1", sena: "Paso 2", agenda: "Paso 3" },
+  /** Tanda P1 (§4.5): el resumen de lo que llega en `?plan=`. */
+  resumen: {
+    label: "Lo que elegiste",
+    unico: "Pago único",
+    desde: "desde",
+    sena: "La seña de {SENA} se descuenta del primer pago.",
+  },
   brief: {
     title: "Contame tu idea",
     nombre: "Tu nombre",
@@ -40,7 +47,7 @@ export const demoCopy = {
   },
   sena: {
     title: "Seña de {SENA}",
-    body: "Se descuenta completa del total si contratás. La demo está lista en 72 horas hábiles desde que recibo la seña y el material. Si vas a renovar tu web actual, la demo previa es sin cargo: no hace falta la seña.",
+    body: "Se descuenta completa del primer pago si contratás. La demo está lista en 72 horas hábiles desde que recibo la seña y el material. Si vas a renovar tu web actual, la demo previa es sin cargo: no hace falta la seña.",
     pay: "Pagar la seña",
     alias: "Transferí al alias",
     whatsapp: "Pedir los datos para la seña",

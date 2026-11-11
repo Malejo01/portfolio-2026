@@ -44,9 +44,9 @@ export function Retrato({ className = "" }: { className?: string }) {
 }
 
 /**
- * "Quién te va a atender" (auditoría §6.3): Mauro en dos líneas y 3
- * proyectos contados por el problema que resuelven, sin etiquetas de
- * tecnología. Une las secciones viejas de Proyectos y Sobre mí; por eso
+ * "Quién te va a atender" (auditoría §6.3; tanda P1, §4.1): Mauro en dos
+ * líneas y 3 proyectos como miniaturas con su nombre y el problema que
+ * resuelven, sin párrafo ni etiquetas de tecnología. Une las secciones viejas de Proyectos y Sobre mí; por eso
  * conserva los dos `id` (`#proyectos`, `#sobre-mi`) que había enlazados.
  *
  * Los proyectos son MP4 sobre su póster, a la misma altura que el póster
@@ -71,11 +71,7 @@ export function Team() {
             <Retrato />
             <div className="flex flex-col gap-2">
               <h2 className="h text-[24px] leading-[1.1] sm:text-[28px]">{team.title}</h2>
-              {team.body.map((p) => (
-                <p key={p} className="m-0 text-[15px] leading-[1.55] text-muted">
-                  {p}
-                </p>
-              ))}
+              <p className="m-0 text-[15px] leading-[1.55] text-muted">{team.body}</p>
             </div>
           </div>
         </Reveal>
@@ -106,12 +102,6 @@ export function Team() {
                         {p.problema}
                       </a>
                     </h4>
-                    <p className="m-0 text-[13px] leading-[1.45] text-muted">
-                      {team.parecido}{" "}
-                      <Link href={`/servicios/${p.solucion}`} className="relative z-10 font-semibold text-acc-text no-underline hover:underline">
-                        {p.parecido}
-                      </Link>
-                    </p>
                   </div>
                 </article>
               </li>

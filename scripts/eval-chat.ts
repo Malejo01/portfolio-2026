@@ -8,7 +8,7 @@
  * Corre los casos de `lib/agencia/chat/evals/casos.ts` (36 desde la tanda R3) como
  * conversaciones de varios turnos contra `/api/chat`, aplica las aserciones
  * deterministas y escribe `docs/agencia/evals/<fecha>.md`. Sale con código 1
- * si pasan menos del objetivo (22 de 24, proporcional: 33 de 36).
+ * si pasan menos del objetivo (22 de 24, proporcional: 38 de 41).
  *
  * Gasta tokens de verdad (unos 24 × 7 k de entrada, casi todo cacheado):
  * necesita `ANTHROPIC_API_KEY` en el servidor que recibe los pedidos. Con

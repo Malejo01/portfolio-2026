@@ -16,8 +16,9 @@ import { ThemeTextToggle, ThemeToggle } from "./client/ThemeToggle";
  * Server Component: los links son HTML del servidor. Las únicas islas son
  * el botón de tema, el explorador de celular, `AbrirChat` (el botón
  * principal abre a Malejo; sin JS, WhatsApp) y `SectionSpy`, que marca el
- * link activo con `aria-current`. En celular, al lado del ☰ va un acceso
- * directo a WhatsApp de 44 × 44 (auditoría P1-2).
+ * link activo con `aria-current`. En celular, al lado del ☰ van "Precios"
+ * (tanda P1, Fase 3 bis B) y un acceso directo a WhatsApp de 44 × 44
+ * (auditoría P1-2).
  */
 export function Header() {
   const { nav, explorer } = site;
@@ -37,11 +38,12 @@ export function Header() {
       <div className="wrap">
         <nav
           aria-label={nav.ariaLabel}
-          className="card flex items-center gap-[18px] rounded-[18px] py-2 pl-[22px] pr-2"
+          className="card flex items-center gap-2 rounded-[18px] py-2 pl-3.5 pr-2 sm:gap-[18px] sm:pl-[22px]"
         >
           <Link href="/" aria-label={nav.home} className="inline-flex min-h-11 items-center gap-2.5 no-underline">
             <MalejoMark size={30} className="text-acc" />
-            <span className="h text-[22px]">{site.name}</span>
+            {/* Debajo de 360 px no entra con "Precios" al lado: queda el logo y el nombre para lectores de pantalla. */}
+            <span className="h text-[22px] max-[359px]:sr-only">{site.name}</span>
           </Link>
 
           <ul className="hidden flex-1 gap-1 lg:flex">
@@ -58,12 +60,19 @@ export function Header() {
             ))}
           </ul>
 
-          <div className="ml-auto flex items-center gap-2.5 lg:ml-0 lg:gap-[18px]">
+          <div className="ml-auto flex items-center gap-1.5 sm:gap-2.5 lg:ml-0 lg:gap-[18px]">
             <ThemeToggle toLight={nav.themeToLight} toDark={nav.themeToDark} className="hidden lg:inline-flex" />
             <AbrirChat href={wa} className="btn btn-p btn-sm hidden lg:inline-flex">
               <Icon name="chat" size={16} />
               {nav.cta}
             </AbrirChat>
+            <Link
+              href={nav.precios.href}
+              data-nav-section={nav.precios.section}
+              className="inline-flex min-h-11 items-center rounded-[14px] px-2.5 text-[15px] font-semibold text-text no-underline aria-[current=true]:bg-ic-bg aria-[current=true]:text-acc-text lg:hidden"
+            >
+              {nav.precios.label}
+            </Link>
             <a href={wa} target="_blank" rel="noopener" aria-label={nav.whatsapp} className="ibtn text-acc-text lg:hidden">
               <Icon name="whatsapp" size={20} />
             </a>

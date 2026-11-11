@@ -372,9 +372,9 @@ npm run db:migrate  # las aplica Mauro, con DATABASE_URL
   - **Pruebas sin clave:** `lib/agencia/chat/mock-anthropic.ts` imita la API
     con SSE; se apunta el SDK con `ANTHROPIC_BASE_URL` (lo usan
     `route.test.ts` y `evals/evals.test.ts`). **Evals reales:**
-    `npm run eval:chat` corre los 36 casos de `lib/agencia/chat/evals/casos.ts`
+    `npm run eval:chat` corre los 41 casos de `lib/agencia/chat/evals/casos.ts`
     contra `/api/chat` y escribe `docs/agencia/evals/<fecha>.md`; objetivo
-    33 de 36 (`objetivo()`: 22 de 24 proporcional). Gasta tokens: necesita
+    38 de 41 (`objetivo()`: 22 de 24 proporcional). Gasta tokens: necesita
     la clave en el servidor.
 - **Headers de seguridad (R2):** `next.config.ts` suma, **solo para la
   agencia** (`FUENTE_AGENCIA` excluye `/portfolio`), los de

@@ -77,14 +77,14 @@ describe("/api/chat con modelo simulado", () => {
         ],
         stop: "tool_use",
       },
-      { bloques: [{ type: "text", text: "Son **$190.800** más el abono. ¿Querés ver la demo?" }], stop: "end_turn" },
+      { bloques: [{ type: "text", text: "Son **$187.600** más el abono. ¿Querés ver la demo?" }], stop: "end_turn" },
     ]);
     const evs = await chat({ ...user("Tengo una peluquería, ¿cuánto salen los turnos con Mercado Pago?"), ficha: { ciudad: "Salta" } });
 
     expect(evs.map((e) => e.type)).toEqual(["text", "ficha", "card", "text", "done"]);
     expect(evs[1].ficha).toEqual({ rubro: "Peluquería", planesInteres: ["Agenda de turnos online"] });
-    expect(cards(evs)[0]).toMatchObject({ kind: "quote", implementacion: 190800, mensual: 23300, medio: "mp" });
-    expect(textos(evs)).toBe("Te lo calculo.\nSon **$190.800** más el abono. ¿Querés ver la demo?");
+    expect(cards(evs)[0]).toMatchObject({ kind: "quote", implementacion: 187600, mensual: 23300, medio: "mp" });
+    expect(textos(evs)).toBe("Te lo calculo.\nSon **$187.600** más el abono. ¿Querés ver la demo?");
 
     const [p1, p2] = mock.pedidos as { system: { text: string; cache_control?: unknown }[]; messages: { role: string; content: unknown }[]; tools: unknown[] }[];
     expect(p1.system).toHaveLength(2);

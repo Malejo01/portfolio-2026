@@ -12,7 +12,7 @@ describe("herramientas del agente", () => {
   it("cotizar usa cotizar() y arma la tarjeta", () => {
     const out = runTool("cotizar", { planIds: ["combo-web-turnos"] }, ctx());
     expect(out.isError).toBeUndefined();
-    expect(out.card).toMatchObject({ kind: "quote", implementacion: 450000, mensual: 45000, demoHref: "/demo?plan=combo-negocio-con-turnos" });
+    expect(out.card).toMatchObject({ kind: "quote", implementacion: 357000, mensual: 45000, demoHref: "/demo?plan=combo-negocio-con-turnos" });
   });
 
   it("rechaza input inválido o ids inventados", () => {
@@ -63,7 +63,7 @@ describe("cotizar vs comparar (F1 de producción)", () => {
     const out = runTool("comparar", { ids: ["landing-express", "landing-profesional", "sitio-pyme"] }, ctx());
     expect(out.card?.kind).toBe("compare");
     if (out.card?.kind !== "compare") return;
-    expect(out.card.filas.map((f) => f.precio)).toEqual([180000, 320000, 650000]);
+    expect(out.card.filas.map((f) => f.precio)).toEqual([177000, 249000, 597000]);
     expect(JSON.stringify(out.card)).not.toContain("1150000");
     expect(out.card).not.toHaveProperty("implementacion");
   });
@@ -77,7 +77,7 @@ describe("cotizar vs comparar (F1 de producción)", () => {
     const ars = runTool("cotizar", { planIds: ["landing-profesional"] }, ctx());
     const usd = runTool("cotizar", { planIds: ["landing-profesional"], moneda: "usd" }, ctx());
     expect(ars.card).not.toHaveProperty("usd");
-    expect(usd.card).toMatchObject({ moneda: "usd", usd: { implementacion: 320, tipoDeCambio: TC } });
+    expect(usd.card).toMatchObject({ moneda: "usd", usd: { implementacion: 250, tipoDeCambio: TC } });
     expect(usd.content).toContain("dólar oficial del día");
   });
 
@@ -124,7 +124,7 @@ describe("deduplicación de tarjetas (F2/F3.6)", () => {
     const card = runTool("cotizar", { planIds: ["turnos-online"], medio: "mp", moneda: "usd" }, ctx()).card!;
     const firma = firmaCard(card);
     expect(leerFirmaQuote(firma)).toEqual({ ids: ["turnos-online"], extras: [], medio: "mp", moneda: "usd" });
-    expect(ultimaCotizacion(ctx({}, ["demo:/demo", firma]))).toMatchObject({ implementacion: 190800, mensual: 23300 });
+    expect(ultimaCotizacion(ctx({}, ["demo:/demo", firma]))).toMatchObject({ implementacion: 187600, mensual: 23300 });
     expect(ultimaCotizacion(ctx({}, ["quote:inventado||mp|ars"]))).toBeNull();
   });
 });
@@ -159,7 +159,7 @@ describe("ficha", () => {
     expect(out.card?.kind).toBe("whatsapp");
     const texto = decodeURIComponent((out.card as Extract<Card, { kind: "whatsapp" }>).href.split("text=")[1]);
     expect(texto).toContain("Rubro: Peluquería");
-    expect(texto).toContain("Cotización: Agenda de turnos online · $180.000 + $22.000/mes");
+    expect(texto).toContain("Cotización: Agenda de turnos online · $177.000 + $22.000/mes");
     expect(out.ficha).toEqual({ etapa: "derivado" });
   });
 });
@@ -167,7 +167,7 @@ describe("ficha", () => {
 describe("tarjetas en el historial (F4)", () => {
   it("una línea compacta por tarjeta", () => {
     const quote = runTool("cotizar", { planIds: ["turnos-online"], medio: "mp", moneda: "usd" }, ctx()).card!;
-    expect(lineaTarjeta(quote)).toBe("[Tarjeta mostrada · Cotización: Agenda de turnos online · MP · $190.800 + $23.300/mes · ≈ USD 190 + USD 23/mes]");
+    expect(lineaTarjeta(quote)).toBe("[Tarjeta mostrada · Cotización: Agenda de turnos online · MP · $187.600 + $23.300/mes · ≈ USD 190 + USD 23/mes]");
     const cmp = runTool("comparar", { ids: ["landing-express", "landing-profesional"] }, ctx()).card!;
     expect(lineaTarjeta(cmp)).toBe("[Tarjeta mostrada · Comparación: Página Esencial | Página para aparecer en Google]");
     expect(lineaTarjeta({ kind: "demo", demoHref: "/demo", agendaHref: "" })).toBe("[Tarjeta mostrada · Demo]");
@@ -213,12 +213,40 @@ describe("simulación R3: correcciones de herramientas", () => {
     expect(contenido(runTool("cotizar", { planIds: ["landing-express"] }, ctx()))).not.toHaveProperty("recordatorio");
   });
 
-  it("cotizar devuelve la otra forma de pago y la regla de cuotas, con el vocabulario del sitio", () => {
+  it("cotizar devuelve la otra forma de pago y las formas de pago, con el vocabulario del sitio", () => {
     const c = contenido(runTool("cotizar", { planIds: ["landing-profesional"] }, ctx()));
-    expect(c.otraFormaDePago).toEqual(["Página para aparecer en Google: $90.000 de entrada y $49.000 por mes durante 12 meses, con mantenimiento incluido."]);
-    expect(String(c.cuotas)).toMatch(/NO calcules/);
-    expect(c).toHaveProperty("pagoUnico", 320000);
+    expect(c.otraFormaDePago).toEqual(["Página para aparecer en Google: $59.000 de entrada y $42.000 por mes durante 12 meses, con cambios chicos incluidos."]);
+    expect(c.formasDePago).toMatchObject({ linea: "o 3 pagos de $83.000 sin interés", dosPagos: [124500, 124500], tresPagosSinInteres: [83000, 83000, 83000] });
+    expect(c).toHaveProperty("pagoUnico", 249000);
+    expect(c).toHaveProperty("porMes", 0);
     expect(c).not.toHaveProperty("implementacion");
+    expect(c).not.toHaveProperty("cuotaMensual");
+  });
+
+  it("tanda P1: la tarjeta lleva la línea de pagos y el tope se mira sobre el total", () => {
+    const google = runTool("cotizar", { planIds: ["landing-profesional"] }, ctx());
+    expect(google.card).toMatchObject({ kind: "quote", pagos: "o 3 pagos de $83.000 sin interés" });
+    const tienda = runTool("cotizar", { planIds: ["tienda-online-con-mercado-pago"] }, ctx());
+    expect(tienda.card).toMatchObject({ pagos: "o 2 pagos de $373.500 sin interés" });
+    expect(String((contenido(tienda).formasDePago as { tresPagosSinInteres: unknown }).tresPagosSinInteres)).toMatch(/^No: el total pasa \$600\.000/);
+    // Dos planes de menos de $600.000 que juntos lo pasan: sin 3 pagos.
+    const juntos = runTool("cotizar", { planIds: ["landing-premium", "reservas-con-sena"] }, ctx());
+    expect(juntos.card).toMatchObject({ pagos: "o 2 pagos de $357.000 sin interés" });
+    // Solo mensual: no hay pagos que partir.
+    expect(runTool("cotizar", { planIds: ["mantenimiento-basico"] }, ctx()).card).not.toHaveProperty("pagos");
+  });
+
+  it("tanda P1: comparar trae los pagos de cada opción, en la tarjeta y en el contenido", () => {
+    const out = runTool("comparar", { ids: ["landing-express", "sitio-autoadministrable"] }, ctx());
+    if (out.card?.kind !== "compare") throw new Error("sin tarjeta");
+    expect(out.card.filas.map((f) => f.pagos)).toEqual(["o 3 pagos de $59.000 sin interés", "o 2 pagos de $448.500 sin interés"]);
+    expect((contenido(out).filas as { pagos: string }[])[0].pagos).toBe("o 3 pagos de $59.000 sin interés");
+  });
+
+  it("tanda P1: el recordatorio de uso habla de la nafta, sin montos", () => {
+    const c = contenido(runTool("cotizar", { planIds: ["asistente-por-whatsapp"] }, ctx()));
+    expect(String(c.recordatorio)).toMatch(/El uso es como la nafta/);
+    expect(String(c.recordatorio)).not.toMatch(/\$\d/);
   });
 
   it("guardar_contacto sin rubro ni necesidad no pierde el contacto", () => {

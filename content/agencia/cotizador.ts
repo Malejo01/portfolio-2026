@@ -14,10 +14,16 @@ export const cotizadorCopy = {
   summaryLabel: "Tu cotización",
   empty: "Todavía no elegiste nada. Tocá un plan para empezar.",
   implementacion: "Pago único",
-  abono: "Cuota mensual",
+  abono: "Por mes",
   anual: "Pago anual",
   total: "Total primer año",
-  totalHint: "Pago único + 12 cuotas mensuales.",
+  totalHint: "Pago único + 12 meses del servicio mensual.",
+  /** Bloque de pagos del pago único (§4.4): siempre por transferencia. */
+  pagosLabel: "Cómo pagar el pago único",
+  dosPagos: "2 pagos sin interés",
+  tresPagos: "3 pagos sin interés",
+  /** `{N}` y `{MONTO}`: "2 × $208.500". */
+  pagosValor: "{N} × {MONTO}",
   desdeHint: "Hay precios \"desde\": el total final depende del alcance.",
   /** `{USD}` = el total en dólares. Se lee de `/api/dolar` en el cliente. */
   usd: "≈ {USD} al dólar oficial del día",

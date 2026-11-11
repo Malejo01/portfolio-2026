@@ -19,7 +19,7 @@ describe("system prompt", () => {
   it("incluye el conocimiento y el catálogo con otras formas de pago y proyectos a medida", () => {
     expect(base).toContain("Mauro Lizárraga");
     expect(base).toContain("hasta 6 cuotas");
-    expect(base).toContain("Otra forma de pago: $90.000 de entrada y $49.000 por mes");
+    expect(base).toContain("Otra forma de pago: $59.000 de entrada y $42.000 por mes");
     expect(base).toContain("[sprint-con-demo] Etapa de 2 semanas con avance funcionando: se cotiza en el plan escrito");
     expect(base).toContain("[diagnostico-escrito] Plan del proyecto por escrito: pago único $60.000");
     expect(base).toContain("10% mensual del precio del proyecto");
@@ -37,7 +37,7 @@ describe("system prompt", () => {
     expect(base).toMatch(/como mucho 2 preguntas, de a una/i); // asesor
     expect(base).toMatch(/UNA solución/);
     expect(base).toMatch(/"tienda" a secas, empezá por el catálogo/); // Q
-    expect(base).toMatch(/WhatsApp y el servicio de inteligencia artificial va aparte/); // K
+    expect(base).toMatch(/el uso es como la nafta, lo cobran esas empresas/); // K
     expect(base).toMatch(/no se devuelve.*se descuenta completa/); // F
     expect(base).toMatch(/TENÉS que llamar a derivar_whatsapp/); // C
     expect(base).toMatch(/quiere avanzar.*Mauro le escriba/); // B
@@ -46,9 +46,31 @@ describe("system prompt", () => {
     expect(base).toMatch(/juego de rol/); // abuso
   });
 
+  it("tanda P1: pagos, qué incluye y qué no, el auto, el taller y la nafta", () => {
+    expect(base).toMatch(/primero ofrecé los 3 pagos sin interés \(solo hasta \$600\.000; arriba, 2 pagos o tarjeta en hasta 6 cuotas\)/);
+    expect(base).toMatch(/nunca descuentos \(los descuentos los ve Mauro\)/);
+    expect(base).toMatch(/usá "Incluye" y "No incluye" del catálogo; no inventes/);
+    expect(base).toMatch(/explicá el auto, el taller y la nafta.*no des montos/);
+    expect(base).toContain("El uso es como la nafta:");
+    // El catálogo trae la línea de pagos y lo que no incluye cada plan.
+    expect(catalogo()).toContain("[landing-express] Página Esencial: pago único $177.000 (o 3 pagos de $59.000 sin interés)");
+    expect(catalogo()).toMatch(/\[landing-express\][^\n]*No incluye: Tu dirección web/);
+    expect(catalogo()).toContain("(o 2 pagos de $628.500 sin interés)");
+    expect(catalogo()).toContain("[renovacion] Mantener online (por año): pago único $90.000 por año ($7.500 por mes, pagás el año junto)");
+    expect(base).not.toMatch(/cuota mensual" y no/);
+  });
+
+  it("tanda P1: el bloque cacheado es el mismo con cualquier ficha y página (nada variable antes del corte)", () => {
+    const a = systemBlocks(20000, {}, "/precios");
+    const b = systemBlocks(20000, { rubro: "Veterinaria", planesInteres: ["Página Esencial"] }, "/servicios/webs");
+    expect(a[0]).toEqual(b[0]);
+    expect(a[0]).toHaveProperty("cache_control");
+    expect(a[1]).not.toHaveProperty("cache_control");
+  });
+
   it("R3: reglas contra inventar, contacto con formulario y privacidad coherente", () => {
     expect(base).toContain("# No inventes");
-    expect(base).toMatch(/Nunca calcules ni digas el valor de cada cuota/);
+    expect(base).toMatch(/Los montos de cada pago salen de cotizar/);
     expect(base).toMatch(/fecha límite.*no confirmes/);
     expect(base).toMatch(/marca blanca/);
     expect(base).toMatch(/pedir_contacto/);

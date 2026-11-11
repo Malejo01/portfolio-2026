@@ -5,13 +5,15 @@ import { AbrirChat } from "@/components/agencia/client/AbrirChat";
 import { Reveal } from "@/components/agencia/client/Reveal";
 import { FaqList } from "@/components/agencia/home/Faq";
 import { Check, Icon } from "@/components/agencia/icons";
-import { ComboCard, GrandesSteps, PlanCard } from "@/components/agencia/PlanCard";
+import { CostosFranja, PagosFranja } from "@/components/agencia/InfoPagos";
+import { completarPagos } from "@/components/agencia/pagos";
+import { ComboCard, GrandesSteps, PlanCard, PlanFila } from "@/components/agencia/PlanCard";
 import { conocimiento, faqPorIds } from "@/content/agencia/conocimiento";
 import { WHATSAPP_TEXTO, home } from "@/content/agencia/home";
-import { categories, combos, extras, getCategory, getPlan, mantenimientoGrandesPct, recargoMercadoPago } from "@/content/agencia/pricing";
+import { categories, getCategory, getCombo, getPlan, mantenimientoGrandesPct, planesDe } from "@/content/agencia/pricing";
 import { servicios, solucion } from "@/content/agencia/servicios";
-import { senaMonto, waLink } from "@/lib/agencia/config";
-import { fmt, montoDeExtra } from "@/lib/agencia/pricing";
+import { waLink } from "@/lib/agencia/config";
+import { ahorroEnPesos, fmt } from "@/lib/agencia/pricing";
 import { siteUrl } from "@/lib/links";
 
 /** Las siete categorías del catálogo, prerenderizadas. Cualquier otro slug: 404. */
@@ -74,31 +76,28 @@ function jsonLd(slug: string): string {
   }).replace(/</g, "\\u003c");
 }
 
-/** `{SENA}`, `{PCT}`, `{PLAN}`, `{MANT}` y `{N}` de la copy de `servicios.ts`. */
-function completar(texto: string, n = 0): string {
-  return texto
-    .replaceAll("{SENA}", fmt(senaMonto()))
-    .replaceAll("{PCT}", `${Math.round(recargoMercadoPago * 100)}%`)
+/** `{SENA}`, `{PCT}`, `{CUOTAS}`, `{PLAN}` y `{MANT}` de la copy de `servicios.ts`. */
+function completar(texto: string): string {
+  return completarPagos(texto)
     .replaceAll("{PLAN}", fmt(getPlan("diagnostico-escrito")?.impl ?? 0))
-    .replaceAll("{MANT}", `${Math.round(mantenimientoGrandesPct * 100)}%`)
-    .replaceAll("{N}", String(n));
+    .replaceAll("{MANT}", `${Math.round(mantenimientoGrandesPct * 100)}%`);
 }
 
 /**
- * Página de una solución (tanda R2, auditoría §6.2), con la misma plantilla
- * para las siete: H1 con el problema y para quién es → 3 beneficios → el
- * plan recomendado destacado y los demás en `<details>` (sin JS) → un
- * proyecto parecido → cómo se paga → el FAQ propio → cierre con el chat,
- * la demo y WhatsApp.
+ * Página de una solución (tanda P1, §4.2 de
+ * `docs/agencia/precios-psicologia-2026-11-10.md`), la misma plantilla para
+ * las siete y en este orden: H1 con el problema y para quién es, con los 3
+ * beneficios en chips → las 3 tarjetas `visibles` en escalera → "¿Cuál me
+ * conviene?" → "Ver otras opciones (N)" → el combo de la solución → un
+ * proyecto parecido en una línea → franjas de pagos y de costos → FAQ de 3
+ * → cierre con el chat, la demo y WhatsApp.
  *
- * Proyectos a medida (`grandes`) cambia en tres cosas: muestra los pasos en
- * vez de planes, se paga por etapas, y no ofrece la demo de 72 h, el
- * cotizador ni "la página es tuya" (la propiedad del código se define en la
- * propuesta escrita).
+ * Proyectos a medida (`grandes`) muestra sus pasos en vez de planes, se
+ * paga por etapas (sin 3 pagos) y no ofrece la demo de 72 h.
  *
- * Todo es HTML del servidor: los precios van en transferencia (el selector
- * de Mercado Pago está en `/precios`) y las únicas islas son `Reveal` y
- * `AbrirChat`.
+ * Todo es HTML del servidor, en transferencia. Las islas: `Reveal`,
+ * `AbrirChat` y `PlanDialog`. Sin JS, cada "Ver qué incluye" abre el
+ * `<details>` con id del plan en esta misma página.
  */
 export default async function ServicioPage({ params }: Props) {
   const { slug } = await params;
@@ -109,20 +108,17 @@ export default async function ServicioPage({ params }: Props) {
   const { detail } = servicios;
   const grandes = category.key === "grandes";
   const wa = waLink(WHATSAPP_TEXTO);
+  const { visibles, otras } = planesDe(category);
   const recomendado = category.plans.find((p) => p.rec) ?? category.plans[0];
-  const otros = category.plans.filter((p) => p !== recomendado);
-  const planIds = new Set(category.plans.map((p) => p.id));
-  const related = combos.filter((c) => c.planIds.some((id) => planIds.has(id)));
+  const combo = s.combo ? getCombo(s.combo.id) : undefined;
   const proyecto = s.proyecto ? conocimiento.proyectos.find((p) => p.key === s.proyecto) : undefined;
   const conMensual = category.plans.some((p) => p.monthly);
-  const otrasFormas = category.plans.filter((p) => p.alt);
-  const pagos = grandes ? detail.pagosGrandes : [...detail.pagos, ...(conMensual ? [detail.pagosMensual] : [])];
 
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(slug) }} />
 
-      {/* 1 · El problema y para quién es */}
+      {/* 1 · El problema, para quién es y los beneficios en chips */}
       <section className="wrap pt-8 sm:pt-14">
         <Link href={detail.back.href} className="lnk min-h-11">
           {detail.back.label}
@@ -133,167 +129,155 @@ export default async function ServicioPage({ params }: Props) {
             {category.label}
           </span>
           <h1 className="h h2 max-w-[18em]">{s.title}</h1>
-          <p className="m-0 max-w-[40em] text-[17px] leading-[1.55] text-muted">{s.description}</p>
-          <p className="m-0 max-w-[40em] text-[15px] leading-[1.55]">
-            <strong>{detail.paraQuienLabel}:</strong> {s.paraQuien}
-          </p>
+          <p className="m-0 max-w-[40em] text-[16px] leading-[1.55] text-muted">{s.paraQuien}</p>
         </div>
-
-        {/* 2 · Tres beneficios */}
-        {/* En celular, lista compacta (el plan recomendado entra antes); desde `sm`, tarjetas. */}
-        <ul aria-label={detail.beneficiosLabel} className="m-0 mt-5 grid list-none grid-cols-1 gap-2.5 p-0 sm:mt-6 sm:grid-cols-3 sm:gap-5">
+        <ul aria-label={detail.beneficiosLabel} className="m-0 mt-4 flex list-none flex-wrap gap-2 p-0">
           {s.beneficios.map((b) => (
-            <li
-              key={b}
-              className="flex items-start gap-3 text-[15px] font-semibold leading-snug sm:rounded-[22px] sm:border sm:border-border sm:border-t-hl sm:bg-surf sm:p-5 sm:shadow-card"
-            >
-              <Check size={18} />
+            <li key={b} className="chip h-auto min-h-8 py-1 leading-snug">
+              <Check size={14} />
               {b}
             </li>
           ))}
         </ul>
       </section>
 
-      {/* 3 · El plan recomendado (o los pasos, en proyectos a medida) */}
-      <section className="wrap pt-12 sm:pt-16">
-        <span className="lbl lbl-o">{grandes ? detail.stepsLabel : detail.recomendadoLabel}</span>
-        <h2 className="h mt-2 text-[26px] sm:text-[30px]">{grandes ? detail.stepsTitle : detail.recomendadoTitle}</h2>
+      {/* 2 · Las 3 tarjetas (o los pasos, en proyectos a medida) */}
+      <section className="wrap pt-8 sm:pt-10" aria-label={grandes ? detail.stepsTitle : detail.planesLabel}>
         {grandes ? (
-          <GrandesSteps plans={category.plans} medio="transferencia" copy={{ ...home.pricing, ...home.pricing.grandes }} />
+          <>
+            <span className="lbl lbl-o">{detail.stepsLabel}</span>
+            <h2 className="h mt-2 text-[26px] sm:text-[30px]">{detail.stepsTitle}</h2>
+            <GrandesSteps plans={category.plans} />
+          </>
         ) : (
           <>
-            <div className="mt-6 grid grid-cols-1 items-stretch gap-5 md:grid-cols-2 lg:grid-cols-3">
-              <PlanCard plan={recomendado} medio="transferencia" copy={home.pricing} />
-              {related.slice(0, 2).map((combo) => (
-                <ComboCard key={combo.id} combo={combo} medio="transferencia" copy={home.pricing} />
+            <div className="grid grid-cols-1 items-stretch gap-5 md:grid-cols-2 lg:grid-cols-3">
+              {visibles.map((plan) => (
+                <PlanCard key={plan.id} plan={plan} heading="h2" enPagina />
               ))}
             </div>
-            <p className="mb-0 mt-3.5 text-[13px] text-muted">{category.intro} {category.note}</p>
 
-            {otros.length ? (
+            {/* 3 · ¿Cuál me conviene? */}
+            {s.conviene.length ? (
+              <div className="card mt-6 px-5 py-4">
+                <h2 className="h text-[20px]">{detail.convieneTitle}</h2>
+                <ul className="m-0 mt-2 flex list-none flex-col p-0 text-[15px] leading-[1.45]">
+                  {s.conviene.map((c) => (
+                    <li key={c.plan} className="flex flex-wrap items-baseline gap-x-1.5 border-b border-border py-2 last:border-b-0">
+                      <span className="text-muted">{c.si}</span>
+                      <span aria-hidden="true" className="text-acc-text">
+                        →
+                      </span>
+                      <span>
+                        {detail.convieneElegi} <strong>{getPlan(c.plan)?.name}</strong>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
+            {/* 4 · Otras opciones */}
+            {otras.length ? (
               <details className="plans mt-5">
-                <summary className="btn btn-s min-h-11">
-                  {otros.length === 1 ? detail.otro : completar(detail.otros, otros.length)}
-                  <Icon name="arrow" size={16} className="plans-arrow" />
-                </summary>
-                <div className="mt-5 grid grid-cols-1 items-stretch gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                  {otros.map((plan) => (
-                    <PlanCard key={plan.id} plan={plan} medio="transferencia" copy={home.pricing} />
+                <summary className="btn btn-s min-h-11">{detail.otras.replace("{N}", String(otras.length))}</summary>
+                <ul className="card m-0 mt-3 list-none px-5 py-1">
+                  {otras.map((plan) => (
+                    <PlanFila key={plan.id} plan={plan} enPagina />
                   ))}
-                  {related.slice(2).map((combo) => (
-                    <ComboCard key={combo.id} combo={combo} medio="transferencia" copy={home.pricing} />
-                  ))}
-                </div>
-                {category.key === "webs" ? (
-                  <div className="card mt-5 flex flex-wrap items-center gap-4 px-5 py-4">
-                    <span className="lbl flex-none">{detail.extrasLabel}</span>
-                    <ul className="m-0 flex flex-1 list-none flex-wrap gap-2 p-0">
-                      {extras.map((e) => (
-                        <li key={e.id} className="chip h-[34px]">
-                          {e.name} <strong>{montoDeExtra(e, "transferencia")}</strong>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ) : null}
+                </ul>
               </details>
             ) : null}
           </>
         )}
       </section>
 
-      {/* 4 · Un proyecto parecido */}
+      {/* 5 · El combo de esta solución */}
+      {combo && s.combo ? (
+        <section className="wrap pt-10 sm:pt-12">
+          <span className="lbl lbl-o">{detail.comboLabel}</span>
+          <h2 className="h mt-2 max-w-[24em] text-[22px] sm:text-[26px]">
+            {detail.comboTitle.replace("{GANCHO}", s.combo.gancho).replace("{AHORRO}", fmt(ahorroEnPesos(combo)))}
+          </h2>
+          <div className="mt-4 max-w-[420px]">
+            <ComboCard combo={combo} enPagina />
+          </div>
+        </section>
+      ) : null}
+
+      {/* 6 · Un proyecto parecido, en una línea */}
       {proyecto ? (
-        <section className="wrap pt-12 sm:pt-16">
+        <section className="wrap pt-10 sm:pt-12">
           <Reveal>
-            <article className="card card-big grid grid-cols-1 items-center gap-5 p-3.5 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] sm:gap-7">
+            <a
+              href={proyecto.href}
+              target="_blank"
+              rel="noopener"
+              className="card lift flex items-center gap-4 p-3 text-text no-underline sm:p-4"
+            >
               {/* eslint-disable-next-line @next/next/no-img-element -- póster liviano, ya optimizado */}
               <img
                 src={`/agencia/proyectos/${proyecto.key}.jpg`}
-                alt={`${proyecto.nombre}: ${proyecto.problema}`}
+                alt=""
                 width={960}
                 height={439}
                 loading="lazy"
-                className="shot block aspect-[960/439] h-auto w-full rounded-[18px] object-cover object-top"
+                className="shot block aspect-[960/439] h-auto w-28 flex-none rounded-[12px] object-cover object-top sm:w-40"
               />
-              <div className="flex flex-col gap-2 px-2 pb-3 sm:pr-5">
-                <span className="lbl lbl-o">{detail.proyectoLabel}</span>
-                <h2 className="h text-[24px] leading-[1.15]">{proyecto.problema}</h2>
-                <p className="m-0 text-[15px] leading-[1.55] text-muted">{proyecto.demuestra}</p>
-                <p className="m-0 text-[13px] text-muted">
-                  {proyecto.nombre} · {detail.proyectoPropio}
-                </p>
-                <a href={proyecto.href} target="_blank" rel="noopener" className="lnk min-h-11 self-start">
+              <span className="flex min-w-0 flex-col gap-0.5">
+                <span className="lbl lbl-o text-[10px]">{detail.proyectoLabel}</span>
+                <strong className="text-[15px] leading-snug">
+                  {proyecto.nombre}: {proyecto.problema}
+                </strong>
+                <span className="lnk text-[13px]">
                   {detail.proyectoAbrir} <Icon name="arrow" size={14} />
-                </a>
-              </div>
-            </article>
+                </span>
+              </span>
+            </a>
           </Reveal>
         </section>
       ) : null}
 
-      {/* 5 · Cómo se paga */}
-      <section className="wrap pt-12 sm:pt-16">
-        <span className="lbl lbl-o">{detail.pagosLabel}</span>
-        <h2 className="h mt-2 text-[26px] sm:text-[30px]">{detail.pagosTitle}</h2>
-        <div className="card mt-5 grid grid-cols-1 gap-5 p-5 sm:p-7 md:grid-cols-2">
-          <ul className="m-0 flex list-none flex-col gap-2.5 p-0 text-[15px] leading-[1.5]">
-            {pagos.map((t) => (
-              <li key={t} className="flex items-start gap-2">
-                <Check />
-                {completar(t)}
-              </li>
-            ))}
-          </ul>
-          <div className="flex flex-col gap-4 text-[14px] leading-[1.5] text-muted">
-            {s.aparte.length ? (
-              <div>
-                <span className="lbl text-[10px]">{detail.aparteLabel}</span>
-                <ul className="m-0 mt-1 flex list-none flex-col gap-1 p-0">
-                  {s.aparte.map((t) => (
-                    <li key={t}>{t}</li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
-            {otrasFormas.length ? (
-              <div>
-                <span className="lbl text-[10px]">{detail.otrasFormasLabel}</span>
-                <ul className="m-0 mt-1 flex list-none flex-col gap-1 p-0">
-                  {otrasFormas.map((p) => (
-                    <li key={p.id}>
-                      <strong className="text-text">{p.name}:</strong> {p.alt}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
-            {category.key === "mant" ? (
-              <p className="m-0">
-                {completar(detail.mantGrandes.body)}{" "}
-                <Link href={detail.mantGrandes.href} className="lnk min-h-11 text-[14px]">
-                  {detail.mantGrandes.cta}
-                </Link>
-              </p>
-            ) : null}
-            {grandes ? null : (
-              <Link href={detail.cotizador.href} className="lnk min-h-11 self-start text-[14px]">
-                {detail.cotizador.label}
-              </Link>
-            )}
+      {/* 7 · Formas de pago y qué se paga a quién */}
+      <section className="wrap flex flex-col gap-4 pt-10 sm:pt-12">
+        {grandes ? (
+          <div className="card px-5 py-4">
+            <span className="lbl">{home.pricing.pagos.title}</span>
+            <ul className="m-0 mt-2 flex list-none flex-col gap-2 p-0 text-[15px] leading-[1.5]">
+              {detail.pagosGrandes.map((t) => (
+                <li key={t} className="flex items-start gap-2">
+                  <Check />
+                  {completar(t)}
+                </li>
+              ))}
+            </ul>
           </div>
-        </div>
+        ) : (
+          <PagosFranja extra={conMensual ? [detail.pagosMensual] : []} aparte={s.aparte} aparteLabel={detail.aparteLabel} />
+        )}
+        <CostosFranja />
+        {category.key === "mant" ? (
+          <p className="m-0 text-[14px] text-muted">
+            {completar(detail.mantGrandes.body)}{" "}
+            <Link href={detail.mantGrandes.href} className="lnk min-h-11 text-[14px]">
+              {detail.mantGrandes.cta}
+            </Link>
+          </p>
+        ) : null}
       </section>
 
-      {/* 6 · Preguntas propias */}
-      <section className="wrap max-w-[920px] pt-12 sm:pt-16">
+      {/* 8 · Tres preguntas */}
+      <section className="wrap max-w-[920px] pt-10 sm:pt-12">
         <span className="lbl lbl-o">{detail.faqLabel}</span>
         <h2 className="h h2">{detail.faqTitle}</h2>
         <FaqList items={faqPorIds(s.faq)} name={`faq-${category.key}`} />
+        <AbrirChat href={wa} tema={s.tema} className="lnk mt-3 min-h-11">
+          {detail.faqOtra}
+        </AbrirChat>
       </section>
 
-      {/* 7 · Cierre: chat, demo (o la charla, en proyectos a medida) y WhatsApp */}
-      <section className="wrap pb-20 pt-12 sm:pb-24 sm:pt-16">
+      {/* 9 · Cierre: chat, demo (o la charla, en proyectos a medida) y WhatsApp */}
+      <section className="wrap pb-20 pt-10 sm:pb-24 sm:pt-12">
         <div className="card card-big hi flex flex-col gap-6 p-6 sm:p-10 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex max-w-[34em] flex-col gap-2">
             <span className="lbl lbl-o">{detail.cierre.label}</span>

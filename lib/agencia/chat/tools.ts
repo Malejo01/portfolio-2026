@@ -1,9 +1,9 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
-import { conocimiento } from "@/content/agencia/conocimiento";
-import { combos, extras, getCombo, getPlan, plans, resolverId } from "@/content/agencia/pricing";
+import { conocimiento, fraseDeCosto } from "@/content/agencia/conocimiento";
+import { combos, extras, getCombo, getPlan, pagosConfig, plans, resolverId } from "@/content/agencia/pricing";
 import { CALCOM_URL, waLink } from "@/lib/agencia/config";
-import { comparar, cotizar, fmt, resumenCotizacion } from "@/lib/agencia/pricing";
+import { comparar, cotizar, fmt, lineaDePagos, lineaDeTarjeta, resumenCotizacion, totalConTarjeta } from "@/lib/agencia/pricing";
 import { deduplicable, firmaCard, leerFirmaQuote, type Card, type Medio, type Moneda, type QuoteCard } from "./cards";
 import { mergeFicha, type Ficha } from "./ficha";
 import { FichaSchema, limpiarFicha } from "./ficha-schema";
@@ -92,7 +92,7 @@ export const tools: Anthropic.Tool[] = [
   {
     name: "cotizar",
     description:
-      "Precio exacto de lo que la persona contrataría JUNTO (suma todo: pago único, cuota mensual y total del primer año). Usala antes de decir cualquier monto de una selección. Para comparar opciones alternativas usá comparar: cotizar nunca es para alternativas. Si están todas las partes de un combo, aplica el combo sola. No sirve para proyectos a medida (grandes).",
+      "Precio exacto de lo que la persona contrataría JUNTO (suma todo: pago único, lo que se paga por mes y total del primer año, más las formas de pago: 2 pagos, 3 pagos sin interés si el total es de hasta $600.000, y tarjeta). Usala antes de decir cualquier monto de una selección. Para comparar opciones alternativas usá comparar: cotizar nunca es para alternativas. Si están todas las partes de un combo, aplica el combo sola. No sirve para proyectos a medida (grandes).",
     eager_input_streaming: true,
     input_schema: {
       type: "object",
@@ -108,7 +108,7 @@ export const tools: Anthropic.Tool[] = [
   {
     name: "comparar",
     description:
-      "Muestra de 2 a 4 opciones ALTERNATIVAS lado a lado (precio, cuota mensual, plazo y para quién es), sin sumarlas ni dar un total. Usala cuando la persona elige entre opciones: dos páginas web distintas, o dos planes de mantenimiento.",
+      "Muestra de 2 a 4 opciones ALTERNATIVAS lado a lado (precio, lo que se paga por mes, plazo, para quién es y los pagos de cada una), sin sumarlas ni dar un total. Usala cuando la persona elige entre opciones: dos páginas web distintas, o dos planes de mantenimiento.",
     eager_input_streaming: true,
     input_schema: {
       type: "object",
@@ -233,6 +233,7 @@ export function quoteCard(args: { planIds: string[]; extras?: string[]; medio?: 
     medio: m,
     moneda: mon,
     aCotizar: c.aCotizar,
+    ...(c.pagos ? { pagos: lineaDePagos(c.pagos.total)! } : {}),
     ...(mon === "usd" && c.usd ? { usd: { implementacion: c.usd.implementacion, mensual: c.usd.abonoMensual, tipoDeCambio: c.usd.tipoDeCambio } } : {}),
     demoHref: `/demo?plan=${encodeURIComponent(principal.map((i) => i.id).join(","))}`,
   };
@@ -280,11 +281,11 @@ export function runTool(name: string, input: unknown, ctx: ToolContext): ToolOut
       if (!c.items.length) return { content: `Ningún id existe en el catálogo: ${c.desconocidos.join(", ")}`, isError: true };
       const { usd, ...ars } = c;
       const enUsd = card.moneda === "usd" && usd ? { usd, tipoDeCambio: `dólar oficial del día: $${usd.tipoDeCambio}` } : {};
-      // Las claves usan el vocabulario del sitio (pago único, cuota mensual):
+      // Las claves usan el vocabulario del sitio (pago único, por mes):
       // el modelo tiende a repetir lo que lee.
-      const { implementacion, abonoMensual, total, ...resto } = ars;
-      const usaWhatsAppOIa = (id: string) => ["ia", "turnos"].includes(getPlan(id)?.category ?? "");
-      const conUso = c.items.some((i) => usaWhatsAppOIa(i.id) || (i.incluye ?? []).some(usaWhatsAppOIa));
+      const { implementacion, abonoMensual, total, pagos, ...resto } = ars;
+      const usaTerceros = (id: string) => (getPlan(id)?.usaServiciosDeTerceros.length ?? 0) > 0 || (getCombo(id)?.usaServiciosDeTerceros.length ?? 0) > 0;
+      const conUso = c.items.some((i) => usaTerceros(i.id) || (i.incluye ?? []).some(usaTerceros));
       // La otra forma de pago de los planes cotizados (antes solo la devolvía `comparar`).
       const otraFormaDePago = c.items
         .map((i) => getPlan(i.id))
@@ -293,14 +294,23 @@ export function runTool(name: string, input: unknown, ctx: ToolContext): ToolOut
       return conDedup(ctx, {
         content: JSON.stringify({
           pagoUnico: implementacion,
-          cuotaMensual: abonoMensual,
+          porMes: abonoMensual,
           totalPrimerAnio: total,
           ...resto,
           ...enUsd,
           resumen: resumenCotizacion(card.moneda === "usd" ? c : ars),
+          ...(pagos
+            ? {
+                formasDePago: {
+                  linea: lineaDePagos(pagos.total),
+                  dosPagos: pagos.dos,
+                  tresPagosSinInteres: pagos.tres ?? `No: el total pasa ${fmt(pagosConfig.topeTres)}. Ofrecé 2 pagos o tarjeta.`,
+                  tarjeta: `${totalConTarjeta(pagos)}, ${lineaDeTarjeta(pagos)}. El interés de las cuotas lo pone Mercado Pago.`,
+                },
+              }
+            : {}),
           ...(otraFormaDePago.length ? { otraFormaDePago } : {}),
-          cuotas: "Hasta 6 con Mercado Pago (+6%); el interés lo pone la tarjeta: NO calcules el valor de cada cuota.",
-          ...(conUso ? { recordatorio: "Incluye WhatsApp automático o IA: aclará en una frase que lo que cobran por uso WhatsApp y el servicio de IA va aparte." } : {}),
+          ...(conUso ? { recordatorio: `Usa inteligencia artificial o WhatsApp oficial. Aclará en una frase, con estas palabras: «${fraseDeCosto(conocimiento.modeloDeCostos.uso)}» No des montos de uso.` } : {}),
         }),
         card,
       });
@@ -311,14 +321,15 @@ export function runTool(name: string, input: unknown, ctx: ToolContext): ToolOut
       const usd = args.moneda === "usd";
       const c = comparar({ ids: args.ids, medio: args.medio, tipoDeCambio: usd ? ctx.tipoDeCambio : undefined });
       if (c.filas.length < 2) return { content: `Para comparar hacen falta al menos 2 ids del catálogo. Desconocidos: ${c.desconocidos.join(", ") || "ninguno"}`, isError: true };
+      const filas = c.filas.map(({ pagos, ...f }) => ({ ...f, pagos: pagos ? lineaDePagos(pagos.total) : null }));
       return conDedup(ctx, {
-        content: JSON.stringify({ ...c, nota: "Son alternativas: no las sumes ni des un total." }),
+        content: JSON.stringify({ ...c, filas, nota: "Son alternativas: no las sumes ni des un total. Los pagos son de cada opción sola." }),
         card: {
           kind: "compare",
           ids: c.filas.map((f) => f.id),
           medio: c.medio,
           moneda: usd ? "usd" : "ars",
-          filas: c.filas,
+          filas,
           ...(c.tipoDeCambio ? { tipoDeCambio: c.tipoDeCambio } : {}),
         },
       });

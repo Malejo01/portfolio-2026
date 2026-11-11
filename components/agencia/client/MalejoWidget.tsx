@@ -475,6 +475,8 @@ function CardView({
             </span>
           ) : null}
         </div>
+        {/* Tanda P1: "o 3 pagos de $X sin interés", escrita en el servidor. Naranja de texto: no es la acción. */}
+        {card.pagos ? <p className="m-0 text-[13px] font-semibold text-acc-text">{card.pagos}</p> : null}
         {card.usd ? (
           <p className="m-0 text-[13px] text-muted">
             ≈ {fmtUsd(card.usd.implementacion)}
@@ -576,6 +578,7 @@ function CompareCard({ card, copy }: { card: Extract<Card, { kind: "compare" }>;
               ) : null}
               {f.plazo ? <span className="text-[12px] text-muted">· ⏱ {f.plazo}</span> : null}
             </div>
+            {f.pagos ? <span className="text-[12px] font-semibold text-acc-text">{f.pagos}</span> : null}
             {f.usd ? (
               <span className="text-[12px] text-muted">
                 ≈ {fmtUsd(f.usd.precio)}

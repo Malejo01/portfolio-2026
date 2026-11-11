@@ -19,7 +19,7 @@ export default function ServiciosPage() {
       <span className="lbl lbl-o">{index.label}</span>
       <h1 className="h h2">{index.heading}</h1>
       <p className="mb-0 mt-2 max-w-[40em] text-[17px] text-muted">{index.lead}</p>
-      <NeedTiles heading="h2" />
+      <NeedTiles heading="h2" destino="servicios" />
       <div className="card mt-5 flex flex-col gap-2 p-[26px] sm:flex-row sm:items-center sm:justify-between sm:gap-6">
         <div>
           <span className="lbl lbl-o">{index.grandes.label}</span>

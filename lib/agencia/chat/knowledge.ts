@@ -1,4 +1,4 @@
-import { conocimiento } from "@/content/agencia/conocimiento";
+import { conocimiento, fraseDeCosto } from "@/content/agencia/conocimiento";
 import { fmt } from "@/lib/agencia/format";
 
 /**
@@ -16,6 +16,7 @@ export function bloqueConocimiento(senaMonto: number): string {
     `## Quién es Mauro\n${k.quienSoy}`,
     `## Cómo se trabaja\n${s(k.proceso)}`,
     `## Pagos\n${k.pagos.map((p) => `- ${s(p)}`).join("\n")}`,
+    `## Qué pagás y a quién (el auto, el taller y la nafta)\n${[k.modeloDeCostos.sistema, k.modeloDeCostos.mantenimiento, k.modeloDeCostos.uso].map((p) => `- ${fraseDeCosto(p)}`).join("\n")}`,
     `## Dominio, código y tecnología\n- ${k.dominio}\n- ${k.propiedad}\n- ${k.tecnologia}`,
     `## Mantenimiento\n${k.mantenimiento}`,
     `## Garantía\n${k.garantia}`,

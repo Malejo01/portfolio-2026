@@ -51,6 +51,14 @@ const MAX_TURNS = 20;
 const MAX_TOOL_ROUNDS = 4;
 /** Herramientas que no muestran nada: no justifican otra ronda del modelo. */
 const SILENCIOSAS = new Set(["anotar_ficha", "sugerir_respuestas"]);
+/**
+ * Herramientas que solo muestran una tarjeta (WhatsApp, proyectos, el
+ * formulario o la casilla de contacto): su resultado no trae nada que el
+ * modelo tenga que contar. Si la ronda ya respondió con texto, otra ronda
+ * solo agregaba "Ya te dejé el botón…" (evals reales del 11-11: U, AF).
+ * `pedir_demo` no está: después de la demo el modelo ofrece el contacto.
+ */
+const SOLO_TARJETA = new Set(["derivar_whatsapp", "mostrar_proyectos", "pedir_contacto", "guardar_contacto"]);
 
 function roundTimeout(): number {
   const n = Number(process.env.CHAT_ROUND_TIMEOUT_MS);
@@ -204,6 +212,9 @@ export async function POST(request: Request) {
           // (evals del 8-11 en producción: 6 de 24 casos con el texto duplicado).
           const huboTexto = message.content.some((b) => b.type === "text" && b.text.trim() !== "");
           if (huboTexto && toolUses.every((t) => SILENCIOSAS.has(t.name))) break;
+          // Lo mismo con las que solo muestran una tarjeta, si ninguna falló
+          // (con un error, el modelo tiene que poder explicarlo).
+          if (huboTexto && results.every((r) => !r.is_error) && toolUses.every((t) => SILENCIOSAS.has(t.name) || SOLO_TARJETA.has(t.name))) break;
           messages.push({ role: "user", content: results });
         }
         send({ type: "done" });

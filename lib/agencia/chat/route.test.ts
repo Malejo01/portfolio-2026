@@ -115,6 +115,22 @@ describe("/api/chat con modelo simulado", () => {
     expect(mock.pedidos.length - antes).toBe(1);
   });
 
+  it("tanda P1: texto + derivar_whatsapp cierra el turno: no hay segunda ronda que anuncie el botón", async () => {
+    mock.guion([
+      {
+        bloques: [
+          { type: "text", text: "Eso lo ve Mauro directamente." },
+          { type: "tool_use", name: "derivar_whatsapp", input: { resumen: "Marca blanca" } },
+        ],
+        stop: "tool_use",
+      },
+      { bloques: [{ type: "text", text: "Ya te dejé el botón de WhatsApp." }], stop: "end_turn" },
+    ]);
+    const evs = await chat(user("¿Hacés marca blanca?"));
+    expect(evs.map((e) => e.type)).toEqual(["text", "card", "ficha", "done"]);
+    expect(textos(evs)).toBe("Eso lo ve Mauro directamente.");
+  });
+
   it("solo anotar_ficha sin texto sí sigue a otra ronda para responder", async () => {
     mock.guion([
       { bloques: [{ type: "tool_use", name: "anotar_ficha", input: { rubro: "Ferretería" } }], stop: "tool_use" },

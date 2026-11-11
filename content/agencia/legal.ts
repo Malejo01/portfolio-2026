@@ -6,7 +6,15 @@
  *
  * No es asesoramiento legal: conviene que un abogado lo revise antes de
  * publicar (ver "Decisiones para Mauro" en el PR).
+ *
+ * Tanda P1: las formas de pago siguen a `precios-psicologia-2026-11-10.md`
+ * §2. El tope y las cuotas salen de `precios.json`, no escritos a mano.
  */
+import { fmt } from "@/lib/agencia/format";
+import { pagosConfig } from "./pricing";
+
+const TOPE_TRES = fmt(pagosConfig.topeTres);
+const CUOTAS = pagosConfig.tarjetaMaxCuotas;
 
 export type LegalBlock = string | { list: string[] };
 
@@ -26,6 +34,8 @@ export interface LegalDoc {
 }
 
 const UPDATED = "8 de noviembre de 2026";
+/** Tanda P1: los términos cambiaron las formas de pago. */
+const UPDATED_TERMINOS = "11 de noviembre de 2026";
 
 export const legalDocs: Record<LegalDoc["slug"], LegalDoc> = {
   terminos: {
@@ -33,7 +43,7 @@ export const legalDocs: Record<LegalDoc["slug"], LegalDoc> = {
     label: "Legal",
     title: "Términos y condiciones",
     description: "Cómo trabajo, qué incluye cada servicio, cómo se paga y de quién es lo que construyo.",
-    updated: UPDATED,
+    updated: UPDATED_TERMINOS,
     intro:
       "Estos términos ordenan la relación entre Malejo —la marca de servicios de Mauro Lizárraga, [CUIT], con domicilio en Salta, Argentina— y quien contrata un servicio. Contratar o pagar una seña implica aceptarlos.",
     sections: [
@@ -50,7 +60,7 @@ export const legalDocs: Record<LegalDoc["slug"], LegalDoc> = {
         heading: "2. Seña y demo",
         blocks: [
           "Para armar una demo con tu marca pido una seña de {SENA}. La demo está lista en 72 horas hábiles desde que recibo la seña y el material.",
-          "La seña no es reembolsable: paga el trabajo de armar la demo. Si contratás, se descuenta completa del total; si después de ver la demo decidís no contratar, no se devuelve y no hay ningún otro cargo.",
+          "La seña no es reembolsable: paga el trabajo de armar la demo. Si contratás, se descuenta completa del primer pago; si después de ver la demo decidís no contratar, no se devuelve y no hay ningún otro cargo.",
         ],
       },
       {
@@ -60,11 +70,13 @@ export const legalDocs: Record<LegalDoc["slug"], LegalDoc> = {
           "Por ahora no emito factura. Si la necesitás, consultalo antes de contratar.",
           {
             list: [
-              "Transferencia bancaria: precio publicado, sin recargo.",
-              "Mercado Pago: {RECARGO} de recargo sobre el precio publicado, en hasta 6 cuotas. El interés de las cuotas lo define Mercado Pago según la tarjeta.",
-              "El total de la implementación se paga 50 % al aprobar la demo y 50 % en la entrega, con la seña descontada.",
+              "Transferencia bancaria: precio publicado, sin recargo, en 2 pagos sin interés: 50 % al aprobar la demo y 50 % en la entrega.",
+              `Transferencia en 3 pagos sin interés: un tercio al aprobar la demo, un tercio en la entrega y un tercio a los 30 días de la entrega. Solo si el total contratado es de hasta ${TOPE_TRES}; arriba de ese monto, 2 pagos o Mercado Pago.`,
+              `Mercado Pago: {RECARGO} de recargo sobre el precio publicado, en hasta ${CUOTAS} cuotas. El interés de las cuotas lo define Mercado Pago según la tarjeta.`,
+              "La seña se descuenta del primer pago.",
+              "La página está online desde la entrega. El código y la titularidad de la dirección web se transfieren con el último pago.",
               "Proyectos a medida: el plan del proyecto por escrito se paga por adelantado, y cada etapa de 2 semanas se paga 50 % al arrancarla y 50 % al entregarla, según lo cotizado en ese plan.",
-              "Abonos (cuotas mensuales): se pagan por mes adelantado. Pagando el año por adelantado, pagás 10 meses.",
+              "Servicios mensuales: se pagan por mes adelantado. Pagando el año por adelantado, pagás 10 meses.",
             ],
           },
         ],

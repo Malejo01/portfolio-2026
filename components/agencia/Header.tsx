@@ -16,8 +16,8 @@ import { ThemeTextToggle, ThemeToggle } from "./client/ThemeToggle";
  * Server Component: los links son HTML del servidor. Las únicas islas son
  * el botón de tema, el explorador de celular, `AbrirChat` (el botón
  * principal abre a Malejo; sin JS, WhatsApp) y `SectionSpy`, que marca el
- * link activo con `aria-current`. En celular, al lado del ☰ van "Precios"
- * (tanda P1, Fase 3 bis B) y un acceso directo a WhatsApp de 44 × 44
+ * link activo con `aria-current`. En celular, al lado del ☰ van "Soluciones"
+ * (tanda P2; antes "Precios") y un acceso directo a WhatsApp de 44 × 44
  * (auditoría P1-2).
  */
 export function Header() {
@@ -42,7 +42,7 @@ export function Header() {
         >
           <Link href="/" aria-label={nav.home} className="inline-flex min-h-11 items-center gap-2.5 no-underline">
             <MalejoMark size={30} className="text-acc" />
-            {/* Debajo de 360 px no entra con "Precios" al lado: queda el logo y el nombre para lectores de pantalla. */}
+            {/* Debajo de 360 px no entra con "Soluciones" al lado: queda el logo y el nombre para lectores de pantalla. */}
             <span className="h text-[22px] max-[359px]:sr-only">{site.name}</span>
           </Link>
 
@@ -67,11 +67,11 @@ export function Header() {
               {nav.cta}
             </AbrirChat>
             <Link
-              href={nav.precios.href}
-              data-nav-section={nav.precios.section}
+              href={nav.soluciones.href}
+              data-nav-section={nav.soluciones.section}
               className="inline-flex min-h-11 items-center rounded-[14px] px-2.5 text-[15px] font-semibold text-text no-underline aria-[current=true]:bg-ic-bg aria-[current=true]:text-acc-text lg:hidden"
             >
-              {nav.precios.label}
+              {nav.soluciones.label}
             </Link>
             <a href={wa} target="_blank" rel="noopener" aria-label={nav.whatsapp} className="ibtn text-acc-text lg:hidden">
               <Icon name="whatsapp" size={20} />

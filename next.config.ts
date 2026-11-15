@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import { FUENTE_AGENCIA, HEADERS_AGENCIA } from "./lib/agencia/headers";
+import { REDIRECCIONES_AGENCIA } from "./lib/agencia/redirects";
 
 /**
  * El portfolio se mudó de la raíz a `/portfolio` (noviembre 2026) para que
@@ -21,6 +22,8 @@ const nextConfig: NextConfig = {
       { source: "/casos/:slug", destination: "/portfolio/casos/:slug", permanent: true },
       { source: "/en", destination: "/portfolio/en", permanent: true },
       { source: "/en/:path*", destination: "/portfolio/en/:path*", permanent: true },
+      // Tanda P2: `/precios`, `/cotizador` y `/servicios` → `/soluciones` (con la query).
+      ...REDIRECCIONES_AGENCIA,
     ];
   },
 };

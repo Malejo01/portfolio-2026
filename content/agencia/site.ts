@@ -33,17 +33,17 @@ export const site = {
     /**
      * `section` = qué ítem se marca activo: el id de la sección visible en la
      * home, o el de la ruta (`SectionSpy` lo resuelve). Cada página marca el
-     * suyo: `/servicios/*` → Soluciones, `/precios` → Precios, `/blog/*` → Blog.
+     * suyo: `/soluciones` y `/servicios/*` → Soluciones, `/blog/*` → Blog.
+     * Tanda P2 (D1): "Soluciones" y "Precios" pasan a ser un solo ítem.
      */
     links: [
-      { label: "Soluciones", href: "/servicios", section: "servicios" },
-      { label: "Precios", href: "/precios", section: "precios" },
+      { label: "Soluciones", href: "/soluciones", section: "soluciones" },
       { label: "Cómo trabajo", href: "/#como-trabajo", section: "como-trabajo" },
       { label: "Proyectos", href: "/#proyectos", section: "proyectos" },
       { label: "Blog", href: "/blog", section: "blog" },
     ] satisfies NavLink[],
-    /** Fase 3 bis B: "Precios" a la vista en el celular, al lado del ☰. */
-    precios: { label: "Precios", href: "/precios", section: "precios" },
+    /** Tanda P2: "Soluciones" a la vista en el celular, al lado del ☰ (antes, "Precios"). */
+    soluciones: { label: "Soluciones", href: "/soluciones", section: "soluciones" },
     /** El botón principal del menú abre el chat de Malejo. */
     cta: "Hablá con Malejo",
     /** Celular: el header suma WhatsApp al lado del ☰. */
@@ -59,8 +59,7 @@ export const site = {
     title: "Menú",
     links: [
       { label: "Inicio", href: "/#inicio", section: "inicio" },
-      { label: "Soluciones", href: "/servicios", section: "servicios" },
-      { label: "Precios", href: "/precios", section: "precios" },
+      { label: "Soluciones", href: "/soluciones", section: "soluciones" },
       { label: "Cómo trabajo", href: "/#como-trabajo", section: "como-trabajo" },
       { label: "Proyectos", href: "/#proyectos", section: "proyectos" },
       { label: "Blog", href: "/blog", section: "blog" },
@@ -75,9 +74,8 @@ export const site = {
       {
         label: "Agencia",
         links: [
-          { label: "Soluciones", href: "/servicios" },
-          { label: "Precios", href: "/precios" },
-          { label: "Cotizador", href: "/cotizador" },
+          { label: "Soluciones y precios", href: "/soluciones" },
+          { label: "Pedí tu demo", href: "/demo" },
           { label: "Proyectos", href: "/#proyectos" },
           { label: "Blog", href: "/blog" },
         ],

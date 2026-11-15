@@ -6,7 +6,7 @@ import { mantenimientoGrandesPct, recargoMercadoPago, vigencia } from "./pricing
  * Copy de la home de la agencia (tanda R2: home corta, auditoría §6.3; tanda
  * P1: `docs/agencia/precios-psicologia-2026-11-10.md` §4.1).
  * Orden: hero → "¿Qué necesitás?" → cómo trabajo → quién te va a atender →
- * cierre. Los precios completos viven en `/precios` y en cada solución.
+ * cierre. Los precios completos viven en `/soluciones` y en cada solución.
  *
  * Ningún precio está escrito a mano: los "Desde" salen del catálogo y los
  * montos de la seña de `SENA_MONTO` (se inyectan en el render). Las
@@ -73,7 +73,7 @@ export const home = {
     porMes: " por mes",
     ask: "Preguntale a Malejo",
     grandes: { label: "¿Algo más grande? Proyectos a medida →", href: "/servicios/grandes" },
-    precios: { label: "Ver todos los precios", href: "/precios" },
+    precios: { label: "Ver todos los precios", href: "/soluciones" },
   },
 
   steps: {
@@ -122,7 +122,7 @@ export const home = {
     faq: faqPorIds(["plazos", "pagos", "primer-anio"]) satisfies FaqItem[],
   },
 
-  /** Catálogo completo: `/precios` (antes vivía en la home). */
+  /** Catálogo completo: `/soluciones` (antes `/precios`; antes, en la home). */
   pricing: {
     metaTitle: "Precios de páginas web, turnos, tiendas y asistentes con IA",
     description: "Todos los precios publicados: páginas web, catálogos y tiendas, turnos online, sistemas, asistentes con IA, mantenimiento, combos y extras.",
@@ -154,8 +154,8 @@ export const home = {
     extras: {
       trigger: "Sumale extras",
       title: "Sumale extras",
-      lead: "Se suman a cualquier plan. Armá la cuenta completa en el cotizador.",
-      cotizador: { label: "Ir al cotizador →", href: "/cotizador" },
+      lead: "Se suman a cualquier plan. Contale a Mauro cuáles querés cuando le mandes tu armado.",
+      cotizador: { label: "Armá tu solución →", href: "/soluciones" },
     },
     /** Letra chica en una línea + el modal "Condiciones" (§4.3). */
     legal: `Precios en pesos, por transferencia, vigentes hasta el ${vigencia}.`,
@@ -170,7 +170,7 @@ export const home = {
         `Lo que pagás por mes incluye soporte funcional, y ${bajaMantenimiento}.`,
       ],
     },
-    legalCta: { label: "¿No ves lo tuyo? Contame qué necesitás", href: "/cotizador" },
+    legalCta: { label: "¿No ves lo tuyo? Contame qué necesitás", href: "/demo" },
     /** Modal de cada plan (§5), en este orden. */
     modal: {
       plazo: "Plazo",

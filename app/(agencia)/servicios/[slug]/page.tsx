@@ -109,10 +109,10 @@ export default async function ServicioPage({ params }: Props) {
   const grandes = category.key === "grandes";
   const wa = waLink(WHATSAPP_TEXTO);
   const { visibles, otras } = planesDe(category);
-  const recomendado = category.plans.find((p) => p.rec) ?? category.plans[0];
   const combo = s.combo ? getCombo(s.combo.id) : undefined;
   const proyecto = s.proyecto ? conocimiento.proyectos.find((p) => p.key === s.proyecto) : undefined;
   const conMensual = category.plans.some((p) => p.monthly);
+  const armar = detail.armar.href.replace("{CAT}", category.key);
 
   return (
     <>
@@ -139,6 +139,11 @@ export default async function ServicioPage({ params }: Props) {
             </li>
           ))}
         </ul>
+        {/* Tanda P2: el botón principal lleva al armador con esta categoría elegida. */}
+        <Link href={armar} className="btn btn-p mt-5 w-full sm:w-auto">
+          {detail.armar.label}
+          <Icon name="arrow" size={16} />
+        </Link>
       </section>
 
       {/* 2 · Las 3 tarjetas (o los pasos, en proyectos a medida) */}
@@ -294,8 +299,8 @@ export default async function ServicioPage({ params }: Props) {
                 {detail.cierre.agenda}
               </a>
             ) : (
-              <Link href={`/demo?plan=${recomendado.id}`} className="btn btn-s">
-                {detail.cierre.demo}
+              <Link href={armar} className="btn btn-s">
+                {detail.armar.label}
               </Link>
             )}
             <a href={wa} target="_blank" rel="noopener" className="btn btn-s">

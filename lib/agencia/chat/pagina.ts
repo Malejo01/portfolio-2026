@@ -12,9 +12,7 @@ export async function contextoDePagina(path: string | undefined): Promise<string
   if (!path || !/^\/[a-z0-9/_-]*$/i.test(path) || path.length > 120) return null;
   const p = path.replace(/\/+$/, "") || "/";
   if (p === "/") return "la home";
-  if (p === "/precios") return "la página con todos los precios";
-  if (p === "/servicios") return "la lista de soluciones";
-  if (p === "/cotizador") return "el cotizador (está armando un presupuesto)";
+  if (p === "/soluciones") return "Soluciones, el armador con todo el catálogo y los precios (está armando lo que necesita)";
   if (p === "/demo") return "el formulario para pedir la demo";
   if (p === "/blog") return "el blog";
   const s = /^\/servicios\/([a-z]+)$/.exec(p);

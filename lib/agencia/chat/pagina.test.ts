@@ -6,7 +6,9 @@ describe("contexto de página (R3)", () => {
   it("traduce las rutas del sitio a una línea legible", async () => {
     expect(await contextoDePagina("/")).toBe("la home");
     expect(await contextoDePagina("/servicios/turnos")).toBe('la solución "Que tus clientes saquen turno solos" (categoría Turnos y reservas)');
-    expect(await contextoDePagina("/precios/")).toBe("la página con todos los precios");
+    expect(await contextoDePagina("/soluciones/")).toMatch(/^Soluciones, el armador/);
+    // Las rutas redirigidas no llegan como página: el widget manda la ruta final.
+    expect(await contextoDePagina("/precios")).toBeNull();
     expect(await contextoDePagina("/blog/como-cotizo")).toMatch(/^el artículo del blog "/);
   });
 

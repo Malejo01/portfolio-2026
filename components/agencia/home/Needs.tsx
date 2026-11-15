@@ -23,8 +23,8 @@ export function desdeDe(s: Pick<Solucion, "category">): { monto: string; pagos: 
 /**
  * Las seis baldosas de "¿Qué necesitás?" (tanda P1, §4.1 y Fase 3 bis B):
  * el problema y "Desde $X · 3 × $Y", sin línea de descripción. En la home
- * llevan a `/precios?cat=<categoría>` con esa categoría elegida (sin JS,
- * `/precios` abre en la primera y el visitante elige); en `/servicios`, a la
+ * llevan a `/soluciones?cat=<categoría>` con esa categoría elegida (sin JS,
+ * `/soluciones` muestra todo el catálogo); en otras páginas, a la
  * página de la solución. "Preguntale a Malejo" abre el chat con ese tema
  * (queda por encima del link de la tarjeta). Son links: sin estado ni
  * `searchParams`, así la home sigue estática.
@@ -41,7 +41,7 @@ export function NeedTiles({ heading = "h3", destino = "precios" }: { heading?: "
     <RevealGroup className="mt-6 grid grid-cols-[repeat(2,minmax(0,1fr))] gap-3 sm:mt-7 sm:gap-4 lg:grid-cols-3 lg:gap-5">
       {soluciones.map((s) => {
         const desde = desdeDe(s);
-        const href = destino === "precios" ? `/precios?cat=${s.category}` : `/servicios/${s.category}`;
+        const href = destino === "precios" ? `/soluciones?cat=${s.category}` : `/servicios/${s.category}`;
         return (
           <RevealItem key={s.category} className="flex min-w-0">
             <article className="card lift relative flex min-w-0 flex-1 flex-col gap-2 p-4 sm:gap-2.5 sm:p-5">
@@ -97,7 +97,9 @@ export function NeedLinks() {
 export function Needs() {
   const { needs } = home;
   return (
-    <section id="servicios" className="wrap pt-14 sm:pt-16">
+    // `id="soluciones"` marca "Soluciones" en el menú (P2); el ancla vieja `/#servicios` sigue viva.
+    <section id="soluciones" className="wrap pt-14 sm:pt-16">
+      <span id="servicios" className="block scroll-mt-[104px]" aria-hidden="true" />
       <Reveal>
         <span className="lbl lbl-o">{needs.label}</span>
         <h2 className="h h2">{needs.title}</h2>

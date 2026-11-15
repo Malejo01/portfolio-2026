@@ -1025,5 +1025,31 @@
       0.5
     ],
     "tarjetaMaxCuotas": 6
+  },
+  "estimado": {
+    "margenFijo": 0.15,
+    "margenDesde": 0.5,
+    "nota": "Tanda P2 (D2): el armador muestra un rango. Piso = lo publicado; techo = piso + margenFijo de lo de precio fijo + margenDesde de lo que es \"desde\", redondeado a miles."
+  },
+  "senas": {
+    "tramos": [
+      {
+        "hasta": 360000,
+        "monto": 25000
+      },
+      {
+        "hasta": 750000,
+        "monto": 50000
+      }
+    ],
+    "minimoConIA": 50000,
+    "arriba": "plan-escrito",
+    "sinCargo": [
+      "renova-tu-web"
+    ],
+    "siemprePlanEscrito": [
+      "sistema-a-medida"
+    ],
+    "nota": "Tanda P2 (D4): el tramo se mira sobre el piso del total contratado. Con IA o WhatsApp oficial, el mínimo es minimoConIA. Arriba del último tramo (o con un sistema a medida o un proyecto grande) va el plan del proyecto por escrito (el plan diagnostico-escrito). Siempre se descuenta del total."
   }
 }

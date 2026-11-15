@@ -157,6 +157,34 @@ interface RawCatalog {
   recargoMercadoPago: number;
   usd: { fallback: number; fuente: string };
   pagos: PagosConfig;
+  estimado: EstimadoConfig;
+  senas: SenasConfig;
+}
+
+/**
+ * El rango del armador (tanda P2, D2): `margenFijo` sobre lo de precio
+ * fijo y `margenDesde` sobre lo que es "desde". Ver `estimarArmado()`.
+ */
+export interface EstimadoConfig {
+  margenFijo: number;
+  margenDesde: number;
+}
+
+/**
+ * Seña escalonada de la demo (tanda P2, D4). El tramo se mira sobre el piso
+ * del total contratado. Ver `senaPara()` en `lib/agencia/pricing.ts`.
+ */
+export interface SenasConfig {
+  /** En orden: el primer tramo cuyo `hasta` no se pasa define el monto. */
+  tramos: { hasta: number; monto: number }[];
+  /** Con IA o WhatsApp oficial (`usaServiciosDeTerceros`), la seña mínima. */
+  minimoConIA: number;
+  /** Arriba del último tramo: el plan del proyecto por escrito. */
+  arriba: "plan-escrito";
+  /** Ids con demo sin cargo (la renovación de una web). */
+  sinCargo: string[];
+  /** Ids que siempre van con plan escrito, cualquiera sea el monto. */
+  siemprePlanEscrito: string[];
 }
 
 /** Formas de pago (tanda P1, §2). Fracciones del total, en orden. */
@@ -255,6 +283,10 @@ export const vigencia: string = catalog.vigencia.split("-").reverse().join("/");
 export const recargoMercadoPago: number = catalog.recargoMercadoPago;
 
 export const pagosConfig: PagosConfig = catalog.pagos;
+
+export const estimadoConfig: EstimadoConfig = catalog.estimado;
+
+export const senasConfig: SenasConfig = catalog.senas;
 
 /**
  * Tipo de cambio de respaldo (ARS por USD) si dolarapi.com no responde y no

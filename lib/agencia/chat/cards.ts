@@ -9,6 +9,11 @@ import type { ContactPayload } from "./security";
  */
 
 export type Medio = "transferencia" | "mp";
+/**
+ * La seña de lo cotizado (tanda P2, D4), calculada en el servidor por
+ * `senaPara()`: este módulo no conoce el catálogo.
+ */
+export type SenaCard = { tipo: "demo"; monto: number } | { tipo: "plan-escrito"; monto: number } | { tipo: "sin-cargo" };
 /** "usd" = la tarjeta suma el equivalente en dólares debajo de los pesos. */
 export type Moneda = "ars" | "usd";
 
@@ -52,6 +57,8 @@ export type Card =
        * por `lineaDePagos()`: este módulo no conoce el catálogo.
        */
       pagos?: string;
+      /** Tanda P2: la seña que corresponde (el botón dice "Pedir demo · seña $50.000"). */
+      sena?: SenaCard;
       demoHref: string;
     }
   | { kind: "compare"; ids: string[]; medio: Medio; moneda: Moneda; filas: FilaCard[]; tipoDeCambio?: number }

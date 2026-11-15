@@ -45,7 +45,11 @@ export const malejoCopy = {
     perMonth: "/mes",
     perYear: "/año",
     usd: "al dólar oficial del día",
-    demo: "Pedir demo con seña de {SENA}",
+    /** Tanda P2: la seña escalonada de lo cotizado, calculada en el servidor. */
+    demo: "Pedir demo · seña {SENA}",
+    planEscrito: "Pedir el plan por escrito · {SENA}",
+    demoSinCargo: "Pedir demo sin cargo",
+    demoSolo: "Pedir demo",
   },
   compare: {
     label: "Comparación",

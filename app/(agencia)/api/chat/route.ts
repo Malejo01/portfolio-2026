@@ -11,7 +11,7 @@ import { TEST_HEADER, esTokenDePrueba, hashIp, ipFrom, origenPermitido, rechazar
 import { nuevoContexto, runTool, tools, ultimaCotizacion, type ToolContext, type ToolOutcome } from "@/lib/agencia/chat/tools";
 import { CUMPLEN_DERIVACION, prometeDerivar } from "@/lib/agencia/chat/derivar";
 import { mensajeWhatsApp } from "@/lib/agencia/chat/whatsapp";
-import { senaMonto, waLink } from "@/lib/agencia/config";
+import { waLink } from "@/lib/agencia/config";
 import { tipoDeCambio } from "@/lib/agencia/usd";
 
 /**
@@ -146,7 +146,7 @@ export async function POST(request: Request) {
   // Un reintento como mucho: el timeout por ronda manda sobre la espera total.
   const client = new Anthropic({ maxRetries: 1 });
   // La ficha del bloque final es la que llegó con el pedido: fija durante el turno.
-  const system = systemBlocks(senaMonto(), ctx.ficha, await contextoDePagina(body.pagina));
+  const system = systemBlocks(ctx.ficha, await contextoDePagina(body.pagina));
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream<Uint8Array>({

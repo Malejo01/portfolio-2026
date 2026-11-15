@@ -5,7 +5,6 @@ import { Footer } from "@/components/agencia/Footer";
 import { Header } from "@/components/agencia/Header";
 import { MalejoLoader } from "@/components/agencia/client/MalejoLoader";
 import { malejoCopy } from "@/content/agencia/malejo";
-import { senaMonto } from "@/lib/agencia/config";
 import { AGENCIA_THEME_COOKIE } from "@/lib/agencia/theme";
 import { site } from "@/content/agencia/site";
 import { siteUrl } from "@/lib/links";
@@ -101,7 +100,7 @@ export default function AgenciaRootLayout({ children }: { children: React.ReactN
         <Header />
         <main id="contenido">{children}</main>
         <Footer />
-        <MalejoLoader copy={malejoCopy} senaMonto={senaMonto()} turnstileSiteKey={process.env.TURNSTILE_SITE_KEY || undefined} />
+        <MalejoLoader copy={malejoCopy} turnstileSiteKey={process.env.TURNSTILE_SITE_KEY || undefined} />
         <Analytics />
       </body>
     </html>

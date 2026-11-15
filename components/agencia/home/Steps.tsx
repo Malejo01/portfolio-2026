@@ -3,6 +3,7 @@ import { home } from "@/content/agencia/home";
 import { Check } from "../icons";
 import { completarPagos } from "../pagos";
 import { PlanDialog } from "../client/PlanDialog";
+import { SenaTabla } from "../SenaTabla";
 import { Reveal } from "../client/Reveal";
 
 /**
@@ -56,6 +57,7 @@ export function Steps() {
               </li>
             ))}
           </ul>
+          <SenaTabla />
         </PlanDialog>
       </div>
     </section>

@@ -9,7 +9,7 @@ import { mantenimientoGrandesPct, recargoMercadoPago, vigencia } from "./pricing
  * cierre. Los precios completos viven en `/soluciones` y en cada solución.
  *
  * Ningún precio está escrito a mano: los "Desde" salen del catálogo y los
- * montos de la seña de `SENA_MONTO` (se inyectan en el render). Las
+ * montos de la seña de `precios.json → senas` (se inyectan en el render). Las
  * baldosas salen de `servicios.ts` y los proyectos de `conocimiento.ts`.
  * `{SENA}`, `{TOPE}`, `{PCT}` y `{CUOTAS}` se reemplazan en el render
  * (`completarPagos` de `components/agencia/pagos.ts`).
@@ -43,7 +43,7 @@ const pagos = {
     { title: "Tarjeta con Mercado Pago", body: "Precio +{PCT}, hasta {CUOTAS} cuotas. El interés de las cuotas lo pone Mercado Pago." },
   ],
   notas: [
-    "La seña de {SENA} se descuenta del primer pago.",
+    "La seña de la demo (desde {SENA}, según el proyecto) se descuenta del total.",
     "El código y tu dirección web pasan a tu nombre con el último pago. La página está online desde la entrega.",
   ],
 };
@@ -91,9 +91,9 @@ export const home = {
       trigger: "¿Cómo funciona la seña?",
       title: "¿Cómo funciona la seña?",
       items: [
-        "Para armar tu demo con tu marca se paga una seña de {SENA}.",
+        "Para armar tu demo con tu marca se paga una seña desde {SENA}, según el tamaño del proyecto.",
         "En 72 horas hábiles la vemos juntos, en 20 minutos, y decidís sin compromiso.",
-        "Si contratás, la seña se descuenta completa del primer pago.",
+        "Si contratás, la seña se descuenta completa del total.",
         "Si no, la seña no se devuelve: pagó el trabajo de la demo.",
       ],
     },

@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest";
 import { bloqueFicha, catalogo, systemBlocks, systemPrompt } from "./prompt";
 
 describe("system prompt", () => {
-  const base = systemPrompt(20000);
+  const base = systemPrompt();
 
   it("es determinista (prefijo cacheable) y no tiene placeholders sin resolver", () => {
-    expect(systemPrompt(20000)).toBe(base);
+    expect(systemPrompt()).toBe(base);
     expect(base).not.toMatch(/\{SENA\}|\$\{|undefined|NaN/);
   });
 
@@ -61,8 +61,8 @@ describe("system prompt", () => {
   });
 
   it("tanda P1: el bloque cacheado es el mismo con cualquier ficha y página (nada variable antes del corte)", () => {
-    const a = systemBlocks(20000, {}, "/precios");
-    const b = systemBlocks(20000, { rubro: "Veterinaria", planesInteres: ["Página Esencial"] }, "/servicios/webs");
+    const a = systemBlocks({}, "/precios");
+    const b = systemBlocks({ rubro: "Veterinaria", planesInteres: ["Página Esencial"] }, "/servicios/webs");
     expect(a[0]).toEqual(b[0]);
     expect(a[0]).toHaveProperty("cache_control");
     expect(a[1]).not.toHaveProperty("cache_control");
@@ -90,7 +90,7 @@ describe("system prompt", () => {
   });
 
   it("dos bloques: el base con caché y la ficha al final, sin caché", () => {
-    const [cacheado, ficha] = systemBlocks(20000, { rubro: "Peluquería", dudas: ["¿Cuotas?"] });
+    const [cacheado, ficha] = systemBlocks({ rubro: "Peluquería", dudas: ["¿Cuotas?"] });
     expect(cacheado.cache_control).toEqual({ type: "ephemeral" });
     expect(ficha.cache_control).toBeUndefined();
     expect(ficha.text).toContain("- Rubro: Peluquería");

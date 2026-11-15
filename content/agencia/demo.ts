@@ -1,17 +1,27 @@
-/** Copy de `/demo` (F5). `{SENA}` = monto de `SENA_MONTO` formateado. */
+/**
+ * Copy de `/demo` (F5; seña escalonada desde la tanda P2). `{SENA}` = un
+ * monto formateado (la seña que corresponde, o la más chica para "desde");
+ * `{PLAN}` = el precio del plan del proyecto por escrito.
+ */
 export const demoCopy = {
   metaTitle: "Pedí tu demo",
-  description: "Contame tu idea, pagá la seña y en 72 horas hábiles tenés una demo con tu marca. La seña se descuenta del primer pago.",
+  description: "Contame tu idea, pagá la seña según el tamaño del proyecto y en 72 horas hábiles tenés una demo con tu marca. La seña se descuenta del total.",
   label: "Tu demo",
   title: "Pedí tu demo",
-  lead: "Tres pasos: me contás qué necesitás, pagás la seña de {SENA} y agendamos la videollamada para verla juntos.",
+  lead: "Tres pasos: me contás qué necesitás, pagás la seña según el tamaño del proyecto (desde {SENA}) y agendamos la videollamada para verla juntos.",
+  /** Tanda P2: si lo elegido pasa el último tramo, la página cambia (D4). */
+  planEscrito: {
+    label: "Tu proyecto",
+    title: "Primero el plan por escrito",
+    lead: "Lo que elegiste es grande para una demo de 72 horas. Primero charlamos gratis 20 minutos y después te paso el plan del proyecto por escrito ({PLAN}): qué hay que hacer y cuánto sale cada etapa. Se descuenta del total.",
+    charla: "Agendá la charla gratis",
+  },
   steps: { brief: "Paso 1", sena: "Paso 2", agenda: "Paso 3" },
-  /** Tanda P1 (§4.5): el resumen de lo que llega en `?plan=`. */
+  /** Tanda P1 (§4.5): el resumen de lo que llega en `?plan=` o `?a=`. */
   resumen: {
     label: "Lo que elegiste",
     unico: "Pago único",
     desde: "desde",
-    sena: "La seña de {SENA} se descuenta del primer pago.",
   },
   brief: {
     title: "Contame tu idea",
@@ -46,12 +56,25 @@ export const demoCopy = {
     avisarCta: "Avisale a Mauro por WhatsApp",
   },
   sena: {
+    /** Sin nada elegido: la escala, con la seña más chica. */
+    desde: "Seña desde {SENA}, según el proyecto",
+    /** Con lo elegido en la URL: el monto que corresponde. */
     title: "Seña de {SENA}",
-    body: "Se descuenta completa del primer pago si contratás. La demo está lista en 72 horas hábiles desde que recibo la seña y el material. Si vas a renovar tu web actual, la demo previa es sin cargo: no hace falta la seña.",
+    body: "Se descuenta completa del total si contratás. La demo está lista en 72 horas hábiles desde que recibo la seña y el material.",
+    bodyDesde: "El monto depende del tamaño de lo que contratás y se descuenta completo del total. Si vas a renovar tu web actual, la demo previa es sin cargo.",
+    planEscrito: "Plan del proyecto por escrito: {SENA}",
+    planEscritoBody: "Se paga por adelantado, después de la charla gratis, y se descuenta del total si seguimos.",
+    sinCargo: "Demo sin cargo",
+    sinCargoBody: "Para renovar tu web actual, la demo previa no lleva seña. Coordinamos por WhatsApp.",
     pay: "Pagar la seña",
+    payPlan: "Pagar el plan por escrito",
     alias: "Transferí al alias",
     whatsapp: "Pedir los datos para la seña",
     whatsappText: "Hola Mauro, quiero pagar la seña para la demo.",
+    whatsappPlanText: "Hola Mauro, quiero el plan del proyecto por escrito.",
+    whatsappSinCargoText: "Hola Mauro, quiero la demo para renovar mi web.",
+    whatsappSinCargo: "Coordinar por WhatsApp",
+    tabla: "¿Cuánto es la seña?",
   },
   agenda: {
     title: "Agendá la videollamada",
@@ -60,3 +83,5 @@ export const demoCopy = {
     frameTitle: "Agenda de Mauro en Cal.com",
   },
 };
+
+export type DemoCopy = typeof demoCopy;

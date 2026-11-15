@@ -9,6 +9,7 @@ import {
   recargoMercadoPago,
   resolverId,
   resumenCopy,
+  senaCopy,
   senasConfig,
   type Category,
   type Combo,
@@ -16,7 +17,7 @@ import {
   type Plan,
   type TipoPrecio,
 } from "@/content/agencia/pricing";
-import { normalizar, type Armado, type Clasificador } from "./armado";
+import { deQuery, normalizar, type Armado, type Clasificador } from "./armado";
 import { fmt, fmtUsd } from "./format";
 
 /**
@@ -560,6 +561,18 @@ export function validarArmado(raw: unknown): Armado {
   return normalizar(raw, clasificarId);
 }
 
+/**
+ * Lo elegido según la URL de `/demo`: `?a=` (un armado compartido o
+ * mandado desde `/soluciones`) o, como antes, `?plan=id,id&extras=id`.
+ */
+export function armadoDeUrl(search: string): Armado {
+  const q = new URLSearchParams(search);
+  const a = q.get("a");
+  if (a) return deQuery(a, clasificarId);
+  const lista = (k: string) => (q.get(k) ?? "").split(",").map((x) => x.trim()).filter(Boolean);
+  return normalizar({ items: lista("plan"), extras: lista("extras") }, clasificarId);
+}
+
 /** Lo que va en `senaPara`: los ids de planes y combos, o un armado entero. */
 type ParaSena = readonly string[] | Armado;
 
@@ -691,4 +704,39 @@ export function estimarArmado(armado: Armado): EstimadoArmado {
     sena,
     requierePlanEscrito: sena.tipo === "plan-escrito" || Boolean(ultimo && piso > ultimo.hasta) || planIds.some(siemprePlanEscrito),
   };
+}
+
+/** "Seña de la demo: $25.000 (se descuenta)", "Plan del proyecto por escrito: $60.000 (se descuenta)" o "Demo sin cargo". */
+export function lineaDeSena(sena: Sena): string {
+  if (sena.tipo === "sin-cargo") return senaCopy.sinCargo;
+  return (sena.tipo === "demo" ? senaCopy.demo : senaCopy.planEscrito).replace("{MONTO}", fmt(sena.monto));
+}
+
+/** "seña desde $25.000, según el proyecto": donde todavía no hay nada elegido. */
+export function senaDesde(): string {
+  return senaCopy.desde.replace("{MONTO}", fmt(senaMinima()));
+}
+
+/** Las filas de la tabla de la seña (el modal `info` de la home, `/demo` y el armador). */
+export function filasDeSena(): { label: string; monto: string }[] {
+  const t = senaCopy.tabla;
+  const ultimo = senasConfig.tramos[senasConfig.tramos.length - 1];
+  return [
+    ...senasConfig.tramos.map((x) => ({ label: t.tramo.replace("{HASTA}", fmt(x.hasta)), monto: fmt(x.monto) })),
+    { label: t.conIA, monto: t.conIAMonto.replace("{MONTO}", fmt(senasConfig.minimoConIA)) },
+    { label: t.arriba.replace("{HASTA}", fmt(ultimo?.hasta ?? 0)), monto: t.arribaMonto.replace("{MONTO}", fmt(montoPlanEscrito())) },
+    { label: t.renovacion, monto: t.renovacionMonto },
+  ];
+}
+
+/** La escala completa en una línea (chat, términos, FAQ). Generada: ningún monto escrito a mano. */
+export function escalaDeSena(): string {
+  const ultimo = senasConfig.tramos[senasConfig.tramos.length - 1];
+  const tramos = senasConfig.tramos.map((x) => senaCopy.escalaTramo.replace("{MONTO}", fmt(x.monto)).replace("{HASTA}", fmt(x.hasta)));
+  const lista = tramos.length > 1 ? `${tramos.slice(0, -1).join(", ")} y ${tramos[tramos.length - 1]}` : (tramos[0] ?? "");
+  return senaCopy.escala
+    .replace("{TRAMOS}", lista)
+    .replace("{MINIMO}", fmt(senasConfig.minimoConIA))
+    .replace("{TOPE}", fmt(ultimo?.hasta ?? 0))
+    .replace("{PLAN}", fmt(montoPlanEscrito()));
 }

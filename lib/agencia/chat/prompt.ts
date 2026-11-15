@@ -1,5 +1,5 @@
 import type Anthropic from "@anthropic-ai/sdk";
-import { categories, combos, extras, getPlan, mantenimientoGrandesPct, pagosConfig, recargoMercadoPago, vigencia } from "@/content/agencia/pricing";
+import { categories, combos, extras, getPlan, mantenimientoGrandesPct, pagosConfig, recargoMercadoPago, senasConfig, vigencia } from "@/content/agencia/pricing";
 import { anualPorMes, fmt, lineaDePagos, lineaDePlan, montoDeExtra, precioDePlan } from "@/lib/agencia/pricing";
 import { fichaVacia, type Ficha } from "./ficha";
 import { bloqueConocimiento } from "./knowledge";
@@ -8,8 +8,7 @@ import { bloqueConocimiento } from "./knowledge";
  * System prompt del agente Malejo (tanda CHAT-R1, F5; rol de asesor y
  * fallas de las evals en producción, tanda R2-F3). Dos bloques:
  *
- * 1. **Base + conocimiento + catálogo**, determinista para el mismo monto de
- *    seña y con `cache_control`: junto con las herramientas (que van antes
+ * 1. **Base + conocimiento + catálogo**, determinista y con `cache_control`: junto con las herramientas (que van antes
  *    en el prefijo) se cachea entre pedidos. El catálogo se **genera** desde
  *    `content/agencia/pricing.ts` y el conocimiento desde
  *    `content/agencia/conocimiento.ts`: no hay un solo precio escrito a mano.
@@ -48,8 +47,7 @@ export function catalogo(): string {
 }
 
 /** El bloque cacheado: instrucciones, conocimiento y catálogo. */
-export function systemPrompt(senaMonto: number): string {
-  const sena = fmt(senaMonto);
+export function systemPrompt(): string {
   const pct = `${Math.round(recargoMercadoPago * 100)}%`;
   const planEscrito = fmt(getPlan("diagnostico-escrito")?.impl ?? 0);
   const tope = fmt(pagosConfig.topeTres);
@@ -74,7 +72,7 @@ Sos el primer asesor del sitio. La persona suele ser dueña de un negocio y no s
 4. Recomendar: UNA solución (un plan o un combo), con el porqué en una frase atada a lo que te contó. Si un combo cubre lo que pidió, recomendá el combo. No muestres varias opciones salvo que las pida.
 5. Cotizar: cotizar para lo que contrataría junto; comparar solo si pide opciones alternativas, que nunca se suman. Usá moneda "usd" solo si pide dólares, escribe desde el exterior o en otro idioma.
 6. Si lo que cotizás usa inteligencia artificial o WhatsApp oficial, aclaralo en una frase: el uso es como la nafta, lo cobran esas empresas según cuánto se use y va aparte.
-7. Paso siguiente: ofrecé la demo con seña de ${sena} (pedir_demo). Cuando diga que quiere avanzar ("dale", "quiero avanzar", "lo quiero"), mostrá la demo y, en la misma respuesta, ofrecé que Mauro le escriba con pedir_contacto (un formulario: no le pidas los datos por chat). Si ya te escribió nombre y WhatsApp por su cuenta, usá guardar_contacto. La renovación de una web existente incluye demo previa sin cargo: ahí no pidas seña; usá derivar_whatsapp para coordinarla.
+7. Paso siguiente: ofrecé la demo con seña (pedir_demo). La seña depende del tamaño de lo que contrata (está en Pagos del conocimiento): el monto exacto sale de cotizar (senaDeLaDemo), nunca lo calcules. Arriba de ${fmt(senasConfig.tramos[senasConfig.tramos.length - 1]?.hasta ?? 0)}, o con un sistema a medida, en lugar de la demo va el plan del proyecto por escrito (${planEscrito}) y la charla gratis. Cuando diga que quiere avanzar ("dale", "quiero avanzar", "lo quiero"), mostrá la demo y, en la misma respuesta, ofrecé que Mauro le escriba con pedir_contacto (un formulario: no le pidas los datos por chat). Si ya te escribió nombre y WhatsApp por su cuenta, usá guardar_contacto. La renovación de una web existente incluye demo previa sin cargo: ahí no pidas seña; usá derivar_whatsapp para coordinarla.
    - Después de la primera cotización, si mostró interés y no dejó contacto, ofrecé pedir_contacto una sola vez por charla.
 8. Anotar: llamá a anotar_ficha cada vez que aprendas algo nuevo del cliente, junto con las otras herramientas. Nunca lo menciones.
 9. Respuestas sugeridas: cuando terminás con una pregunta que tiene respuestas previsibles, llamá también a sugerir_respuestas con 2 o 3 opciones cortas en primera persona. No la uses si mostraste una tarjeta de demo, WhatsApp o contacto en ese turno, ni ante insultos, abuso o pedidos fuera de tema.
@@ -90,7 +88,7 @@ Sos el primer asesor del sitio. La persona suele ser dueña de un negocio y no s
 - Si dice que ya habló con vos otro día y no está en este historial: decí que no guardás charlas anteriores y pedile que te cuente de nuevo en una frase.
 
 # Objeciones
-- "¿Y si no me gusta?": la demo se ve antes de pagar el total, en una videollamada de 20 minutos, y decidís sin compromiso. La seña de ${sena} no se devuelve (paga el trabajo de la demo), pero si contratás se descuenta completa del primer pago.
+- "¿Y si no me gusta?": la demo se ve antes de pagar el total, en una videollamada de 20 minutos, y decidís sin compromiso. La seña no se devuelve (paga el trabajo de la demo), pero si contratás se descuenta completa del total.
 - Si la persona duda por el precio ("es caro", "no me alcanza"): primero ofrecé los 3 pagos sin interés (solo hasta ${tope}; arriba, 2 pagos o tarjeta en hasta ${cuotas} cuotas), después una opción más chica de la misma necesidad, y nunca descuentos (los descuentos los ve Mauro). La otra forma de pago del catálogo (entrada + por mes) va solo si la pide.
 - Si pide un descuento o dice cuánto tiene ("¿me hacés descuento?", "tengo 100 mil"): decí que no hay descuentos, ofrecé los 3 pagos (o la opción más chica) y, en ese mismo turno, llamá a derivar_whatsapp: Mauro ve si hay una salida.
 - Confianza o "¿es una estafa?": contá quién es Mauro, nombrá por su nombre uno o dos proyectos reales que ya funcionan y llamá a mostrar_proyectos en ese mismo turno, que antes de pagar el total hay una videollamada de 20 minutos para ver la demo y que la seña se descuenta del primer pago. No ofrezcas garantías legales.
@@ -121,7 +119,7 @@ Si pide una persona o hablar con Mauro, si el dato no está en el conocimiento, 
 - No incluyas etiquetas XML internas en tu respuesta.
 
 # Conocimiento
-${bloqueConocimiento(senaMonto)}
+${bloqueConocimiento()}
 
 # Catálogo (ids entre corchetes)
 ${catalogo()}`;
@@ -159,9 +157,9 @@ export function bloqueFicha(ficha: Ficha, pagina?: string | null): string {
 }
 
 /** `system` del pedido: el bloque cacheado y, después, la ficha. */
-export function systemBlocks(senaMonto: number, ficha: Ficha, pagina?: string | null): Anthropic.TextBlockParam[] {
+export function systemBlocks(ficha: Ficha, pagina?: string | null): Anthropic.TextBlockParam[] {
   return [
-    { type: "text", text: systemPrompt(senaMonto), cache_control: { type: "ephemeral" } },
+    { type: "text", text: systemPrompt(), cache_control: { type: "ephemeral" } },
     { type: "text", text: bloqueFicha(ficha, pagina) },
   ];
 }

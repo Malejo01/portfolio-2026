@@ -19,7 +19,7 @@ describe("contexto de página (R3)", () => {
   });
 
   it("va en el bloque sin caché, después de la ficha", () => {
-    const [cacheado, final] = systemBlocks(20000, { rubro: "Peluquería" }, "la home");
+    const [cacheado, final] = systemBlocks({ rubro: "Peluquería" }, "la home");
     expect(cacheado.text).not.toContain("# Dónde está");
     expect(final.text).toMatch(/Rubro: Peluquería[\s\S]*# Dónde está\nLa persona escribe desde la home/);
     expect(bloqueFicha({})).not.toContain("# Dónde está");

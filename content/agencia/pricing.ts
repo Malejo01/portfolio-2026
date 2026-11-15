@@ -371,3 +371,33 @@ export const pagosCopy = {
   /** La tarjeta de un plan anual: el monto grande y esto al lado. */
   anualUnidad: "por mes, pagás el año junto",
 } as const;
+
+/**
+ * Copy de la seña escalonada (tanda P2, D4). `senaPara()` decide el tipo y
+ * el monto; `lineaDeSena()`, `filasDeSena()` y `escalaDeSena()` de
+ * `lib/agencia/pricing.ts` arman el texto. `{MONTO}` y `{HASTA}` se
+ * reemplazan.
+ */
+export const senaCopy = {
+  /** Donde todavía no hay plan elegido: "seña desde $25.000, según el proyecto". */
+  desde: "seña desde {MONTO}, según el proyecto",
+  demo: "Seña de la demo: {MONTO} (se descuenta)",
+  planEscrito: "Plan del proyecto por escrito: {MONTO} (se descuenta)",
+  sinCargo: "Demo sin cargo: es una renovación",
+  tabla: {
+    titulo: "¿Cuánto es la seña?",
+    tramo: "Hasta {HASTA}",
+    conIA: "Con inteligencia artificial o WhatsApp oficial",
+    conIAMonto: "{MONTO} como mínimo",
+    arriba: "Más de {HASTA}, un sistema a medida o un proyecto grande",
+    arribaMonto: "Plan por escrito: {MONTO}",
+    renovacion: "Renovación de tu web actual",
+    renovacionMonto: "Sin cargo",
+    nota: "Se mira sobre el total publicado de lo que elegís, y siempre se descuenta completa del total.",
+  },
+  /** Una línea con toda la escala: el chat, los términos y el FAQ. */
+  escala:
+    "La seña de la demo depende del tamaño: {TRAMOS}; con inteligencia artificial o WhatsApp oficial, {MINIMO} como mínimo. Arriba de {TOPE}, o con un sistema a medida o un proyecto grande, en lugar de la demo va el plan del proyecto por escrito ({PLAN}). La renovación de una web tiene la demo sin cargo. Siempre se descuenta del total.",
+  /** "$25.000 hasta $360.000". */
+  escalaTramo: "{MONTO} hasta {HASTA}",
+} as const;

@@ -1,7 +1,6 @@
 import Link from "next/link";
 import type { LegalBlock, LegalDoc } from "@/content/agencia/legal";
-import { senaMonto } from "@/lib/agencia/config";
-import { fmt } from "@/lib/agencia/format";
+import { escalaDeSena } from "@/lib/agencia/pricing";
 import { mantenimientoGrandesPct, recargoMercadoPago as RECARGO_MP } from "@/content/agencia/pricing";
 
 /**
@@ -52,10 +51,10 @@ function Block({ block }: { block: LegalBlock }) {
   );
 }
 
-/** Reemplaza `{SENA}`/`{RECARGO}`/`{MANT_GRANDES}`, marca `[PLACEHOLDERS]` y `código`. */
+/** Reemplaza `{SENA_ESCALA}`/`{RECARGO}`/`{MANT_GRANDES}`, marca `[PLACEHOLDERS]` y `código`. */
 function rich(text: string): React.ReactNode[] {
   const filled = text
-    .replaceAll("{SENA}", fmt(senaMonto()))
+    .replaceAll("{SENA_ESCALA}", escalaDeSena())
     .replaceAll("{RECARGO}", `${Math.round(RECARGO_MP * 100)} %`)
     .replaceAll("{MANT_GRANDES}", `${Math.round(mantenimientoGrandesPct * 100)} %`);
   return filled.split(/(\[[^\]]+\]|`[^`]+`)/g).map((part, i) => {

@@ -32,7 +32,7 @@ export interface PedidoChat extends AbrirChatDetail {
   n: number;
 }
 
-export function MalejoLoader(props: { copy: MalejoCopy; senaMonto: number; turnstileSiteKey?: string }) {
+export function MalejoLoader(props: { copy: MalejoCopy; turnstileSiteKey?: string }) {
   const [ready, setReady] = useState(false);
   const [pedido, setPedido] = useState<PedidoChat | null>(null);
 

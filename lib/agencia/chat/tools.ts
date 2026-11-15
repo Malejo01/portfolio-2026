@@ -3,7 +3,7 @@ import { z } from "zod";
 import { conocimiento, fraseDeCosto } from "@/content/agencia/conocimiento";
 import { combos, extras, getCombo, getPlan, pagosConfig, plans, resolverId } from "@/content/agencia/pricing";
 import { CALCOM_URL, waLink } from "@/lib/agencia/config";
-import { comparar, cotizar, fmt, lineaDePagos, lineaDeTarjeta, resumenCotizacion, totalConTarjeta } from "@/lib/agencia/pricing";
+import { comparar, cotizar, fmt, lineaDePagos, lineaDeSena, lineaDeTarjeta, resumenCotizacion, senaPara, totalConTarjeta } from "@/lib/agencia/pricing";
 import { deduplicable, firmaCard, leerFirmaQuote, type Card, type Medio, type Moneda, type QuoteCard } from "./cards";
 import { mergeFicha, type Ficha } from "./ficha";
 import { FichaSchema, limpiarFicha } from "./ficha-schema";
@@ -234,6 +234,7 @@ export function quoteCard(args: { planIds: string[]; extras?: string[]; medio?: 
     moneda: mon,
     aCotizar: c.aCotizar,
     ...(c.pagos ? { pagos: lineaDePagos(c.pagos.total)! } : {}),
+    sena: senaPara({ items: principal.map((i) => ({ id: i.id, origen: "persona" as const })), extras: [...new Set(args.extras ?? [])] }),
     ...(mon === "usd" && c.usd ? { usd: { implementacion: c.usd.implementacion, mensual: c.usd.abonoMensual, tipoDeCambio: c.usd.tipoDeCambio } } : {}),
     demoHref: `/demo?plan=${encodeURIComponent(principal.map((i) => i.id).join(","))}`,
   };
@@ -310,6 +311,8 @@ export function runTool(name: string, input: unknown, ctx: ToolContext): ToolOut
               }
             : {}),
           ...(otraFormaDePago.length ? { otraFormaDePago } : {}),
+          // Tanda P2: la seña escalonada de esta selección. Repetí este texto, no lo calcules.
+          ...(card.sena ? { senaDeLaDemo: lineaDeSena(card.sena) } : {}),
           ...(conUso ? { recordatorio: `Usa inteligencia artificial o WhatsApp oficial. Aclará en una frase, con estas palabras: «${fraseDeCosto(conocimiento.modeloDeCostos.uso)}» No des montos de uso.` } : {}),
         }),
         card,

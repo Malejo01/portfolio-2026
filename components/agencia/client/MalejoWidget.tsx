@@ -53,12 +53,10 @@ function conCard(m: Msg, card: Card): Msg {
 
 export default function MalejoWidget({
   copy,
-  senaMonto,
   turnstileSiteKey,
   pedido,
 }: {
   copy: MalejoCopy;
-  senaMonto: number;
   turnstileSiteKey?: string;
   /** Pedido de apertura de `AbrirChat` (vía `MalejoLoader`): abrir y, si hay tema, enviarlo. */
   pedido?: { tema?: string; n: number } | null;
@@ -221,7 +219,6 @@ export default function MalejoWidget({
                   key={m.id}
                   msg={m}
                   copy={copy}
-                  senaMonto={senaMonto}
                   turnstileSiteKey={turnstileSiteKey}
                   // Las respuestas sugeridas solo se pueden tocar en el último mensaje.
                   onOpcion={!busy && m.id === msgs[msgs.length - 1]?.id ? (t) => {
@@ -390,13 +387,11 @@ function rich(text: string) {
 function MessageView({
   msg,
   copy,
-  senaMonto,
   turnstileSiteKey,
   onOpcion,
 }: {
   msg: Msg;
   copy: MalejoCopy;
-  senaMonto: number;
   turnstileSiteKey?: string;
   onOpcion?: (texto: string) => void;
 }) {
@@ -432,7 +427,7 @@ function MessageView({
               ))}
             </div>
           ) : (
-            <CardView key={i} card={s.card} copy={copy} senaMonto={senaMonto} turnstileSiteKey={turnstileSiteKey} />
+            <CardView key={i} card={s.card} copy={copy} turnstileSiteKey={turnstileSiteKey} />
           ),
         )}
       </div>
@@ -443,12 +438,10 @@ function MessageView({
 function CardView({
   card,
   copy,
-  senaMonto,
   turnstileSiteKey,
 }: {
   card: Card;
   copy: MalejoCopy;
-  senaMonto: number;
   turnstileSiteKey?: string;
 }) {
   if (card.kind === "quote") {
@@ -489,7 +482,13 @@ function CardView({
           </p>
         ))}
         <Link href={card.demoHref} onClick={() => track("chat_clic", { destino: "demo" })} className="btn btn-p btn-sm w-full">
-          {copy.quote.demo.replace("{SENA}", fmt(senaMonto))}
+          {card.sena?.tipo === "plan-escrito"
+            ? copy.quote.planEscrito.replace("{SENA}", fmt(card.sena.monto))
+            : card.sena?.tipo === "sin-cargo"
+              ? copy.quote.demoSinCargo
+              : card.sena
+                ? copy.quote.demo.replace("{SENA}", fmt(card.sena.monto))
+                : copy.quote.demoSolo}
         </Link>
       </div>
     );

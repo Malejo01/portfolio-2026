@@ -3,8 +3,22 @@ import { z } from "zod";
 import { conocimiento, fraseDeCosto } from "@/content/agencia/conocimiento";
 import { combos, extras, getCombo, getPlan, pagosConfig, plans, resolverId } from "@/content/agencia/pricing";
 import { CALCOM_URL, waLink } from "@/lib/agencia/config";
-import { comparar, cotizar, fmt, lineaDePagos, lineaDeSena, lineaDeTarjeta, resumenCotizacion, senaPara, totalConTarjeta } from "@/lib/agencia/pricing";
-import { deduplicable, firmaCard, leerFirmaQuote, type Card, type Medio, type Moneda, type QuoteCard } from "./cards";
+import type { Armado } from "@/lib/agencia/armado";
+import {
+  clasificarId,
+  comparar,
+  cotizar,
+  fmt,
+  lineaDePagos,
+  lineaDeSena,
+  lineaDeTarjeta,
+  montoDeExtra,
+  precioDePlan,
+  resumenCotizacion,
+  senaPara,
+  totalConTarjeta,
+} from "@/lib/agencia/pricing";
+import { deduplicable, firmaCard, leerFirmaQuote, type Card, type ItemSugerido, type Medio, type Moneda, type QuoteCard } from "./cards";
 import { mergeFicha, type Ficha } from "./ficha";
 import { FichaSchema, limpiarFicha } from "./ficha-schema";
 import { consentEnabled, isPhoneAR, signConsent, signTicket, type ContactPayload } from "./security";
@@ -22,8 +36,12 @@ import { mensajeWhatsApp } from "./whatsapp";
  *   servidor; el widget guarda la ficha en memoria.
  * - `sugerir_respuestas` (R3) muestra 2 o 3 respuestas tocables al pie
  *   del turno; tampoco justifica otra ronda del modelo.
- * - Una tarjeta `quote`/`compare`/`proyectos` igual a una ya mostrada no se
- *   vuelve a emitir (`ctx.shown` trae las firmas del historial reciente).
+ * - `sugerir_armado` (tanda P2) muestra de 1 a 3 ítems con un botón
+ *   "Agregar al armado" cada uno. **Nunca agrega sola** (D5): el clic lo
+ *   hace la persona en el widget.
+ * - Una tarjeta `quote`/`compare`/`proyectos`/`armado` igual a una ya
+ *   mostrada no se vuelve a emitir (`ctx.shown` trae las firmas del
+ *   historial reciente).
  *
  * No hay ninguna herramienta que lea contactos. `guardar_contacto` no
  * guarda: firma el pedido y se lo pasa a la UI, que muestra la casilla de
@@ -62,6 +80,12 @@ const schemas = {
           .refine((t) => !/https?:|www\.|\//i.test(t), "sin links ni rutas"),
       )
       .min(2)
+      .max(3),
+  }),
+  sugerir_armado: z.object({
+    items: z
+      .array(z.object({ id: z.string().trim().max(60), porque: z.string().trim().min(1).max(140) }))
+      .min(1)
       .max(3),
   }),
   guardar_contacto: z.object({
@@ -177,6 +201,31 @@ export const tools: Anthropic.Tool[] = [
     },
   },
   {
+    name: "sugerir_armado",
+    description:
+      "Muestra de 1 a 3 sugerencias para el armado de Soluciones, cada una con su precio, el porqué y un botón «Agregar al armado» que toca la persona. NO agrega nada: lo agrega la persona con el botón. Sugerí lo mínimo que resuelve el problema principal; si un combo cubre lo que pide, sugerí el combo. Fuera de Soluciones, la tarjeta lleva a Soluciones con lo sugerido. No sirve para proyectos a medida.",
+    eager_input_streaming: true,
+    input_schema: {
+      type: "object",
+      properties: {
+        items: {
+          type: "array",
+          minItems: 1,
+          maxItems: 3,
+          items: {
+            type: "object",
+            properties: {
+              id: { type: "string", enum: [...ids, ...extraIds], description: "Plan, combo o extra del catálogo." },
+              porque: { type: "string", description: "Por qué le sirve, atado a lo que contó, en una frase de hasta 140 caracteres." },
+            },
+            required: ["id", "porque"],
+          },
+        },
+      },
+      required: ["items"],
+    },
+  },
+  {
     name: "guardar_contacto",
     description:
       "Propone guardar el contacto para que Mauro escriba. NO guarda nada: le muestra a la persona una casilla de consentimiento y solo se guarda si la marca. Usala solo cuando la persona ya te dio nombre y WhatsApp por su cuenta y quiere que la contacten. Rubro y resumen salen de la ficha si no los pasás.",
@@ -201,6 +250,8 @@ export interface ToolContext {
   ficha: Ficha;
   /** Firmas de las tarjetas ya mostradas (del historial y de este turno). */
   shown: Set<string>;
+  /** Tanda P2: el armado actual de Soluciones (validado), si el widget lo mandó. */
+  armado?: Armado;
 }
 
 export interface ToolOutcome {
@@ -211,8 +262,23 @@ export interface ToolOutcome {
   ficha?: Ficha;
 }
 
-export function nuevoContexto(tipoDeCambio: number, ficha: Ficha = {}, shownCards: string[] = []): ToolContext {
-  return { tipoDeCambio, ficha, shown: new Set(shownCards) };
+export function nuevoContexto(tipoDeCambio: number, ficha: Ficha = {}, shownCards: string[] = [], armado?: Armado): ToolContext {
+  return { tipoDeCambio, ficha, shown: new Set(shownCards), ...(armado ? { armado } : {}) };
+}
+
+/** "desde $249.000", "$177.000 + $22.000 por mes", "$25.000 por mes": el precio de una sugerencia. */
+function precioCorto(id: string): string {
+  const plan = getPlan(id);
+  if (plan) {
+    const p = precioDePlan(plan, "transferencia");
+    if (p.precio == null) return p.texto;
+    const base = `${p.tipo === "desde" ? "desde " : ""}${fmt(p.precio)}${p.tipo === "mensual" ? " por mes" : plan.unit === "por año" ? " por año" : ""}`;
+    return p.abono ? `${base} + ${fmt(p.abono)} por mes` : base;
+  }
+  const combo = getCombo(id);
+  if (combo) return `${fmt(combo.price)}${combo.monthly ? ` + ${fmt(combo.monthly)} por mes` : ""}`;
+  const extra = extras.find((e) => e.id === id);
+  return extra ? montoDeExtra(extra, "transferencia") : "";
 }
 
 /** Arma la tarjeta de cotización. La usa la herramienta y la reconstrucción desde una firma. */
@@ -255,6 +321,12 @@ const nombreDe = (id: string) => getPlan(id)?.name ?? (getCombo(id) ? `Combo ${g
 function conDedup(ctx: ToolContext, out: ToolOutcome): ToolOutcome {
   if (!out.card || !deduplicable(out.card)) return out;
   const firma = firmaCard(out.card);
+  if (ctx.shown.has(firma) && out.card.kind === "armado") {
+    return {
+      content:
+        "Esa misma sugerencia YA está en pantalla, con su botón «Agregar al armado»: no la mostré de nuevo. Decile que la agregue tocando ese botón (vos no podés agregar nada) y seguí con el próximo paso.",
+    };
+  }
   if (ctx.shown.has(firma)) {
     return {
       content: `${out.content}\n\nEsa misma tarjeta YA está en pantalla: no la mostré de nuevo. No la repitas ni la cites; seguí con el próximo paso.`,
@@ -390,6 +462,37 @@ export function runTool(name: string, input: unknown, ctx: ToolContext): ToolOut
     case "sugerir_respuestas": {
       const { opciones } = parsed.data as z.infer<typeof schemas.sugerir_respuestas>;
       return { content: "Mostré los botones. No los menciones.", card: { kind: "opciones", opciones: [...new Set(opciones)] } };
+    }
+    case "sugerir_armado": {
+      const { items } = parsed.data as z.infer<typeof schemas.sugerir_armado>;
+      const vistos = new Set<string>();
+      const sugeridos: ItemSugerido[] = [];
+      const desconocidos: string[] = [];
+      for (const it of items) {
+        const c = clasificarId(it.id);
+        if (!c) {
+          desconocidos.push(it.id);
+          continue;
+        }
+        if (esGrande(c.id)) return { content: GRANDES, isError: true };
+        if (vistos.has(c.id)) continue;
+        vistos.add(c.id);
+        sugeridos.push({ id: c.id, tipo: c.tipo, nombre: nombreDe(c.id) === c.id ? (extras.find((e) => e.id === c.id)?.name ?? c.id) : nombreDe(c.id), precio: precioCorto(c.id), porque: it.porque });
+      }
+      if (!sugeridos.length) return { content: `Ningún id existe en el catálogo: ${desconocidos.join(", ")}`, isError: true };
+      const yaEsta = sugeridos.filter((s) => ctx.armado?.items.some((i) => i.id === s.id) || ctx.armado?.extras.includes(s.id)).map((s) => s.nombre);
+      const href = `/soluciones?a=${sugeridos.map((s) => s.id).join(",")}`;
+      return conDedup(ctx, {
+        content: [
+          `Mostré la sugerencia (${sugeridos.map((s) => s.nombre).join(" + ")}) con un botón «Agregar al armado» por ítem.`,
+          "Todavía NO está en el armado: lo agrega la persona con el botón. No digas que lo agregaste ni que aparece un botón.",
+          yaEsta.length ? `Ya estaban en su armado: ${yaEsta.join(", ")}.` : "",
+          desconocidos.length ? `Ids que no existen (no los menciones): ${desconocidos.join(", ")}.` : "",
+        ]
+          .filter(Boolean)
+          .join(" "),
+        card: { kind: "armado", items: sugeridos, href },
+      });
     }
     case "guardar_contacto": {
       const data = parsed.data as z.infer<typeof schemas.guardar_contacto>;

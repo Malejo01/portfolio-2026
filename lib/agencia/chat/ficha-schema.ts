@@ -35,6 +35,10 @@ export const FichaSchema = z.object({
   cuotas: texto(L.texto),
   dudas: lista,
   etapa: z.enum(ETAPAS).optional(),
+  armadoIds: z
+    .array(z.string().regex(/^[a-z0-9-]{2,60}$/))
+    .max(12)
+    .optional(),
 });
 
 /** Quita las claves vacías que dejó el truncado. */

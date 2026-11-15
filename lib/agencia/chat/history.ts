@@ -16,6 +16,8 @@ export interface ChatMsg {
   role: "user" | "assistant";
   text: string;
   cards: Card[];
+  /** La bienvenida (tanda P2, Fase 5 bis): se muestra, pero no va al servidor. */
+  saludo?: boolean;
 }
 
 /** El mismo tope que valida el servidor por mensaje. */
@@ -31,7 +33,10 @@ export function contenidoDe(m: ChatMsg): string {
 }
 
 export function armarHistorial(msgs: ChatMsg[]): { role: "user" | "assistant"; content: string }[] {
-  return msgs.map((m) => ({ role: m.role, content: contenidoDe(m) })).filter((m) => m.content);
+  return msgs
+    .filter((m) => !m.saludo)
+    .map((m) => ({ role: m.role, content: contenidoDe(m) }))
+    .filter((m) => m.content);
 }
 
 export function firmasMostradas(msgs: ChatMsg[]): string[] {

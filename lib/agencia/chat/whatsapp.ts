@@ -1,6 +1,7 @@
 import { fmt, fmtUsd } from "@/lib/agencia/format";
 import type { QuoteCard } from "./cards";
 import type { Ficha } from "./ficha";
+import { siteUrl } from "@/lib/links";
 
 /**
  * El mensaje de WhatsApp para Mauro, armado con lo que el agente averiguó.
@@ -49,6 +50,8 @@ export function mensajeWhatsApp(ficha?: Ficha, cotizacion?: QuoteCard | null, no
   const plata = unir([f.presupuesto && `Presupuesto: ${f.presupuesto}`, f.urgencia && `Urgencia: ${f.urgencia}`]);
   if (plata) lineas.push(`• ${plata}`);
   add("Dudas", f.dudas.join("; "));
+  // Tanda P2: el armado de Soluciones, como link que Mauro puede abrir.
+  if (raw.armadoIds?.length) add("Mi armado", `${siteUrl}/soluciones?a=${raw.armadoIds.join(",")}`);
   if (nota?.trim() && nota.trim() !== f.necesidad) add("Consulta", nota.trim());
 
   if (!lineas.length) return SALUDO;

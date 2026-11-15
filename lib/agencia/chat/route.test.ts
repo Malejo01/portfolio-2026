@@ -90,7 +90,7 @@ describe("/api/chat con modelo simulado", () => {
     expect(p1.system).toHaveLength(2);
     expect(p1.system[0].cache_control).toEqual({ type: "ephemeral" });
     expect(p1.system[1].text).toContain("- Ciudad: Salta");
-    expect(p1.tools).toHaveLength(9);
+    expect(p1.tools).toHaveLength(10);
     // La segunda ronda lleva los dos tool_result en un solo mensaje.
     const ultimo = p2.messages.at(-1)!;
     expect(ultimo.role).toBe("user");
@@ -300,6 +300,31 @@ describe("/api/contacto · formulario del chat (R3)", () => {
     expect((await enviar({ consent: true, ticket, token, nombre: "Ana", whatsapp: "12345678" })).status).toBe(400);
     expect((await enviar({ consent: true, ticket: { ...ticket, rubro: "Otra" }, token, nombre: "Ana", whatsapp: "3875813233" })).status).toBe(400);
     expect((await enviar({ consent: false, ticket, token, nombre: "Ana", whatsapp: "3875813233" })).status).toBe(400);
+  });
+});
+
+describe("/api/chat · modo armado (P2)", () => {
+  it("en /soluciones el bloque final lleva el modo y el armado actual, y la ficha recibe los ids", async () => {
+    mock.guion([{ bloques: [{ type: "text", text: "¿Qué tenés hoy?" }], stop: "end_turn" }]);
+    const evs = await chat({
+      ...user("¿Cuánto me sale todo esto?"),
+      pagina: "/soluciones",
+      armado: { items: [{ id: "landing-profesional", origen: "persona" }, { id: "turnos-online", origen: "malejo" }, { id: "inventado", origen: "persona" }], extras: [] },
+    });
+    expect(evs[0]).toEqual({ type: "ficha", ficha: { armadoIds: ["landing-profesional", "turnos-online"] } });
+    const [p] = mock.pedidos as { system: { text: string }[] }[];
+    expect(p.system[0].text).toContain("# Modo armado (Soluciones)");
+    expect(p.system[1].text).toContain("# Modo armado\nEstá en Soluciones");
+    expect(p.system[1].text).toContain("Armado actual: Combo Página + turnos [combo-negocio-con-turnos] · se aplica el combo solo · estimado entre $357.000 y $411.000");
+    expect(p.system[1].text).toContain("Lo que agregó desde tus sugerencias: turnos-online.");
+    expect(p.system[1].text).not.toContain("inventado");
+  });
+
+  it("fuera de Soluciones no hay modo armado", async () => {
+    mock.guion([{ bloques: [{ type: "text", text: "Hola" }], stop: "end_turn" }]);
+    await chat({ ...user("hola"), pagina: "/" });
+    const [p] = mock.pedidos as { system: { text: string }[] }[];
+    expect(p.system[1].text).not.toContain("# Modo armado");
   });
 });
 

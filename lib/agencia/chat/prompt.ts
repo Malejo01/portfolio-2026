@@ -1,6 +1,7 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import { categories, combos, extras, getPlan, mantenimientoGrandesPct, pagosConfig, recargoMercadoPago, senasConfig, vigencia } from "@/content/agencia/pricing";
-import { anualPorMes, fmt, lineaDePagos, lineaDePlan, montoDeExtra, precioDePlan } from "@/lib/agencia/pricing";
+import type { Armado } from "@/lib/agencia/armado";
+import { anualPorMes, estimarArmado, fmt, lineaDePagos, lineaDePlan, lineaDeSena, montoDeExtra, precioDePlan } from "@/lib/agencia/pricing";
 import { fichaVacia, type Ficha } from "./ficha";
 import { bloqueConocimiento } from "./knowledge";
 
@@ -100,6 +101,15 @@ En páginas web, catálogos, tiendas, turnos y mantenimiento, la página es del 
 # Proyectos a medida (grandes)
 Si no entra en el catálogo o es una app compleja (marketplace, tipo Uber, ERP, red social): no cotices ni des un "desde", no uses cotizar ni pedir_demo y no ofrezcas la demo de 72 horas. Proponé el camino charla gratis (20 min) → plan del proyecto por escrito (${planEscrito}, por adelantado) → etapas de 2 semanas con avance funcionando, cada una 50% al arrancarla y 50% al entregarla. Ofrecé la charla con derivar_whatsapp.
 
+# Modo armado (Soluciones)
+Cuando el bloque final dice que la persona está en modo armado, está en Soluciones armando lo que necesita su negocio, con un carrito al costado. Ahí:
+- Hacé como mucho 3 preguntas antes de sugerir, de a una por turno y solo las que falten: el rubro, qué problema quiere resolver primero y por dónde le escriben hoy los clientes. Si ya lo sabés, sugerí.
+- Sugerí con sugerir_armado lo mínimo que resuelve el problema principal (1 o 2 ítems, como mucho 3). Si un combo cubre lo que pide, sugerí el combo. Nada entra al armado sin que la persona toque «Agregar al armado»: vos nunca agregás ni quitás nada, aunque te lo pida. Si te pide "agregalo vos", explicale en una frase que se agrega con ese botón.
+- No sumes por sumar. Si pide todo junto, ayudalo a priorizar: qué resolver primero y qué puede esperar. Si en "Armado actual" hay algo que no necesita para lo que contó, decíselo con amabilidad.
+- Precio del armado: hablá del estimado ("entre X y Y") y de los pagos que figuran en "Armado actual", tal cual. Nunca des un precio cerrado del armado ni uses cotizar para sumarlo: el precio final lo cierra Mauro en la charla.
+- Cierre: cuando el armado tiene sentido, invitá a tocar «Mandale tu armado a Mauro» (está en el carrito) y a agendar la videollamada gratis. La demo y su seña son el paso siguiente a esa charla: no ofrezcas pedir_demo antes.
+- Si pregunta por gastos de uso (inteligencia artificial, WhatsApp): el auto, el taller y la nafta.
+
 # Cuándo derivar
 Si pide una persona o hablar con Mauro, si el dato no está en el conocimiento, si pide un descuento o un caso especial: llamá a derivar_whatsapp, que ya lleva la ficha. Regla: si tu respuesta dice que lo pasás con Mauro o que le escriba por WhatsApp, en ese mismo turno TENÉS que llamar a derivar_whatsapp. Nunca prometas que Mauro responde al instante ni en el día.
 
@@ -139,14 +149,51 @@ const ETIQUETAS: [keyof Ficha, string][] = [
   ["etapa", "Etapa"],
 ];
 
+/** Lo que llega al bloque final sobre el armado (tanda P2). */
+export interface ContextoArmado {
+  /** La persona está en `/soluciones`. */
+  modo: "armado" | null;
+  /** Lo que tiene en el carrito, ya validado. */
+  armado?: Armado;
+}
+
+/**
+ * "Armado actual: …" (tanda P2): los nombres con sus ids, el estimado como
+ * rango, los pagos, lo mensual y la seña. Todo sale de `estimarArmado()`:
+ * el modelo repite, no calcula.
+ */
+export function lineaArmadoActual(armado: Armado | undefined): string {
+  if (!armado || (!armado.items.length && !armado.extras.length)) return "Armado actual: vacío (todavía no agregó nada).";
+  const e = estimarArmado(armado);
+  const c = e.cotizacion;
+  const partes = [
+    c.items.map((i) => `${i.nombre} [${i.id}]`).join(" + "),
+    c.combosAplicados.length ? `se aplica el combo solo` : "",
+    e.piso ? `estimado entre ${fmt(e.piso)} y ${fmt(e.techo)}` : "sin pago único",
+    lineaDePagos(e.pagos?.total) ?? "",
+    e.mensual ? `+ ${fmt(e.mensual)} por mes` : "",
+    e.anual ? `+ ${fmt(e.anual)} por año` : "",
+    lineaDeSena(e.sena),
+  ].filter(Boolean);
+  const sugeridos = armado.items.filter((i) => i.origen === "malejo").map((i) => i.id);
+  return `Armado actual: ${partes.join(" · ")}.${sugeridos.length ? ` Lo que agregó desde tus sugerencias: ${sugeridos.join(", ")}.` : ""}`;
+}
+
 /**
  * El bloque sin caché del final: la ficha que mandó el widget y, si se
- * conoce, la página desde la que escribe (tanda R3).
+ * conoce, la página desde la que escribe (tanda R3) y el armado (tanda P2).
  */
-export function bloqueFicha(ficha: Ficha, pagina?: string | null): string {
-  const donde = pagina
-    ? `\n\n# Dónde está\nLa persona escribe desde ${pagina}. Usalo para entender qué está mirando, sin decírselo textual ni asumir que ya eligió.`
-    : "";
+export function bloqueFicha(ficha: Ficha, pagina?: string | null, armado?: ContextoArmado): string {
+  const modo =
+    armado?.modo === "armado"
+      ? `\n\n# Modo armado\nEstá en Soluciones armando lo que necesita: seguí las reglas del modo armado.\n${lineaArmadoActual(armado.armado)}`
+      : armado?.armado && (armado.armado.items.length || armado.armado.extras.length)
+        ? `\n\n# Su armado en Soluciones\n${lineaArmadoActual(armado.armado)}`
+        : "";
+  const donde =
+    (pagina
+      ? `\n\n# Dónde está\nLa persona escribe desde ${pagina}. Usalo para entender qué está mirando, sin decírselo textual ni asumir que ya eligió.`
+      : "") + modo;
   if (fichaVacia(ficha) && !ficha.etapa) return `# Lo que ya sabés del cliente\nTodavía nada: es el comienzo de la charla.${donde}`;
   const lineas = ETIQUETAS.flatMap(([k, label]) => {
     const v = ficha[k];
@@ -157,9 +204,9 @@ export function bloqueFicha(ficha: Ficha, pagina?: string | null): string {
 }
 
 /** `system` del pedido: el bloque cacheado y, después, la ficha. */
-export function systemBlocks(ficha: Ficha, pagina?: string | null): Anthropic.TextBlockParam[] {
+export function systemBlocks(ficha: Ficha, pagina?: string | null, armado?: ContextoArmado): Anthropic.TextBlockParam[] {
   return [
     { type: "text", text: systemPrompt(), cache_control: { type: "ephemeral" } },
-    { type: "text", text: bloqueFicha(ficha, pagina) },
+    { type: "text", text: bloqueFicha(ficha, pagina, armado) },
   ];
 }

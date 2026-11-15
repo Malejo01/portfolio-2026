@@ -29,3 +29,7 @@ export async function contextoDePagina(path: string | undefined): Promise<string
   if (p.startsWith("/legal/")) return "los términos legales";
   return null;
 }
+
+
+/** Pura y sin catálogo: vive en `modo.ts` para que la use el widget. */
+export { modoDePagina } from "./modo";

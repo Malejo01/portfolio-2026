@@ -1,4 +1,9 @@
 /** Copy del flotante de Malejo (DISENO.md §5, `11-flotante-*.png`). Sin toast del portfolio desde R2. */
+import type { IconName } from "@/components/agencia/icons";
+
+/** Una opción de la bienvenida: texto e ícono de `icons.tsx`. */
+export type OpcionBienvenida = { text: string; icon: IconName };
+
 export const malejoCopy = {
   open: "Abrir chat con Malejo",
   close: "Cerrar chat con Malejo",
@@ -12,28 +17,42 @@ export const malejoCopy = {
     restart: "Empezar una charla nueva",
     whatsapp: "Escribirle a Mauro por WhatsApp con el resumen de esta charla",
     whatsappTip: "WhatsApp con Mauro",
+    /** Tanda P2 (Fase 5 bis): "Hablar con Mauro" pasa del pie al encabezado. */
+    mauro: "Hablar con Mauro",
+    /** Celular: la hoja a media pantalla se agranda o se achica. */
+    expandir: "Ver el chat en pantalla completa",
+    achicar: "Volver a media pantalla",
   },
-  greeting:
-    "Hola, soy Malejo, el asistente de Mauro. Contame qué te pasa en tu negocio y te digo qué te conviene y cuánto sale.",
+  /** Tanda P2 (Fase 5 bis): la bienvenida es una burbuja con las opciones adentro. */
+  greeting: "Hola, soy Malejo, el asistente de Mauro 👋 Contame qué necesitás en tu negocio y te ayudo a elegir.",
+  greetingHint: "Tocá una opción o escribime.",
   typing: "Malejo está escribiendo",
   placeholder: "Escribí tu consulta...",
   send: "Enviar",
   inputLabel: "Tu mensaje",
   /**
-   * Chips por problema (tanda R2): se ven hasta el primer mensaje. Cada uno
-   * se envía como mensaje del usuario; "Hablar con Mauro" abre WhatsApp con
-   * la ficha y queda siempre visible.
+   * Las opciones de la bienvenida (tanda R2; P2 las mete en la burbuja).
+   * Cada una se envía como mensaje del usuario. Se pueden tocar solo
+   * mientras la bienvenida es el último mensaje. `icon` = `icons.tsx`.
    */
   chipsLabel: "Elegí un tema o escribime",
   chips: [
-    "Que me encuentren en Google",
-    "Vender por WhatsApp o internet",
-    "Que saquen turno solos",
-    "Ordenar stock y pedidos",
-    "Responder las 24 h",
-    "No sé qué necesito",
-  ],
-  mauro: "Hablar con Mauro",
+    { text: "Que me encuentren en Google", icon: "web" },
+    { text: "Vender por WhatsApp o internet", icon: "cart" },
+    { text: "Que saquen turno solos", icon: "calendar" },
+    { text: "Ordenar stock y pedidos", icon: "box" },
+    { text: "Responder las 24 h", icon: "ia" },
+    { text: "No sé qué necesito", icon: "chat" },
+  ] as OpcionBienvenida[],
+  /** En `/soluciones` (modo armado). */
+  chipsArmado: [
+    { text: "Tengo un comercio", icon: "cart" },
+    { text: "Doy servicios con turno", icon: "calendar" },
+    { text: "Vendo por redes", icon: "chat" },
+    { text: "Tengo una pyme con equipo", icon: "box" },
+    { text: "Quiero atender con IA", icon: "ia" },
+    { text: "No sé por dónde empezar", icon: "grid" },
+  ] as OpcionBienvenida[],
   opcionesLabel: "Respuestas sugeridas",
   privacy: "Si me dejás tu nombre y WhatsApp, los uso solo para contactarte.",
   privacyLink: "Privacidad",
@@ -61,6 +80,13 @@ export const malejoCopy = {
     choose: "Pedir demo",
   },
   proyectos: { label: "Proyectos de Mauro", portfolio: "Ver todo en el portfolio" },
+  /** Tanda P2: la tarjeta de `sugerir_armado`. Nada entra sin el clic (D5). */
+  armado: {
+    label: "Mi sugerencia",
+    agregar: "Agregar al armado",
+    agregado: "✓ En tu armado",
+    abrir: "Abrir en Soluciones",
+  },
   form: {
     label: "Que Mauro te escriba",
     nombre: "Tu nombre",

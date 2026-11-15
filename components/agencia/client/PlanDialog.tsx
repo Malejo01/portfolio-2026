@@ -28,6 +28,12 @@ import { Icon } from "../icons";
  * el botón que `showModal()` acaba de enfocar y el foco caería en `body`.
  * No lleva `data-reveal`: arranca cerrado y sin JS no se ve. Con
  * `prefers-reduced-motion`, aparece sin animación.
+ *
+ * Tanda P2: el contenido del `<dialog>` se monta **la primera vez que se
+ * abre** (y después queda). `/soluciones` tiene unos 40 modales y su
+ * contenido en el HTML eran miles de nodos que se parseaban e hidrataban
+ * sin que nadie los viera. Sin JS no cambia nada: el disparador de `plan`
+ * es un link y el de `info` conserva su `<details>` con el contenido.
  */
 const VARIANTES = {
   cerrado: { opacity: 0, y: 16, scale: 0.98, transition: { duration: 0 } },
@@ -62,6 +68,7 @@ export function PlanDialog({
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
   const [abierto, setAbierto] = useState(false);
+  const [montado, setMontado] = useState(false);
   const reduced = useReducedMotion();
   const titleId = useId();
 
@@ -90,6 +97,7 @@ export function PlanDialog({
   const abrir = () => {
     const d = dialogRef.current;
     if (!d || d.open) return;
+    setMontado(true);
     d.showModal();
     document.documentElement.style.overflow = "hidden";
     setAbierto(true);
@@ -161,7 +169,7 @@ export function PlanDialog({
                 <Icon name="close" size={18} />
               </button>
             </div>
-            {children}
+            {montado ? children : null}
           </m.div>
         </LazyMotion>
       </dialog>

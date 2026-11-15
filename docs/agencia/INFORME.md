@@ -717,3 +717,93 @@ Los 5 casos nuevos de P1 (AK a AO) pasan en las cuatro corridas. Entre corridas 
 - Revisar los `noIncluye` (la lista está en el PR).
 - Search Console: reindexar `/precios` y `/servicios/*` (cambiaron precios y estructura).
 - El link de acceso del preview que se usó para las evals vence solo a las 23 h. El entorno `portfolio-2026` de Claude Code quedó con el host del preview de esta rama habilitado; se puede sacar en la configuración del entorno.
+
+# Tanda P2 · "Soluciones" como armador, Malejo como asesor, seña escalonada y celular primero
+
+Pedido en el documento único del 15-11 (D1 a D9). `npm test` (230 tests), `npm run lint` y `npm run build` en verde. `/soluciones` es `○`; `/servicios/[slug]` sigue `●`; `/precios`, `/cotizador` y `/servicios` son redirecciones 308. Verificación completa con `docs/agencia/verificacion/p2/verificar.js` contra un build de producción y el modelo simulado: **todo en orden** (`verificacion/p2/resultado.json`).
+
+## Qué se hizo, por fase
+1. **Rutas** (`lib/agencia/redirects.ts`, `next.config.ts`): 308 a `/soluciones` conservando la query; menú, pie, celular, blog, chat, rutas y sitemap actualizados (`/soluciones` con prioridad 0,9). Test nuevo: nada de `content/`, `components/agencia/`, `app/(agencia)` ni `lib/agencia` enlaza una ruta redirigida. `/servicios/[slug]` suma "Armalo con esto" → `/soluciones?cat=<slug>`.
+2. **Lógica pura**: `lib/agencia/armado.ts` (sessionStorage + `malejo:armado`, `?a=` de ida y vuelta, tope de 12, sin catálogo para que lo use el widget) y en `pricing.ts` `clasificarId`, `validarArmado`, `armadoDeUrl` y `estimarArmado` (piso publicado; techo +15 % de lo fijo y +50 % de lo "desde", redondeado a miles; pagos sobre el piso). Márgenes en `precios.json → estimado`.
+3. **Seña escalonada** (`precios.json → senas`, `senaPara`, `senaDelPiso`, `lineaDeSena`, `filasDeSena`, `escalaDeSena`, `SenaTabla`): reemplaza a `senaMonto()` en `/demo`, el FAQ, pagos, términos, el chat (`cotizar` devuelve `senaDeLaDemo` y la tarjeta muestra su seña) y el modal de la home. `/demo` lee `?a=` o `?plan=` y, arriba de $750.000, cambia a "Primero el plan por escrito". Links de pago por monto; sin link, alias y WhatsApp.
+4. **El armador** (isla `Armador` + paneles del servidor `PanelArmado`): categorías en columna fija (escritorio), arriba (tableta) o en grilla con fila de chips fija al bajar (celular); planes en carrusel nativo con la recomendada primero; carrito con rango, pagos, mensual, seña y combo aplicado; vaciar con confirmación en línea; compartir; "Mandale tu armado a Mauro" con formulario, `/api/contacto` variante `armado` (solo ids, el servidor escribe el resumen, el mismo único insert) y pantalla de éxito con Cal.com y WhatsApp. Eventos: `soluciones_camino`, `armado_agregar`, `armado_quitar`, `armado_sugerencia_aceptada`, `armado_enviado`, `armado_agenda`, `armado_compartido`.
+5. **Malejo asesor**: modo armado en `/soluciones` (reglas cacheadas en el prompt; "Armado actual" con rango, pagos y seña en el bloque sin caché), el armado viaja con cada pedido, la ficha suma `armadoIds` (el WhatsApp lleva el link al armado) y `sugerir_armado` muestra 1–3 ítems con "Agregar al armado": **nunca agrega sola**. 7 evals nuevas (AP–AV): 48 casos, objetivo 44.
+5 bis. **Bienvenida**: el saludo es una burbuja con las 6 opciones adentro (las de modo armado en Soluciones), en gris cuando dejan de ser el último mensaje; el saludo no va al servidor; el pie queda con el campo y la privacidad; "Hablar con Mauro" pasa al encabezado; scroll al comienzo de cada mensaje nuevo.
+6. **Home y mensaje**: "Software con IA para tu negocio." en el H1, el layout, el OG y el JSON-LD (`serviceType` con "Desarrollo de software" e "Inteligencia artificial para negocios"); baldosas a `/soluciones?cat=`; "Armá lo que necesitás →"; cómo trabajo en 3 pasos nuevos, el 2 con el modal de la seña.
+6 bis. **Celular**: primera pantalla con Mauro (sprite que saluda, CSS `steps()`), "Hablar con Malejo" y "Armar mi solución" apilados y los chips; `BottomNav` (Inicio · Soluciones · Malejo · Contacto) en lugar de la burbuja; hojas con resorte (`Hoja`) para el armado y Contacto; Malejo en hoja a media pantalla que se agranda y pasa a completa con el teclado; barra del armado encima de la barra inferior y de la hoja de Malejo; miniatura que vuela al agregar y contador que rebota; compartir con `navigator.share` o portapapeles; vibración de 12 ms al agregar.
+
+## Redirecciones
+
+| Ruta vieja | Destino | Código | Query |
+|---|---|---|---|
+| `/precios` | `/soluciones` | 308 | se conserva (`?cat=ia` → `/soluciones?cat=ia`) |
+| `/cotizador` | `/soluciones` | 308 | se conserva (`?a=…`) |
+| `/servicios` (solo el índice) | `/soluciones` | 308 | se conserva |
+| `/servicios/[slug]` | — | se queda (`●`) | — |
+
+## Palabras y pantallas (`innerText` de `<main>`)
+
+| Página | Palabras 390 px | Pantallas 390 × 844 | Palabras 1440 px | Pantallas 1440 × 900 |
+|---|---|---|---|---|
+| `/` | 299 | **4,64** (tope 5,5) | 312 | **3,29** (tope 3,5) |
+| `/soluciones` | 416 | 3,74 | 453 | 3,63 |
+| `/soluciones?cat=turnos` | 309 | 3,56 | 346 | 2,97 |
+| `/servicios/webs` | 446 | 5,99 | 446 | 3,66 |
+| `/servicios/ia` | 450 | 6,07 | 450 | 3,66 |
+| `/servicios/grandes` | 364 | 4,86 | 364 | 2,95 |
+| `/demo` | 301 | 2,96 | 301 | 1,55 |
+| `/demo?a=landing-profesional,turnos-online` | 327 | 3,09 | 327 | 1,79 |
+| `/demo?plan=sitio-pyme,pedidos-y-clientes` (plan escrito) | 355 | 3,36 | 355 | 1,89 |
+
+Las soluciones siguen ≤ 450 palabras.
+
+## Celular (Fase 6 bis, punto 8)
+- **Primera pantalla de la home**, con la barra inferior: entra a 320 × 640, 360 × 740, 375 × 667, 390 × 844, 412 × 915 y 430 × 932 (a 390 × 844, los chips terminan en 526 px y la barra empieza en 788).
+- **Overflow horizontal**: 0 en todas las páginas a 320, 360, 375, 390, 412, 430, 768, 1024 y 1280 px.
+- **Solapes**: ninguno entre la barra inferior, la barra del armado, la fila de chips y la hoja de Malejo, en los 6 celulares; el relleno de los planes es mayor que la barra del armado; en 768, 1024 y 1280 las categorías, los planes y el carrito no se pisan.
+- **Carrusel**: después de deslizar, termina centrado en una tarjeta (1 px). **Hojas**: la del armado y la de Contacto abren como modal, el foco entra, Esc cierra y el foco vuelve al disparador.
+- **Bienvenida de Malejo**: entra sin scroll en la hoja a 360 × 740 (432 px), 390 × 844 (464 px) y 412 × 915 (503 px), con las 6 opciones.
+- **Teclado abierto**: el cambio a pantalla completa con `visualViewport` no se puede simular en Chromium headless; queda para probar en el celular de Mauro (no se completó el modelo: se usaron 390 × 844 y 412 × 915).
+- **Capturas** a 390 px (`verificacion/p2/`): primera pantalla de la home, `/soluciones` (entrada, categoría elegida, hoja del armado, Malejo a media pantalla) y la pantalla de éxito; y a 1280 px, home y `/soluciones`.
+
+## Flujo completo (build local, modelo simulado)
+Agregar y quitar; el combo Página + turnos se aplica solo al agregar sus partes; `?a=` en otra pestaña abre con "Te compartieron este armado"; "Ayudame a elegir" → "Doy servicios con turno" → tarjeta de `sugerir_armado` → "Agregar al armado" → el carrito lo marca "Sugerido por Malejo"; "Mandale tu armado a Mauro" manda solo ids (`consent`, `armado`, `nombre`, `whatsapp`, `ficha`) y aparece la pantalla de éxito. La respuesta de `/api/contacto` se simuló en el navegador porque el sandbox no tiene base: el endpoint real con el armado está cubierto por `route.test.ts` (503 sin base con un pedido válido, 400 sin casilla, con un WhatsApp inválido o con un armado vacío o inventado).
+
+## Sin JS
+`/soluciones` muestra las 7 categorías en `<details>`, 33 enlaces "Pedí tu demo" visibles y ningún "Agregar al armado"; el carrito y la barra inferior no aparecen, y en su lugar están "Escribime por WhatsApp" y "Contame qué necesitás".
+
+## Rendimiento (Lighthouse 12.6 móvil, throttling por defecto, build de producción local)
+
+Tres o cuatro corridas por página, en el mismo contenedor, contra esta rama y contra `main` (P1) construida al lado:
+
+| Página | LCP | TBT | CLS |
+|---|---|---|---|
+| `/` (P2) | 4,31–4,35 s | 190–255 ms (mediana 228) | 0 |
+| `/` (`main`) | 4,23–4,27 s | 149–201 ms | 0 |
+| `/soluciones` (P2) | 2,79–3,47 s | 159–245 ms (mediana 221) | 0 |
+| `/precios` (`main`) | 2,87–3,21 s | 148–237 ms | 0 |
+
+- **TBT ≤ 250 ms y CLS ≤ 0,05: se cumplen** (mediana). Para llegar: el contenido de cada modal `PlanDialog` se monta recién al abrirlo (`/soluciones` tiene ~40 modales y su contenido eran miles de nodos que se parseaban e hidrataban sin verse; el HTML bajó de 701 a 608 kB frente a `/precios`) y el título de "¿Qué necesitás?" salió del `Reveal`, porque con la primera pantalla nueva asoma arriba del pliegue y era el LCP.
+- **LCP ≤ 2,5 s: no se cumple en este contenedor, pero tampoco en `main`**: la home de `main` da 4,2 s y `/precios` 2,9 s con el mismo método. El 85–90 % es "render delay" del simulador sobre una máquina lenta (índice de CPU 1.200–2.100). Hay que medirlo en el preview de Vercel con PageSpeed Insights; R2 midió 93 de rendimiento en celular en otro entorno.
+- **JS de la isla del armador**: 21,5 kB gzip (catálogo, `estimarArmado`, la isla y el carrusel) + 3,2 kB (`AgregarBoton` y `useArmado`) = **24,7 kB ≤ 35 kB**. React y Framer Motion son compartidos con el resto del sitio y no se cuentan. El widget de Malejo pesa 12,9 kB y sigue cargándose diferido.
+- Ninguna animación hubo que sacar: todas son `transform` y `opacity`.
+
+## Decisiones
+1. **`armado.ts` sin catálogo.** El widget de Malejo lo importa y no tiene que cargar `precios.json`: la validación se inyecta (`clasificarId` en el armador, el servidor y `/demo`).
+2. **`sugerir_armado` no se repite** con la misma firma (5.3). La eval AR ("Agregalo vos") pide explicar el botón y no decir que lo agregó; volver a mostrar la tarjeta no es obligatorio porque la sugerencia ya está en pantalla.
+3. **En Soluciones de escritorio no va el sprite flotante**: pisaba el carrito antes de que quede fijo. Malejo se abre desde "Ayudame a elegir", el carrito ("Preguntale a Malejo") y el header.
+4. **Hoja de Malejo con piso de 432 px** (`max(55dvh, 432px)`): a 360 × 740 el 55 % no alcanzaba para la bienvenida con sus 6 opciones.
+5. **Outfit pasa a fuente variable**: con los pesos fijos, el build sin caché fallaba en Turbopack con el mismo error que ya estaba documentado para JetBrains Mono. Son unos 100 kB más de fuentes; si molesta en las mediciones de Vercel, se puede volver a los pesos fijos con caché de build.
+6. **"Armar otra cosa"** después del éxito vuelve al carrito sin vaciarlo, por si la persona quiere ajustar algo.
+
+## Evals
+Las 48 evals (`npm run eval:chat`) necesitan la clave del lado del servidor. En este sandbox no hay `ANTHROPIC_API_KEY` ni `CHAT_TEST_TOKEN`, y el proxy del entorno bloquea el host del preview de Vercel: quedan pendientes (ver el PR). Con el modelo simulado pasan los tests de la ruta, las herramientas y el runner (incluido que los casos AP–AV se cargan y llevan `pagina` y `armado`).
+
+## Pasos manuales para Mauro
+1. Crear en Mercado Pago links de $25.000 y $50.000 para la seña, y uno de $60.000 para el plan por escrito; cargarlos en Vercel como `NEXT_PUBLIC_SENA_URL_25000`, `NEXT_PUBLIC_SENA_URL_50000` y `NEXT_PUBLIC_PLAN_ESCRITO_URL`. Desactivar el link viejo de $20.000.
+2. Después del deploy, borrar `SENA_MONTO` y `NEXT_PUBLIC_SENA_URL` de Vercel (ya no se leen).
+3. Leer y aprobar la cláusula nueva de la seña en los términos (`/legal/terminos`, punto 2).
+4. Search Console: reenviar el sitemap, pedir la indexación de `/soluciones`; `/precios` y `/cotizador` van a aparecer como "Página con redirección", y es lo esperado.
+5. Opcional: `RESEND_API_KEY` y `MAURO_EMAIL` para recibir un mail con cada armado.
+6. Correr las evals reales (`CHAT_TEST_TOKEN=… npm run eval:chat -- --url <preview>`) y medir con PageSpeed Insights en el preview.
+7. Probar en su celular: el teclado abierto en el chat y la vibración al agregar.

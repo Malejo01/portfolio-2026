@@ -88,6 +88,7 @@ export function Armador({
   const chipsRef = useRef<HTMLDivElement>(null);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const listo = useRef(false);
+  const barraRef = useRef<HTMLButtonElement>(null);
 
   // `?cat=` y `?a=` en el primer frame: la URL es estado externo y la ruta, estática.
   useEffect(() => {
@@ -327,16 +328,20 @@ export function Armador({
                 }}
                 className="cat-panel plans"
               >
+                {/*
+                  Sin <Suspense> a propósito: Next manda el contenido de un límite
+                  por streaming fuera de lugar y, sin JS, el catálogo no se vería.
+                */}
                 {paneles[c.key]}
               </details>
             );
           })}
         </div>
 
-        {/* Carrito: columna fija desde 760 px */}
+        {/* Carrito: columna fija desde 760 px. Termina antes del sprite de Malejo (abajo a la derecha). */}
         <aside
           aria-label={copy.carrito.label}
-          className="card hi hidden min-w-0 flex-col gap-4 p-5 min-[760px]:sticky min-[760px]:top-[104px] min-[760px]:col-start-2 min-[760px]:row-span-2 min-[760px]:row-start-1 min-[760px]:flex min-[760px]:max-h-[calc(100dvh-120px)] min-[760px]:overflow-y-auto lg:col-start-3"
+          className="card hi hidden min-w-0 flex-col gap-4 p-5 min-[760px]:sticky min-[760px]:top-[104px] min-[760px]:col-start-2 min-[760px]:row-span-2 min-[760px]:row-start-1 min-[760px]:flex min-[760px]:max-h-[calc(100dvh-290px)] min-[760px]:overflow-y-auto lg:col-start-3"
         >
           <EncabezadoCarrito copy={copy} n={n} rebote={rebote} />
           {carrito}
@@ -345,7 +350,7 @@ export function Armador({
 
       {/* Celular: la barra del armado, encima de la barra inferior */}
       <AnimatePresence>
-        {n > 0 && !hoja ? (
+        {n > 0 ? (
           <m.div
             key="barra"
             data-reveal
@@ -353,9 +358,13 @@ export function Armador({
             animate={{ y: 0, opacity: 1 }}
             exit={reduced ? { opacity: 0 } : { y: 24, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="barra-armado fixed inset-x-2 z-40 min-[760px]:hidden"
+            // Con la hoja abierta la barra no se desmonta (se esconde): así el
+            // `<dialog>` le devuelve el foco al cerrarse.
+            aria-hidden={hoja || undefined}
+            className={`barra-armado fixed inset-x-2 z-40 min-[760px]:hidden ${hoja ? "invisible" : ""}`}
           >
             <button
+              ref={barraRef}
               type="button"
               onClick={() => setHoja(true)}
               aria-haspopup="dialog"
@@ -383,7 +392,11 @@ export function Armador({
       <div className="min-[760px]:hidden">
         <Hoja
           abierta={hoja}
-          onCerrar={() => setHoja(false)}
+          onCerrar={() => {
+            setHoja(false);
+            // La barra estaba invisible mientras la hoja estaba abierta: el foco vuelve cuando se ve.
+            requestAnimationFrame(() => barraRef.current?.focus());
+          }}
           titulo={copy.carrito.label}
           cerrarLabel={copy.carrito.cerrar}
         >

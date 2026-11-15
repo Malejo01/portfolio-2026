@@ -135,6 +135,16 @@ export default function MalejoWidget({
   const spriteBtn = useRef<HTMLButtonElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
+  /** Quién tenía el foco al abrir el chat: ahí vuelve al cerrarlo. */
+  const abridor = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    if (open) return;
+    const guardar = () => {
+      if (document.activeElement instanceof HTMLElement && document.activeElement !== document.body) abridor.current = document.activeElement;
+    };
+    document.addEventListener("focusin", guardar);
+    return () => document.removeEventListener("focusin", guardar);
+  }, [open]);
 
   // La charla sobrevive a una recarga o a ir y volver de `/demo` (solo en
   // esta pestaña: `sessionStorage`). Se lee en el primer frame.
@@ -165,9 +175,10 @@ export default function MalejoWidget({
   const close = useCallback(() => {
     setOpen(false);
     setGrande(false);
-    spriteBtn.current?.focus();
-    // En el celular el sprite no está: el foco vuelve a la barra inferior.
-    if (!spriteBtn.current?.offsetParent) document.querySelector<HTMLElement>("[data-malejo-abrir]")?.focus();
+    // El foco vuelve al sprite si se ve; si no (celular, Soluciones), a quien abrió el chat.
+    if (spriteBtn.current?.offsetParent) spriteBtn.current.focus();
+    else if (abridor.current?.isConnected && abridor.current.offsetParent) abridor.current.focus();
+    else document.querySelector<HTMLElement>("[data-malejo-abrir]")?.focus();
   }, []);
 
   useEffect(() => {
@@ -421,7 +432,11 @@ export default function MalejoWidget({
           ) : null}
         </AnimatePresence>
 
-        {/* El sprite flotante, desde 760 px: en el celular, Malejo está en la barra inferior. */}
+        {/*
+          El sprite flotante, desde 760 px: en el celular, Malejo está en la barra
+          inferior. En Soluciones tampoco va: pisaría el carrito, que ya tiene
+          "Preguntale a Malejo" (y el header, "Hablá con Malejo").
+        */}
         <button
           ref={spriteBtn}
           type="button"
@@ -432,7 +447,7 @@ export default function MalejoWidget({
             setOpen(true);
             track("chat_abierto", { origen: "flotante" });
           }}
-          className="breathe pointer-events-auto hidden flex-col items-center gap-1 rounded-lg min-[760px]:flex"
+          className={`breathe pointer-events-auto hidden flex-col items-center gap-1 rounded-lg ${modo === "armado" ? "" : "min-[760px]:flex"}`}
         >
           <span className="lbl rounded-[7px] bg-acc px-[7px] py-1 text-[10px] font-semibold text-acc-ink shadow-btn">{open ? copy.chipOpen : copy.chip}</span>
           {/* eslint-disable-next-line @next/next/no-img-element -- pixel art chico, sin optimizar a propósito */}

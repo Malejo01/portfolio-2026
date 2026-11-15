@@ -6,7 +6,7 @@ import { waLink } from "@/lib/agencia/config";
 import { desdeDeCategoria, fmt } from "@/lib/agencia/pricing";
 import { Icon } from "../icons";
 import { AbrirChat } from "../client/AbrirChat";
-import { Reveal, RevealGroup, RevealItem } from "../client/Reveal";
+import { RevealGroup, RevealItem } from "../client/Reveal";
 
 /**
  * "Desde $177.000 · 3 × $59.000": el menor pago único de la categoría con
@@ -99,10 +99,13 @@ export function Needs() {
     // `id="soluciones"` marca "Soluciones" en el menú (P2); el ancla vieja `/#servicios` sigue viva.
     <section id="soluciones" className="wrap pt-14 sm:pt-16">
       <span id="servicios" className="block scroll-mt-[104px]" aria-hidden="true" />
-      <Reveal>
-        <span className="lbl lbl-o">{needs.label}</span>
-        <h2 className="h h2">{needs.title}</h2>
-      </Reveal>
+      {/*
+        Sin entrada al scroll (tanda P2): con la primera pantalla nueva, este
+        título asoma arriba del pliegue en celular y era el LCP; arrancar en
+        `opacity: 0` hasta hidratar lo demoraba. Las baldosas sí entran.
+      */}
+      <span className="lbl lbl-o">{needs.label}</span>
+      <h2 className="h h2">{needs.title}</h2>
       <NeedTiles />
       <NeedLinks />
     </section>

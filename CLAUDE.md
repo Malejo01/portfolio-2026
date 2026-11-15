@@ -337,6 +337,10 @@ npm run db:migrate  # las aplica Mauro, con DATABASE_URL
   en un `<details>` `.nojs-only`; los modales chicos caen en un
   `<details>`. `html.js .nojs-only` / `html:not(.js) .js-only` en
   `agencia.css`. La animación no remonta el contenido (perdería el foco).
+  Desde P2 el contenido del `<dialog>` se monta la primera vez que se abre
+  (bajó el TBT de `/soluciones`); sin JS no cambia nada. **No envuelvas
+  paneles de `/soluciones` en `<Suspense>`**: Next los manda por streaming
+  fuera de lugar y sin JS el catálogo no se ve.
 - **Abrir el chat desde cualquier botón (R2):** la isla `AbrirChat` es un
   `<a>` a WhatsApp con el texto genérico (`WHATSAPP_TEXTO`) que, con JS,
   dispara el evento **`malejo:abrir`** (`lib/agencia/abrir-chat.ts`,

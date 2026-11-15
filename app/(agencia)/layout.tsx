@@ -19,10 +19,15 @@ import "./agencia.css";
  * `app/layout.tsx` arriba; navegar entre árboles fuerza recarga completa,
  * que es lo correcto porque son sitios distintos con tokens distintos.
  */
+/**
+ * Variable, sin `weight` (tanda P2): con los pesos fijos ["600", "700",
+ * "800"], un build sin caché falla en Turbopack con el mismo error que
+ * JetBrains Mono más abajo ("next/font/google queries have exactly one
+ * entry"). La variable cubre 600 a 800 en un solo archivo.
+ */
 const outfit = Outfit({
   subsets: ["latin"],
   display: "swap",
-  weight: ["600", "700", "800"],
   variable: "--font-outfit",
 });
 

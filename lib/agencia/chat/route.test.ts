@@ -302,3 +302,22 @@ describe("/api/contacto · formulario del chat (R3)", () => {
     expect((await enviar({ consent: false, ticket, token, nombre: "Ana", whatsapp: "3875813233" })).status).toBe(400);
   });
 });
+
+describe("/api/contacto · armado de /soluciones (P2)", () => {
+  const enviar = (body: unknown) =>
+    POSTContacto(new Request("http://localhost/api/contacto", { method: "POST", headers: { "content-type": "application/json", "x-forwarded-for": "10.7.7.8" }, body: JSON.stringify(body) }));
+  const base = { consent: true, armado: { items: ["landing-profesional", "turnos-online"], extras: [] }, nombre: "Ana", whatsapp: "3875813233" };
+
+  it("solo ids y la casilla: sin base responde 503 (el pedido era válido)", async () => {
+    expect((await enviar(base)).status).toBe(503);
+    expect((await enviar({ ...base, rubro: "Peluquería", nota: "x".repeat(300), ficha: { rubro: "Peluquería" } })).status).toBe(503);
+  });
+
+  it("sin casilla, con un WhatsApp inválido o con un armado vacío o inventado: 400", async () => {
+    expect((await enviar({ ...base, consent: false })).status).toBe(400);
+    expect((await enviar({ ...base, whatsapp: "12345678" })).status).toBe(400);
+    expect((await enviar({ ...base, armado: { items: [] } })).status).toBe(400);
+    expect((await enviar({ ...base, armado: { items: ["no-existe", "<script>"] } })).status).toBe(400);
+    expect((await enviar({ ...base, nota: "x".repeat(301) })).status).toBe(400);
+  });
+});

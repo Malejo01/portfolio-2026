@@ -2,7 +2,9 @@ import Link from "next/link";
 import { home } from "@/content/agencia/home";
 import { pagosCopy, type Combo, type Plan } from "@/content/agencia/pricing";
 import { solucionDeCombo } from "@/content/agencia/servicios";
+import { solucionesCopy } from "@/content/agencia/soluciones";
 import { ahorro, ahorroEnPesos, fmt, lineaDePagos, lineaDePlan, mensualDeAnual, precioDePlan } from "@/lib/agencia/pricing";
+import { AgregarBoton } from "./client/AgregarBoton";
 import { PlanDialog } from "./client/PlanDialog";
 import { Check } from "./icons";
 import { ComboDetalle, PlanDetalle } from "./PlanDetalle";
@@ -21,9 +23,32 @@ import { ComboDetalle, PlanDetalle } from "./PlanDetalle";
  * Sin JS, "Ver qué incluye" lleva a `/servicios/<cat>#<id>`. En la página de
  * la solución (`enPagina`) el detalle está ahí mismo, en un `<details>`
  * (`.nojs-only`), y el enlace se esconde.
+ *
+ * `modo="armado"` (tanda P2, `/soluciones`): el botón principal pasa a ser
+ * "Agregar al armado" (la isla `AgregarBoton`, que alterna a "✓ Agregado ·
+ * Quitar") y el modal suma el mismo botón. Sin JS, en su lugar va "Pedí tu
+ * demo" (`.nojs-only`).
  */
 
 const { pricing } = home;
+const s = solucionesCopy;
+const LABELS = { agregar: s.agregar, agregado: s.agregado, quitar: s.quitar, quitarAria: s.carrito.quitarAria };
+
+export type ModoTarjeta = "catalogo" | "armado";
+
+/** "Agregar al armado" con su respaldo sin JS: "Pedí tu demo" con el plan. */
+export function AgregarConRespaldo({ id, nombre, destacado = false, tipo = "item" }: { id: string; nombre: string; destacado?: boolean; tipo?: "item" | "extra" }) {
+  return (
+    <>
+      <AgregarBoton id={id} nombre={nombre} labels={LABELS} destacado={destacado} tipo={tipo} />
+      {tipo === "item" ? (
+        <Link href={`/demo?plan=${id}`} className={`nojs-only btn btn-sm min-h-11 w-full ${destacado ? "btn-p" : "btn-s"}`} aria-label={`${s.sinJsDemo}: ${nombre}`}>
+          {s.sinJsDemo}
+        </Link>
+      ) : null}
+    </>
+  );
+}
 
 /** El `<details>` sin JS de `/servicios/<cat>`: el destino de `#<id>`. */
 function DetalleSinJs({ id, label, children }: { id: string; label: string; children: React.ReactNode }) {
@@ -38,7 +63,7 @@ function DetalleSinJs({ id, label, children }: { id: string; label: string; chil
 }
 
 /** "Ver qué incluye": el modal y, en la página de la solución, su respaldo sin JS. */
-function VerPlan({ plan, enPagina }: { plan: Plan; enPagina: boolean }) {
+function VerPlan({ plan, enPagina, modo = "catalogo" }: { plan: Plan; enPagina: boolean; modo?: ModoTarjeta }) {
   const href = `/servicios/${plan.category}#${plan.id}`;
   return (
     <>
@@ -52,6 +77,7 @@ function VerPlan({ plan, enPagina }: { plan: Plan; enPagina: boolean }) {
           triggerClassName="lnk min-h-11 self-center"
         >
           <PlanDetalle plan={plan} />
+          {modo === "armado" ? <AgregarBoton id={plan.id} nombre={plan.name} labels={LABELS} destacado /> : null}
         </PlanDialog>
       </span>
       {enPagina ? (
@@ -102,7 +128,17 @@ function Precio({ plan }: { plan: Plan }) {
   );
 }
 
-export function PlanCard({ plan, heading = "h3", enPagina = false }: { plan: Plan; heading?: "h2" | "h3"; enPagina?: boolean }) {
+export function PlanCard({
+  plan,
+  heading = "h3",
+  enPagina = false,
+  modo = "catalogo",
+}: {
+  plan: Plan;
+  heading?: "h2" | "h3";
+  enPagina?: boolean;
+  modo?: ModoTarjeta;
+}) {
   const H = heading;
 
   return (
@@ -129,21 +165,25 @@ export function PlanCard({ plan, heading = "h3", enPagina = false }: { plan: Pla
         ))}
       </ul>
       <div className="mt-auto flex flex-col gap-1">
-        <Link
-          href={`/demo?plan=${plan.id}`}
-          className={`btn btn-sm min-h-11 w-full ${plan.rec ? "btn-p" : "btn-s"}`}
-          aria-label={`${pricing.planCta}: ${plan.name}`}
-        >
-          {pricing.planCta}
-        </Link>
-        <VerPlan plan={plan} enPagina={enPagina} />
+        {modo === "armado" ? (
+          <AgregarConRespaldo id={plan.id} nombre={plan.name} destacado={plan.rec} />
+        ) : (
+          <Link
+            href={`/demo?plan=${plan.id}`}
+            className={`btn btn-sm min-h-11 w-full ${plan.rec ? "btn-p" : "btn-s"}`}
+            aria-label={`${pricing.planCta}: ${plan.name}`}
+          >
+            {pricing.planCta}
+          </Link>
+        )}
+        <VerPlan plan={plan} enPagina={enPagina} modo={modo} />
       </div>
     </article>
   );
 }
 
 /** Una fila de "Ver otras opciones" (§4.2.4): nombre, total, pagos y "Ver qué incluye". */
-export function PlanFila({ plan, enPagina = false }: { plan: Plan; enPagina?: boolean }) {
+export function PlanFila({ plan, enPagina = false, modo = "catalogo" }: { plan: Plan; enPagina?: boolean; modo?: ModoTarjeta }) {
   const p = precioDePlan(plan, "transferencia");
   const linea = lineaDePlan(plan);
   return (
@@ -157,14 +197,25 @@ export function PlanFila({ plan, enPagina = false }: { plan: Plan; enPagina?: bo
           {linea ? <span className="text-acc-text"> · {linea}</span> : null}
         </span>
       </div>
-      <div className="flex-none">
-        <VerPlan plan={plan} enPagina={enPagina} />
+      <div className={`flex-none ${modo === "armado" ? "flex flex-col gap-1 sm:w-[220px]" : ""}`}>
+        {modo === "armado" ? <AgregarConRespaldo id={plan.id} nombre={plan.name} /> : null}
+        <VerPlan plan={plan} enPagina={enPagina} modo={modo} />
       </div>
     </li>
   );
 }
 
-export function ComboCard({ combo, highlight, enPagina = false }: { combo: Combo; highlight?: boolean; enPagina?: boolean }) {
+export function ComboCard({
+  combo,
+  highlight,
+  enPagina = false,
+  modo = "catalogo",
+}: {
+  combo: Combo;
+  highlight?: boolean;
+  enPagina?: boolean;
+  modo?: ModoTarjeta;
+}) {
   const linea = lineaDePagos(combo.price);
   const pagina = solucionDeCombo(combo.id);
   return (
@@ -188,9 +239,13 @@ export function ComboCard({ combo, highlight, enPagina = false }: { combo: Combo
         ) : null}
       </div>
       <div className="flex flex-col gap-1">
-        <Link href={`/demo?plan=${combo.id}`} className="btn btn-s btn-sm min-h-11 w-full" aria-label={`${pricing.comboCta}: ${combo.name}`}>
-          {pricing.comboCta}
-        </Link>
+        {modo === "armado" ? (
+          <AgregarConRespaldo id={combo.id} nombre={`Combo ${combo.name}`} />
+        ) : (
+          <Link href={`/demo?plan=${combo.id}`} className="btn btn-s btn-sm min-h-11 w-full" aria-label={`${pricing.comboCta}: ${combo.name}`}>
+            {pricing.comboCta}
+          </Link>
+        )}
         <span className={enPagina ? "js-only contents" : "contents"}>
           <PlanDialog
             label={pricing.verTrae}
@@ -201,6 +256,7 @@ export function ComboCard({ combo, highlight, enPagina = false }: { combo: Combo
             triggerClassName="lnk min-h-11 self-center"
           >
             <ComboDetalle combo={combo} />
+            {modo === "armado" ? <AgregarBoton id={combo.id} nombre={`Combo ${combo.name}`} labels={LABELS} destacado /> : null}
           </PlanDialog>
         </span>
         {enPagina ? (

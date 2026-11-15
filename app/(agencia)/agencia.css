@@ -611,3 +611,149 @@ html:not(.js) .js-only {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* ============================================================
+   TANDA P2 · /soluciones (el armador) y celular primero
+   ============================================================ */
+
+/* Alto de la barra inferior del celular (BottomNav) y de lo que tapa la
+   hoja de Malejo a media pantalla. Solo con JS: sin JS no hay barra. */
+:root {
+  --nav-inf: 0px;
+  --malejo-hoja: 0px;
+}
+@media (max-width: 759px) {
+  html.js {
+    --nav-inf: calc(56px + env(safe-area-inset-bottom));
+  }
+  html.js body {
+    padding-bottom: var(--nav-inf);
+  }
+}
+
+/* Cada categoría es un `<details>`: sin JS, todas a un clic. Con JS, la isla
+   deja abierta solo la activa y el `<summary>` hace de título. */
+.cat-panel > .cat-summary {
+  cursor: pointer;
+}
+html.js .cat-panel:not([data-activo]) {
+  display: none;
+}
+html.js .cat-panel > .cat-summary {
+  cursor: default;
+  pointer-events: none;
+}
+html:not(.js) .cat-panel {
+  border-top: 1px solid var(--border);
+  padding-block: 14px;
+}
+
+/* Carrusel del celular (Fase 6 bis): scroll-snap nativo, una tarjeta por
+   pantalla y un poco de la siguiente. Desde 760 px, grilla. */
+.carrusel {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scroll-padding-inline: 20px;
+  margin-inline: -20px;
+  padding: 14px 20px 6px;
+}
+@media (min-width: 640px) and (max-width: 759px) {
+  .carrusel {
+    margin-inline: -32px;
+    padding-inline: 32px;
+    scroll-padding-inline: 32px;
+  }
+}
+.carrusel-slide {
+  flex: 0 0 min(88vw, 360px);
+  display: flex;
+  scroll-snap-align: center;
+  transition: transform 0.25s ease;
+}
+.carrusel-slide > * {
+  flex: 1;
+  min-width: 0;
+}
+html.js .carrusel-slide:not([data-activa]) {
+  transform: scale(0.96);
+}
+.carrusel-flecha {
+  display: none;
+}
+.carrusel-flecha:disabled {
+  opacity: 0.4;
+}
+@media (pointer: fine) {
+  .carrusel-flecha {
+    display: inline-flex;
+  }
+}
+@media (min-width: 760px) {
+  .carrusel {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    overflow: visible;
+    margin-inline: 0;
+    padding: 12px 0 0;
+  }
+  .carrusel-slide,
+  html.js .carrusel-slide:not([data-activa]) {
+    transform: none;
+  }
+  .carrusel-controles {
+    display: none !important;
+  }
+}
+
+/* La fila de chips fija debajo del header (celular). */
+.chips-fijos {
+  top: 86px;
+  background: var(--nav-bg);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+/* La barra del armado: justo encima de la barra inferior y, si Malejo está
+   abierto a media pantalla, encima de su hoja. */
+.barra-armado {
+  bottom: calc(max(var(--nav-inf), var(--malejo-hoja)) + 8px);
+}
+
+/* Hojas que suben desde abajo (Hoja.tsx). */
+.hoja {
+  width: 100%;
+  max-width: 640px;
+  max-height: 100dvh;
+  margin: auto auto 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  overflow: visible;
+}
+.hoja::backdrop {
+  background: rgb(0 0 0 / 0.5);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hoja[open]::backdrop {
+    animation: hoja-velo 0.22s ease-out;
+  }
+}
+@keyframes hoja-velo {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.hoja-panel {
+  max-height: min(88dvh, 760px);
+}
+.hoja-cuerpo {
+  overscroll-behavior: contain;
+}

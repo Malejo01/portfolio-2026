@@ -57,12 +57,14 @@ export const ARMADO_VACIO: Armado = Object.freeze({ items: [], extras: [] }) as 
 
 /**
  * Qué es un id: `{ id, tipo }` con el id vigente (un alias ya resuelto), o
- * `null` si no existe en el catálogo.
+ * `null` si no existe en el catálogo. `sugerido` es dónde estaba (en
+ * `items` o en `extras`): el clasificador con catálogo lo ignora; el que no
+ * tiene catálogo lo respeta.
  */
-export type Clasificador = (id: string) => { id: string; tipo: "item" | "extra" } | null;
+export type Clasificador = (id: string, sugerido?: "item" | "extra") => { id: string; tipo: "item" | "extra" } | null;
 
-/** Sin catálogo: acepta cualquier id con forma de slug. Solo para datos ya validados. */
-export const sinValidar: Clasificador = (id) => (ID.test(id) ? { id, tipo: "item" } : null);
+/** Sin catálogo: acepta cualquier id con forma de slug y lo deja donde estaba. Solo para datos ya validados. */
+export const sinValidar: Clasificador = (id, sugerido = "item") => (ID.test(id) ? { id, tipo: sugerido } : null);
 
 const ID = /^[a-z0-9-]{2,60}$/;
 
@@ -85,22 +87,22 @@ export function normalizar(raw: unknown, clasificar: Clasificador): Armado {
   if (!raw || typeof raw !== "object") return out;
   const r = raw as { items?: unknown; extras?: unknown };
   const vistos = new Set<string>();
-  const sumar = (id: unknown, origen: OrigenItem) => {
+  const sumar = (id: unknown, origen: OrigenItem, sugerido: "item" | "extra") => {
     if (typeof id !== "string" || !ID.test(id) || cantidad(out) >= MAX_ITEMS) return;
-    const c = clasificar(id);
+    const c = clasificar(id, sugerido);
     if (!c || vistos.has(c.id)) return;
     vistos.add(c.id);
     if (c.tipo === "extra") out.extras.push(c.id);
     else out.items.push({ id: c.id, origen });
   };
   for (const it of Array.isArray(r.items) ? r.items : []) {
-    if (typeof it === "string") sumar(it, "persona");
+    if (typeof it === "string") sumar(it, "persona", "item");
     else if (it && typeof it === "object") {
       const { id, origen } = it as { id?: unknown; origen?: unknown };
-      sumar(id, origen === "malejo" ? "malejo" : "persona");
+      sumar(id, origen === "malejo" ? "malejo" : "persona", "item");
     }
   }
-  for (const id of Array.isArray(r.extras) ? r.extras : []) sumar(id, "persona");
+  for (const id of Array.isArray(r.extras) ? r.extras : []) sumar(id, "persona", "extra");
   return out;
 }
 
@@ -171,7 +173,8 @@ export function guardar(a: Armado): void {
  * "Agregar" y el widget de Malejo nunca se desincronizan.
  */
 export function emitir(accion: AccionArmado, clasificar: Clasificador = sinValidar): Armado {
-  const antes = leer(clasificar);
+  // Lo guardado ya pasó por un clasificador: se lee tal cual, sin moverlo.
+  const antes = leer();
   const armado = aplicar(antes, accion, clasificar);
   if (armado !== antes) guardar(armado);
   const detail: ArmadoEvento = {

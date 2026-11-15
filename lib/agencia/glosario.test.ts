@@ -2,7 +2,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { conocimiento } from "@/content/agencia/conocimiento";
-import { cotizadorCopy } from "@/content/agencia/cotizador";
+import { solucionesCopy } from "@/content/agencia/soluciones";
 import { demoCopy } from "@/content/agencia/demo";
 import { home } from "@/content/agencia/home";
 import { malejoCopy } from "@/content/agencia/malejo";
@@ -55,7 +55,7 @@ const fuentes: Record<string, unknown> = {
   site,
   servicios,
   conocimiento,
-  cotizadorCopy,
+  solucionesCopy,
   demoCopy,
   malejoCopy,
   catalogo: { categories, combos, extras, etiquetasPrecio, resumenCopy },

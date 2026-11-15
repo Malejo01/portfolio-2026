@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getPlan } from "@/content/agencia/pricing";
-import { MAX_ITEMS, aQuery, aplicar, deQuery, normalizar, type Armado } from "./armado";
+import { MAX_ITEMS, aQuery, aplicar, deQuery, normalizar, sinValidar, type Armado } from "./armado";
 import { clasificarId, estimarArmado, montoPlanEscrito, senaDelPiso, senaMinima, senaPara, validarArmado } from "./pricing";
 
 const items = (...ids: string[]): Armado => ({ items: ids.map((id) => ({ id, origen: "persona" as const })), extras: [] });
@@ -143,5 +143,14 @@ describe("senaPara (tanda P2, D4)", () => {
 
   it("sin nada elegido: la seña más chica", () => {
     expect(senaPara([])).toEqual({ tipo: "demo", monto: 25000 });
+  });
+});
+
+describe("armado sin catálogo (widget y botones)", () => {
+  it("lo guardado conserva ítems y extras aunque el clasificador no conozca el catálogo", () => {
+    const a = normalizar({ items: [{ id: "turnos-online", origen: "malejo" }], extras: ["blog"] }, sinValidar);
+    expect(a).toEqual({ items: [{ id: "turnos-online", origen: "malejo" }], extras: ["blog"] });
+    const b = aplicar(a, { accion: "agregar", id: "pagina-adicional", origen: "persona" }, (id) => ({ id, tipo: "extra" }));
+    expect(b.extras).toEqual(["blog", "pagina-adicional"]);
   });
 });

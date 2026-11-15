@@ -42,11 +42,12 @@ export function RevealGroup({ children, className, as = "div" }: { children: Rea
   );
 }
 
-export function RevealItem({ children, className, as = "div" }: { children: React.ReactNode; className?: string; as?: Tag }) {
+/** `i` = la posición en el grupo: el escalonado se corta en el cuarto (`rise`). */
+export function RevealItem({ children, className, as = "div", i = 0 }: { children: React.ReactNode; className?: string; as?: Tag; i?: number }) {
   const reduced = useReducedMotion();
   const M = m[as];
   return (
-    <M data-reveal="" className={className} variants={reduced ? STATIC : rise}>
+    <M data-reveal="" className={className} variants={reduced ? STATIC : rise} custom={i}>
       {children}
     </M>
   );

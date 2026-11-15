@@ -30,6 +30,9 @@ function jsonLd(): string {
       { "@type": "Country", name: "Argentina" },
       { "@type": "Place", name: home.seo.areaServed },
     ],
+    slogan: home.hero.ariaLabel,
+    // Tanda P2 (D7): el mensaje principal es "Software con IA para tu negocio".
+    serviceType: ["Desarrollo de software", "Inteligencia artificial para negocios", ...categories.map((c) => c.label)],
     knowsAbout: categories.map((c) => c.label),
   }).replace(/</g, "\\u003c");
 }
@@ -38,7 +41,7 @@ function jsonLd(): string {
  * La home corta (tanda R2, auditoría §6.3): hero → ¿Qué necesitás? → cómo
  * trabajo → quién te va a atender → cierre. Objetivo medido: ≤ 3,5
  * pantallas en escritorio y ≤ 5,5 en celular (ver `docs/agencia/INFORME.md`).
- * El catálogo completo está en `/precios`.
+ * El catálogo completo está en `/soluciones`.
  */
 export function HomePage() {
   return (

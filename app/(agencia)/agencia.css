@@ -720,7 +720,7 @@ html.js .carrusel-slide:not([data-activa]) {
 /* La barra del armado: justo encima de la barra inferior y, si Malejo está
    abierto a media pantalla, encima de su hoja. */
 .barra-armado {
-  bottom: calc(max(var(--nav-inf), var(--malejo-hoja)) + 8px);
+  bottom: calc(max(var(--nav-inf) + 12px, var(--malejo-hoja)) + 8px);
 }
 
 /* Hojas que suben desde abajo (Hoja.tsx). */
@@ -756,4 +756,38 @@ html.js .carrusel-slide:not([data-activa]) {
 }
 .hoja-cuerpo {
   overscroll-behavior: contain;
+}
+
+/* El sprite de Mauro de la primera pantalla: dos cuadros en loop lento.
+   Solo se anima a la vista (SpriteVivo) y sin movimiento reducido. */
+.sprite-saludo {
+  display: block;
+  flex: none;
+  width: 54px;
+  height: 123px;
+  background: url("/agencia/sprites/malejo-saludo.png") 0 0 / 108px 123px no-repeat;
+  image-rendering: pixelated;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .sprite-saludo[data-visible] {
+    animation: sprite-saludo 5.2s step-end infinite;
+  }
+}
+@keyframes sprite-saludo {
+  0%,
+  100% {
+    background-position: 0 0;
+  }
+  72% {
+    background-position: -54px 0;
+  }
+  90% {
+    background-position: 0 0;
+  }
+}
+
+/* La barra inferior del celular (BottomNav). */
+.nav-inf {
+  height: var(--nav-inf);
+  padding-bottom: env(safe-area-inset-bottom);
 }

@@ -51,16 +51,24 @@ const pagos = {
 export const home = {
   hero: {
     label: "Mauro Lizárraga · Salta, Argentina",
-    /** El H1 tecleado: dos líneas, palabra por palabra. `accent` = naranja. */
+    /**
+     * El H1 tecleado (tanda P2, D7): dos líneas, palabra por palabra.
+     * `accent` = naranja, solo en "IA".
+     */
     lines: [
-      [{ text: "Webs" }, { text: "y" }, { text: "apps" }],
-      [{ text: "potenciadas" }, { text: "con" }, { text: "IA.", accent: true }],
+      [{ text: "Software" }, { text: "con" }, { text: "IA", accent: true }],
+      [{ text: "para" }, { text: "tu" }, { text: "negocio." }],
     ] as { text: string; accent?: boolean }[][],
-    ariaLabel: "Webs y apps potenciadas con IA.",
-    lead: "Webs, sistemas y asistentes con IA para tu negocio. Listos en días, con precios publicados.",
-    /** Abre el chat de Malejo; sin JS, WhatsApp con el texto genérico. */
-    primary: "Contame qué necesitás",
-    secondary: "Escribime por WhatsApp",
+    ariaLabel: "Software con IA para tu negocio.",
+    lead: "Páginas, sistemas y asistentes con inteligencia artificial para negocios de Salta y de toda Argentina. Con precios publicados.",
+    /** Celular (Fase 6 bis): la bajada en una línea, para que todo entre arriba del pliegue. */
+    leadCorto: "Para negocios de Salta y de todo el país.",
+    /** Quién sos, al lado del sprite (celular primero, D8). */
+    quien: { nombre: "Soy Mauro Lizárraga", rol: "Te atiendo yo, con Malejo, mi asistente." },
+    /** Abre la hoja de Malejo; sin JS, WhatsApp con el texto genérico. */
+    primary: "💬 Hablar con Malejo",
+    /** Va al armador. */
+    secondary: { label: "🧩 Armar mi solución", href: "/soluciones" },
     /** §4.1: las tres garantías pasan a una fila de chips de 3 o 4 palabras. */
     chipsLabel: "Por qué es seguro",
     chips: ["Precios publicados", "Demo antes de pagar", "3 pagos sin interés"],
@@ -73,19 +81,23 @@ export const home = {
     porMes: " por mes",
     ask: "Preguntale a Malejo",
     grandes: { label: "¿Algo más grande? Proyectos a medida →", href: "/servicios/grandes" },
-    precios: { label: "Ver todos los precios", href: "/soluciones" },
+    /** Tanda P2: el botón grande lleva al armador. */
+    precios: { label: "Armá lo que necesitás →", href: "/soluciones" },
   },
 
   steps: {
     label: "Cómo trabajo",
     title: "Primero ves tu demo, después decidís",
+    /** Tanda P2: el paso 2 abre el modal de la seña escalonada. */
     items: [
-      { title: "Me contás", body: "Por el chat, por WhatsApp o en una charla gratis." },
-      { title: "Ves tu demo en 72 h", body: "Con tu marca. Decidís sin compromiso." },
+      { title: "Armás lo que necesitás (solo o con Malejo)", body: "En Soluciones ves un estimado al instante." },
+      { title: "Lo charlamos y ves tu demo", body: "Videollamada gratis y demo con tu marca en 72 h. La seña se descuenta." },
       { title: "Pagás en 2 o 3 veces", body: "Sin interés, por transferencia." },
     ],
+    /** El índice (desde 0) del paso que abre el modal de la seña. */
+    pasoSena: 1,
     stepLabel: "Paso",
-    demo: { label: "Pedí tu demo →", href: "/demo" },
+    demo: { label: "Armá lo que necesitás →", href: "/soluciones" },
     /** Modal "¿Cómo funciona la seña?" (§4.1). */
     sena: {
       trigger: "¿Cómo funciona la seña?",

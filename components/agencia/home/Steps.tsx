@@ -7,13 +7,27 @@ import { SenaTabla } from "../SenaTabla";
 import { Reveal } from "../client/Reveal";
 
 /**
- * Cómo trabajo (tanda P1, §4.1): 3 pasos, "Me contás → Ves tu demo en 72 h
- * → Pagás en 2 o 3 veces". La seña y el detalle van al modal "¿Cómo
- * funciona la seña?". Una sola lista: en celular es una tarjeta con los
- * pasos numerados; desde `sm` cada paso es su propia tarjeta, en fila de 3.
+ * Cómo trabajo (tanda P2, §6.5): 3 pasos, "Armás lo que necesitás → Lo
+ * charlamos y ves tu demo → Pagás en 2 o 3 veces". El paso 2 abre el modal
+ * de la seña escalonada ("¿Cómo funciona la seña?", con la tabla de
+ * tramos). Una sola lista: en celular es una tarjeta con los pasos
+ * numerados; desde `sm` cada paso es su propia tarjeta, en fila de 3.
  */
 export function Steps() {
   const { steps } = home;
+  const sena = (
+    <PlanDialog variant="info" label={steps.sena.trigger} title={steps.sena.title} closeLabel={home.pricing.modal.cerrar} triggerClassName="lnk -my-1 min-h-11 self-start text-[14px]">
+      <ul className="m-0 flex list-none flex-col gap-2 p-0">
+        {steps.sena.items.map((t) => (
+          <li key={t} className="flex items-start gap-2">
+            <Check />
+            {completarPagos(t)}
+          </li>
+        ))}
+      </ul>
+      <SenaTabla />
+    </PlanDialog>
+  );
 
   return (
     <section id="como-trabajo" className="wrap pt-14 sm:pt-16">
@@ -39,6 +53,7 @@ export function Steps() {
                   {s.title}
                 </h3>
                 <p className="m-0 text-sm leading-normal text-muted">{s.body}</p>
+                {i === steps.pasoSena ? sena : null}
               </div>
             </li>
           ))}
@@ -48,17 +63,7 @@ export function Steps() {
         <Link href={steps.demo.href} className="lnk min-h-11 text-[15px]">
           {steps.demo.label}
         </Link>
-        <PlanDialog variant="info" label={steps.sena.trigger} title={steps.sena.title} closeLabel={home.pricing.modal.cerrar} triggerClassName="lnk min-h-11 text-[15px]">
-          <ul className="m-0 flex list-none flex-col gap-2 p-0">
-            {steps.sena.items.map((t) => (
-              <li key={t} className="flex items-start gap-2">
-                <Check />
-                {completarPagos(t)}
-              </li>
-            ))}
-          </ul>
-          <SenaTabla />
-        </PlanDialog>
+
       </div>
     </section>
   );

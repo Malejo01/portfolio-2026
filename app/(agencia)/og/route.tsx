@@ -49,14 +49,14 @@ export function GET() {
           </g>
         </svg>
         <div style={{ display: "flex", fontSize: 24, letterSpacing: 3, color: "#FF8A5C", textTransform: "uppercase" }}>
-          AI Developer · Argentina y LATAM
+          Malejo · Salta y toda Argentina
         </div>
         <div style={{ display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", fontSize: 96, fontWeight: 800, lineHeight: 1.02, letterSpacing: -3 }}>
-            Webs y apps
+            Software con&nbsp;<span style={{ color: "#FF5A1F" }}>IA</span>
           </div>
           <div style={{ display: "flex", fontSize: 96, fontWeight: 800, lineHeight: 1.02, letterSpacing: -3 }}>
-            potenciadas con&nbsp;<span style={{ color: "#FF5A1F" }}>IA.</span>
+            para tu negocio.
           </div>
           <div style={{ display: "flex", marginTop: 28, fontSize: 30, color: "#A1A6AF", maxWidth: 820 }}>
             {site.description}

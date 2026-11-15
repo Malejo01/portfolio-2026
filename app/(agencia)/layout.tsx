@@ -3,7 +3,10 @@ import { Inter, JetBrains_Mono, Outfit } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { Footer } from "@/components/agencia/Footer";
 import { Header } from "@/components/agencia/Header";
+import { BottomNav } from "@/components/agencia/client/BottomNav";
 import { MalejoLoader } from "@/components/agencia/client/MalejoLoader";
+import { WHATSAPP_TEXTO } from "@/content/agencia/home";
+import { waLink } from "@/lib/agencia/config";
 import { malejoCopy } from "@/content/agencia/malejo";
 import { AGENCIA_THEME_COOKIE } from "@/lib/agencia/theme";
 import { site } from "@/content/agencia/site";
@@ -100,6 +103,7 @@ export default function AgenciaRootLayout({ children }: { children: React.ReactN
         <Header />
         <main id="contenido">{children}</main>
         <Footer />
+        <BottomNav copy={site.bottomNav} whatsapp={waLink(WHATSAPP_TEXTO)} />
         <MalejoLoader copy={malejoCopy} turnstileSiteKey={process.env.TURNSTILE_SITE_KEY || undefined} />
         <Analytics />
       </body>

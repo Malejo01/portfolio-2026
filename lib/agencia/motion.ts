@@ -11,14 +11,20 @@ import type { Variants } from "framer-motion";
  */
 export const VIEWPORT = { once: true, amount: 0.2 } as const;
 
+/**
+ * Entrada al scrollear (tanda P2, Fase 6 bis): fade y subida de 16 px. El
+ * `custom` es el índice del hijo en su grupo: el escalonado se corta en el
+ * cuarto (máximo 4 por grupo), así una grilla de 6 no tarda en completarse.
+ */
 export const rise: Variants = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
+  hidden: { opacity: 0, y: 16 },
+  show: (i: number = 0) => ({ opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut", delay: Math.min(i, 3) * 0.07 } }),
 };
 
+/** El grupo no escalona por su cuenta: cada hijo trae su índice (`RevealItem i`). */
 export const stagger: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.06 } },
+  show: {},
 };
 
 export const STATIC: Variants = {

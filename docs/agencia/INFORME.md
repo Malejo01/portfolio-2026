@@ -796,8 +796,11 @@ Tres o cuatro corridas por página, en el mismo contenedor, contra esta rama y c
 5. **Outfit pasa a fuente variable**: con los pesos fijos, el build sin caché fallaba en Turbopack con el mismo error que ya estaba documentado para JetBrains Mono. Son unos 100 kB más de fuentes; si molesta en las mediciones de Vercel, se puede volver a los pesos fijos con caché de build.
 6. **"Armar otra cosa"** después del éxito vuelve al carrito sin vaciarlo, por si la persona quiere ajustar algo.
 
-## Evals
-Las 48 evals (`npm run eval:chat`) necesitan la clave del lado del servidor. En este sandbox no hay `ANTHROPIC_API_KEY` ni `CHAT_TEST_TOKEN`, y el proxy del entorno bloquea el host del preview de Vercel: quedan pendientes (ver el PR). Con el modelo simulado pasan los tests de la ruta, las herramientas y el runner (incluido que los casos AP–AV se cargan y llevan `pagina` y `armado`).
+## Evals reales (15-11, contra el preview de la rama)
+`npm run eval:chat` contra el alias del preview de esta rama, con un link de acceso de Vercel (`EVAL_COOKIE`) y `EVAL_PAUSA_MS=31000` por el tope de ráfaga: **45 de 48** ✅ (objetivo 44). Informe: `evals/2026-11-15T2222.md`.
+
+- Los 7 casos nuevos: pasan AP (sugiere el combo Página + turnos después de preguntar), AR ("Agregalo vos": explica el botón y no dice que agregó), AS ($50.000 para la tienda, que se descuenta), AT (plan por escrito y charla gratis, sin demo), AU (prioriza sin sumar todo) y AV (la opción "No sé qué necesito" pregunta el rubro, sugiere respuestas y no repite el saludo).
+- Fallas: **AQ** da el rango exacto ($357.000 a $411.000), los 3 pagos, lo mensual, la seña y "el precio final lo cierra Mauro en la videollamada", pero cierra preguntando el rubro en vez de invitar a "Mandale tu armado a Mauro" (el prompt pide invitar "cuando el armado tiene sentido", y sin rubro todavía no lo tenía). **Q** y **S** son de P1 y menores: abre la tienda con otra opción y 63 palabras con tope de 60.
 
 ## Pasos manuales para Mauro
 1. Crear en Mercado Pago links de $25.000 y $50.000 para la seña, y uno de $60.000 para el plan por escrito; cargarlos en Vercel como `NEXT_PUBLIC_SENA_URL_25000`, `NEXT_PUBLIC_SENA_URL_50000` y `NEXT_PUBLIC_PLAN_ESCRITO_URL`. Desactivar el link viejo de $20.000.
@@ -805,5 +808,6 @@ Las 48 evals (`npm run eval:chat`) necesitan la clave del lado del servidor. En 
 3. Leer y aprobar la cláusula nueva de la seña en los términos (`/legal/terminos`, punto 2).
 4. Search Console: reenviar el sitemap, pedir la indexación de `/soluciones`; `/precios` y `/cotizador` van a aparecer como "Página con redirección", y es lo esperado.
 5. Opcional: `RESEND_API_KEY` y `MAURO_EMAIL` para recibir un mail con cada armado.
-6. Correr las evals reales (`CHAT_TEST_TOKEN=… npm run eval:chat -- --url <preview>`) y medir con PageSpeed Insights en el preview.
-7. Probar en su celular: el teclado abierto en el chat y la vibración al agregar.
+6. Medir con PageSpeed Insights en el preview (el LCP de este contenedor no es representativo; `main` da lo mismo).
+7. El link de acceso del preview que se usó para las evals vence a las 23 h.
+8. Probar en su celular: el teclado abierto en el chat y la vibración al agregar.

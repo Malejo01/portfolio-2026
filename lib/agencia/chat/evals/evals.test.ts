@@ -29,9 +29,10 @@ describe("aserciones generales", () => {
 
 describe("casos", () => {
   it("son los 24 de A a X, los de R2 (Y a AD), los de R3 (AE a AJ) y los de P1 (AK a AO), con turnos y checks", () => {
-    expect(casos.map((c) => c.id).join(",")).toBe("A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,AA,AB,AC,AD,AE,AF,AG,AH,AI,AJ,AK,AL,AM,AN,AO");
+    expect(casos.map((c) => c.id).join(",")).toBe("A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,AA,AB,AC,AD,AE,AF,AG,AH,AI,AJ,AK,AL,AM,AN,AO,AP,AQ,AR,AS,AT,AU,AV,AW,AX");
     expect(objetivo(24)).toBe(22);
-    expect(objetivo(casos.length)).toBe(38);
+    // Tanda P2.1: 50 casos → objetivo 46 (el 44 de P2 más los 2 nuevos).
+    expect(objetivo(casos.length)).toBe(46);
     for (const c of casos) {
       expect(c.turnos.length, c.id).toBeGreaterThan(0);
       expect(c.checks.length, c.id).toBeGreaterThan(0);

@@ -1,0 +1,921 @@
+{
+  "fecha": "2026-11-16T00:39:34.081Z",
+  "base": "http://localhost:3001",
+  "pantallas": {
+    "/": {
+      "celular": {
+        "palabras": 296,
+        "pantallas": 4.61
+      },
+      "escritorio": {
+        "palabras": 309,
+        "pantallas": 3.29
+      }
+    },
+    "/soluciones": {
+      "celular": {
+        "palabras": 417,
+        "pantallas": 3.71
+      },
+      "escritorio": {
+        "palabras": 455,
+        "pantallas": 3.64
+      }
+    },
+    "/soluciones?cat=turnos": {
+      "celular": {
+        "palabras": 310,
+        "pantallas": 3.57
+      },
+      "escritorio": {
+        "palabras": 348,
+        "pantallas": 2.98
+      }
+    },
+    "/servicios/webs": {
+      "celular": {
+        "palabras": 446,
+        "pantallas": 5.99
+      },
+      "escritorio": {
+        "palabras": 446,
+        "pantallas": 3.67
+      }
+    },
+    "/servicios/ia": {
+      "celular": {
+        "palabras": 450,
+        "pantallas": 6.12
+      },
+      "escritorio": {
+        "palabras": 450,
+        "pantallas": 3.67
+      }
+    },
+    "/servicios/grandes": {
+      "celular": {
+        "palabras": 364,
+        "pantallas": 4.88
+      },
+      "escritorio": {
+        "palabras": 364,
+        "pantallas": 2.95
+      }
+    },
+    "/demo": {
+      "celular": {
+        "palabras": 301,
+        "pantallas": 2.96
+      },
+      "escritorio": {
+        "palabras": 301,
+        "pantallas": 1.55
+      }
+    },
+    "/demo?a=landing-profesional,turnos-online": {
+      "celular": {
+        "palabras": 327,
+        "pantallas": 3.09
+      },
+      "escritorio": {
+        "palabras": 327,
+        "pantallas": 1.79
+      }
+    },
+    "/demo?plan=sitio-pyme,pedidos-y-clientes": {
+      "celular": {
+        "palabras": 355,
+        "pantallas": 3.36
+      },
+      "escritorio": {
+        "palabras": 355,
+        "pantallas": 1.89
+      }
+    },
+    "/blog": {
+      "celular": {
+        "palabras": 52,
+        "pantallas": 1.35
+      },
+      "escritorio": {
+        "palabras": 52,
+        "pantallas": 1
+      }
+    },
+    "/legal/terminos": {
+      "celular": {
+        "palabras": 926,
+        "pantallas": 6.19
+      },
+      "escritorio": {
+        "palabras": 926,
+        "pantallas": 3.63
+      }
+    }
+  },
+  "overflow": {
+    "320": {
+      "/": 0,
+      "/soluciones": 0,
+      "/soluciones?cat=turnos": 0,
+      "/servicios/webs": 0,
+      "/servicios/ia": 0,
+      "/servicios/grandes": 0,
+      "/demo": 0,
+      "/demo?a=landing-profesional,turnos-online": 0,
+      "/demo?plan=sitio-pyme,pedidos-y-clientes": 0,
+      "/blog": 0,
+      "/legal/terminos": 0,
+      "/soluciones?a=landing-profesional,turnos-online": 0
+    },
+    "360": {
+      "/": 0,
+      "/soluciones": 0,
+      "/soluciones?cat=turnos": 0,
+      "/servicios/webs": 0,
+      "/servicios/ia": 0,
+      "/servicios/grandes": 0,
+      "/demo": 0,
+      "/demo?a=landing-profesional,turnos-online": 0,
+      "/demo?plan=sitio-pyme,pedidos-y-clientes": 0,
+      "/blog": 0,
+      "/legal/terminos": 0,
+      "/soluciones?a=landing-profesional,turnos-online": 0
+    },
+    "375": {
+      "/": 0,
+      "/soluciones": 0,
+      "/soluciones?cat=turnos": 0,
+      "/servicios/webs": 0,
+      "/servicios/ia": 0,
+      "/servicios/grandes": 0,
+      "/demo": 0,
+      "/demo?a=landing-profesional,turnos-online": 0,
+      "/demo?plan=sitio-pyme,pedidos-y-clientes": 0,
+      "/blog": 0,
+      "/legal/terminos": 0,
+      "/soluciones?a=landing-profesional,turnos-online": 0
+    },
+    "390": {
+      "/": 0,
+      "/soluciones": 0,
+      "/soluciones?cat=turnos": 0,
+      "/servicios/webs": 0,
+      "/servicios/ia": 0,
+      "/servicios/grandes": 0,
+      "/demo": 0,
+      "/demo?a=landing-profesional,turnos-online": 0,
+      "/demo?plan=sitio-pyme,pedidos-y-clientes": 0,
+      "/blog": 0,
+      "/legal/terminos": 0,
+      "/soluciones?a=landing-profesional,turnos-online": 0
+    },
+    "412": {
+      "/": 0,
+      "/soluciones": 0,
+      "/soluciones?cat=turnos": 0,
+      "/servicios/webs": 0,
+      "/servicios/ia": 0,
+      "/servicios/grandes": 0,
+      "/demo": 0,
+      "/demo?a=landing-profesional,turnos-online": 0,
+      "/demo?plan=sitio-pyme,pedidos-y-clientes": 0,
+      "/blog": 0,
+      "/legal/terminos": 0,
+      "/soluciones?a=landing-profesional,turnos-online": 0
+    },
+    "430": {
+      "/": 0,
+      "/soluciones": 0,
+      "/soluciones?cat=turnos": 0,
+      "/servicios/webs": 0,
+      "/servicios/ia": 0,
+      "/servicios/grandes": 0,
+      "/demo": 0,
+      "/demo?a=landing-profesional,turnos-online": 0,
+      "/demo?plan=sitio-pyme,pedidos-y-clientes": 0,
+      "/blog": 0,
+      "/legal/terminos": 0,
+      "/soluciones?a=landing-profesional,turnos-online": 0
+    },
+    "768": {
+      "/": 0,
+      "/soluciones": 0,
+      "/soluciones?cat=turnos": 0,
+      "/servicios/webs": 0,
+      "/servicios/ia": 0,
+      "/servicios/grandes": 0,
+      "/demo": 0,
+      "/demo?a=landing-profesional,turnos-online": 0,
+      "/demo?plan=sitio-pyme,pedidos-y-clientes": 0,
+      "/blog": 0,
+      "/legal/terminos": 0,
+      "/soluciones?a=landing-profesional,turnos-online": 0
+    },
+    "1024": {
+      "/": 0,
+      "/soluciones": 0,
+      "/soluciones?cat=turnos": 0,
+      "/servicios/webs": 0,
+      "/servicios/ia": 0,
+      "/servicios/grandes": 0,
+      "/demo": 0,
+      "/demo?a=landing-profesional,turnos-online": 0,
+      "/demo?plan=sitio-pyme,pedidos-y-clientes": 0,
+      "/blog": 0,
+      "/legal/terminos": 0,
+      "/soluciones?a=landing-profesional,turnos-online": 0
+    },
+    "1280": {
+      "/": 0,
+      "/soluciones": 0,
+      "/soluciones?cat=turnos": 0,
+      "/servicios/webs": 0,
+      "/servicios/ia": 0,
+      "/servicios/grandes": 0,
+      "/demo": 0,
+      "/demo?a=landing-profesional,turnos-online": 0,
+      "/demo?plan=sitio-pyme,pedidos-y-clientes": 0,
+      "/blog": 0,
+      "/legal/terminos": 0,
+      "/soluciones?a=landing-profesional,turnos-online": 0
+    }
+  },
+  "pliegue": {
+    "320x640": {
+      "chipsAbajo": 568,
+      "navArriba": 584,
+      "botonesAncho": [
+        238,
+        238
+      ]
+    },
+    "360x740": {
+      "chipsAbajo": 578,
+      "navArriba": 684,
+      "botonesAncho": [
+        278,
+        278
+      ]
+    },
+    "375x667": {
+      "chipsAbajo": 556,
+      "navArriba": 611,
+      "botonesAncho": [
+        293,
+        293
+      ]
+    },
+    "390x844": {
+      "chipsAbajo": 526,
+      "navArriba": 788,
+      "botonesAncho": [
+        308,
+        308
+      ]
+    },
+    "412x915": {
+      "chipsAbajo": 526,
+      "navArriba": 859,
+      "botonesAncho": [
+        330,
+        330
+      ]
+    },
+    "430x932": {
+      "chipsAbajo": 533,
+      "navArriba": 876,
+      "botonesAncho": [
+        348,
+        348
+      ]
+    }
+  },
+  "solapes": {
+    "320": {
+      "sinChat": {
+        "nav": {
+          "x": 0,
+          "y": 584,
+          "width": 320,
+          "height": 56,
+          "top": 584,
+          "right": 320,
+          "bottom": 640,
+          "left": 0
+        },
+        "barra": {
+          "x": 8,
+          "y": 502.5,
+          "width": 304,
+          "height": 61.5,
+          "top": 502.5,
+          "right": 312,
+          "bottom": 564,
+          "left": 8
+        },
+        "chips": {
+          "x": 0,
+          "y": 86,
+          "width": 320,
+          "height": 61,
+          "top": 86,
+          "right": 320,
+          "bottom": 147,
+          "left": 0
+        },
+        "header": {
+          "x": 20,
+          "y": 16,
+          "width": 280,
+          "height": 62,
+          "top": 16,
+          "right": 300,
+          "bottom": 78,
+          "left": 20
+        },
+        "relleno": 96
+      },
+      "conChat": {
+        "hoja": {
+          "x": 0,
+          "y": 208,
+          "width": 320,
+          "height": 432,
+          "top": 208,
+          "right": 320,
+          "bottom": 640,
+          "left": 0
+        },
+        "barra": {
+          "x": 8,
+          "y": 138.5,
+          "width": 304,
+          "height": 61.5,
+          "top": 138.5,
+          "right": 312,
+          "bottom": 200,
+          "left": 8
+        }
+      }
+    },
+    "360": {
+      "sinChat": {
+        "nav": {
+          "x": 0,
+          "y": 684,
+          "width": 360,
+          "height": 56,
+          "top": 684,
+          "right": 360,
+          "bottom": 740,
+          "left": 0
+        },
+        "barra": {
+          "x": 8,
+          "y": 602.5,
+          "width": 344,
+          "height": 61.5,
+          "top": 602.5,
+          "right": 352,
+          "bottom": 664,
+          "left": 8
+        },
+        "chips": {
+          "x": 0,
+          "y": 86,
+          "width": 360,
+          "height": 61,
+          "top": 86,
+          "right": 360,
+          "bottom": 147,
+          "left": 0
+        },
+        "header": {
+          "x": 20,
+          "y": 16,
+          "width": 320,
+          "height": 62,
+          "top": 16,
+          "right": 340,
+          "bottom": 78,
+          "left": 20
+        },
+        "relleno": 96
+      },
+      "conChat": {
+        "hoja": {
+          "x": 0,
+          "y": 308,
+          "width": 360,
+          "height": 432,
+          "top": 308,
+          "right": 360,
+          "bottom": 740,
+          "left": 0
+        },
+        "barra": {
+          "x": 8,
+          "y": 238.5,
+          "width": 344,
+          "height": 61.5,
+          "top": 238.5,
+          "right": 352,
+          "bottom": 300,
+          "left": 8
+        }
+      }
+    },
+    "375": {
+      "sinChat": {
+        "nav": {
+          "x": 0,
+          "y": 611,
+          "width": 375,
+          "height": 56,
+          "top": 611,
+          "right": 375,
+          "bottom": 667,
+          "left": 0
+        },
+        "barra": {
+          "x": 8,
+          "y": 529.5,
+          "width": 359,
+          "height": 61.5,
+          "top": 529.5,
+          "right": 367,
+          "bottom": 591,
+          "left": 8
+        },
+        "chips": {
+          "x": 0,
+          "y": 86,
+          "width": 375,
+          "height": 61,
+          "top": 86,
+          "right": 375,
+          "bottom": 147,
+          "left": 0
+        },
+        "header": {
+          "x": 20,
+          "y": 16,
+          "width": 335,
+          "height": 62,
+          "top": 16,
+          "right": 355,
+          "bottom": 78,
+          "left": 20
+        },
+        "relleno": 96
+      },
+      "conChat": {
+        "hoja": {
+          "x": 0,
+          "y": 235,
+          "width": 375,
+          "height": 432,
+          "top": 235,
+          "right": 375,
+          "bottom": 667,
+          "left": 0
+        },
+        "barra": {
+          "x": 8,
+          "y": 165.5,
+          "width": 359,
+          "height": 61.5,
+          "top": 165.5,
+          "right": 367,
+          "bottom": 227,
+          "left": 8
+        }
+      }
+    },
+    "390": {
+      "sinChat": {
+        "nav": {
+          "x": 0,
+          "y": 788,
+          "width": 390,
+          "height": 56,
+          "top": 788,
+          "right": 390,
+          "bottom": 844,
+          "left": 0
+        },
+        "barra": {
+          "x": 8,
+          "y": 706.5,
+          "width": 374,
+          "height": 61.5,
+          "top": 706.5,
+          "right": 382,
+          "bottom": 768,
+          "left": 8
+        },
+        "chips": {
+          "x": 0,
+          "y": 86,
+          "width": 390,
+          "height": 61,
+          "top": 86,
+          "right": 390,
+          "bottom": 147,
+          "left": 0
+        },
+        "header": {
+          "x": 20,
+          "y": 16,
+          "width": 350,
+          "height": 62,
+          "top": 16,
+          "right": 370,
+          "bottom": 78,
+          "left": 20
+        },
+        "relleno": 96
+      },
+      "conChat": {
+        "hoja": {
+          "x": 0,
+          "y": 379.8125,
+          "width": 390,
+          "height": 464.1875,
+          "top": 379.8125,
+          "right": 390,
+          "bottom": 844,
+          "left": 0
+        },
+        "barra": {
+          "x": 8,
+          "y": 310.3125,
+          "width": 374,
+          "height": 61.5,
+          "top": 310.3125,
+          "right": 382,
+          "bottom": 371.8125,
+          "left": 8
+        }
+      }
+    },
+    "412": {
+      "sinChat": {
+        "nav": {
+          "x": 0,
+          "y": 859,
+          "width": 412,
+          "height": 56,
+          "top": 859,
+          "right": 412,
+          "bottom": 915,
+          "left": 0
+        },
+        "barra": {
+          "x": 8,
+          "y": 777.5,
+          "width": 396,
+          "height": 61.5,
+          "top": 777.5,
+          "right": 404,
+          "bottom": 839,
+          "left": 8
+        },
+        "chips": {
+          "x": 0,
+          "y": 86,
+          "width": 412,
+          "height": 61,
+          "top": 86,
+          "right": 412,
+          "bottom": 147,
+          "left": 0
+        },
+        "header": {
+          "x": 20,
+          "y": 16,
+          "width": 372,
+          "height": 62,
+          "top": 16,
+          "right": 392,
+          "bottom": 78,
+          "left": 20
+        },
+        "relleno": 96
+      },
+      "conChat": {
+        "hoja": {
+          "x": 0,
+          "y": 411.75,
+          "width": 412,
+          "height": 503.25,
+          "top": 411.75,
+          "right": 412,
+          "bottom": 915,
+          "left": 0
+        },
+        "barra": {
+          "x": 8,
+          "y": 342.25,
+          "width": 396,
+          "height": 61.5,
+          "top": 342.25,
+          "right": 404,
+          "bottom": 403.75,
+          "left": 8
+        }
+      }
+    },
+    "430": {
+      "sinChat": {
+        "nav": {
+          "x": 0,
+          "y": 876,
+          "width": 430,
+          "height": 56,
+          "top": 876,
+          "right": 430,
+          "bottom": 932,
+          "left": 0
+        },
+        "barra": {
+          "x": 8,
+          "y": 794.5,
+          "width": 414,
+          "height": 61.5,
+          "top": 794.5,
+          "right": 422,
+          "bottom": 856,
+          "left": 8
+        },
+        "chips": {
+          "x": 0,
+          "y": 86,
+          "width": 430,
+          "height": 61,
+          "top": 86,
+          "right": 430,
+          "bottom": 147,
+          "left": 0
+        },
+        "header": {
+          "x": 20,
+          "y": 16,
+          "width": 390,
+          "height": 62,
+          "top": 16,
+          "right": 410,
+          "bottom": 78,
+          "left": 20
+        },
+        "relleno": 96
+      },
+      "conChat": {
+        "hoja": {
+          "x": 0,
+          "y": 419.40625,
+          "width": 430,
+          "height": 512.59375,
+          "top": 419.40625,
+          "right": 430,
+          "bottom": 932,
+          "left": 0
+        },
+        "barra": {
+          "x": 8,
+          "y": 349.90625,
+          "width": 414,
+          "height": 61.5,
+          "top": 349.90625,
+          "right": 422,
+          "bottom": 411.40625,
+          "left": 8
+        }
+      }
+    },
+    "768": {
+      "tabs": {
+        "x": 32,
+        "y": 597.578125,
+        "width": 380,
+        "height": 304,
+        "top": 597.578125,
+        "right": 412,
+        "bottom": 901.578125,
+        "left": 32
+      },
+      "panel": {
+        "x": 32,
+        "y": 925.578125,
+        "width": 380,
+        "height": 2857.4375,
+        "top": 925.578125,
+        "right": 412,
+        "bottom": 3783.015625,
+        "left": 32
+      },
+      "carrito": {
+        "x": 436,
+        "y": 597.578125,
+        "width": 300,
+        "height": 780,
+        "top": 597.578125,
+        "right": 736,
+        "bottom": 1377.578125,
+        "left": 436
+      },
+      "widget": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      }
+    },
+    "1024": {
+      "tabs": {
+        "x": 32,
+        "y": 586.984375,
+        "width": 200,
+        "height": 404.5,
+        "top": 586.984375,
+        "right": 232,
+        "bottom": 991.484375,
+        "left": 32
+      },
+      "panel": {
+        "x": 256,
+        "y": 556.984375,
+        "width": 402,
+        "height": 2777.4375,
+        "top": 556.984375,
+        "right": 658,
+        "bottom": 3334.421875,
+        "left": 256
+      },
+      "carrito": {
+        "x": 682,
+        "y": 556.984375,
+        "width": 310,
+        "height": 780,
+        "top": 556.984375,
+        "right": 992,
+        "bottom": 1336.984375,
+        "left": 682
+      },
+      "widget": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      }
+    },
+    "1280": {
+      "tabs": {
+        "x": 52,
+        "y": 566.6875,
+        "width": 200,
+        "height": 404.5,
+        "top": 566.6875,
+        "right": 252,
+        "bottom": 971.1875,
+        "left": 52
+      },
+      "panel": {
+        "x": 276,
+        "y": 536.6875,
+        "width": 618,
+        "height": 2314.09375,
+        "top": 536.6875,
+        "right": 894,
+        "bottom": 2850.78125,
+        "left": 276
+      },
+      "carrito": {
+        "x": 918,
+        "y": 536.6875,
+        "width": 310,
+        "height": 780,
+        "top": 536.6875,
+        "right": 1228,
+        "bottom": 1316.6875,
+        "left": 918
+      },
+      "widget": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      }
+    }
+  },
+  "carruselYHojas": {
+    "snap": {
+      "scrollLeft": 352,
+      "distanciaAlCentro": 1,
+      "activa": 1
+    },
+    "hoja": {
+      "abierta": true,
+      "focoAdentro": true,
+      "cerro": true,
+      "focoVuelve": true
+    },
+    "contacto": {
+      "abierta": true,
+      "opciones": 3,
+      "focoVuelve": true
+    }
+  },
+  "bienvenida": {
+    "360x740": {
+      "hoja": 432,
+      "opciones": 6,
+      "sinScroll": true,
+      "textos": [
+        "Tengo un comercio",
+        "Doy servicios con turno",
+        "Vendo por redes",
+        "Tengo una pyme con equipo",
+        "Quiero atender con IA",
+        "No sé por dónde empezar"
+      ]
+    },
+    "390x844": {
+      "hoja": 464,
+      "opciones": 6,
+      "sinScroll": true,
+      "textos": [
+        "Tengo un comercio",
+        "Doy servicios con turno",
+        "Vendo por redes",
+        "Tengo una pyme con equipo",
+        "Quiero atender con IA",
+        "No sé por dónde empezar"
+      ]
+    },
+    "412x915": {
+      "hoja": 503,
+      "opciones": 6,
+      "sinScroll": true,
+      "textos": [
+        "Tengo un comercio",
+        "Doy servicios con turno",
+        "Vendo por redes",
+        "Tengo una pyme con equipo",
+        "Quiero atender con IA",
+        "No sé por dónde empezar"
+      ]
+    }
+  },
+  "flujo": {
+    "combo": true,
+    "rango": true,
+    "url": "?cat=turnos&a=landing-profesional%2Cturnos-online",
+    "quitado": true,
+    "compartido": "Tu kit | 2 | Malejo |  | Te compartieron este kit. Podés cambiarlo. | ",
+    "sugerencia": 1,
+    "sigueEnMalejo": true,
+    "novedad": 1,
+    "sugerido": true,
+    "envio": {
+      "armado": {
+        "items": [
+          "combo-negocio-con-turnos"
+        ],
+        "extras": []
+      },
+      "campos": [
+        "consent",
+        "armado",
+        "nombre",
+        "whatsapp",
+        "ficha"
+      ]
+    },
+    "exito": true
+  },
+  "sinJs": {
+    "categorias": 7,
+    "demos": 33,
+    "agregarVisibles": 0,
+    "whatsapp": true,
+    "contame": true,
+    "carrito": false,
+    "barraInferior": false,
+    "abreOtra": true
+  },
+  "fallas": []
+}

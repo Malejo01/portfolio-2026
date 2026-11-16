@@ -1,14 +1,11 @@
 import type { FaqItem } from "@/content/agencia/home";
-import { senaMonto } from "@/lib/agencia/config";
-import { fmt } from "@/lib/agencia/format";
 
 /**
  * Preguntas frecuentes (`08-faq-*.png`): `<details name>` hace el acordeón
  * exclusivo sin JS. Lo usan el cierre de la home (3 preguntas, `compact`,
  * todas cerradas) y cada `/servicios/[slug]` (3 preguntas, cerradas desde
  * la tanda P1: el detalle a un clic, §1.6). Las
- * respuestas salen de `conocimiento.ts`; `{SENA}` se completa acá, en el
- * servidor, con `SENA_MONTO`.
+ * respuestas salen de `conocimiento.ts`, con la seña ya escrita (tanda P2).
  */
 export function FaqList({
   items,
@@ -21,7 +18,6 @@ export function FaqList({
   compact?: boolean;
   primeraAbierta?: boolean;
 }) {
-  const sena = fmt(senaMonto());
   return (
     <div className={`flex flex-col ${compact ? "mt-3 gap-2 lg:grid lg:grid-cols-3 lg:items-start lg:gap-3" : "mt-7 gap-3"}`}>
       {items.map((item, i) => (
@@ -36,7 +32,7 @@ export function FaqList({
               <span className="faq-minus">−</span>
             </span>
           </summary>
-          <p className={`m-0 leading-[1.6] text-muted ${compact ? "px-4 pb-4 text-sm" : "px-6 pb-[22px] text-[15px]"}`}>{item.a.replaceAll("{SENA}", sena)}</p>
+          <p className={`m-0 leading-[1.6] text-muted ${compact ? "px-4 pb-4 text-sm" : "px-6 pb-[22px] text-[15px]"}`}>{item.a}</p>
         </details>
       ))}
     </div>

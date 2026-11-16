@@ -2,7 +2,9 @@ import Link from "next/link";
 import { home } from "@/content/agencia/home";
 import { pagosCopy, type Combo, type Plan } from "@/content/agencia/pricing";
 import { solucionDeCombo } from "@/content/agencia/servicios";
+import { solucionesCopy } from "@/content/agencia/soluciones";
 import { ahorro, ahorroEnPesos, fmt, lineaDePagos, lineaDePlan, mensualDeAnual, precioDePlan } from "@/lib/agencia/pricing";
+import { AgregarBoton } from "./client/AgregarBoton";
 import { PlanDialog } from "./client/PlanDialog";
 import { Check } from "./icons";
 import { ComboDetalle, PlanDetalle } from "./PlanDetalle";
@@ -21,9 +23,32 @@ import { ComboDetalle, PlanDetalle } from "./PlanDetalle";
  * Sin JS, "Ver qué incluye" lleva a `/servicios/<cat>#<id>`. En la página de
  * la solución (`enPagina`) el detalle está ahí mismo, en un `<details>`
  * (`.nojs-only`), y el enlace se esconde.
+ *
+ * `modo="armado"` (tanda P2, `/soluciones`): el botón principal pasa a ser
+ * "Agregar al armado" (la isla `AgregarBoton`, que alterna a "✓ Agregado ·
+ * Quitar") y el modal suma el mismo botón. Sin JS, en su lugar va "Pedí tu
+ * demo" (`.nojs-only`).
  */
 
 const { pricing } = home;
+const s = solucionesCopy;
+const LABELS = { agregar: s.agregar, agregado: s.agregado, quitar: s.quitar, quitarAria: s.carrito.quitarAria };
+
+export type ModoTarjeta = "catalogo" | "armado";
+
+/** "Agregar al armado" con su respaldo sin JS: "Pedí tu demo" con el plan. */
+export function AgregarConRespaldo({ id, nombre, destacado = false, tipo = "item" }: { id: string; nombre: string; destacado?: boolean; tipo?: "item" | "extra" }) {
+  return (
+    <>
+      <AgregarBoton id={id} nombre={nombre} labels={LABELS} destacado={destacado} tipo={tipo} />
+      {tipo === "item" ? (
+        <Link href={`/demo?plan=${id}`} className={`nojs-only btn btn-sm min-h-11 w-full ${destacado ? "btn-p" : "btn-s"}`} aria-label={`${s.sinJsDemo}: ${nombre}`}>
+          {s.sinJsDemo}
+        </Link>
+      ) : null}
+    </>
+  );
+}
 
 /** El `<details>` sin JS de `/servicios/<cat>`: el destino de `#<id>`. */
 function DetalleSinJs({ id, label, children }: { id: string; label: string; children: React.ReactNode }) {
@@ -38,7 +63,7 @@ function DetalleSinJs({ id, label, children }: { id: string; label: string; chil
 }
 
 /** "Ver qué incluye": el modal y, en la página de la solución, su respaldo sin JS. */
-function VerPlan({ plan, enPagina }: { plan: Plan; enPagina: boolean }) {
+function VerPlan({ plan, enPagina, modo = "catalogo" }: { plan: Plan; enPagina: boolean; modo?: ModoTarjeta }) {
   const href = `/servicios/${plan.category}#${plan.id}`;
   return (
     <>
@@ -52,6 +77,7 @@ function VerPlan({ plan, enPagina }: { plan: Plan; enPagina: boolean }) {
           triggerClassName="lnk min-h-11 self-center"
         >
           <PlanDetalle plan={plan} />
+          {modo === "armado" ? <AgregarBoton id={plan.id} nombre={plan.name} labels={LABELS} destacado /> : null}
         </PlanDialog>
       </span>
       {enPagina ? (
@@ -102,7 +128,17 @@ function Precio({ plan }: { plan: Plan }) {
   );
 }
 
-export function PlanCard({ plan, heading = "h3", enPagina = false }: { plan: Plan; heading?: "h2" | "h3"; enPagina?: boolean }) {
+export function PlanCard({
+  plan,
+  heading = "h3",
+  enPagina = false,
+  modo = "catalogo",
+}: {
+  plan: Plan;
+  heading?: "h2" | "h3";
+  enPagina?: boolean;
+  modo?: ModoTarjeta;
+}) {
   const H = heading;
 
   return (
@@ -113,9 +149,10 @@ export function PlanCard({ plan, heading = "h3", enPagina = false }: { plan: Pla
         </span>
       ) : null}
       <div className="flex flex-col gap-1.5">
-        <div className="flex items-start justify-between gap-2.5">
-          <H className="h text-xl">{plan.name}</H>
-          {plan.time ? <span className="tag flex-none">⏱ {plan.time}</span> : null}
+        {/* P2.1: el plazo nunca sale de la tarjeta; si no entra al lado del nombre, baja. */}
+        <div className="flex flex-wrap items-start justify-between gap-x-2.5 gap-y-1.5">
+          <H className="h min-w-0 text-xl">{plan.name}</H>
+          {plan.time ? <span className="tag max-w-full flex-none whitespace-normal">⏱ {plan.time}</span> : null}
         </div>
         {plan.enUnaLinea ? <p className="m-0 line-clamp-2 text-[13px] leading-[1.45] text-muted">{plan.enUnaLinea}</p> : null}
       </div>
@@ -129,21 +166,25 @@ export function PlanCard({ plan, heading = "h3", enPagina = false }: { plan: Pla
         ))}
       </ul>
       <div className="mt-auto flex flex-col gap-1">
-        <Link
-          href={`/demo?plan=${plan.id}`}
-          className={`btn btn-sm min-h-11 w-full ${plan.rec ? "btn-p" : "btn-s"}`}
-          aria-label={`${pricing.planCta}: ${plan.name}`}
-        >
-          {pricing.planCta}
-        </Link>
-        <VerPlan plan={plan} enPagina={enPagina} />
+        {modo === "armado" ? (
+          <AgregarConRespaldo id={plan.id} nombre={plan.name} destacado={plan.rec} />
+        ) : (
+          <Link
+            href={`/demo?plan=${plan.id}`}
+            className={`btn btn-sm min-h-11 w-full ${plan.rec ? "btn-p" : "btn-s"}`}
+            aria-label={`${pricing.planCta}: ${plan.name}`}
+          >
+            {pricing.planCta}
+          </Link>
+        )}
+        <VerPlan plan={plan} enPagina={enPagina} modo={modo} />
       </div>
     </article>
   );
 }
 
 /** Una fila de "Ver otras opciones" (§4.2.4): nombre, total, pagos y "Ver qué incluye". */
-export function PlanFila({ plan, enPagina = false }: { plan: Plan; enPagina?: boolean }) {
+export function PlanFila({ plan, enPagina = false, modo = "catalogo" }: { plan: Plan; enPagina?: boolean; modo?: ModoTarjeta }) {
   const p = precioDePlan(plan, "transferencia");
   const linea = lineaDePlan(plan);
   return (
@@ -157,14 +198,25 @@ export function PlanFila({ plan, enPagina = false }: { plan: Plan; enPagina?: bo
           {linea ? <span className="text-acc-text"> · {linea}</span> : null}
         </span>
       </div>
-      <div className="flex-none">
-        <VerPlan plan={plan} enPagina={enPagina} />
+      <div className={`flex-none ${modo === "armado" ? "flex flex-col gap-1 sm:w-[220px]" : ""}`}>
+        {modo === "armado" ? <AgregarConRespaldo id={plan.id} nombre={plan.name} /> : null}
+        <VerPlan plan={plan} enPagina={enPagina} modo={modo} />
       </div>
     </li>
   );
 }
 
-export function ComboCard({ combo, highlight, enPagina = false }: { combo: Combo; highlight?: boolean; enPagina?: boolean }) {
+export function ComboCard({
+  combo,
+  highlight,
+  enPagina = false,
+  modo = "catalogo",
+}: {
+  combo: Combo;
+  highlight?: boolean;
+  enPagina?: boolean;
+  modo?: ModoTarjeta;
+}) {
   const linea = lineaDePagos(combo.price);
   const pagina = solucionDeCombo(combo.id);
   return (
@@ -188,9 +240,13 @@ export function ComboCard({ combo, highlight, enPagina = false }: { combo: Combo
         ) : null}
       </div>
       <div className="flex flex-col gap-1">
-        <Link href={`/demo?plan=${combo.id}`} className="btn btn-s btn-sm min-h-11 w-full" aria-label={`${pricing.comboCta}: ${combo.name}`}>
-          {pricing.comboCta}
-        </Link>
+        {modo === "armado" ? (
+          <AgregarConRespaldo id={combo.id} nombre={`Combo ${combo.name}`} />
+        ) : (
+          <Link href={`/demo?plan=${combo.id}`} className="btn btn-s btn-sm min-h-11 w-full" aria-label={`${pricing.comboCta}: ${combo.name}`}>
+            {pricing.comboCta}
+          </Link>
+        )}
         <span className={enPagina ? "js-only contents" : "contents"}>
           <PlanDialog
             label={pricing.verTrae}
@@ -201,6 +257,7 @@ export function ComboCard({ combo, highlight, enPagina = false }: { combo: Combo
             triggerClassName="lnk min-h-11 self-center"
           >
             <ComboDetalle combo={combo} />
+            {modo === "armado" ? <AgregarBoton id={combo.id} nombre={`Combo ${combo.name}`} labels={LABELS} destacado /> : null}
           </PlanDialog>
         </span>
         {enPagina ? (
@@ -230,14 +287,14 @@ export function GrandesSteps({ plans }: { plans: Plan[] }) {
           const p = precioDePlan(plan, "transferencia");
           return (
             <li key={plan.id} className={`card lift relative flex flex-col gap-4 p-[26px] ${plan.rec ? "hi" : ""}`}>
-              <div className="flex items-start justify-between gap-2.5">
-                <div>
+              <div className="flex flex-wrap items-start justify-between gap-x-2.5 gap-y-1.5">
+                <div className="min-w-0">
                   <span className="lbl lbl-o text-[10px]">
                     {copy.stepLabel} {i + 1}
                   </span>
                   <h3 className="h mt-1 text-xl">{plan.name}</h3>
                 </div>
-                {plan.time ? <span className="tag flex-none">⏱ {plan.time}</span> : null}
+                {plan.time ? <span className="tag max-w-full flex-none whitespace-normal">⏱ {plan.time}</span> : null}
               </div>
               <div>
                 {p.precio == null ? (
@@ -262,6 +319,84 @@ export function GrandesSteps({ plans }: { plans: Plan[] }) {
                   </li>
                 ))}
               </ul>
+            </li>
+          );
+        })}
+      </ol>
+      <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <p className="m-0 text-[15px] text-muted">{copy.maintenance}</p>
+        <a href={copy.cta.href} {...(external ? { target: "_blank", rel: "noopener" } : {})} className="btn btn-p btn-sm min-h-11 flex-none">
+          {copy.cta.label}
+        </a>
+      </div>
+    </>
+  );
+}
+
+/**
+ * "Proyectos a medida" en el armador (P2.1, punto 2): los 3 pasos como una
+ * **línea de tiempo vertical** en la columna central. Cada paso es una
+ * tarjeta a lo ancho con dos zonas (paso, título, plazo y lista a la
+ * izquierda; el precio arriba a la derecha) que se apilan cuando la columna
+ * mide menos de 640 px (container query). Las une una línea con el número en
+ * un círculo. El precio usa como mucho el tamaño de `h2` y no parte renglón;
+ * el plazo va en la fila de "PASO N" y, si no entra, baja.
+ */
+export function GrandesLinea({ plans }: { plans: Plan[] }) {
+  const copy = pricing.grandes;
+  const pasos = plans.filter((p) => p.mantenimientoPct == null);
+  const external = /^https?:/.test(copy.cta.href);
+  return (
+    <>
+      <ol className="m-0 mt-[22px] flex list-none flex-col gap-4 p-0">
+        {pasos.map((plan, i) => {
+          const p = precioDePlan(plan, "transferencia");
+          const ultimo = i === pasos.length - 1;
+          return (
+            <li key={plan.id} className="relative flex gap-3 sm:gap-4">
+              {/* El número y la línea que une los pasos. */}
+              <div aria-hidden="true" className="relative flex w-9 flex-none flex-col items-center">
+                <span className="z-10 mt-5 inline-flex h-9 w-9 items-center justify-center rounded-full border border-hi-b bg-ic-bg font-mono text-sm font-semibold text-acc-text">
+                  {i + 1}
+                </span>
+                {ultimo ? null : <span className="absolute bottom-[-16px] top-14 w-px bg-border-2" />}
+              </div>
+              <div className={`card @container min-w-0 flex-1 p-5 sm:p-6 ${plan.rec ? "hi" : ""}`}>
+                <div className="flex flex-col gap-4 @min-[640px]:flex-row @min-[640px]:items-start @min-[640px]:justify-between @min-[640px]:gap-8">
+                  <div className="flex min-w-0 flex-1 flex-col gap-3">
+                    <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
+                      <span className="lbl lbl-o text-[10px]">
+                        {copy.stepLabel} {i + 1}
+                      </span>
+                      {plan.time ? <span className="tag max-w-full whitespace-normal">⏱ {plan.time}</span> : null}
+                    </div>
+                    <h3 className="h text-xl leading-tight sm:text-[22px]">{plan.name}</h3>
+                    <ul className="m-0 flex list-none flex-col gap-[9px] p-0 text-sm">
+                      {plan.items.map((item) => (
+                        <li key={item} className="flex items-start gap-2">
+                          <Check />
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="flex-none @min-[640px]:text-right">
+                    {p.precio == null ? (
+                      <>
+                        <span className="h block whitespace-nowrap text-[26px] tracking-[-.02em] sm:text-[32px]">{p.etiqueta}</span>
+                        <span className="block max-w-[16em] text-sm text-muted">{p.texto}</span>
+                      </>
+                    ) : p.precio === 0 ? (
+                      <span className="h block whitespace-nowrap text-[26px] tracking-[-.02em] sm:text-[32px]">{copy.free}</span>
+                    ) : (
+                      <div className="flex flex-wrap items-baseline gap-1.5 @min-[640px]:justify-end">
+                        <span className="h whitespace-nowrap text-[26px] tracking-[-.02em] sm:text-[32px]">{fmt(p.precio)}</span>
+                        {p.unidad ? <span className="text-sm text-muted">{p.unidad}</span> : null}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </li>
           );
         })}

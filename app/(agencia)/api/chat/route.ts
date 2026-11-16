@@ -5,13 +5,14 @@ import type { Ficha } from "@/lib/agencia/chat/ficha";
 import { FichaSchema, limpiarFicha } from "@/lib/agencia/chat/ficha-schema";
 import { consume, type Motivo } from "@/lib/agencia/chat/limits";
 import { systemBlocks } from "@/lib/agencia/chat/prompt";
-import { contextoDePagina } from "@/lib/agencia/chat/pagina";
+import { contextoDePagina, modoDePagina } from "@/lib/agencia/chat/pagina";
+import { validarArmado } from "@/lib/agencia/pricing";
 import { recortarHistorial } from "@/lib/agencia/chat/recorte";
 import { TEST_HEADER, esTokenDePrueba, hashIp, ipFrom, origenPermitido, rechazarOrigen } from "@/lib/agencia/chat/security";
 import { nuevoContexto, runTool, tools, ultimaCotizacion, type ToolContext, type ToolOutcome } from "@/lib/agencia/chat/tools";
 import { CUMPLEN_DERIVACION, prometeDerivar } from "@/lib/agencia/chat/derivar";
 import { mensajeWhatsApp } from "@/lib/agencia/chat/whatsapp";
-import { senaMonto, waLink } from "@/lib/agencia/config";
+import { waLink } from "@/lib/agencia/config";
 import { tipoDeCambio } from "@/lib/agencia/usd";
 
 /**
@@ -59,7 +60,7 @@ const SILENCIOSAS = new Set(["anotar_ficha", "sugerir_respuestas"]);
  * solo agregaba "Ya te dejé el botón…" (evals reales del 11-11: U, AF).
  * `pedir_demo` no está: después de la demo el modelo ofrece el contacto.
  */
-const SOLO_TARJETA = new Set(["derivar_whatsapp", "mostrar_proyectos", "pedir_contacto", "guardar_contacto"]);
+const SOLO_TARJETA = new Set(["derivar_whatsapp", "mostrar_proyectos", "pedir_contacto", "guardar_contacto", "sugerir_armado"]);
 
 function roundTimeout(): number {
   const n = Number(process.env.CHAT_ROUND_TIMEOUT_MS);
@@ -77,6 +78,18 @@ const Body = z.object({
   shownCards: z.array(z.string().max(300)).max(40).optional(),
   /** `location.pathname` del widget. Se valida contra las rutas del sitio (`pagina.ts`). */
   pagina: z.string().max(120).optional(),
+  /**
+   * Tanda P2: el armado de Soluciones (sessionStorage del widget). Se valida
+   * contra el catálogo (`validarArmado`), va al bloque sin caché y no se guarda.
+   */
+  armado: z
+    .object({
+      items: z.array(z.object({ id: z.string().max(60), origen: z.enum(["persona", "malejo"]) })).max(24),
+      extras: z.array(z.string().max(60)).max(24).optional(),
+    })
+    .optional(),
+  /** P2.1: la persona ya mandó su kit a Mauro (desde esta pestaña). */
+  kitEnviado: z.boolean().optional(),
 });
 
 /** Al llegar a un tope: mensaje amable y WhatsApp con la ficha. */
@@ -127,7 +140,11 @@ export async function POST(request: Request) {
     return Response.json({ error: "Pedido inválido" }, { status: 400 });
   }
 
-  const ficha = body.ficha ? limpiarFicha(body.ficha) : {};
+  const armado = body.armado ? validarArmado(body.armado) : undefined;
+  const armadoIds = armado ? [...armado.items.map((i) => i.id), ...armado.extras] : [];
+  // La ficha lleva los ids del armado (para el mensaje de WhatsApp): los pone el servidor.
+  const ficha: Ficha = { ...(body.ficha ? limpiarFicha(body.ficha) : {}), ...(armadoIds.length ? { armadoIds } : {}) };
+  if (!armadoIds.length) delete ficha.armadoIds;
   if (!process.env.ANTHROPIC_API_KEY) return fallback(FALLBACK, nuevoContexto(0, ficha, body.shownCards));
 
   const ip = ipFrom(request.headers);
@@ -142,11 +159,11 @@ export async function POST(request: Request) {
   if (!history.length) return Response.json({ error: "Pedido inválido" }, { status: 400 });
   const messages: Anthropic.MessageParam[] = history.map((m) => ({ role: m.role, content: m.content }));
 
-  const ctx = nuevoContexto((await tipoDeCambio()).valor, ficha, body.shownCards);
+  const ctx = nuevoContexto((await tipoDeCambio()).valor, ficha, body.shownCards, armado);
   // Un reintento como mucho: el timeout por ronda manda sobre la espera total.
   const client = new Anthropic({ maxRetries: 1 });
   // La ficha del bloque final es la que llegó con el pedido: fija durante el turno.
-  const system = systemBlocks(senaMonto(), ctx.ficha, await contextoDePagina(body.pagina));
+  const system = systemBlocks(ctx.ficha, await contextoDePagina(body.pagina), { modo: modoDePagina(body.pagina), armado, enviado: body.kitEnviado === true });
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream<Uint8Array>({
@@ -160,6 +177,8 @@ export async function POST(request: Request) {
         controller.enqueue(encoder.encode(JSON.stringify(e) + "\n"));
       };
       let sentText = false;
+      // El widget guarda los ids del armado en su ficha (para el WhatsApp del encabezado).
+      if (body.armado) send({ type: "ficha", ficha: { armadoIds } });
       // El timer de la ronda en curso: si está abortado, el error fue el timeout.
       let timer: AbortSignal | undefined;
       try {

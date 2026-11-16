@@ -6,7 +6,9 @@ describe("contexto de página (R3)", () => {
   it("traduce las rutas del sitio a una línea legible", async () => {
     expect(await contextoDePagina("/")).toBe("la home");
     expect(await contextoDePagina("/servicios/turnos")).toBe('la solución "Que tus clientes saquen turno solos" (categoría Turnos y reservas)');
-    expect(await contextoDePagina("/precios/")).toBe("la página con todos los precios");
+    expect(await contextoDePagina("/soluciones/")).toMatch(/^Soluciones, donde arma su kit/);
+    // Las rutas redirigidas no llegan como página: el widget manda la ruta final.
+    expect(await contextoDePagina("/precios")).toBeNull();
     expect(await contextoDePagina("/blog/como-cotizo")).toMatch(/^el artículo del blog "/);
   });
 
@@ -17,7 +19,7 @@ describe("contexto de página (R3)", () => {
   });
 
   it("va en el bloque sin caché, después de la ficha", () => {
-    const [cacheado, final] = systemBlocks(20000, { rubro: "Peluquería" }, "la home");
+    const [cacheado, final] = systemBlocks({ rubro: "Peluquería" }, "la home");
     expect(cacheado.text).not.toContain("# Dónde está");
     expect(final.text).toMatch(/Rubro: Peluquería[\s\S]*# Dónde está\nLa persona escribe desde la home/);
     expect(bloqueFicha({})).not.toContain("# Dónde está");

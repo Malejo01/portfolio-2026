@@ -6,7 +6,7 @@ import { waLink } from "@/lib/agencia/config";
 import { desdeDeCategoria, fmt } from "@/lib/agencia/pricing";
 import { Icon } from "../icons";
 import { AbrirChat } from "../client/AbrirChat";
-import { Reveal, RevealGroup, RevealItem } from "../client/Reveal";
+import { RevealGroup, RevealItem } from "../client/Reveal";
 
 /**
  * "Desde $177.000 · 3 × $59.000": el menor pago único de la categoría con
@@ -23,8 +23,8 @@ export function desdeDe(s: Pick<Solucion, "category">): { monto: string; pagos: 
 /**
  * Las seis baldosas de "¿Qué necesitás?" (tanda P1, §4.1 y Fase 3 bis B):
  * el problema y "Desde $X · 3 × $Y", sin línea de descripción. En la home
- * llevan a `/precios?cat=<categoría>` con esa categoría elegida (sin JS,
- * `/precios` abre en la primera y el visitante elige); en `/servicios`, a la
+ * llevan a `/soluciones?cat=<categoría>` con esa categoría elegida (sin JS,
+ * `/soluciones` muestra todo el catálogo); en otras páginas, a la
  * página de la solución. "Preguntale a Malejo" abre el chat con ese tema
  * (queda por encima del link de la tarjeta). Son links: sin estado ni
  * `searchParams`, así la home sigue estática.
@@ -39,11 +39,11 @@ export function NeedTiles({ heading = "h3", destino = "precios" }: { heading?: "
 
   return (
     <RevealGroup className="mt-6 grid grid-cols-[repeat(2,minmax(0,1fr))] gap-3 sm:mt-7 sm:gap-4 lg:grid-cols-3 lg:gap-5">
-      {soluciones.map((s) => {
+      {soluciones.map((s, i) => {
         const desde = desdeDe(s);
-        const href = destino === "precios" ? `/precios?cat=${s.category}` : `/servicios/${s.category}`;
+        const href = destino === "precios" ? `/soluciones?cat=${s.category}` : `/servicios/${s.category}`;
         return (
-          <RevealItem key={s.category} className="flex min-w-0">
+          <RevealItem key={s.category} i={i} className="flex min-w-0">
             <article className="card lift relative flex min-w-0 flex-1 flex-col gap-2 p-4 sm:gap-2.5 sm:p-5">
               <span className="ic h-9 w-9 sm:h-11 sm:w-11">
                 <Icon name={s.icon} size={20} />
@@ -73,8 +73,8 @@ export function NeedTiles({ heading = "h3", destino = "precios" }: { heading?: "
 }
 
 /**
- * Debajo de la grilla: "Ver todos los precios" como botón (ancho completo en
- * celular, Fase 3 bis B) y el link a proyectos a medida. `id="precios"`
+ * Debajo de la grilla: "Armá lo que necesitás →" como botón (ancho completo
+ * en celular; tanda P2, al armador) y el link a proyectos a medida. `id="precios"`
  * mantiene vivos los `/#precios` compartidos.
  */
 export function NeedLinks() {
@@ -82,12 +82,11 @@ export function NeedLinks() {
   return (
     <div className="mt-4 flex flex-col gap-2 sm:mt-6 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-8">
       <span id="precios" className="flex scroll-mt-[104px]">
-        <Link href={needs.precios.href} className="btn btn-s w-full sm:w-auto">
+        <Link href={needs.precios.href} className="btn btn-p h-auto min-h-[50px] w-full whitespace-normal py-2 text-center sm:w-auto">
           {needs.precios.label}
-          <Icon name="arrow" size={16} />
         </Link>
       </span>
-      <Link href={needs.grandes.href} className="lnk min-h-11 text-[15px]">
+      <Link href={needs.grandes.href} className="lnk min-h-11 whitespace-normal text-[15px]">
         {needs.grandes.label}
       </Link>
     </div>
@@ -97,11 +96,16 @@ export function NeedLinks() {
 export function Needs() {
   const { needs } = home;
   return (
-    <section id="servicios" className="wrap pt-14 sm:pt-16">
-      <Reveal>
-        <span className="lbl lbl-o">{needs.label}</span>
-        <h2 className="h h2">{needs.title}</h2>
-      </Reveal>
+    // `id="soluciones"` marca "Soluciones" en el menú (P2); el ancla vieja `/#servicios` sigue viva.
+    <section id="soluciones" className="wrap pt-14 sm:pt-16">
+      <span id="servicios" className="block scroll-mt-[104px]" aria-hidden="true" />
+      {/*
+        Sin entrada al scroll (tanda P2): con la primera pantalla nueva, este
+        título asoma arriba del pliegue en celular y era el LCP; arrancar en
+        `opacity: 0` hasta hidratar lo demoraba. Las baldosas sí entran.
+      */}
+      <span className="lbl lbl-o">{needs.label}</span>
+      <h2 className="h h2">{needs.title}</h2>
       <NeedTiles />
       <NeedLinks />
     </section>

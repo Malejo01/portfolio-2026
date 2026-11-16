@@ -33,7 +33,7 @@ export interface Fallo {
 export const palabras = (t: string) => t.trim().split(/\s+/).filter(Boolean).length;
 
 /** URLs, dominios o rutas del sitio escritas en el texto. */
-export const RUTA_CRUDA = /https?:\/\/|wa\.me|malejo\.com\.ar|(^|[\s(«"'])\/(demo|cotizador|servicios|portfolio|legal|blog|api)\b/i;
+export const RUTA_CRUDA = /https?:\/\/|wa\.me|malejo\.com\.ar|(^|[\s(«"'])\/(demo|cotizador|servicios|soluciones|portfolio|legal|blog|api)\b/i;
 export const CORRECCION = /te corrijo|me corrijo|como (te )?dije|como te comenté|corrijo:/i;
 export const DOBLE_VOZ = /ya te (apareci[óo]|dej[ée]|mostr[ée]) (el|la) (bot[óo]n|tarjeta)|ah[ií] (abajo )?ten[ée]s el bot[óo]n|te dej[ée] el bot[óo]n/i;
 

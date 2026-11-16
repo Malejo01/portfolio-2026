@@ -9,14 +9,13 @@ import { useEffect } from "react";
  * cambia el atributo. Así la copy del menú no viaja en el bundle.
  *
  * Fuera de la home la sección sale del pathname: cada página marca **su**
- * ítem (`/servicios/*` → Soluciones, `/precios` → Precios, `/blog/*` →
- * Blog). `/cotizador`, `/demo` y los legales no marcan ninguno: antes
- * Precios quedaba activo en `/servicios` y `/cotizador` (auditoría P1-9).
+ * ítem (`/soluciones` y `/servicios/*` → Soluciones, `/blog/*` → Blog).
+ * `/demo` y los legales no marcan ninguno (auditoría P1-9).
  */
 const ROUTE_SECTIONS: [prefix: string, section: string][] = [
   ["/blog", "blog"],
-  ["/servicios", "servicios"],
-  ["/precios", "precios"],
+  ["/servicios/", "soluciones"],
+  ["/soluciones", "soluciones"],
 ];
 
 function mark(section: string | null) {

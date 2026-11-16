@@ -3,9 +3,11 @@ import { Inter, JetBrains_Mono, Outfit } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { Footer } from "@/components/agencia/Footer";
 import { Header } from "@/components/agencia/Header";
+import { BottomNav } from "@/components/agencia/client/BottomNav";
 import { MalejoLoader } from "@/components/agencia/client/MalejoLoader";
+import { WHATSAPP_TEXTO } from "@/content/agencia/home";
+import { waLink } from "@/lib/agencia/config";
 import { malejoCopy } from "@/content/agencia/malejo";
-import { senaMonto } from "@/lib/agencia/config";
 import { AGENCIA_THEME_COOKIE } from "@/lib/agencia/theme";
 import { site } from "@/content/agencia/site";
 import { siteUrl } from "@/lib/links";
@@ -17,10 +19,15 @@ import "./agencia.css";
  * `app/layout.tsx` arriba; navegar entre árboles fuerza recarga completa,
  * que es lo correcto porque son sitios distintos con tokens distintos.
  */
+/**
+ * Variable, sin `weight` (tanda P2): con los pesos fijos ["600", "700",
+ * "800"], un build sin caché falla en Turbopack con el mismo error que
+ * JetBrains Mono más abajo ("next/font/google queries have exactly one
+ * entry"). La variable cubre 600 a 800 en un solo archivo.
+ */
 const outfit = Outfit({
   subsets: ["latin"],
   display: "swap",
-  weight: ["600", "700", "800"],
   variable: "--font-outfit",
 });
 
@@ -101,7 +108,8 @@ export default function AgenciaRootLayout({ children }: { children: React.ReactN
         <Header />
         <main id="contenido">{children}</main>
         <Footer />
-        <MalejoLoader copy={malejoCopy} senaMonto={senaMonto()} turnstileSiteKey={process.env.TURNSTILE_SITE_KEY || undefined} />
+        <BottomNav copy={site.bottomNav} whatsapp={waLink(WHATSAPP_TEXTO)} />
+        <MalejoLoader copy={malejoCopy} turnstileSiteKey={process.env.TURNSTILE_SITE_KEY || undefined} />
         <Analytics />
       </body>
     </html>

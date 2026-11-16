@@ -25,6 +25,11 @@ export interface Ficha {
   cuotas?: string;
   dudas?: string[];
   etapa?: Etapa;
+  /**
+   * Tanda P2: los ids del armado de `/soluciones` (los pone el servidor con
+   * lo que manda el widget). Se reemplaza, no se suma: es el armado actual.
+   */
+  armadoIds?: string[];
 }
 
 /** Topes de tamaño: los mismos para el modelo y para el body del widget. */
@@ -52,6 +57,10 @@ export function mergeFicha(prev: Ficha, patch: Ficha): Ficha {
     out[k] = unicos.slice(-FICHA_LIMITES.lista);
   }
   if (patch.etapa) out.etapa = patch.etapa;
+  if (patch.armadoIds) {
+    if (patch.armadoIds.length) out.armadoIds = patch.armadoIds.slice(0, 12);
+    else delete out.armadoIds;
+  }
   return out;
 }
 

@@ -18,7 +18,13 @@ export type IconName =
   | "menu"
   | "chat"
   | "whatsapp"
-  | "send";
+  | "send"
+  | "home"
+  | "grid"
+  | "share"
+  | "up"
+  | "expand"
+  | "phone";
 
 const PATHS: Record<IconName, React.ReactNode> = {
   web: (
@@ -81,9 +87,28 @@ const PATHS: Record<IconName, React.ReactNode> = {
     </>
   ),
   send: <path d="M5 12h14M13 6l6 6-6 6" />,
+  /** Tanda P2: la barra inferior del celular, compartir el armado y las hojas. */
+  home: <path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z" />,
+  grid: (
+    <>
+      <rect x="4" y="4" width="7" height="7" rx="1.5" />
+      <rect x="13" y="4" width="7" height="7" rx="1.5" />
+      <rect x="4" y="13" width="7" height="7" rx="1.5" />
+      <rect x="13" y="13" width="7" height="7" rx="1.5" />
+    </>
+  ),
+  share: (
+    <>
+      <path d="M12 15V4M8 8l4-4 4 4" />
+      <path d="M5 13v6a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-6" />
+    </>
+  ),
+  up: <path d="M6 15l6-6 6 6" />,
+  expand: <path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7" />,
+  phone: <path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1z" />,
 };
 
-const STROKE: Partial<Record<IconName, number>> = { check: 2.4, arrow: 2, close: 2, send: 2 };
+const STROKE: Partial<Record<IconName, number>> = { check: 2.4, arrow: 2, close: 2, send: 2, up: 2.2 };
 
 export function Icon({
   name,

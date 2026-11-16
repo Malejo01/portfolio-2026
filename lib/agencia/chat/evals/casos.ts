@@ -13,14 +13,18 @@ import {
   type Check,
 } from "./aserciones";
 import { getCombo, getPlan } from "@/content/agencia/pricing";
-import { fmt, pagosDePlan } from "@/lib/agencia/pricing";
+import type { Armado } from "@/lib/agencia/armado";
+import { estimarArmado, fmt, montoPlanEscrito, pagosDePlan, senaPara } from "@/lib/agencia/pricing";
+import { preguntas } from "./aserciones";
 
 /**
  * Los 24 casos de las pruebas en producción del 8-11-2026 (A a W) más X, y
  * los de la tanda R2: Y, Z y AA (asesor, propiedad del código, chat abierto
  * desde una baldosa) y AB, AC y AD (abuso: juego de rol, insulto, ensayo).
  * Tanda R3 (simulación de 22 charlas): AE a AJ. Tanda P1 (precios nuevos y
- * 3 pagos): AK a AO, y O pasa a pedir los 3 pagos. Los montos esperados
+ * 3 pagos): AK a AO, y O pasa a pedir los 3 pagos. Tanda P2 (el armador
+ * de Soluciones y la seña escalonada): AP a AU, y AV para la bienvenida con
+ * opciones. Tanda P2.1 (el embudo del kit): AW y AX. Los montos esperados
  * salen del catálogo, no escritos a mano.
  * Cada caso es una conversación de uno o más turnos del usuario y sus
  * checks deterministas. Los corre `npm run eval:chat` (`scripts/eval-chat.ts`)
@@ -32,6 +36,10 @@ export interface Caso {
   turnos: string[];
   /** Tope de palabras por respuesta: 60 por defecto, hasta 90 si el caso pide detalle. */
   maxPalabras?: number;
+  /** Tanda P2: desde qué página escribe (`/soluciones` activa el modo armado). */
+  pagina?: string;
+  /** Tanda P2: el armado que ya tiene en el carrito. */
+  armado?: Armado;
   checks: Check[];
 }
 
@@ -67,9 +75,19 @@ export const casos: Caso[] = [
     titulo: "Peluquería con turnos → Mercado Pago → avanzar",
     turnos: ["Tengo una peluquería y quiero que mis clientas saquen turno solas", "¿y con Mercado Pago?", "dale, quiero avanzar"],
     checks: [
-      { nombre: "cotiza turnos o el combo", ok: (r) => quotes(r).some((q) => q.ids.some((id) => /turnos/.test(id))) },
+      // P2.1: el camino es la sugerencia para el kit; cotizar sigue valiendo.
+      {
+        nombre: "cotiza o sugiere turnos o el combo",
+        ok: (r) =>
+          quotes(r).some((q) => q.ids.some((id) => /turnos/.test(id))) ||
+          de(todasCards(r), "armado").some((c) => c.items.some((i) => /turnos/.test(i.id))),
+      },
       { nombre: "MP con cuotas mencionadas", ok: (r) => /cuota/i.test(r.turnos[1].texto) || quotes(r).some((q) => q.medio === "mp") },
-      { nombre: "tarjeta de demo al avanzar", ok: (r) => de(ultimo(r).cards, "demo").length > 0 },
+      // P2.1: al avanzar, el camino es el kit (sugerencia y "mandale tu kit a Mauro"); la demo, si la pide.
+      {
+        nombre: "al avanzar: el kit (o la demo)",
+        ok: (r) => hay(r, "armado") || /\bkit\b/i.test(ultimo(r).texto) || de(ultimo(r).cards, "demo").length > 0,
+      },
       { nombre: "no repite la cotización al avanzar", ok: (r) => de(ultimo(r).cards, "quote").length === 0 },
       // El formulario de contacto (pedir_contacto, regla 7 del prompt) es la oferta misma.
       {
@@ -495,6 +513,153 @@ export const casos: Caso[] = [
           return montos(todoTexto(r)).every((n) => validos.has(n));
         },
       },
+    ],
+  },
+  // ── Tanda P2: el armador de Soluciones y la seña escalonada ──────────
+  {
+    id: "AP",
+    titulo: "P2: peluquería que no sabe qué necesita, en Soluciones",
+    pagina: "/soluciones",
+    turnos: [
+      "Tengo una peluquería y no sé qué necesito",
+      "Hoy me escriben por WhatsApp y anoto los turnos en un cuaderno",
+      "Lo primero es que saquen turno solas",
+      "¿Qué me sugerís?",
+    ],
+    maxPalabras: 90,
+    checks: [
+      { nombre: "sugiere con sugerir_armado", ok: (r) => hay(r, "armado") },
+      {
+        nombre: "turnos o el combo Página + turnos",
+        ok: (r) => de(todasCards(r), "armado").some((c) => c.items.some((i) => i.id === "turnos-online" || i.id === "combo-negocio-con-turnos")),
+      },
+      {
+        nombre: "como mucho 3 preguntas antes de sugerir",
+        ok: (r) => {
+          const i = r.turnos.findIndex((t) => t.cards.some((c) => c.kind === "armado"));
+          return i >= 0 && r.turnos.slice(0, i).reduce((s, t) => s + Math.min(1, preguntas(t.texto)), 0) <= 3;
+        },
+      },
+      { nombre: "no cotiza un total cerrado", ok: (r) => quotes(r).length === 0 },
+    ],
+  },
+  {
+    id: "AQ",
+    titulo: "P2: \"¿cuánto me sale todo esto?\" con un armado cargado",
+    pagina: "/soluciones",
+    armado: { items: [{ id: "landing-profesional", origen: "persona" }, { id: "turnos-online", origen: "persona" }], extras: [] },
+    turnos: ["¿Cuánto me sale todo esto?"],
+    maxPalabras: 90,
+    checks: [
+      {
+        nombre: "da el rango del estimado",
+        ok: (r) => {
+          const e = estimarArmado({ items: [{ id: "landing-profesional", origen: "persona" }, { id: "turnos-online", origen: "persona" }], extras: [] });
+          return montoEnTexto(r, e.piso) && montoEnTexto(r, e.techo) && /entre/i.test(todoTexto(r));
+        },
+      },
+      { nombre: "menciona los pagos", ok: texto(/pagos?|cuotas?/i) },
+      { nombre: "no da un precio cerrado (sin tarjeta de cotización)", ok: (r) => quotes(r).length === 0 },
+      { nombre: "invita a mandar el armado a Mauro", ok: texto(/mand(a|á)le tu kit|mand(a|á)(le|selo)? (a Mauro|el kit)|tu kit a Mauro|se lo mand(a|á)s a Mauro/i) },
+    ],
+  },
+  {
+    id: "AR",
+    titulo: "P2: \"agregalo vos\" después de una sugerencia",
+    pagina: "/soluciones",
+    turnos: ["Tengo una veterinaria y quiero que saquen turno solos por internet. Sugerime qué armar", "Agregalo vos"],
+    maxPalabras: 90,
+    checks: [
+      { nombre: "sugirió con sugerir_armado", ok: (r) => hay(r, "armado") },
+      { nombre: "explica que se agrega con el botón", ok: (r) => /bot[óo]n|toc(á|a)|Agregar al kit/i.test(ultimo(r).texto) },
+      { nombre: "no dice que lo agregó", ok: (r) => !/(ya )?(lo|te lo) agregu[ée]|listo,? (ya )?(est[áa] )?agregad/i.test(ultimo(r).texto) },
+    ],
+  },
+  {
+    id: "AS",
+    titulo: "P2: la seña de la tienda",
+    turnos: ["¿Cuánto es la seña para la tienda que cobra sola?"],
+    maxPalabras: 90,
+    checks: [
+      {
+        nombre: "la seña del tramo que corresponde",
+        ok: (r) => {
+          const s = senaPara(["tienda-online-con-mercado-pago"]);
+          return s.tipo === "demo" && montoEnTexto(r, s.monto);
+        },
+      },
+      { nombre: "dice que se descuenta", ok: texto(/descuent/i) },
+    ],
+  },
+  {
+    id: "AT",
+    titulo: "P2: sistema a medida para 3 sucursales",
+    turnos: ["Quiero un sistema a medida para 3 sucursales"],
+    maxPalabras: 90,
+    checks: [
+      { nombre: "plan del proyecto por escrito", ok: (r) => texto(/plan (del proyecto )?por escrito/i)(r) || montoEnTexto(r, montoPlanEscrito()) },
+      { nombre: "charla gratis", ok: texto(/charla|videollamada|gratis/i) },
+      { nombre: "sin demo de 72 horas ni seña de demo", ok: (r) => !hay(r, "demo") && !/seña de la demo|demo en 72/i.test(todoTexto(r)) },
+    ],
+  },
+  {
+    id: "AU",
+    titulo: "P2: \"quiero todo\" → priorizar",
+    pagina: "/soluciones",
+    turnos: ["Quiero todo: página, tienda, asistente y stock"],
+    maxPalabras: 90,
+    checks: [
+      { nombre: "ayuda a priorizar", ok: texto(/primero|priori|empez(á|a|ar)|arranc(á|a|ar)|de a poco|por partes|qu[ée] te urge|lo m[áa]s importante/i) },
+      {
+        nombre: "no suma todo de una",
+        ok: (r) => de(todasCards(r), "armado").every((c) => c.items.length <= 2) && !quotes(r).some((q) => q.ids.length >= 3),
+      },
+    ],
+  },
+  {
+    id: "AV",
+    titulo: "P2: la opción \"No sé qué necesito\" de la bienvenida",
+    turnos: ["No sé qué necesito"],
+    checks: [
+      { nombre: "pregunta el rubro o qué hace", ok: (r) => /\?/.test(r.turnos[0].texto) && /rubro|negocio|vend(é|e)s|te dedic|qu[ée] hac(é|e)s|servicio/i.test(r.turnos[0].texto) },
+      { nombre: "ofrece respuestas sugeridas", ok: (r) => hay(r, "opciones") },
+      { nombre: "no repite el saludo", ok: (r) => !/soy Malejo/i.test(r.turnos[0].texto) },
+    ],
+  },
+  // ── Tanda P2.1: el embudo del kit (entender → sugerir → mandar el kit → demo) ──
+  {
+    id: "AW",
+    titulo: "P2.1: aula virtual para un instituto, desde la home",
+    pagina: "/",
+    turnos: [
+      "Quiero un aula virtual para mi instituto",
+      "Es un instituto terciario con unos 200 alumnos",
+      "Que los docentes suban los programas y las evaluaciones",
+      "Dale, ¿qué me conviene?",
+    ],
+    maxPalabras: 90,
+    checks: [
+      {
+        nombre: "pregunta como mucho 2 cosas antes de sugerir",
+        ok: (r) => {
+          const i = r.turnos.findIndex((t) => t.cards.some((c) => c.kind === "armado"));
+          return i >= 0 && r.turnos.slice(0, i).reduce((s, t) => s + Math.min(1, preguntas(t.texto)), 0) <= 2;
+        },
+      },
+      { nombre: "sugiere el aula virtual con sugerir_armado", ok: (r) => de(todasCards(r), "armado").some((c) => c.items.some((i) => i.id === "plataforma-educativa-con-ia")) },
+      { nombre: "no usa pedir_demo", ok: (r) => !hay(r, "demo") },
+      { nombre: "nombra \"tu kit\"", ok: texto(/\btu kit\b/i) },
+    ],
+  },
+  {
+    id: "AX",
+    titulo: "P2.1: \"quiero ver una demo ya\"",
+    turnos: ["Tengo una ferretería y quiero que me encuentren en Google. Quiero ver una demo ya"],
+    maxPalabras: 90,
+    checks: [
+      { nombre: "la demo está permitida y sale", ok: (r) => hay(r, "demo") },
+      { nombre: "antes, una sugerencia para el kit", ok: (r) => hay(r, "armado") || /\bkit\b/i.test(todoTexto(r)) },
+      { nombre: "la sugerencia va en una línea, sin frenar", ok: (r) => palabras(r.turnos[0].texto) <= 60 },
     ],
   },
 ];

@@ -44,13 +44,15 @@ describe("base de conocimiento", () => {
     expect(JSON.stringify(conocimiento)).not.toMatch(/Muni\b|Municipalidad de/);
   });
 
-  it("el bloque del prompt incluye el conocimiento, con la seña resuelta y sin URLs", () => {
-    const bloque = bloqueConocimiento(20000);
+  it("el bloque del prompt incluye el conocimiento, con la seña escalonada resuelta y sin URLs", () => {
+    const bloque = bloqueConocimiento();
     expect(bloque).toContain("Mauro Lizárraga");
     expect(bloque).toContain("AfinIA Jobs");
-    expect(bloque).toContain("$20.000");
-    expect(bloque).not.toContain("{SENA}");
+    // Tanda P2: la escala completa, generada desde precios.json.
+    expect(bloque).toContain("$25.000 hasta $360.000 y $50.000 hasta $750.000");
+    expect(bloque).toContain("plan del proyecto por escrito ($60.000)");
+    expect(bloque).not.toMatch(/\{SENA|\$20\.000/);
     expect(bloque).not.toMatch(/https?:\/\//);
-    expect(bloqueConocimiento(20000)).toBe(bloque);
+    expect(bloqueConocimiento()).toBe(bloque);
   });
 });

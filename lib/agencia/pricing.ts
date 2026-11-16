@@ -1,4 +1,5 @@
 import {
+  estimadoConfig,
   etiquetasPrecio,
   getCombo,
   getExtra,
@@ -8,12 +9,15 @@ import {
   recargoMercadoPago,
   resolverId,
   resumenCopy,
+  senaCopy,
+  senasConfig,
   type Category,
   type Combo,
   type Extra,
   type Plan,
   type TipoPrecio,
 } from "@/content/agencia/pricing";
+import { deQuery, normalizar, type Armado, type Clasificador } from "./armado";
 import { fmt, fmtUsd } from "./format";
 
 /**
@@ -536,4 +540,203 @@ export function resumenCotizacion(c: Cotizacion): string {
   ]
     .filter(Boolean)
     .join("\n");
+}
+
+/* ─── El armado (tanda P2) ─────────────────────────────────────────── */
+
+/**
+ * El clasificador del armado con el catálogo: un plan o un combo es un
+ * ítem, un extra es un extra, un alias se resuelve y lo que no existe se
+ * descarta. Lo usan el armador, `/demo`, `/api/contacto` y el chat.
+ */
+export const clasificarId: Clasificador = (raw) => {
+  const id = resolverId(raw);
+  if (getPlan(id) || getCombo(id)) return { id, tipo: "item" };
+  if (getExtra(id)) return { id, tipo: "extra" };
+  return null;
+};
+
+/** Un armado cualquiera (de storage, de la URL, del body) validado contra el catálogo. */
+export function validarArmado(raw: unknown): Armado {
+  return normalizar(raw, clasificarId);
+}
+
+/**
+ * Lo elegido según la URL de `/demo`: `?a=` (un armado compartido o
+ * mandado desde `/soluciones`) o, como antes, `?plan=id,id&extras=id`.
+ */
+export function armadoDeUrl(search: string): Armado {
+  const q = new URLSearchParams(search);
+  const a = q.get("a");
+  if (a) return deQuery(a, clasificarId);
+  const lista = (k: string) => (q.get(k) ?? "").split(",").map((x) => x.trim()).filter(Boolean);
+  return normalizar({ items: lista("plan"), extras: lista("extras") }, clasificarId);
+}
+
+/** Lo que va en `senaPara`: los ids de planes y combos, o un armado entero. */
+type ParaSena = readonly string[] | Armado;
+
+function partes(input: ParaSena): { planIds: string[]; extras: string[] } {
+  if (Array.isArray(input)) return { planIds: [...(input as readonly string[])].map(resolverId), extras: [] };
+  const a = input as Armado;
+  return { planIds: a.items.map((i) => i.id), extras: a.extras };
+}
+
+/** Planes de un id (un combo son sus partes). */
+function planesDeId(id: string): Plan[] {
+  const combo = getCombo(id);
+  if (combo) return combo.planIds.map((p) => getPlan(p)).filter((p): p is Plan => Boolean(p));
+  const plan = getPlan(id);
+  return plan ? [plan] : [];
+}
+
+/** Usa IA o WhatsApp oficial: el plan, el combo o alguna de sus partes. */
+function usaTerceros(id: string): boolean {
+  const combo = getCombo(id);
+  if (combo?.usaServiciosDeTerceros.length) return true;
+  return planesDeId(id).some((p) => p.category === "ia" || p.usaServiciosDeTerceros.length > 0);
+}
+
+/** Va con plan escrito sin importar el monto: un proyecto grande o un sistema a medida. */
+function siemprePlanEscrito(id: string): boolean {
+  return planesDeId(id).some((p) => p.category === "grandes" || senasConfig.siemprePlanEscrito.includes(p.id));
+}
+
+/** El pago único publicado (por transferencia) de lo que se contrata junto. */
+function pisoDe(planIds: string[], extras: string[]): number {
+  return planIds.length || extras.length ? cotizar({ planIds, extras }).implementacion : 0;
+}
+
+export type Sena = { tipo: "demo"; monto: number } | { tipo: "plan-escrito"; monto: number } | { tipo: "sin-cargo" };
+
+/** El precio del plan del proyecto por escrito ($60.000): el plan `diagnostico-escrito`. */
+export function montoPlanEscrito(): number {
+  return getPlan("diagnostico-escrito")?.impl ?? 0;
+}
+
+/** La seña más chica: "seña desde $25.000, según el proyecto". */
+export function senaMinima(): number {
+  return Math.min(...senasConfig.tramos.map((t) => t.monto));
+}
+
+/** Los tramos para la tabla del modal: "Hasta $360.000 → $25.000", … */
+export function tramosDeSena(): { hasta: number; monto: number }[] {
+  return senasConfig.tramos.map((t) => ({ ...t }));
+}
+
+/**
+ * **La seña de la demo** (tanda P2, D4), siempre descontada del total:
+ *
+ * - Todo lo elegido tiene demo sin cargo (la renovación de una web) → `sin-cargo`.
+ * - Un proyecto grande o un sistema a medida, o un piso que pasa el último
+ *   tramo ($750.000) → `plan-escrito`: el plan del proyecto por escrito
+ *   ($60.000), en lugar de la demo.
+ * - Si no, el tramo del piso del total contratado ($25.000 hasta $360.000,
+ *   $50.000 hasta $750.000), con mínimo `minimoConIA` si algo usa IA o
+ *   WhatsApp oficial.
+ *
+ * Sin nada elegido, la seña más chica (la copy dice "desde").
+ */
+export function senaPara(input: ParaSena): Sena {
+  const { planIds, extras } = partes(input);
+  const ids = planIds.filter((id) => getPlan(id) || getCombo(id));
+  if (ids.length && ids.every((id) => senasConfig.sinCargo.includes(id))) return { tipo: "sin-cargo" };
+  if (ids.some(siemprePlanEscrito)) return { tipo: "plan-escrito", monto: montoPlanEscrito() };
+  return senaDelPiso(pisoDe(ids, extras), ids.some(usaTerceros));
+}
+
+/** El tramo de un piso: la regla de los montos, sola (la cubren los bordes del test). */
+export function senaDelPiso(piso: number, conIA = false): Sena {
+  const ultimo = senasConfig.tramos[senasConfig.tramos.length - 1];
+  if (ultimo && piso > ultimo.hasta) return { tipo: "plan-escrito", monto: montoPlanEscrito() };
+  const tramo = senasConfig.tramos.find((t) => piso <= t.hasta) ?? senasConfig.tramos[0];
+  return { tipo: "demo", monto: conIA ? Math.max(tramo.monto, senasConfig.minimoConIA) : tramo.monto };
+}
+
+export interface EstimadoArmado {
+  /** La cotización de lo elegido (combos aplicados solos). */
+  cotizacion: Cotizacion;
+  /** Lo publicado: la suma de los pagos únicos. Es el mínimo. */
+  piso: number;
+  /** Piso + margen de lo fijo + margen de lo "desde", redondeado a miles. */
+  techo: number;
+  /** 2 o 3 pagos (y tarjeta) sobre el piso, con el tope de los 3 pagos. `null` sin pago único. */
+  pagos: Pagos | null;
+  /** Lo que se paga por mes, sumado. */
+  mensual: number;
+  /** Lo que se paga por año (Mantener online). */
+  anual: number;
+  sena: Sena;
+  /** Piso > $750.000, un proyecto grande o un sistema a medida: va el plan por escrito. */
+  requierePlanEscrito: boolean;
+}
+
+/** Redondeo a miles, como los precios publicados. */
+const aMiles = (n: number) => Math.round(n / 1000) * 1000;
+
+/**
+ * El estimado del armado (tanda P2, D2): **un rango, nunca un total
+ * cerrado**. Usa `cotizar()`, así los combos se aplican solos.
+ *
+ * - `piso` = lo publicado (el pago único por transferencia).
+ * - `techo` = piso + `margenFijo` (15 %) de cada ítem de precio fijo +
+ *   `margenDesde` (50 %) de cada ítem "desde", redondeado a miles. Aunque
+ *   todo sea de precio fijo, el rango se muestra igual.
+ * - `pagos` = `pagosDe(piso)`: el tope de los 3 pagos se mira sobre el piso.
+ */
+export function estimarArmado(armado: Armado): EstimadoArmado {
+  const { planIds, extras } = partes(armado);
+  const c = cotizar({ planIds, extras });
+  const piso = c.implementacion;
+  const margen = c.items.reduce(
+    (s, i) => s + i.implementacion * (i.desde ? estimadoConfig.margenDesde : estimadoConfig.margenFijo),
+    0,
+  );
+  const sena = senaPara(armado);
+  const ultimo = senasConfig.tramos[senasConfig.tramos.length - 1];
+  return {
+    cotizacion: c,
+    piso,
+    techo: piso ? Math.max(piso, aMiles(piso + margen)) : 0,
+    pagos: c.pagos,
+    mensual: c.abonoMensual,
+    anual: c.anual,
+    sena,
+    requierePlanEscrito: sena.tipo === "plan-escrito" || Boolean(ultimo && piso > ultimo.hasta) || planIds.some(siemprePlanEscrito),
+  };
+}
+
+/** "Seña de la demo: $25.000 (se descuenta)", "Plan del proyecto por escrito: $60.000 (se descuenta)" o "Demo sin cargo". */
+export function lineaDeSena(sena: Sena): string {
+  if (sena.tipo === "sin-cargo") return senaCopy.sinCargo;
+  return (sena.tipo === "demo" ? senaCopy.demo : senaCopy.planEscrito).replace("{MONTO}", fmt(sena.monto));
+}
+
+/** "seña desde $25.000, según el proyecto": donde todavía no hay nada elegido. */
+export function senaDesde(): string {
+  return senaCopy.desde.replace("{MONTO}", fmt(senaMinima()));
+}
+
+/** Las filas de la tabla de la seña (el modal `info` de la home, `/demo` y el armador). */
+export function filasDeSena(): { label: string; monto: string }[] {
+  const t = senaCopy.tabla;
+  const ultimo = senasConfig.tramos[senasConfig.tramos.length - 1];
+  return [
+    ...senasConfig.tramos.map((x) => ({ label: t.tramo.replace("{HASTA}", fmt(x.hasta)), monto: fmt(x.monto) })),
+    { label: t.conIA, monto: t.conIAMonto.replace("{MONTO}", fmt(senasConfig.minimoConIA)) },
+    { label: t.arriba.replace("{HASTA}", fmt(ultimo?.hasta ?? 0)), monto: t.arribaMonto.replace("{MONTO}", fmt(montoPlanEscrito())) },
+    { label: t.renovacion, monto: t.renovacionMonto },
+  ];
+}
+
+/** La escala completa en una línea (chat, términos, FAQ). Generada: ningún monto escrito a mano. */
+export function escalaDeSena(): string {
+  const ultimo = senasConfig.tramos[senasConfig.tramos.length - 1];
+  const tramos = senasConfig.tramos.map((x) => senaCopy.escalaTramo.replace("{MONTO}", fmt(x.monto)).replace("{HASTA}", fmt(x.hasta)));
+  const lista = tramos.length > 1 ? `${tramos.slice(0, -1).join(", ")} y ${tramos[tramos.length - 1]}` : (tramos[0] ?? "");
+  return senaCopy.escala
+    .replace("{TRAMOS}", lista)
+    .replace("{MINIMO}", fmt(senasConfig.minimoConIA))
+    .replace("{TOPE}", fmt(ultimo?.hasta ?? 0))
+    .replace("{PLAN}", fmt(montoPlanEscrito()));
 }

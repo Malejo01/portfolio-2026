@@ -112,7 +112,7 @@ volvía dinámicas las tres rutas del sitio.
 ### Las rutas son estáticas — mantenelas así
 
 El build tiene que mostrar `○` en `/portfolio`, `/portfolio/en`, las seis de casos y todas
-las páginas de la agencia (`/`, `/precios`, `/servicios/*`, `/cotizador`, `/demo`, `/blog/*`, `/legal/*`). Cualquier
+las páginas de la agencia (`/`, `/soluciones`, `/servicios/*`, `/demo`, `/blog/*`, `/legal/*`). Cualquier
 Dynamic API (`cookies()`, `headers()`) en un layout o page las devuelve a `ƒ`
 y tira abajo el cacheo en CDN. Si necesitás algo por request, empujalo al
 cliente o al proxy.
@@ -253,15 +253,25 @@ npm run db:migrate  # las aplica Mauro, con DATABASE_URL
 - **Copy y datos** en `content/agencia/*.ts`, nunca en componentes. Los
   precios salen de `docs/agencia/datos/precios.json` vía
   `content/agencia/pricing.ts` (tipos) y toda la aritmética pasa por
-  `lib/agencia/pricing.ts` (`fmt`, `conRecargo`, `cotizar`): `/precios`,
-  `/servicios`, `/cotizador`, el blog y el agente usan la misma función. La
-  seña sale de `SENA_MONTO` (`lib/agencia/config.ts`).
+  `lib/agencia/pricing.ts` (`fmt`, `conRecargo`, `cotizar`,
+  `estimarArmado`, `senaPara`): `/soluciones`, `/servicios/[slug]`, `/demo`,
+  el blog y el agente usan las mismas funciones.
+- **Seña escalonada (P2, D4):** `senaPara(ids | armado)` sobre el piso del
+  total contratado, con los tramos de `precios.json → senas` ($25.000 hasta
+  $360.000, $50.000 hasta $750.000, $50.000 como mínimo con IA o WhatsApp
+  oficial, plan del proyecto por escrito arriba o con un sistema a medida,
+  renovación sin cargo). Se descuenta siempre del total. Donde no hay nada
+  elegido, la copy dice "desde" (`senaMinima()`); la escala en una línea es
+  `escalaDeSena()` y la tabla, `SenaTabla`. Los links de pago son uno por
+  monto (`linkDeSena()`, `NEXT_PUBLIC_SENA_URL_25000`, `_50000`,
+  `NEXT_PUBLIC_PLAN_ESCRITO_URL`); sin link, alias y WhatsApp. `SENA_MONTO`
+  ya no existe.
 - **Formas de pago (P1, `docs/agencia/precios-psicologia-2026-11-10.md` §2):**
   2 pagos, 3 pagos sin interés hasta `pagos.topeTres` ($600.000, sobre el
   **total contratado**, nunca plan por plan) y tarjeta (+6 %, hasta 6
   cuotas). `pagosDe()` reparte (el último pago absorbe la diferencia) y
   `lineaDePagos()` es **la única fuente** de "o 3 pagos de $X sin
-  interés": tarjetas, modal, cotizador, `/demo` y chat. No aplica a
+  interés": tarjetas, modal, armador, `/demo` y chat. No aplica a
   `grandes` ni a lo solo mensual. Regla de diseño de precios (la cubre un
   test): todo pago único de hasta $600.000 es divisible por 3 en miles.
   "Cuota" es solo partir el pago; lo de cada mes es "por mes" o "servicio
@@ -281,23 +291,55 @@ npm run db:migrate  # las aplica Mauro, con DATABASE_URL
   "Implementación", "foto profesional" y, desde P1, "cuota mensual",
   "permanencia" y "tokens". El glosario completo está en
   `docs/agencia/auditoria-ux-2026-11-08.md` §4.
+- **Mensaje (P2, D7):** "Software con IA para tu negocio." (H1 tecleado,
+  título del layout, OG y JSON-LD).
 - **Home corta (R2):** hero → "¿Qué necesitás?" → cómo trabajo → quién te va
-  a atender → cierre; ≤ 3,5 pantallas en escritorio y ≤ 5,5 en celular (hoy
-  3,16 y 4,64: medí con `docs/agencia/verificacion/p1/verificar.js`, que
-  además verifica palabras, overflow, el modal, el camino sin JS y los
-  solapes de `/precios`, si cambiás la copy). Las soluciones van ≤ 450
-  palabras. El catálogo completo está en **`/precios`**; las
-  soluciones (`/servicios/[slug]`, copy en `content/agencia/servicios.ts`)
-  comparten plantilla. "El código es tuyo" solo en webs, tiendas, turnos y
+  a atender → cierre; ≤ 3,5 pantallas en escritorio y ≤ 5,5 en celular.
+  **Celular primero (P2, D8):** a 390 × 844 y 360 × 740 la primera pantalla
+  (H1, bajada de una línea, Mauro con el sprite que saluda, "Hablar con
+  Malejo" y "Armar mi solución" apilados y los chips) entra arriba del
+  pliegue con la barra inferior. Medí con
+  `docs/agencia/verificacion/p2/verificar.js` (pliegue, overflow, solapes,
+  hojas, carrusel y pantallas por página) si cambiás la copy. Las
+  soluciones van ≤ 450 palabras.
+- **`/soluciones` (P2, D1):** `/precios`, `/cotizador` y `/servicios` se
+  fusionaron ahí y redirigen con 308 conservando la query
+  (`lib/agencia/redirects.ts`; un test falla si algo enlaza una ruta
+  redirigida). Es el **armador**: dos caminos ("Ya sé lo que quiero" /
+  "Ayudame a elegir"), el catálogo y un carrito con **estimado en rango**
+  (`estimarArmado`: piso publicado, techo +15 % de lo fijo y +50 % de lo
+  "desde", `precios.json → estimado`), nunca un total cerrado. El estado
+  del armado vive en `lib/agencia/armado.ts` (sessionStorage +
+  `malejo:armado`, sin catálogo, tope de 12) y se refleja en `?a=` para
+  compartirlo. "Mandale tu armado a Mauro" manda **solo ids** a
+  `/api/contacto` (variante `armado`), que escribe el resumen y hace el
+  único insert. Sin JS: cada categoría en un `<details>`, "Pedí tu demo"
+  por plan y WhatsApp en lugar del carrito.
+  **P2.1:** en la copy es **"kit"** ("Tu kit", "Agregar al kit", "Mandale
+  tu kit a Mauro"); el código sigue diciendo `armado` (archivos, evento,
+  `?a=`, analytics, variante de `/api/contacto`) y el glosario prohíbe
+  "armado" en la copy. Desde 760 px la columna derecha es un panel fijo de
+  3 zonas con pestañas "Tu kit" | "Malejo": solo el cuerpo scrollea, el pie
+  (estimado y botón) queda fijo, y el chat se monta adentro con un portal
+  (`#malejo-panel`, `useHostPanel` en el widget); en Soluciones no hay
+  flotante. Cambiar de categoría vuelve al título (`sol-titulo-<cat>`).
+  "Proyectos a medida" es una línea de tiempo (`GrandesLinea`). Verificá con
+  `docs/agencia/verificacion/p2-1/verificar.js` además del de P2. Las soluciones
+  (`/servicios/[slug]`, copy en `content/agencia/servicios.ts`) comparten
+  plantilla y su botón principal es "Armalo con esto". "El código es tuyo" solo en webs, tiendas, turnos y
   mantenimiento: nunca en gestión, IA ni proyectos a medida.
 - **Islas `"use client"` de la agencia**, todas en `components/agencia/client/`:
   `ThemeToggle` (+ el hook `theme.ts`), `MobileMenu`, `SectionSpy`,
-  `Typewriter`, `PricingCatalog` (solo elige la categoría: los paneles los
-  arma el servidor), `MedioSwitch` (solo en el cotizador), `Cotizador`,
-  `ProjectVideo`, `Reveal`, `DemoForm` (+ el hook `turnstile.ts`),
-  `DemoResumen`, `PlanDialog`, `AbrirChat`, `MalejoLoader` y `MalejoWidget`
-  (cargado con `next/dynamic`, `ssr: false`, cuando el navegador está libre
-  o cuando alguien lo pide). FAQ y "Ver otras opciones" son `<details>`,
+  `Typewriter`, `ProjectVideo`, `Reveal`, `DemoForm` (+ el hook
+  `turnstile.ts`), `DemoResumen`, `DemoSena` (`DemoModo` y `DemoSena`),
+  `PlanDialog`, `AbrirChat`, `MalejoLoader` y `MalejoWidget` (cargado con
+  `next/dynamic`, `ssr: false`, cuando el navegador está libre o cuando
+  alguien lo pide). Desde P2: `Armador` (categorías y carrito; los paneles
+  los arma el servidor en `components/agencia/soluciones/PanelArmado.tsx`),
+  `AgregarBoton` (sin catálogo) y el hook `useArmado`, `Carrusel`
+  (scroll-snap nativo), `Caminos`, `Hoja` (hoja inferior con `<dialog>`),
+  `BottomNav` (barra inferior < 760 px: Inicio · Soluciones · Malejo ·
+  Contacto; reemplaza a la burbuja del chat en el celular) y `SpriteVivo`. FAQ y "Ver otras opciones" son `<details>`,
   sin JS. `PlanCard`, `PlanDetalle` e `InfoPagos` son Server Components.
 - **Modales (P1):** `PlanDialog` es un `<dialog>` nativo con `showModal()`;
   el contenido llega como `children` del servidor. Sin JS, "Ver qué
@@ -305,6 +347,10 @@ npm run db:migrate  # las aplica Mauro, con DATABASE_URL
   en un `<details>` `.nojs-only`; los modales chicos caen en un
   `<details>`. `html.js .nojs-only` / `html:not(.js) .js-only` en
   `agencia.css`. La animación no remonta el contenido (perdería el foco).
+  Desde P2 el contenido del `<dialog>` se monta la primera vez que se abre
+  (bajó el TBT de `/soluciones`); sin JS no cambia nada. **No envuelvas
+  paneles de `/soluciones` en `<Suspense>`**: Next los manda por streaming
+  fuera de lugar y sin JS el catálogo no se ve.
 - **Abrir el chat desde cualquier botón (R2):** la isla `AbrirChat` es un
   `<a>` a WhatsApp con el texto genérico (`WHATSAPP_TEXTO`) que, con JS,
   dispara el evento **`malejo:abrir`** (`lib/agencia/abrir-chat.ts`,
@@ -346,7 +392,24 @@ npm run db:migrate  # las aplica Mauro, con DATABASE_URL
     `mostrar_proyectos`, `pedir_demo`, `derivar_whatsapp`, `guardar_contacto`,
     y desde R3 `pedir_contacto` (formulario en el chat; firma un *ticket* con
     rubro y resumen, la persona escribe nombre y WhatsApp) y
-    `sugerir_respuestas` (2–3 botones; silenciosa, no entra al historial).
+    `sugerir_respuestas` (2–3 botones; silenciosa, no entra al historial),
+    y desde P2 `sugerir_armado` (1–3 ítems con "Agregar al armado"; **nunca
+    agrega sola**: el clic es de la persona, D5).
+  - **Embudo (P2.1), en todas las páginas:** entender (≤ 3 preguntas) →
+    `sugerir_armado` para el kit → "Mandale tu kit a Mauro" y la
+    videollamada → recién ahí la demo. `pedir_demo` solo si la piden
+    explícitamente (antes, una sugerencia en una línea) o si el kit ya se
+    mandó (`marcarKitEnviado()`; el widget manda `kitEnviado`).
+  - **Modo kit (P2):** en `/soluciones` (`chat/modo.ts`) el prompt sigue
+    las reglas de "Modo kit" (cacheadas) y el bloque sin caché lleva
+    "Kit actual" (`lineaArmadoActual`: nombres, rango, pagos y seña). El
+    widget manda el armado con cada pedido, como la ficha; la ficha suma
+    `armadoIds` y el WhatsApp lleva el link al armado.
+  - **Bienvenida (P2, D9):** el saludo es una burbuja con las 6 opciones
+    adentro (otras en modo armado), tocables solo mientras son el último
+    mensaje; no va al historial (`saludo: true`). En celular el chat es
+    una hoja a media pantalla (`--malejo-hoja`) que pasa a completa con el
+    teclado.
   - **Contexto y memoria (R3):** el widget manda `pagina`
     (`location.pathname`); `chat/pagina.ts` la valida contra las rutas y va al
     bloque sin caché. La charla y la ficha viven en `sessionStorage`
@@ -379,8 +442,8 @@ npm run db:migrate  # las aplica Mauro, con DATABASE_URL
     cierra el turno. Si el texto promete derivar y no salió tarjeta de
     WhatsApp ni de contacto, la ruta la agrega (`chat/derivar.ts`).
   - **USD:** `lib/agencia/usd.ts` (dolarapi.com, respaldo `USD_ARS_FALLBACK`
-    o `precios.json → usd.fallback`), solo servidor; `/api/dolar` para el
-    cotizador en el cliente.
+    o `precios.json → usd.fallback`), solo servidor; `/api/dolar` queda
+    para quien necesite el dólar en el cliente.
   - **Límites (R2, `limits.ts`):** `CHAT_BURST_LIMIT` (20 cada 10 min por
     IP hasheada, tabla `chat_burst`), `CHAT_DAILY_LIMIT_IP` (default 150) y
     `CHAT_DAILY_LIMIT_TOTAL` (default 1000); `0` = sin tope, vacío =
@@ -399,9 +462,9 @@ npm run db:migrate  # las aplica Mauro, con DATABASE_URL
   - **Pruebas sin clave:** `lib/agencia/chat/mock-anthropic.ts` imita la API
     con SSE; se apunta el SDK con `ANTHROPIC_BASE_URL` (lo usan
     `route.test.ts` y `evals/evals.test.ts`). **Evals reales:**
-    `npm run eval:chat` corre los 41 casos de `lib/agencia/chat/evals/casos.ts`
+    `npm run eval:chat` corre los 50 casos de `lib/agencia/chat/evals/casos.ts`
     contra `/api/chat` y escribe `docs/agencia/evals/<fecha>.md`; objetivo
-    38 de 41 (`objetivo()`: 22 de 24 proporcional). Gasta tokens: necesita
+    46 de 50 (`objetivo()`: 22 de 24 proporcional). Gasta tokens: necesita
     la clave en el servidor. Contra un preview protegido de Vercel y sin
     `CHAT_TEST_TOKEN`: `EVAL_COOKIE` (la cookie de un link de acceso) y
     `EVAL_PAUSA_MS=31000` con `--paralelo 1` (ver `scripts/eval-chat.ts`).

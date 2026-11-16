@@ -9,6 +9,11 @@ import type { ContactPayload } from "./security";
  */
 
 export type Medio = "transferencia" | "mp";
+/**
+ * La seña de lo cotizado (tanda P2, D4), calculada en el servidor por
+ * `senaPara()`: este módulo no conoce el catálogo.
+ */
+export type SenaCard = { tipo: "demo"; monto: number } | { tipo: "plan-escrito"; monto: number } | { tipo: "sin-cargo" };
 /** "usd" = la tarjeta suma el equivalente en dólares debajo de los pesos. */
 export type Moneda = "ars" | "usd";
 
@@ -52,6 +57,8 @@ export type Card =
        * por `lineaDePagos()`: este módulo no conoce el catálogo.
        */
       pagos?: string;
+      /** Tanda P2: la seña que corresponde (el botón dice "Pedir demo · seña $50.000"). */
+      sena?: SenaCard;
       demoHref: string;
     }
   | { kind: "compare"; ids: string[]; medio: Medio; moneda: Moneda; filas: FilaCard[]; tipoDeCambio?: number }
@@ -62,7 +69,24 @@ export type Card =
   /** Formulario de contacto (R3): nombre + WhatsApp + casilla, con un ticket firmado. */
   | { kind: "formContacto"; ticket: { rubro: string; resumen: string; iat: number }; token: string }
   /** Respuestas sugeridas (R3): botones que mandan ese texto como mensaje del usuario. */
-  | { kind: "opciones"; opciones: string[] };
+  | { kind: "opciones"; opciones: string[] }
+  /**
+   * Sugerencia para el armado (tanda P2, `sugerir_armado`): un ítem por
+   * fila con su precio, el porqué y un botón "Agregar al armado". **Nada
+   * entra sin el clic de la persona** (D5). `href` = `/soluciones?a=<ids>`,
+   * para abrirla fuera de Soluciones.
+   */
+  | { kind: "armado"; items: ItemSugerido[]; href: string };
+
+export interface ItemSugerido {
+  id: string;
+  /** Un extra va a `armado.extras`. */
+  tipo: "item" | "extra";
+  nombre: string;
+  /** "desde $249.000", "$177.000 + $22.000 por mes": escrito en el servidor. */
+  precio: string;
+  porque: string;
+}
 
 export type QuoteCard = Extract<Card, { kind: "quote" }>;
 
@@ -81,6 +105,8 @@ export function firmaCard(card: Card): string {
       return `compare:${orden(card.ids)}|${card.medio}|${card.moneda}`;
     case "demo":
       return `demo:${card.demoHref}`;
+    case "armado":
+      return `armado:${orden(card.items.map((i) => i.id))}`;
     default:
       return card.kind;
   }
@@ -88,7 +114,7 @@ export function firmaCard(card: Card): string {
 
 /** Tarjetas que nunca se repiten. Demo, WhatsApp y consentimiento sí pueden volver. */
 export function deduplicable(card: Card): boolean {
-  return card.kind === "quote" || card.kind === "compare" || card.kind === "proyectos";
+  return card.kind === "quote" || card.kind === "compare" || card.kind === "proyectos" || card.kind === "armado";
 }
 
 /** Firma de cotización → partes, para que el servidor reconstruya la última. */
@@ -130,5 +156,7 @@ export function lineaTarjeta(card: Card): string {
     case "opciones":
       // Las respuestas sugeridas no son algo que la persona "vio": no van al historial.
       return "";
+    case "armado":
+      return `[Tarjeta mostrada · kit · ${card.items.map((i) => i.id).join(",")}]`;
   }
 }

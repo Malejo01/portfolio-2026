@@ -90,7 +90,7 @@ describe("/api/chat con modelo simulado", () => {
     expect(p1.system).toHaveLength(2);
     expect(p1.system[0].cache_control).toEqual({ type: "ephemeral" });
     expect(p1.system[1].text).toContain("- Ciudad: Salta");
-    expect(p1.tools).toHaveLength(9);
+    expect(p1.tools).toHaveLength(10);
     // La segunda ronda lleva los dos tool_result en un solo mensaje.
     const ultimo = p2.messages.at(-1)!;
     expect(ultimo.role).toBe("user");
@@ -300,5 +300,49 @@ describe("/api/contacto · formulario del chat (R3)", () => {
     expect((await enviar({ consent: true, ticket, token, nombre: "Ana", whatsapp: "12345678" })).status).toBe(400);
     expect((await enviar({ consent: true, ticket: { ...ticket, rubro: "Otra" }, token, nombre: "Ana", whatsapp: "3875813233" })).status).toBe(400);
     expect((await enviar({ consent: false, ticket, token, nombre: "Ana", whatsapp: "3875813233" })).status).toBe(400);
+  });
+});
+
+describe("/api/chat · modo armado (P2)", () => {
+  it("en /soluciones el bloque final lleva el modo y el armado actual, y la ficha recibe los ids", async () => {
+    mock.guion([{ bloques: [{ type: "text", text: "¿Qué tenés hoy?" }], stop: "end_turn" }]);
+    const evs = await chat({
+      ...user("¿Cuánto me sale todo esto?"),
+      pagina: "/soluciones",
+      armado: { items: [{ id: "landing-profesional", origen: "persona" }, { id: "turnos-online", origen: "malejo" }, { id: "inventado", origen: "persona" }], extras: [] },
+    });
+    expect(evs[0]).toEqual({ type: "ficha", ficha: { armadoIds: ["landing-profesional", "turnos-online"] } });
+    const [p] = mock.pedidos as { system: { text: string }[] }[];
+    expect(p.system[0].text).toContain("# Modo kit (Soluciones)");
+    expect(p.system[1].text).toContain("# Modo kit\nEstá en Soluciones");
+    expect(p.system[1].text).toContain("Kit actual: Combo Página + turnos [combo-negocio-con-turnos] · se aplica el combo solo · estimado entre $357.000 y $411.000");
+    expect(p.system[1].text).toContain("Lo que agregó desde tus sugerencias: turnos-online.");
+    expect(p.system[1].text).not.toContain("inventado");
+  });
+
+  it("fuera de Soluciones no hay modo armado", async () => {
+    mock.guion([{ bloques: [{ type: "text", text: "Hola" }], stop: "end_turn" }]);
+    await chat({ ...user("hola"), pagina: "/" });
+    const [p] = mock.pedidos as { system: { text: string }[] }[];
+    expect(p.system[1].text).not.toContain("# Modo kit");
+  });
+});
+
+describe("/api/contacto · armado de /soluciones (P2)", () => {
+  const enviar = (body: unknown) =>
+    POSTContacto(new Request("http://localhost/api/contacto", { method: "POST", headers: { "content-type": "application/json", "x-forwarded-for": "10.7.7.8" }, body: JSON.stringify(body) }));
+  const base = { consent: true, armado: { items: ["landing-profesional", "turnos-online"], extras: [] }, nombre: "Ana", whatsapp: "3875813233" };
+
+  it("solo ids y la casilla: sin base responde 503 (el pedido era válido)", async () => {
+    expect((await enviar(base)).status).toBe(503);
+    expect((await enviar({ ...base, rubro: "Peluquería", nota: "x".repeat(300), ficha: { rubro: "Peluquería" } })).status).toBe(503);
+  });
+
+  it("sin casilla, con un WhatsApp inválido o con un armado vacío o inventado: 400", async () => {
+    expect((await enviar({ ...base, consent: false })).status).toBe(400);
+    expect((await enviar({ ...base, whatsapp: "12345678" })).status).toBe(400);
+    expect((await enviar({ ...base, armado: { items: [] } })).status).toBe(400);
+    expect((await enviar({ ...base, armado: { items: ["no-existe", "<script>"] } })).status).toBe(400);
+    expect((await enviar({ ...base, nota: "x".repeat(301) })).status).toBe(400);
   });
 });

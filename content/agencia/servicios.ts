@@ -79,11 +79,11 @@ const SOLUCIONES: Solucion[] = [
     label: "Ventas",
     problema: "Vender por WhatsApp o internet",
     title: "Vender por WhatsApp o por internet",
-    description: "Mostrá tus productos con precio y recibí los pedidos armados por WhatsApp, o cobrá online.",
+    description: "Mostrá tus productos con precio y recibí los pedidos listos por WhatsApp, o cobrá online.",
     paraQuien: "Para comercios que venden por WhatsApp o Instagram, bares y restós con carta, y negocios que quieren cobrar online.",
     metaTitle: "Catálogo online y tienda con Mercado Pago: precios",
     beneficios: [
-      "Los pedidos te llegan armados por WhatsApp",
+      "Los pedidos te llegan listos por WhatsApp",
       "Cargás y cambiás productos vos, desde el celular",
       "Sin comisiones por venta para mí",
     ],
@@ -236,8 +236,6 @@ export const servicios = {
     label: "Soluciones",
     heading: "¿Qué necesitás?",
     lead: "Elegí lo que necesita tu negocio y mirá cuánto sale.",
-    cotizador: { label: "Armá tu cotización", href: "/cotizador" },
-    precios: { label: "Ver todos los precios", href: "/precios" },
     grandes: {
       label: "Proyectos a medida",
       title: "¿Algo más grande que un plan?",
@@ -246,7 +244,9 @@ export const servicios = {
     },
   },
   detail: {
-    back: { label: "← Todas las soluciones", href: "/servicios" },
+    back: { label: "← Todas las soluciones", href: "/soluciones" },
+    /** Tanda P2: el botón principal de la solución lleva al armador con la categoría. `{CAT}` = la clave. */
+    armar: { label: "Armalo con esto", href: "/soluciones?cat={CAT}" },
     paraQuienLabel: "Para quién es",
     beneficiosLabel: "Qué ganás",
     planesLabel: "Planes",
@@ -282,7 +282,6 @@ export const servicios = {
       lead: "Contame qué necesitás y te digo qué te conviene. Si ya lo tenés claro, pedí tu demo.",
       leadGrandes: "Contame tu idea y vemos si es un proyecto a medida. La primera charla es gratis.",
       chat: "Contame qué necesitás",
-      demo: "Pedí tu demo",
       agenda: "Agendá la charla gratis",
       whatsapp: "Escribime por WhatsApp",
     },

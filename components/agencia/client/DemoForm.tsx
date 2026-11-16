@@ -48,7 +48,9 @@ export function DemoForm({
     const raf = requestAnimationFrame(() => {
       const ficha = leerSesion()?.ficha;
       if (ficha && (ficha.nombre || ficha.rubro || ficha.necesidad)) setDelChat({ nombre: ficha.nombre, rubro: ficha.rubro, necesidad: ficha.necesidad });
-      const elegido = planDesdeUrl(new URLSearchParams(location.search).get("plan"), plans, aliases);
+      const q = new URLSearchParams(location.search);
+      // Tanda P2: `?a=` (lo que manda /soluciones) o `?plan=`. Los extras no son opciones y se ignoran.
+      const elegido = planDesdeUrl(q.get("a") ?? q.get("plan"), plans, aliases);
       if (!elegido) return;
       setExtraOption(elegido.extra);
       setPlan(elegido.id);

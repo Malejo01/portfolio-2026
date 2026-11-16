@@ -3,7 +3,9 @@ import { conocimiento, fraseDeCosto } from "@/content/agencia/conocimiento";
 import { home } from "@/content/agencia/home";
 import { extras } from "@/content/agencia/pricing";
 import { montoDeExtra } from "@/lib/agencia/pricing";
+import { AgregarBoton } from "./client/AgregarBoton";
 import { PlanDialog } from "./client/PlanDialog";
+import { solucionesCopy } from "@/content/agencia/soluciones";
 import { Check, Icon, type IconName } from "./icons";
 import { completarPagos } from "./pagos";
 
@@ -103,26 +105,48 @@ export function CostosFranja() {
   );
 }
 
-/** "Sumale extras": una fila por extra, nombre a la izquierda y monto a la derecha. Nada de chips. */
-export function ExtrasModal() {
+/**
+ * "Sumale extras": una fila por extra, nombre a la izquierda y monto a la
+ * derecha. Nada de chips. En el armador (`armado`, tanda P2) cada fila suma
+ * su "Agregar" y el disparador es un link chico dentro del carrito.
+ */
+export function ExtrasModal({ armado = false }: { armado?: boolean }) {
   const e = pricing.extras;
+  const s = solucionesCopy;
   return (
-    <PlanDialog variant="info" label={e.trigger} title={e.title} closeLabel={pricing.modal.cerrar} triggerClassName="btn btn-s btn-sm min-h-11">
-      <p className="m-0 text-muted">{e.lead}</p>
+    <PlanDialog
+      variant="info"
+      label={e.trigger}
+      title={e.title}
+      closeLabel={pricing.modal.cerrar}
+      triggerClassName={armado ? "lnk min-h-11 text-[14px]" : "btn btn-s btn-sm min-h-11"}
+    >
+      <p className="m-0 text-muted">{armado ? s.carrito.extrasLead : e.lead}</p>
       <ul className="m-0 list-none p-0">
         {extras.map((x) => (
-          <li key={x.id} className="flex items-start justify-between gap-4 border-b border-border py-2.5 last:border-b-0">
-            <span className="min-w-0">{x.name}</span>
+          <li key={x.id} className="flex items-center justify-between gap-3 border-b border-border py-2.5 last:border-b-0">
+            <span className="min-w-0 flex-1">{x.name}</span>
             {/* El monto no se corta; el texto "a cotizar" del dominio sí puede. */}
-            <strong className={`text-right ${x.price == null ? "max-w-[50%] text-[13px] font-semibold text-muted" : "flex-none whitespace-nowrap"}`}>
+            <strong className={`text-right ${x.price == null ? "max-w-[40%] text-[13px] font-semibold text-muted" : "flex-none whitespace-nowrap"}`}>
               {montoDeExtra(x, "transferencia")}
             </strong>
+            {armado ? (
+              <AgregarBoton
+                id={x.id}
+                nombre={x.name}
+                tipo="extra"
+                compacto
+                labels={{ agregar: s.agregarCorto, agregado: "✓", quitar: s.quitar, quitarAria: s.carrito.quitarAria }}
+              />
+            ) : null}
           </li>
         ))}
       </ul>
-      <Link href={e.cotizador.href} className="lnk min-h-11 self-start">
-        {e.cotizador.label}
-      </Link>
+      {armado ? null : (
+        <Link href={e.cotizador.href} className="lnk min-h-11 self-start">
+          {e.cotizador.label}
+        </Link>
+      )}
     </PlanDialog>
   );
 }

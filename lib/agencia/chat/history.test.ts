@@ -45,3 +45,19 @@ describe("respuestas sugeridas en el historial (R3)", () => {
     expect(h[0].content).toBe("¿Ya tenés página?");
   });
 });
+
+describe("bienvenida (tanda P2, Fase 5 bis)", () => {
+  it("el saludo con sus opciones no va al historial del servidor", () => {
+    const h = armarHistorial([
+      { role: "assistant", text: "Hola, soy Malejo 👋", cards: [], saludo: true },
+      { role: "user", text: "No sé qué necesito", cards: [] },
+    ]);
+    expect(h).toEqual([{ role: "user", content: "No sé qué necesito" }]);
+  });
+
+  it("la sugerencia del armado deja su línea y su firma", () => {
+    const card = { kind: "armado" as const, items: [{ id: "turnos-online", tipo: "item" as const, nombre: "Agenda de turnos online", precio: "$177.000", porque: "x" }], href: "/soluciones?a=turnos-online" };
+    expect(armarHistorial([{ role: "assistant", text: "Te sugiero esto.", cards: [card] }])[0].content).toBe("Te sugiero esto.\n[Tarjeta mostrada · kit · turnos-online]");
+    expect(firmasMostradas([{ role: "assistant", text: "", cards: [card] }])).toEqual(["armado:turnos-online"]);
+  });
+});

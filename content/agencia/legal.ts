@@ -1,8 +1,8 @@
 /**
  * Textos legales de la agencia. Texto simple: los `[ENTRE CORCHETES]` son
  * datos que Mauro tiene que completar y se renderizan resaltados para que
- * no pasen desapercibidos. `{SENA}` se reemplaza por el monto de
- * `SENA_MONTO` formateado; `{RECARGO}` por el recargo de Mercado Pago.
+ * no pasen desapercibidos. `{SENA_ESCALA}` se reemplaza por la escala de la
+ * seña (`escalaDeSena()`, tanda P2); `{RECARGO}` por el recargo de Mercado Pago.
  *
  * No es asesoramiento legal: conviene que un abogado lo revise antes de
  * publicar (ver "Decisiones para Mauro" en el PR).
@@ -59,8 +59,9 @@ export const legalDocs: Record<LegalDoc["slug"], LegalDoc> = {
       {
         heading: "2. Seña y demo",
         blocks: [
-          "Para armar una demo con tu marca pido una seña de {SENA}. La demo está lista en 72 horas hábiles desde que recibo la seña y el material.",
-          "La seña no es reembolsable: paga el trabajo de armar la demo. Si contratás, se descuenta completa del primer pago; si después de ver la demo decidís no contratar, no se devuelve y no hay ningún otro cargo.",
+          "Para armar una demo con tu marca pido una seña según el tamaño del proyecto. {SENA_ESCALA} El tramo se calcula sobre el total publicado de lo que se contrata junto.",
+          "La demo está lista en 72 horas hábiles desde que recibo la seña y el material. El plan del proyecto por escrito tiene el plazo que acordemos en la charla gratis.",
+          "La seña y el plan del proyecto por escrito no son reembolsables: pagan el trabajo de armar la demo o el plan. Si contratás, se descuentan completos del total; si después de verlos decidís no contratar, no se devuelven y no hay ningún otro cargo.",
         ],
       },
       {
@@ -73,7 +74,7 @@ export const legalDocs: Record<LegalDoc["slug"], LegalDoc> = {
               "Transferencia bancaria: precio publicado, sin recargo, en 2 pagos sin interés: 50 % al aprobar la demo y 50 % en la entrega.",
               `Transferencia en 3 pagos sin interés: un tercio al aprobar la demo, un tercio en la entrega y un tercio a los 30 días de la entrega. Solo si el total contratado es de hasta ${TOPE_TRES}; arriba de ese monto, 2 pagos o Mercado Pago.`,
               `Mercado Pago: {RECARGO} de recargo sobre el precio publicado, en hasta ${CUOTAS} cuotas. El interés de las cuotas lo define Mercado Pago según la tarjeta.`,
-              "La seña se descuenta del primer pago.",
+              "La seña (o el plan del proyecto por escrito) se descuenta del total.",
               "La página está online desde la entrega. El código y la titularidad de la dirección web se transfieren con el último pago.",
               "Proyectos a medida: el plan del proyecto por escrito se paga por adelantado, y cada etapa de 2 semanas se paga 50 % al arrancarla y 50 % al entregarla, según lo cotizado en ese plan.",
               "Servicios mensuales: se pagan por mes adelantado. Pagando el año por adelantado, pagás 10 meses.",

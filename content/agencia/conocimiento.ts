@@ -1,5 +1,5 @@
 import { agenciaLinks } from "./links";
-import { anualPorMes } from "@/lib/agencia/pricing";
+import { anualPorMes, escalaDeSena, senaMinima } from "@/lib/agencia/pricing";
 import { getPlan, mantenimientoGrandesPct, pagosConfig, recargoMercadoPago, type CategoryKey } from "./pricing";
 
 /**
@@ -10,8 +10,8 @@ import { getPlan, mantenimientoGrandesPct, pagosConfig, recargoMercadoPago, type
  * conocimiento desde acá igual que genera el catálogo desde `pricing.ts`.
  *
  * Las decisiones de negocio salen de la tanda CHAT-R1 (`docs/agencia/INFORME.md`).
- * `{SENA}` se reemplaza en el render por el monto de `SENA_MONTO` (es una
- * variable de servidor: no se escribe acá).
+ * La seña es escalonada desde la tanda P2: los montos salen de
+ * `senaMinima()` y `escalaDeSena()` (`precios.json → senas`), nunca a mano.
  *
  * Regla: ninguna respuesta del FAQ pasa de 40 palabras (lo verifica un test).
  */
@@ -83,6 +83,8 @@ const renovacionPlan = getPlan("renovacion");
 const renovacionPorMes = (renovacionPlan && anualPorMes(renovacionPlan)) ?? "";
 const basico = getPlan("mantenimiento-basico")?.monthly ?? 0;
 const planEscrito = getPlan("diagnostico-escrito")?.impl ?? 0;
+/** "desde $25.000": la seña más chica de la escala (tanda P2). */
+const senaDesde = `desde ${ars(senaMinima())}`;
 const mantGrandes = `${Math.round(mantenimientoGrandesPct * 100)}%`;
 const tope = ars(pagosConfig.topeTres);
 const cuotasTarjeta = pagosConfig.tarjetaMaxCuotas;
@@ -172,12 +174,12 @@ export const conocimiento: Conocimiento = {
   quienSoy:
     "Mauro Lizárraga, desarrollador en Salta, Argentina. Desde 2023 da clases de matemática a nivel terciario, donde también fue formador y evaluador docente. En 2025 trabajó como desarrollador en Accenture, armando sistemas internos y asistentes con IA para una multinacional. Se formó en IA aplicada con DataCamp y Anthropic Academy. Hoy construye proyectos propios: Qué Pinta Salta, AfinIA Jobs, Tuki y MaestrIA.",
   proceso:
-    "1) Me contás qué necesitás (por WhatsApp, por este chat o en una charla gratis de 20 minutos). 2) Seña de {SENA}, que se descuenta del primer pago. 3) Demo con tu marca en 72 horas hábiles. 4) La vemos juntos en 20 minutos y decidís sin compromiso. 5) Si contratás, pagás en 2 o 3 veces (ver pagos).",
+    `1) Armás tu kit en Soluciones (solo o con este chat) o me lo contás por WhatsApp. 2) Lo charlamos en una videollamada gratis y, si conviene, pagás la seña de la demo según el tamaño (${senaDesde}), que se descuenta del total. 3) Demo con tu marca en 72 horas hábiles. 4) La vemos juntos en 20 minutos y decidís sin compromiso. 5) Si contratás, pagás en 2 o 3 veces (ver pagos).`,
   pagos: [
     "Por transferencia, al precio publicado, en 2 pagos sin interés: 50% al aprobar la demo y 50% al entregar.",
     `O en 3 pagos sin interés por transferencia (${calendarioTres}), solo si el total contratado es de hasta ${tope}. Arriba de ${tope}: 2 pagos o tarjeta.`,
     `Con tarjeta por Mercado Pago: el precio con ${pct} de recargo, en hasta ${cuotasTarjeta} cuotas; el interés de las cuotas lo define Mercado Pago según la tarjeta.`,
-    "La seña se descuenta del primer pago. No se devuelve: paga el trabajo de la demo.",
+    `${escalaDeSena()} No se devuelve: paga el trabajo de la demo.`,
     "El código y la dirección web se transfieren con el último pago; la página está online desde la entrega.",
     `Proyectos a medida (grandes): el plan del proyecto por escrito (${ars(planEscrito)}) se paga por adelantado, y cada etapa de 2 semanas se paga 50% al arrancarla y 50% al entregarla. Ahí no hay 3 pagos.`,
     "Lo que se paga por mes se paga por mes adelantado; pagando el año junto, se pagan 10 meses.",
@@ -221,12 +223,12 @@ export const conocimiento: Conocimiento = {
     {
       id: "sena",
       q: "¿La seña se devuelve?",
-      a: "No: la seña de {SENA} paga el trabajo de armar tu demo. Si contratás, se descuenta completa del primer pago.",
+      a: `No: la seña (${senaDesde}, según el proyecto) paga el trabajo de armar tu demo. Si contratás, se descuenta completa del total.`,
     },
     {
       id: "demo-gratis",
       q: "¿Puedo ver una demo sin pagar la seña?",
-      a: "La demo con tu marca lleva una seña de {SENA}, que se descuenta del total. Si antes querés sacarte dudas, la charla con Mauro es gratis. La renovación de tu web actual incluye demo previa sin cargo.",
+      a: `La demo con tu marca lleva una seña ${senaDesde}, según el tamaño del proyecto, y se descuenta del total. La charla con Mauro es gratis. La renovación de tu web actual incluye demo previa sin cargo.`,
     },
     {
       id: "primer-anio",

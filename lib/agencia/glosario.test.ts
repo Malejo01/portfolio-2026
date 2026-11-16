@@ -2,7 +2,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { conocimiento } from "@/content/agencia/conocimiento";
-import { cotizadorCopy } from "@/content/agencia/cotizador";
+import { solucionesCopy } from "@/content/agencia/soluciones";
 import { demoCopy } from "@/content/agencia/demo";
 import { home } from "@/content/agencia/home";
 import { malejoCopy } from "@/content/agencia/malejo";
@@ -34,6 +34,9 @@ const PROHIBIDOS: [nombre: string, re: RegExp][] = [
   ["cuota mensual", /cuotas? mensual(es)?/i],
   ["permanencia", /permanencia/i],
   ["tokens", /\btokens?\b/i],
+  // P2.1: Mauro eligió "kit". Los identificadores de código (armado.ts,
+  // sugerir_armado, armadoIds, el evento malejo:armado) no son copy y no se recorren.
+  ["armado", /\barmad(o|os|a|as|or|ores)\b/i],
 ];
 
 /** Claves que no son copy: ids, slugs, links y nombres de íconos. */
@@ -55,7 +58,7 @@ const fuentes: Record<string, unknown> = {
   site,
   servicios,
   conocimiento,
-  cotizadorCopy,
+  solucionesCopy,
   demoCopy,
   malejoCopy,
   catalogo: { categories, combos, extras, etiquetasPrecio, resumenCopy },

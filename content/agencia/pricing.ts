@@ -157,6 +157,34 @@ interface RawCatalog {
   recargoMercadoPago: number;
   usd: { fallback: number; fuente: string };
   pagos: PagosConfig;
+  estimado: EstimadoConfig;
+  senas: SenasConfig;
+}
+
+/**
+ * El rango del armador (tanda P2, D2): `margenFijo` sobre lo de precio
+ * fijo y `margenDesde` sobre lo que es "desde". Ver `estimarArmado()`.
+ */
+export interface EstimadoConfig {
+  margenFijo: number;
+  margenDesde: number;
+}
+
+/**
+ * Seña escalonada de la demo (tanda P2, D4). El tramo se mira sobre el piso
+ * del total contratado. Ver `senaPara()` en `lib/agencia/pricing.ts`.
+ */
+export interface SenasConfig {
+  /** En orden: el primer tramo cuyo `hasta` no se pasa define el monto. */
+  tramos: { hasta: number; monto: number }[];
+  /** Con IA o WhatsApp oficial (`usaServiciosDeTerceros`), la seña mínima. */
+  minimoConIA: number;
+  /** Arriba del último tramo: el plan del proyecto por escrito. */
+  arriba: "plan-escrito";
+  /** Ids con demo sin cargo (la renovación de una web). */
+  sinCargo: string[];
+  /** Ids que siempre van con plan escrito, cualquiera sea el monto. */
+  siemprePlanEscrito: string[];
 }
 
 /** Formas de pago (tanda P1, §2). Fracciones del total, en orden. */
@@ -256,6 +284,10 @@ export const recargoMercadoPago: number = catalog.recargoMercadoPago;
 
 export const pagosConfig: PagosConfig = catalog.pagos;
 
+export const estimadoConfig: EstimadoConfig = catalog.estimado;
+
+export const senasConfig: SenasConfig = catalog.senas;
+
 /**
  * Tipo de cambio de respaldo (ARS por USD) si dolarapi.com no responde y no
  * hay `USD_ARS_FALLBACK`. Ver `lib/agencia/usd.ts`.
@@ -338,4 +370,34 @@ export const pagosCopy = {
   anualPorMes: "{monto} por mes, pagás el año junto",
   /** La tarjeta de un plan anual: el monto grande y esto al lado. */
   anualUnidad: "por mes, pagás el año junto",
+} as const;
+
+/**
+ * Copy de la seña escalonada (tanda P2, D4). `senaPara()` decide el tipo y
+ * el monto; `lineaDeSena()`, `filasDeSena()` y `escalaDeSena()` de
+ * `lib/agencia/pricing.ts` arman el texto. `{MONTO}` y `{HASTA}` se
+ * reemplazan.
+ */
+export const senaCopy = {
+  /** Donde todavía no hay plan elegido: "seña desde $25.000, según el proyecto". */
+  desde: "seña desde {MONTO}, según el proyecto",
+  demo: "Seña de la demo: {MONTO} (se descuenta)",
+  planEscrito: "Plan del proyecto por escrito: {MONTO} (se descuenta)",
+  sinCargo: "Demo sin cargo: es una renovación",
+  tabla: {
+    titulo: "¿Cuánto es la seña?",
+    tramo: "Hasta {HASTA}",
+    conIA: "Con inteligencia artificial o WhatsApp oficial",
+    conIAMonto: "{MONTO} como mínimo",
+    arriba: "Más de {HASTA}, un sistema a medida o un proyecto grande",
+    arribaMonto: "Plan por escrito: {MONTO}",
+    renovacion: "Renovación de tu web actual",
+    renovacionMonto: "Sin cargo",
+    nota: "Se mira sobre el total publicado de lo que elegís, y siempre se descuenta completa del total.",
+  },
+  /** Una línea con toda la escala: el chat, los términos y el FAQ. */
+  escala:
+    "La seña de la demo depende del tamaño: {TRAMOS}; con inteligencia artificial o WhatsApp oficial, {MINIMO} como mínimo. Arriba de {TOPE}, o con un sistema a medida o un proyecto grande, en lugar de la demo va el plan del proyecto por escrito ({PLAN}). La renovación de una web tiene la demo sin cargo. Siempre se descuenta del total.",
+  /** "$25.000 hasta $360.000". */
+  escalaTramo: "{MONTO} hasta {HASTA}",
 } as const;

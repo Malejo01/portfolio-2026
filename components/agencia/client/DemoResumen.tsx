@@ -1,42 +1,35 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { cotizar, fmt, lineaDePagos, type Cotizacion } from "@/lib/agencia/pricing";
+import { armadoDeUrl, estimarArmado, fmt, lineaDePagos, lineaDeSena, type EstimadoArmado } from "@/lib/agencia/pricing";
 
 /**
- * Resumen de lo elegido en `/demo` (tanda P1, §4.5): el total, la línea de
- * pagos y "La seña de $X se descuenta del primer pago". Lee `?plan=` (un
- * id, un combo o varios separados por coma, como los arma el cotizador o el
- * chat) y `?extras=` en el cliente, así la ruta sigue estática, y cotiza con
- * `cotizar()`: el mismo total que en el resto del sitio. Sin plan en la URL
- * (o con ids desconocidos) no muestra nada.
- *
- * La seña llega ya escrita desde el servidor (`SENA_MONTO` es de servidor).
+ * Resumen de lo elegido en `/demo` (tanda P1, §4.5; tanda P2): lo elegido,
+ * el pago único publicado, la línea de pagos, lo mensual y **la seña que
+ * corresponde** (escalonada, `senaPara()`). Lee `?a=` (lo que manda
+ * `/soluciones`) o `?plan=`/`?extras=` en el cliente, así la ruta sigue
+ * estática. Sin nada reconocible en la URL no muestra nada.
  */
 export function DemoResumen({
   copy,
-  sena,
 }: {
   copy: { label: string; unico: string; desde: string; monthlySuffix: string };
-  /** "La seña de $20.000 se descuenta del primer pago." */
-  sena: string;
 }) {
-  const [c, setC] = useState<Cotizacion | null>(null);
+  const [e, setE] = useState<EstimadoArmado | null>(null);
 
   useEffect(() => {
     const raf = requestAnimationFrame(() => {
-      const q = new URLSearchParams(location.search);
-      const lista = (k: string) => (q.get(k) ?? "").split(",").map((x) => x.trim()).filter(Boolean);
-      const planIds = lista("plan");
-      if (!planIds.length) return;
-      const r = cotizar({ planIds, extras: lista("extras") });
-      if (r.items.length) setC(r);
+      const armado = armadoDeUrl(location.search);
+      if (!armado.items.length && !armado.extras.length) return;
+      const r = estimarArmado(armado);
+      if (r.cotizacion.items.length) setE(r);
     });
     return () => cancelAnimationFrame(raf);
   }, []);
 
-  if (!c) return null;
-  const linea = lineaDePagos(c.pagos?.total);
+  if (!e) return null;
+  const c = e.cotizacion;
+  const linea = lineaDePagos(e.pagos?.total);
 
   return (
     <div className="card hi mt-6 flex max-w-[44em] flex-col gap-1 p-5">
@@ -54,7 +47,7 @@ export function DemoResumen({
           <span className="text-muted">{copy.monthlySuffix}</span>
         </p>
       ) : null}
-      <p className="m-0 text-sm text-muted">{sena}</p>
+      <p className="m-0 text-sm text-muted">{lineaDeSena(e.sena)}</p>
     </div>
   );
 }

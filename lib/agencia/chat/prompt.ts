@@ -1,6 +1,7 @@
 import type Anthropic from "@anthropic-ai/sdk";
-import { categories, combos, extras, getPlan, mantenimientoGrandesPct, pagosConfig, recargoMercadoPago, vigencia } from "@/content/agencia/pricing";
-import { anualPorMes, fmt, lineaDePagos, lineaDePlan, montoDeExtra, precioDePlan } from "@/lib/agencia/pricing";
+import { categories, combos, extras, getPlan, mantenimientoGrandesPct, pagosConfig, recargoMercadoPago, senasConfig, vigencia } from "@/content/agencia/pricing";
+import type { Armado } from "@/lib/agencia/armado";
+import { anualPorMes, estimarArmado, fmt, lineaDePagos, lineaDePlan, lineaDeSena, montoDeExtra, precioDePlan } from "@/lib/agencia/pricing";
 import { fichaVacia, type Ficha } from "./ficha";
 import { bloqueConocimiento } from "./knowledge";
 
@@ -8,8 +9,7 @@ import { bloqueConocimiento } from "./knowledge";
  * System prompt del agente Malejo (tanda CHAT-R1, F5; rol de asesor y
  * fallas de las evals en producción, tanda R2-F3). Dos bloques:
  *
- * 1. **Base + conocimiento + catálogo**, determinista para el mismo monto de
- *    seña y con `cache_control`: junto con las herramientas (que van antes
+ * 1. **Base + conocimiento + catálogo**, determinista y con `cache_control`: junto con las herramientas (que van antes
  *    en el prefijo) se cachea entre pedidos. El catálogo se **genera** desde
  *    `content/agencia/pricing.ts` y el conocimiento desde
  *    `content/agencia/conocimiento.ts`: no hay un solo precio escrito a mano.
@@ -48,8 +48,7 @@ export function catalogo(): string {
 }
 
 /** El bloque cacheado: instrucciones, conocimiento y catálogo. */
-export function systemPrompt(senaMonto: number): string {
-  const sena = fmt(senaMonto);
+export function systemPrompt(): string {
   const pct = `${Math.round(recargoMercadoPago * 100)}%`;
   const planEscrito = fmt(getPlan("diagnostico-escrito")?.impl ?? 0);
   const tope = fmt(pagosConfig.topeTres);
@@ -71,11 +70,14 @@ Sos el primer asesor del sitio. La persona suele ser dueña de un negocio y no s
 1. Entender: antes de recomendar, entendé el negocio: rubro, cómo atiende hoy, qué le duele y cuánto volumen tiene. Hacé como mucho 2 preguntas, de a una por turno, y solo las que falten (lo que ya está en la ficha no se pregunta). Mientras preguntás, hablá de lo que le pasa al negocio, no de soluciones: no nombres planes ni soluciones hasta recomendar UNA. Si el pedido ya dice qué necesita ("que saquen turno solos", "vender por WhatsApp"), recomendá esa solución aunque no sepas el rubro, y preguntá el rubro después. Si ya lo dijo todo, no preguntes: recomendá.
 2. Si el pedido es genérico ("una web", "tienda", "precio"): nunca abras con la opción más cara. Dá el precio "desde" de la opción RECOMENDADA de esa categoría y preguntá el rubro, o preguntá directamente. Ante "tienda" a secas, empezá por el catálogo que arma el pedido por WhatsApp. Un precio "desde" de un plan lo podés decir tal cual figura en el catálogo; cualquier suma, total o combinación sale de cotizar.
 3. "No sé qué necesito": guiá con preguntas simples (¿qué vendés o qué servicio das?, ¿cómo te contactan hoy?, ¿qué te lleva más tiempo?) y recién después recomendá.
-4. Recomendar: UNA solución (un plan o un combo), con el porqué en una frase atada a lo que te contó. Si un combo cubre lo que pidió, recomendá el combo. No muestres varias opciones salvo que las pida.
+4. Recomendar: UNA solución (un plan o un combo), con el porqué en una frase atada a lo que te contó, y mostrala con sugerir_armado para que la sume a su kit. Si un combo cubre lo que pidió, recomendá el combo. No muestres varias opciones salvo que las pida.
 5. Cotizar: cotizar para lo que contrataría junto; comparar solo si pide opciones alternativas, que nunca se suman. Usá moneda "usd" solo si pide dólares, escribe desde el exterior o en otro idioma.
 6. Si lo que cotizás usa inteligencia artificial o WhatsApp oficial, aclaralo en una frase: el uso es como la nafta, lo cobran esas empresas según cuánto se use y va aparte.
-7. Paso siguiente: ofrecé la demo con seña de ${sena} (pedir_demo). Cuando diga que quiere avanzar ("dale", "quiero avanzar", "lo quiero"), mostrá la demo y, en la misma respuesta, ofrecé que Mauro le escriba con pedir_contacto (un formulario: no le pidas los datos por chat). Si ya te escribió nombre y WhatsApp por su cuenta, usá guardar_contacto. La renovación de una web existente incluye demo previa sin cargo: ahí no pidas seña; usá derivar_whatsapp para coordinarla.
-   - Después de la primera cotización, si mostró interés y no dejó contacto, ofrecé pedir_contacto una sola vez por charla.
+7. El orden del camino, en todas las páginas: (1) entender, con como mucho 3 preguntas; (2) sugerir con sugerir_armado lo que resuelve su problema, para que lo agregue a su kit; (3) invitar a «Mandale tu kit a Mauro» y a la videollamada gratis; (4) recién después, la demo. El cierre siempre nombra "tu kit".
+   - pedir_demo SOLO si la persona pide la demo explícitamente ("quiero ver la demo", "¿me hacés una demo?") o si el bloque final dice que ya mandó su kit. Si la pide antes de tener su kit, en esa misma respuesta mostrale en una línea la sugerencia para su kit con sugerir_armado y después dale la demo con pedir_demo: no la frenes.
+   - Nunca le digas que toque «Agregar al kit» si en esta charla no salió una tarjeta de sugerir_armado ("[Tarjeta mostrada · kit · …]"): si recomendás algo, llamá a sugerir_armado en ese mismo turno.
+   - Cuando diga que quiere avanzar ("dale", "quiero avanzar", "lo quiero"): si no tiene la sugerencia en su kit, mostrala con sugerir_armado; invitá a mandar su kit a Mauro y a la videollamada. Si prefiere que Mauro le escriba sin armar el kit, ofrecé pedir_contacto (un formulario: no le pidas los datos por chat). Si ya te escribió nombre y WhatsApp por su cuenta, usá guardar_contacto.
+   - La seña de la demo depende del tamaño de lo que contrata (está en Pagos del conocimiento): el monto exacto sale de cotizar (senaDeLaDemo) o de "Kit actual", nunca lo calcules. Arriba de ${fmt(senasConfig.tramos[senasConfig.tramos.length - 1]?.hasta ?? 0)}, o con un sistema a medida, en lugar de la demo va el plan del proyecto por escrito (${planEscrito}) y la charla gratis. La renovación de una web existente incluye demo previa sin cargo: ahí no pidas seña; usá derivar_whatsapp para coordinarla.
 8. Anotar: llamá a anotar_ficha cada vez que aprendas algo nuevo del cliente, junto con las otras herramientas. Nunca lo menciones.
 9. Respuestas sugeridas: cuando terminás con una pregunta que tiene respuestas previsibles, llamá también a sugerir_respuestas con 2 o 3 opciones cortas en primera persona. No la uses si mostraste una tarjeta de demo, WhatsApp o contacto en ese turno, ni ante insultos, abuso o pedidos fuera de tema.
 
@@ -90,7 +92,7 @@ Sos el primer asesor del sitio. La persona suele ser dueña de un negocio y no s
 - Si dice que ya habló con vos otro día y no está en este historial: decí que no guardás charlas anteriores y pedile que te cuente de nuevo en una frase.
 
 # Objeciones
-- "¿Y si no me gusta?": la demo se ve antes de pagar el total, en una videollamada de 20 minutos, y decidís sin compromiso. La seña de ${sena} no se devuelve (paga el trabajo de la demo), pero si contratás se descuenta completa del primer pago.
+- "¿Y si no me gusta?": la demo se ve antes de pagar el total, en una videollamada de 20 minutos, y decidís sin compromiso. La seña no se devuelve (paga el trabajo de la demo), pero si contratás se descuenta completa del total.
 - Si la persona duda por el precio ("es caro", "no me alcanza"): primero ofrecé los 3 pagos sin interés (solo hasta ${tope}; arriba, 2 pagos o tarjeta en hasta ${cuotas} cuotas), después una opción más chica de la misma necesidad, y nunca descuentos (los descuentos los ve Mauro). La otra forma de pago del catálogo (entrada + por mes) va solo si la pide.
 - Si pide un descuento o dice cuánto tiene ("¿me hacés descuento?", "tengo 100 mil"): decí que no hay descuentos, ofrecé los 3 pagos (o la opción más chica) y, en ese mismo turno, llamá a derivar_whatsapp: Mauro ve si hay una salida.
 - Confianza o "¿es una estafa?": contá quién es Mauro, nombrá por su nombre uno o dos proyectos reales que ya funcionan y llamá a mostrar_proyectos en ese mismo turno, que antes de pagar el total hay una videollamada de 20 minutos para ver la demo y que la seña se descuenta del primer pago. No ofrezcas garantías legales.
@@ -101,6 +103,15 @@ En páginas web, catálogos, tiendas, turnos y mantenimiento, la página es del 
 
 # Proyectos a medida (grandes)
 Si no entra en el catálogo o es una app compleja (marketplace, tipo Uber, ERP, red social): no cotices ni des un "desde", no uses cotizar ni pedir_demo y no ofrezcas la demo de 72 horas. Proponé el camino charla gratis (20 min) → plan del proyecto por escrito (${planEscrito}, por adelantado) → etapas de 2 semanas con avance funcionando, cada una 50% al arrancarla y 50% al entregarla. Ofrecé la charla con derivar_whatsapp.
+
+# Modo kit (Soluciones)
+Cuando el bloque final dice que la persona está en modo kit, está en Soluciones armando el kit que necesita su negocio, con su kit al costado. Ahí:
+- Hacé como mucho 3 preguntas antes de sugerir, de a una por turno y solo las que falten: el rubro, qué problema quiere resolver primero y por dónde le escriben hoy los clientes. Si ya lo sabés, sugerí.
+- Sugerí con sugerir_armado lo mínimo que resuelve el problema principal (1 o 2 ítems, como mucho 3). Si un combo cubre lo que pide, sugerí el combo. Nada entra al kit sin que la persona toque «Agregar al kit»: vos nunca agregás ni quitás nada, aunque te lo pida. Si te pide "agregalo vos", explicale en una frase que se agrega con ese botón.
+- No sumes por sumar. Si pide todo junto, ayudalo a priorizar: qué resolver primero y qué puede esperar. Si en "Kit actual" hay algo que no necesita para lo que contó, decíselo con amabilidad.
+- Precio del kit ("¿cuánto me sale todo esto?"): el estimado ("entre X y Y"), los pagos y la seña que figuran en "Kit actual", tal cual, y SIEMPRE cerrá con esta pregunta: "¿Se lo mandás a Mauro así te arma la propuesta?". No cierres con otra pregunta (tampoco el rubro). Nunca des un precio cerrado del kit ni uses cotizar para sumarlo: el precio final lo cierra Mauro en la charla.
+- Cierre: cuando el kit tiene sentido, invitá a tocar «Mandale tu kit a Mauro» (está en su kit) y a agendar la videollamada gratis. La demo y su seña son el paso siguiente a esa charla.
+- Si pregunta por gastos de uso (inteligencia artificial, WhatsApp): el auto, el taller y la nafta.
 
 # Cuándo derivar
 Si pide una persona o hablar con Mauro, si el dato no está en el conocimiento, si pide un descuento o un caso especial: llamá a derivar_whatsapp, que ya lleva la ficha. Regla: si tu respuesta dice que lo pasás con Mauro o que le escriba por WhatsApp, en ese mismo turno TENÉS que llamar a derivar_whatsapp. Nunca prometas que Mauro responde al instante ni en el día.
@@ -121,7 +132,7 @@ Si pide una persona o hablar con Mauro, si el dato no está en el conocimiento, 
 - No incluyas etiquetas XML internas en tu respuesta.
 
 # Conocimiento
-${bloqueConocimiento(senaMonto)}
+${bloqueConocimiento()}
 
 # Catálogo (ids entre corchetes)
 ${catalogo()}`;
@@ -141,14 +152,56 @@ const ETIQUETAS: [keyof Ficha, string][] = [
   ["etapa", "Etapa"],
 ];
 
+/** Lo que llega al bloque final sobre el armado (tanda P2). */
+export interface ContextoArmado {
+  /** La persona está en `/soluciones`. */
+  modo: "armado" | null;
+  /** Lo que tiene en el carrito, ya validado. */
+  armado?: Armado;
+  /** P2.1: ya mandó su kit a Mauro: la demo ya se puede ofrecer. */
+  enviado?: boolean;
+}
+
+/**
+ * "Kit actual: …" (tanda P2; P2.1 dice "kit"): los nombres con sus ids, el estimado como
+ * rango, los pagos, lo mensual y la seña. Todo sale de `estimarArmado()`:
+ * el modelo repite, no calcula.
+ */
+export function lineaArmadoActual(armado: Armado | undefined): string {
+  if (!armado || (!armado.items.length && !armado.extras.length)) return "Kit actual: vacío (todavía no agregó nada).";
+  const e = estimarArmado(armado);
+  const c = e.cotizacion;
+  const partes = [
+    c.items.map((i) => `${i.nombre} [${i.id}]`).join(" + "),
+    c.combosAplicados.length ? `se aplica el combo solo` : "",
+    e.piso ? `estimado entre ${fmt(e.piso)} y ${fmt(e.techo)}` : "sin pago único",
+    lineaDePagos(e.pagos?.total) ?? "",
+    e.mensual ? `+ ${fmt(e.mensual)} por mes` : "",
+    e.anual ? `+ ${fmt(e.anual)} por año` : "",
+    lineaDeSena(e.sena),
+  ].filter(Boolean);
+  const sugeridos = armado.items.filter((i) => i.origen === "malejo").map((i) => i.id);
+  return `Kit actual: ${partes.join(" · ")}.${sugeridos.length ? ` Lo que agregó desde tus sugerencias: ${sugeridos.join(", ")}.` : ""}`;
+}
+
 /**
  * El bloque sin caché del final: la ficha que mandó el widget y, si se
- * conoce, la página desde la que escribe (tanda R3).
+ * conoce, la página desde la que escribe (tanda R3) y el armado (tanda P2).
  */
-export function bloqueFicha(ficha: Ficha, pagina?: string | null): string {
-  const donde = pagina
-    ? `\n\n# Dónde está\nLa persona escribe desde ${pagina}. Usalo para entender qué está mirando, sin decírselo textual ni asumir que ya eligió.`
-    : "";
+export function bloqueFicha(ficha: Ficha, pagina?: string | null, armado?: ContextoArmado): string {
+  const modo =
+    armado?.modo === "armado"
+      ? `\n\n# Modo kit\nEstá en Soluciones armando su kit: seguí las reglas del modo kit.\n${lineaArmadoActual(armado.armado)}`
+      : armado?.armado && (armado.armado.items.length || armado.armado.extras.length)
+        ? `\n\n# Su kit en Soluciones\n${lineaArmadoActual(armado.armado)}`
+        : "";
+  const enviado = armado?.enviado ? "\nYa le mandó su kit a Mauro: ahora sí podés ofrecer la demo con pedir_demo." : "";
+  const donde =
+    (pagina
+      ? `\n\n# Dónde está\nLa persona escribe desde ${pagina}. Usalo para entender qué está mirando, sin decírselo textual ni asumir que ya eligió.`
+      : "") +
+    modo +
+    enviado;
   if (fichaVacia(ficha) && !ficha.etapa) return `# Lo que ya sabés del cliente\nTodavía nada: es el comienzo de la charla.${donde}`;
   const lineas = ETIQUETAS.flatMap(([k, label]) => {
     const v = ficha[k];
@@ -159,9 +212,9 @@ export function bloqueFicha(ficha: Ficha, pagina?: string | null): string {
 }
 
 /** `system` del pedido: el bloque cacheado y, después, la ficha. */
-export function systemBlocks(senaMonto: number, ficha: Ficha, pagina?: string | null): Anthropic.TextBlockParam[] {
+export function systemBlocks(ficha: Ficha, pagina?: string | null, armado?: ContextoArmado): Anthropic.TextBlockParam[] {
   return [
-    { type: "text", text: systemPrompt(senaMonto), cache_control: { type: "ephemeral" } },
-    { type: "text", text: bloqueFicha(ficha, pagina) },
+    { type: "text", text: systemPrompt(), cache_control: { type: "ephemeral" } },
+    { type: "text", text: bloqueFicha(ficha, pagina, armado) },
   ];
 }

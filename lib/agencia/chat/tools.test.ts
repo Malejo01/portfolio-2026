@@ -267,3 +267,40 @@ describe("simulación R3: correcciones de herramientas", () => {
     expect(out.content).toMatch(/ni le pidas los datos por chat/);
   });
 });
+
+describe("sugerir_armado (tanda P2, D5)", () => {
+  it("arma la tarjeta con nombre, precio, porqué y el link a Soluciones; no agrega nada", () => {
+    const ctx = nuevoContexto(1000);
+    const out = runTool("sugerir_armado", { items: [{ id: "combo-web-turnos", porque: "Te encuentran y sacan turno solas" }, { id: "blog", porque: "Novedades" }] }, ctx);
+    expect(out.isError).toBeFalsy();
+    expect(out.card).toEqual({
+      kind: "armado",
+      items: [
+        { id: "combo-negocio-con-turnos", tipo: "item", nombre: "Combo Página + turnos", precio: "$357.000 + $45.000 por mes", porque: "Te encuentran y sacan turno solas" },
+        { id: "blog", tipo: "extra", nombre: "Blog de novedades", precio: "$180.000", porque: "Novedades" },
+      ],
+      href: "/soluciones?a=combo-negocio-con-turnos,blog",
+    });
+    expect(out.content).toMatch(/NO está en su kit/);
+    expect(out.ficha).toBeUndefined();
+  });
+
+  it("valida: de 1 a 3 ítems, porqué de hasta 140, sin proyectos grandes ni ids inventados", () => {
+    const ctx = nuevoContexto(1000);
+    expect(runTool("sugerir_armado", { items: [] }, ctx).isError).toBe(true);
+    expect(runTool("sugerir_armado", { items: [1, 2, 3, 4].map(() => ({ id: "blog", porque: "x" })) }, ctx).isError).toBe(true);
+    expect(runTool("sugerir_armado", { items: [{ id: "blog", porque: "x".repeat(141) }] }, ctx).isError).toBe(true);
+    expect(runTool("sugerir_armado", { items: [{ id: "diagnostico-escrito", porque: "x" }] }, ctx).isError).toBe(true);
+    expect(runTool("sugerir_armado", { items: [{ id: "no-existe", porque: "x" }] }, ctx).isError).toBe(true);
+  });
+
+  it("no repite la misma sugerencia y avisa lo que ya estaba en el armado", () => {
+    const ctx = nuevoContexto(1000, {}, [], { items: [{ id: "turnos-online", origen: "persona" }], extras: [] });
+    const a = runTool("sugerir_armado", { items: [{ id: "turnos-online", porque: "x" }] }, ctx);
+    expect(a.card?.kind).toBe("armado");
+    expect(a.content).toMatch(/Ya estaban en su kit: Agenda de turnos online/);
+    const b = runTool("sugerir_armado", { items: [{ id: "turnos-online", porque: "otra razón" }] }, ctx);
+    expect(b.card).toBeUndefined();
+    expect(b.content).toMatch(/Agregar al kit/);
+  });
+});

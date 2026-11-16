@@ -68,8 +68,8 @@ export default async function PostPage({ params }: Props) {
             <Link href="/demo" className="btn btn-p btn-sm">
               Pedí tu demo
             </Link>
-            <Link href="/cotizador" className="btn btn-s btn-sm">
-              Abrir el cotizador
+            <Link href="/soluciones" className="btn btn-s btn-sm">
+              Armá tu solución
             </Link>
           </div>
         </div>

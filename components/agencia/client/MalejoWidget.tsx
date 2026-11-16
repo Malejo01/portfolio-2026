@@ -1,19 +1,25 @@
 "use client";
 
 import { track } from "@vercel/analytics";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, LazyMotion, domAnimation, m, useReducedMotion } from "framer-motion";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Icon } from "@/components/agencia/icons";
-import type { MalejoCopy } from "@/content/agencia/malejo";
+import type { MalejoCopy, OpcionBienvenida } from "@/content/agencia/malejo";
+import { emitir, kitEnviado, leer } from "@/lib/agencia/armado";
 import type { Card } from "@/lib/agencia/chat/cards";
 import { mergeFicha, type Ficha } from "@/lib/agencia/chat/ficha";
 import { armarHistorial, firmasMostradas, ultimaQuote } from "@/lib/agencia/chat/history";
+import { modoDePagina } from "@/lib/agencia/chat/modo";
 import { borrarSesion, guardarSesion, leerSesion } from "@/lib/agencia/chat/sesion";
 import { mensajeWhatsApp } from "@/lib/agencia/chat/whatsapp";
 import { waLink } from "@/lib/agencia/config";
 import { fmt, fmtUsd } from "@/lib/agencia/format";
+import { vibrar } from "./AgregarBoton";
 import { useTurnstile } from "./turnstile";
+import { useArmado } from "./useArmado";
 
 /**
  * El flotante de Malejo (DISENO.md §5, `11-flotante-*.png`): sprite-botón y
@@ -21,10 +27,28 @@ import { useTurnstile } from "./turnstile";
  * cuando el navegador está libre o cuando un botón `AbrirChat` lo pide
  * (`pedido`), así que no pesa en el primer render.
  *
- * Tanda R2: Malejo es el asesor principal. Arranca con chips por problema
- * (hasta el primer mensaje) y, si se abrió con un tema, ese tema sale ya
- * enviado como primer mensaje. El toast del portfolio se apagó. En celular
- * el botón es compacto: solo la cabeza del sprite.
+ * Tanda P2:
+ * - **Bienvenida** (Fase 5 bis): el saludo es una burbuja de Malejo con las
+ *   opciones adentro, en grilla de 2 columnas (1 debajo de 340 px), que se
+ *   pueden tocar solo mientras son el último mensaje; después quedan en gris
+ *   (`aria-disabled`), igual que las respuestas sugeridas. En `/soluciones`
+ *   las opciones son las del modo armado. Si el chat se abrió con un tema,
+ *   no hay opciones: el tema sale como primer mensaje. El saludo no va al
+ *   historial que se manda al servidor.
+ * - **Pie mínimo**: solo el campo, enviar y la línea de privacidad. "Hablar
+ *   con Mauro" pasa al encabezado (texto visible en escritorio, ícono en
+ *   celular), con la ficha y el armado.
+ * - **Scroll al leer**: un mensaje nuevo de Malejo se muestra desde su
+ *   primera línea; mientras se escribe, el final se sigue solo si la persona
+ *   ya estaba abajo de todo.
+ * - **Celular** (Fase 6 bis): hoja a media pantalla (55 %) con el catálogo
+ *   visible arriba, que se agranda (⤢) y pasa sola a pantalla completa con
+ *   el teclado abierto (`visualViewport`). Avisa su alto en `--malejo-hoja`
+ *   para que la barra del armado quede encima. El sprite flotante solo se
+ *   ve desde 760 px: en el celular, Malejo está en la barra inferior.
+ * - Manda el **armado** actual con cada pedido (como la ficha) y muestra
+ *   las sugerencias de `sugerir_armado` con su botón "Agregar al armado":
+ *   el clic es de la persona (D5).
  *
  * Memoria de la charla, toda en el cliente (el servidor no guarda nada): los
  * mensajes con sus tarjetas y la **ficha** que va armando `anotar_ficha`.
@@ -35,9 +59,10 @@ type Seg = { t: "text"; text: string } | { t: "card"; card: Card };
 /**
  * `text` y `cards` arman el historial; `segs` guarda el orden en que llegaron
  * (texto → tarjeta → texto) para mostrarlos igual y no dejar la frase que
- * sigue a una herramienta arriba de su tarjeta.
+ * sigue a una herramienta arriba de su tarjeta. `saludo` marca la bienvenida
+ * (no va al servidor); `sinOpciones`, que el chat se abrió con un tema.
  */
-type Msg = { id: number; role: "user" | "assistant"; text: string; cards: Card[]; segs?: Seg[] };
+type Msg = { id: number; role: "user" | "assistant"; text: string; cards: Card[]; segs?: Seg[]; saludo?: boolean; sinOpciones?: boolean };
 
 function conTexto(m: Msg, text: string): Msg {
   const segs = [...(m.segs ?? [])];
@@ -51,28 +76,103 @@ function conCard(m: Msg, card: Card): Msg {
   return { ...m, cards: [...m.cards, card], segs: [...(m.segs ?? []), { t: "card", card }] };
 }
 
+/**
+ * Alto de la hoja a media pantalla: el 55 %, con un piso para que la
+ * bienvenida con sus 6 opciones entre sin scroll en un celular bajo (360 × 740).
+ */
+const MEDIA_HOJA = "max(55dvh, 432px)";
+
+const saludo = (id: number, copy: MalejoCopy): Msg => ({ id, role: "assistant", text: copy.greeting, cards: [], saludo: true });
+
+/** El celular de la Fase 6 bis: debajo de 760 px el chat es una hoja. */
+function useCelular(): boolean {
+  const [cel, setCel] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 759px)");
+    const on = () => setCel(mq.matches);
+    on();
+    mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, []);
+  return cel;
+}
+
+/**
+ * P2.1 (punto 3): en `/soluciones`, desde 760 px, el chat vive **adentro de
+ * la columna derecha** (la pestaña "Malejo" del armador, `#malejo-panel`) y
+ * no como flotante. Es el mismo componente con la misma sesión: se monta con
+ * un portal. Se vuelve a buscar al cambiar de ruta o de ancho.
+ */
+export const MALEJO_PANEL_ID = "malejo-panel";
+
+function useHostPanel(pathname: string | null): HTMLElement | null {
+  const [host, setHost] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 760px)");
+    const on = () => setHost(mq.matches ? document.getElementById(MALEJO_PANEL_ID) : null);
+    const raf = requestAnimationFrame(on);
+    mq.addEventListener("change", on);
+    return () => {
+      cancelAnimationFrame(raf);
+      mq.removeEventListener("change", on);
+    };
+  }, [pathname]);
+  return host;
+}
+
+/** Teclado abierto: el área visible se achicó mucho (`visualViewport`). */
+function useTeclado(activo: boolean): boolean {
+  const [abierto, setAbierto] = useState(false);
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!activo || !vv) return;
+    const on = () => setAbierto(vv.height < window.innerHeight * 0.75);
+    on();
+    vv.addEventListener("resize", on);
+    return () => vv.removeEventListener("resize", on);
+  }, [activo]);
+  return activo && abierto;
+}
+
 export default function MalejoWidget({
   copy,
-  senaMonto,
   turnstileSiteKey,
   pedido,
 }: {
   copy: MalejoCopy;
-  senaMonto: number;
   turnstileSiteKey?: string;
   /** Pedido de apertura de `AbrirChat` (vía `MalejoLoader`): abrir y, si hay tema, enviarlo. */
   pedido?: { tema?: string; n: number } | null;
 }) {
   const reduced = useReducedMotion();
+  const pathname = usePathname();
+  const modo = modoDePagina(pathname);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [input, setInput] = useState("");
-  const [msgs, setMsgs] = useState<Msg[]>([{ id: 0, role: "assistant", text: copy.greeting, cards: [] }]);
+  const [msgs, setMsgs] = useState<Msg[]>([saludo(0, copy)]);
   const [ficha, setFicha] = useState<Ficha>({});
+  const [grande, setGrande] = useState(false);
+  const celular = useCelular();
+  const teclado = useTeclado(open && celular);
+  const host = useHostPanel(pathname);
+  const embebido = Boolean(host);
+  /** El chat está a la vista: abierto como flotante o adentro de la columna. */
+  const visible = open || embebido;
   const nextId = useRef(1);
   const spriteBtn = useRef<HTMLButtonElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
+  /** Quién tenía el foco al abrir el chat: ahí vuelve al cerrarlo. */
+  const abridor = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    if (open) return;
+    const guardar = () => {
+      if (document.activeElement instanceof HTMLElement && document.activeElement !== document.body) abridor.current = document.activeElement;
+    };
+    document.addEventListener("focusin", guardar);
+    return () => document.removeEventListener("focusin", guardar);
+  }, [open]);
 
   // La charla sobrevive a una recarga o a ir y volver de `/demo` (solo en
   // esta pestaña: `sessionStorage`). Se lee en el primer frame.
@@ -95,27 +195,67 @@ export default function MalejoWidget({
 
   const reiniciar = useCallback(() => {
     borrarSesion();
-    setMsgs([{ id: nextId.current++, role: "assistant", text: copy.greeting, cards: [] }]);
+    setMsgs([saludo(nextId.current++, copy)]);
     setFicha({});
     inputRef.current?.focus();
-  }, [copy.greeting]);
+  }, [copy]);
 
   const close = useCallback(() => {
     setOpen(false);
-    spriteBtn.current?.focus();
+    setGrande(false);
+    // El foco vuelve al sprite si se ve; si no (celular, Soluciones), a quien abrió el chat.
+    if (spriteBtn.current?.offsetParent) spriteBtn.current.focus();
+    else if (abridor.current?.isConnected && abridor.current.offsetParent) abridor.current.focus();
+    else document.querySelector<HTMLElement>("[data-malejo-abrir]")?.focus();
   }, []);
 
   useEffect(() => {
-    if (!open) return;
-    inputRef.current?.focus();
+    if (!open || embebido) return;
+    // En el celular a media pantalla no se abre el teclado solo: se lee la bienvenida.
+    if (!celular) inputRef.current?.focus();
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [open, close]);
+  }, [open, close, celular, embebido]);
 
+  // La hoja a media pantalla avisa su alto: la barra del armado queda encima.
+  const media = open && celular && !grande && !teclado;
   useEffect(() => {
-    listRef.current?.scrollTo({ top: listRef.current.scrollHeight });
-  }, [msgs, open]);
+    const html = document.documentElement;
+    html.style.setProperty("--malejo-hoja", media ? MEDIA_HOJA : "0px");
+    return () => html.style.setProperty("--malejo-hoja", "0px");
+  }, [media]);
+
+  /* ─── Scroll al leer (Fase 5 bis) ─── */
+  const abajo = useRef(true);
+  const leido = useRef(-1);
+  const onScroll = () => {
+    const el = listRef.current;
+    if (el) abajo.current = el.scrollHeight - el.scrollTop - el.clientHeight < 24;
+  };
+  useLayoutEffect(() => {
+    const el = listRef.current;
+    if (!el || !visible) return;
+    const ultimo = msgs[msgs.length - 1];
+    if (!ultimo) return;
+    if (ultimo.role === "user") {
+      el.scrollTo({ top: el.scrollHeight });
+      abajo.current = true;
+      return;
+    }
+    const tieneAlgo = Boolean(ultimo.text.trim() || ultimo.cards.length);
+    if (ultimo.id !== leido.current && tieneAlgo) {
+      // Un mensaje nuevo de Malejo: desde su primera línea.
+      leido.current = ultimo.id;
+      const nodo = el.querySelector<HTMLElement>(`[data-msg="${ultimo.id}"]`);
+      if (nodo && !ultimo.saludo) {
+        el.scrollTo({ top: Math.max(0, nodo.offsetTop - 12) });
+        abajo.current = el.scrollHeight - el.scrollTop - el.clientHeight < 24;
+        return;
+      }
+    }
+    if (abajo.current) el.scrollTo({ top: el.scrollHeight });
+  }, [msgs, visible]);
 
   const send = useCallback(
     async (text: string) => {
@@ -136,7 +276,8 @@ export default function MalejoWidget({
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ messages: history, ficha, shownCards, pagina: location.pathname }),
+          // El armado va como la ficha: el servidor lo valida y no lo guarda.
+          body: JSON.stringify({ messages: history, ficha, shownCards, pagina: location.pathname, armado: leer(), kitEnviado: kitEnviado() }),
         });
         if (!res.ok || !res.body) throw new Error(String(res.status));
         const reader = res.body.getReader();
@@ -171,9 +312,10 @@ export default function MalejoWidget({
   );
 
   // Pedido de `AbrirChat`: abre y, si trae tema, lo manda como primer
-  // mensaje. El estado se escribe en el primer frame (no en el cuerpo del
-  // efecto) y el pedido se marca atendido recién ahí: con StrictMode el
-  // efecto corre dos veces y el primer frame se cancela.
+  // mensaje (sin las opciones de la bienvenida). El estado se escribe en el
+  // primer frame (no en el cuerpo del efecto) y el pedido se marca atendido
+  // recién ahí: con StrictMode el efecto corre dos veces y el primer frame
+  // se cancela.
   const sendRef = useRef(send);
   useEffect(() => {
     sendRef.current = send;
@@ -184,147 +326,183 @@ export default function MalejoWidget({
     const raf = requestAnimationFrame(() => {
       atendido.current = pedido.n;
       setOpen(true);
+      // Adentro de la columna no hay ventana que abrir: el foco va al campo.
+      if (document.getElementById(MALEJO_PANEL_ID)?.offsetParent) requestAnimationFrame(() => inputRef.current?.focus({ preventScroll: true }));
       track("chat_abierto", { origen: pedido.tema ? "tema" : "boton" });
-      if (pedido.tema) sendRef.current(pedido.tema);
+      if (pedido.tema) {
+        setMsgs((ms) => (ms.some((x) => x.role === "user") ? ms : ms.map((x) => (x.saludo ? { ...x, sinOpciones: true } : x))));
+        sendRef.current(pedido.tema);
+      }
     });
     return () => cancelAnimationFrame(raf);
   }, [pedido]);
 
   const sinMensajes = !msgs.some((m) => m.role === "user");
+  const opciones = modo === "armado" ? copy.chipsArmado : copy.chips;
 
-  // Un solo formato para el ícono del encabezado, la chip y el error:
-  // la ficha y la última cotización mostrada (`lib/agencia/chat/whatsapp.ts`).
+  // Un solo formato para "Hablar con Mauro" y el error: la ficha (con el
+  // armado) y la última cotización mostrada (`lib/agencia/chat/whatsapp.ts`).
   const waHref = waLink(mensajeWhatsApp(ficha, ultimaQuote(msgs)));
 
   const pose = open && busy ? "pensando" : "ok";
+  const completa = celular && (grande || teclado);
+
+  // El chat en sí: igual como flotante, como hoja en el celular o adentro de la columna de Soluciones.
+  const cuerpo = (
+    <>
+      {celular ? (
+        <button
+          type="button"
+          onClick={() => setGrande((g) => !g)}
+          aria-label={grande ? copy.header.achicar : copy.header.expandir}
+          className="flex h-4 flex-none items-center justify-center pt-1.5"
+        >
+          <span aria-hidden="true" className="block h-1.5 w-10 rounded-full bg-border-h" />
+        </button>
+      ) : null}
+      <ChatHeader
+        copy={copy}
+        // Adentro de la columna no se cierra: se cambia de pestaña.
+        onClose={embebido ? undefined : close}
+        waHref={waHref}
+        onRestart={sinMensajes ? undefined : reiniciar}
+        expandir={celular ? { grande, toggle: () => setGrande((g) => !g) } : undefined}
+      />
+
+      <div ref={listRef} onScroll={onScroll} className="scroll-fino flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-contain px-3 py-2.5 max-[379px]:py-1.5 min-[760px]:px-4 min-[760px]:py-3" aria-live="polite">
+        {msgs.map((msg) => {
+          const ultimo = msg.id === msgs[msgs.length - 1]?.id;
+          return msg.saludo ? (
+            <Bienvenida
+              key={msg.id}
+              id={msg.id}
+              copy={copy}
+              opciones={msg.sinOpciones ? [] : opciones}
+              activas={ultimo && !busy}
+              onOpcion={(t) => {
+                track("chat_opcion", { origen: "bienvenida" });
+                send(t);
+              }}
+            />
+          ) : (
+            <MessageView
+              key={msg.id}
+              msg={msg}
+              copy={copy}
+              turnstileSiteKey={turnstileSiteKey}
+              enSoluciones={modo === "armado"}
+              // Las respuestas sugeridas solo se pueden tocar en el último mensaje.
+              onOpcion={
+                !busy && ultimo
+                  ? (t) => {
+                      track("chat_opcion");
+                      send(t);
+                    }
+                  : undefined
+              }
+            />
+          );
+        })}
+        {busy && !msgs[msgs.length - 1]?.text && !msgs[msgs.length - 1]?.cards.length ? (
+          <div className="flex items-center gap-2 pl-10" aria-label={copy.typing} role="status">
+            {[0, 1, 2].map((i) => (
+              <span key={i} className="typing-dot h-1.5 w-1.5 rounded-full bg-muted" />
+            ))}
+          </div>
+        ) : null}
+      </div>
+
+      <div className="flex flex-none flex-col gap-1.5 border-t border-border px-3 pb-[calc(8px+env(safe-area-inset-bottom))] pt-2.5 min-[760px]:gap-2 min-[760px]:px-4 min-[760px]:pb-3 min-[760px]:pt-3">
+        <form
+          className="flex gap-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            send(input);
+          }}
+        >
+          <label htmlFor="malejo-input" className="sr-only">
+            {copy.inputLabel}
+          </label>
+          <input
+            id="malejo-input"
+            ref={inputRef}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            maxLength={2000}
+            autoComplete="off"
+            placeholder={copy.placeholder}
+            className="h-11 min-w-0 flex-1 rounded-[14px] border border-border bg-bg px-3.5 text-[16px] shadow-inset placeholder:text-muted focus:outline-none focus-visible:outline-2 focus-visible:outline-acc-text min-[760px]:text-[15px]"
+          />
+          <button type="submit" aria-label={copy.send} disabled={busy || !input.trim()} className="btn btn-p h-11 w-11 flex-none rounded-[14px] p-0 disabled:opacity-60">
+            <Icon name="send" size={18} />
+          </button>
+        </form>
+        <p className="m-0 text-[11px] leading-snug text-muted">
+          {copy.privacy}{" "}
+          <Link href="/legal/privacidad" className="text-acc-text underline underline-offset-2">
+            {copy.privacyLink}
+          </Link>
+        </p>
+      </div>
+    </>
+  );
 
   return (
-    <div className="pointer-events-none fixed bottom-3 right-3 z-[60] flex items-end gap-3 sm:bottom-0 sm:right-7">
-      <AnimatePresence>
-        {open ? (
-          <motion.div
-            key="chat"
-            role="dialog"
-            aria-labelledby="malejo-chat-title"
-            initial={reduced ? false : { opacity: 0, scale: 0.96 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.96 }}
-            transition={{ duration: 0.22, ease: "easeOut" }}
-            style={{ transformOrigin: "100% 100%" }}
-            className="card pointer-events-auto fixed inset-0 z-[61] flex flex-col overflow-hidden rounded-none sm:static sm:mb-[18px] sm:h-[min(600px,calc(100vh-110px))] sm:w-[380px] sm:rounded-[24px]"
-          >
-            <ChatHeader copy={copy} onClose={close} waHref={waHref} onRestart={sinMensajes ? undefined : reiniciar} />
+    <LazyMotion features={domAnimation}>
+      <div className="pointer-events-none fixed bottom-3 right-3 z-[60] flex items-end gap-3 min-[760px]:bottom-0 min-[760px]:right-7">
+        <AnimatePresence>
+          {open && !embebido ? (
+            <m.div
+              key="chat"
+              role="dialog"
+              aria-labelledby="malejo-chat-title"
+              initial={reduced ? false : celular ? { y: "100%" } : { opacity: 0, scale: 0.96 }}
+              animate={celular ? { y: 0 } : { opacity: 1, scale: 1 }}
+              exit={reduced ? { opacity: 0 } : celular ? { y: "100%" } : { opacity: 0, scale: 0.96 }}
+              transition={celular && !reduced ? { type: "spring", stiffness: 420, damping: 38, mass: 0.9 } : { duration: 0.22, ease: "easeOut" }}
+              style={{ transformOrigin: "100% 100%", ...(celular ? { height: completa ? "100dvh" : MEDIA_HOJA } : {}) }}
+              className={`card pointer-events-auto fixed inset-x-0 bottom-0 z-[75] flex flex-col overflow-hidden overscroll-contain min-[760px]:static min-[760px]:z-auto min-[760px]:mb-[18px] min-[760px]:h-[min(600px,calc(100vh-110px))] min-[760px]:w-[380px] min-[760px]:rounded-[24px] ${
+                completa ? "rounded-none" : "rounded-b-none rounded-t-[24px]"
+              }`}
+            >
+              {cuerpo}
+            </m.div>
+          ) : null}
+        </AnimatePresence>
 
-            <div ref={listRef} className="flex flex-1 flex-col gap-3 overflow-y-auto px-4 py-4" aria-live="polite">
-              {msgs.map((m) => (
-                <MessageView
-                  key={m.id}
-                  msg={m}
-                  copy={copy}
-                  senaMonto={senaMonto}
-                  turnstileSiteKey={turnstileSiteKey}
-                  // Las respuestas sugeridas solo se pueden tocar en el último mensaje.
-                  onOpcion={!busy && m.id === msgs[msgs.length - 1]?.id ? (t) => {
-                    track("chat_opcion");
-                    send(t);
-                  } : undefined}
-                />
-              ))}
-              {busy && !msgs[msgs.length - 1]?.text && !msgs[msgs.length - 1]?.cards.length ? (
-                <div className="flex items-center gap-2 pl-10" aria-label={copy.typing} role="status">
-                  {[0, 1, 2].map((i) => (
-                    <span key={i} className="typing-dot h-1.5 w-1.5 rounded-full bg-muted" />
-                  ))}
-                </div>
-              ) : null}
-            </div>
+        {/* Soluciones desde 760 px: el mismo chat, adentro de la pestaña "Malejo" de la columna. */}
+        {host
+          ? createPortal(
+              <div role="region" aria-labelledby="malejo-chat-title" className="pointer-events-auto flex min-h-0 flex-1 flex-col">
+                {cuerpo}
+              </div>,
+              host,
+            )
+          : null}
 
-            <div className="flex flex-col gap-2.5 border-t border-border px-4 pb-3 pt-3">
-              <div className="flex flex-wrap gap-2" role="group" aria-label={copy.chipsLabel}>
-                {sinMensajes
-                  ? copy.chips.map((c) => (
-                      <button key={c} type="button" className="chip" onClick={() => send(c)} disabled={busy}>
-                        {c}
-                      </button>
-                    ))
-                  : null}
-                <a href={waHref} target="_blank" rel="noopener" className="chip">
-                  <Icon name="whatsapp" size={14} />
-                  {copy.mauro}
-                </a>
-              </div>
-              <form
-                className="flex gap-2"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  send(input);
-                }}
-              >
-                <label htmlFor="malejo-input" className="sr-only">
-                  {copy.inputLabel}
-                </label>
-                <input
-                  id="malejo-input"
-                  ref={inputRef}
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  maxLength={2000}
-                  autoComplete="off"
-                  placeholder={copy.placeholder}
-                  className="h-11 min-w-0 flex-1 rounded-[14px] border border-border bg-bg px-3.5 text-[15px] shadow-inset placeholder:text-muted focus:outline-none focus-visible:outline-2 focus-visible:outline-acc-text"
-                />
-                <button type="submit" aria-label={copy.send} disabled={busy || !input.trim()} className="btn btn-p h-11 w-11 flex-none rounded-[14px] p-0 disabled:opacity-60">
-                  <Icon name="send" size={18} />
-                </button>
-              </form>
-              <p className="m-0 text-[11px] leading-snug text-muted">
-                {copy.privacy}{" "}
-                <Link href="/legal/privacidad" className="text-acc-text underline underline-offset-2">
-                  {copy.privacyLink}
-                </Link>
-              </p>
-            </div>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
-
-      <button
-        ref={spriteBtn}
-        type="button"
-        aria-label={open ? copy.close : copy.open}
-        aria-expanded={open}
-        onClick={() => {
-          if (open) return close();
-          setOpen(true);
-          track("chat_abierto", { origen: "flotante" });
-        }}
-        className={`breathe pointer-events-auto flex-col items-center gap-1 rounded-lg ${open ? "hidden sm:flex" : "flex"}`}
-      >
-        <span className="lbl hidden rounded-[7px] bg-acc px-[7px] py-1 text-[10px] font-semibold text-acc-ink shadow-btn sm:inline">
-          {open ? copy.chipOpen : copy.chip}
-        </span>
-        {/* Celular: solo la cabeza, en una caja de 56 × 64 (no tapa tarjetas). */}
-        <span className="relative inline-flex h-16 w-14 justify-center overflow-hidden rounded-[18px] border border-border bg-ic-bg shadow-card sm:hidden">
-          {/* eslint-disable-next-line @next/next/no-img-element -- recorte del sprite */}
-          <img
-            src={`/agencia/sprites/malejo-${pose}.png`}
-            alt=""
-            width={64}
-            height={146}
-            className="pixel mt-1 block h-[146px] w-16 max-w-none flex-none"
-          />
-          <span className="absolute bottom-1 right-1 h-2.5 w-2.5 rounded-full border-2 border-ic-bg bg-ok" aria-hidden="true" />
-        </span>
-        {/* eslint-disable-next-line @next/next/no-img-element -- pixel art chico, sin optimizar a propósito */}
-        <img
-          src={`/agencia/sprites/malejo-${pose}.png`}
-          alt=""
-          width={54}
-          height={123}
-          className="pixel hidden h-[123px] w-[54px] sm:block"
-        />
-      </button>
-    </div>
+        {/*
+          El sprite flotante, desde 760 px: en el celular, Malejo está en la barra
+          inferior. En Soluciones tampoco va: pisaría el carrito, que ya tiene
+          "Preguntale a Malejo" (y el header, "Hablá con Malejo").
+        */}
+        <button
+          ref={spriteBtn}
+          type="button"
+          aria-label={open ? copy.close : copy.open}
+          aria-expanded={open}
+          onClick={() => {
+            if (open) return close();
+            setOpen(true);
+            track("chat_abierto", { origen: "flotante" });
+          }}
+          className={`breathe pointer-events-auto hidden flex-col items-center gap-1 rounded-lg ${modo === "armado" ? "" : "min-[760px]:flex"}`}
+        >
+          <span className="lbl rounded-[7px] bg-acc px-[7px] py-1 text-[10px] font-semibold text-acc-ink shadow-btn">{open ? copy.chipOpen : copy.chip}</span>
+          {/* eslint-disable-next-line @next/next/no-img-element -- pixel art chico, sin optimizar a propósito */}
+          <img src={`/agencia/sprites/malejo-${pose}.png`} alt="" width={54} height={123} className="pixel h-[123px] w-[54px]" />
+        </button>
+      </div>
+    </LazyMotion>
   );
 }
 
@@ -346,73 +524,171 @@ function Avatar({ size }: { size: 32 | 40 }) {
   );
 }
 
-function ChatHeader({ copy, onClose, waHref, onRestart }: { copy: MalejoCopy; onClose: () => void; waHref: string; onRestart?: () => void }) {
-  return (
-    <div className="flex items-center gap-3 border-b border-border px-4 py-3">
-      <Avatar size={40} />
-      <div className="flex-1">
-        <div id="malejo-chat-title" className="h flex items-center gap-1.5 text-[17px]">
-          {copy.header.name}
-          <span className="inline-block h-2 w-2 rounded-full bg-ok" aria-hidden="true" />
-        </div>
-        <div className="text-xs text-muted">{copy.header.status}</div>
-      </div>
-      {onRestart ? (
-        <button type="button" className="ibtn h-9 w-9 rounded-xl" aria-label={copy.header.restart} title={copy.header.restart} onClick={onRestart}>
-          <span aria-hidden="true" className="text-[17px] leading-none">↺</span>
-        </button>
-      ) : null}
-      <a
-        href={waHref}
-        target="_blank"
-        rel="noopener"
-        onClick={() => track("chat_clic", { destino: "whatsapp" })}
-        className="ibtn h-9 w-9 rounded-xl"
-        aria-label={copy.header.whatsapp}
-        title={copy.header.whatsappTip}
-      >
-        <Icon name="whatsapp" size={18} />
-      </a>
-      <button type="button" className="ibtn h-9 w-9 rounded-xl" aria-label={copy.header.close} onClick={onClose}>
-        <Icon name="close" size={16} />
-      </button>
-    </div>
-  );
-}
-
-/** `**negrita**` y saltos de línea; nada más del markdown. */
 function rich(text: string) {
   return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
     part.startsWith("**") && part.endsWith("**") ? <strong key={i}>{part.slice(2, -2)}</strong> : part,
   );
 }
 
+
+function ChatHeader({
+  copy,
+  onClose,
+  waHref,
+  onRestart,
+  expandir,
+}: {
+  copy: MalejoCopy;
+  onClose?: () => void;
+  waHref: string;
+  onRestart?: () => void;
+  /** Celular: agrandar a pantalla completa o volver a media pantalla. */
+  expandir?: { grande: boolean; toggle: () => void };
+}) {
+  return (
+    <div className="flex flex-none items-center gap-2.5 border-b border-border px-4 py-2 max-[379px]:py-1 min-[760px]:gap-3 min-[760px]:py-3">
+      <Avatar size={40} />
+      <div className="min-w-0 flex-1">
+        <div id="malejo-chat-title" className="h flex items-center gap-1.5 text-[17px]">
+          {copy.header.name}
+          <span className="inline-block h-2 w-2 rounded-full bg-ok" aria-hidden="true" />
+        </div>
+        <div className="truncate text-xs text-muted">{copy.header.status}</div>
+      </div>
+      {onRestart ? (
+        <button type="button" className="ibtn h-11 w-11 rounded-xl min-[760px]:h-9 min-[760px]:w-9" aria-label={copy.header.restart} title={copy.header.restart} onClick={onRestart}>
+          <span aria-hidden="true" className="text-[17px] leading-none">↺</span>
+        </button>
+      ) : null}
+      {/* "Hablar con Mauro" (Fase 5 bis): texto en escritorio, ícono en el celular. */}
+      <a
+        href={waHref}
+        target="_blank"
+        rel="noopener"
+        onClick={() => track("chat_clic", { destino: "whatsapp" })}
+        className="ibtn h-11 w-11 flex-none gap-1.5 rounded-xl text-acc-text min-[760px]:h-9 min-[760px]:w-auto min-[760px]:px-2.5 min-[760px]:text-[13px] min-[760px]:font-semibold"
+        aria-label={copy.header.whatsapp}
+        title={copy.header.whatsappTip}
+      >
+        <Icon name="whatsapp" size={18} />
+        <span className="hidden min-[760px]:inline">{copy.header.mauro}</span>
+      </a>
+      {expandir ? (
+        <button
+          type="button"
+          className="ibtn h-11 w-11 rounded-xl"
+          aria-label={expandir.grande ? copy.header.achicar : copy.header.expandir}
+          aria-pressed={expandir.grande}
+          onClick={expandir.toggle}
+        >
+          <Icon name="expand" size={16} />
+        </button>
+      ) : null}
+      {onClose ? (
+        <button type="button" className="ibtn h-11 w-11 rounded-xl min-[760px]:h-9 min-[760px]:w-9" aria-label={copy.header.close} onClick={onClose}>
+          <Icon name="close" size={16} />
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
+const OPCIONES_VARIANTES = {
+  oculto: {},
+  visible: { transition: { staggerChildren: 0.04 } },
+};
+const OPCION_VARIANTES = {
+  oculto: { opacity: 0, y: 6 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.18 } },
+};
+
+/**
+ * La bienvenida (Fase 5 bis): una burbuja de Malejo con el saludo, una línea
+ * chica y las opciones **adentro**, en grilla. Las opciones entran
+ * escalonadas (40 ms, `data-reveal`); con movimiento reducido, sin animación.
+ * Se tocan solo mientras la bienvenida es el último mensaje; después quedan
+ * en gris con `aria-disabled`.
+ */
+function Bienvenida({
+  id,
+  copy,
+  opciones,
+  activas,
+  onOpcion,
+}: {
+  id: number;
+  copy: MalejoCopy;
+  opciones: OpcionBienvenida[];
+  activas: boolean;
+  onOpcion: (texto: string) => void;
+}) {
+  const reduced = useReducedMotion();
+  return (
+    // Sin avatar al lado (ya está en el encabezado): la burbuja gana ancho y las opciones entran en la hoja.
+    <div data-msg={id} className="flex">
+      <div className="min-w-0 flex-1 rounded-[16px_16px_16px_6px] border border-border bg-surf-2 px-3 py-2.5 text-sm leading-[1.45] max-[379px]:px-2.5 max-[379px]:py-2 max-[379px]:text-[13px]">
+        <p className="m-0">{copy.greeting}</p>
+        {opciones.length ? (
+          <>
+            <p className="m-0 mt-0.5 text-[12px] text-muted">{copy.greetingHint}</p>
+            <m.div
+              role="group"
+              aria-label={copy.chipsLabel}
+              variants={OPCIONES_VARIANTES}
+              initial={reduced ? false : "oculto"}
+              animate="visible"
+              className="mt-2 grid grid-cols-2 gap-1.5 max-[339px]:grid-cols-1"
+            >
+              {opciones.map((o) => (
+                <m.button
+                  key={o.text}
+                  type="button"
+                  data-reveal
+                  variants={OPCION_VARIANTES}
+                  aria-disabled={!activas || undefined}
+                  onClick={() => activas && onOpcion(o.text)}
+                  className={`flex min-h-11 items-center gap-1.5 rounded-[12px] border border-border bg-surf px-2 py-1 text-left text-[14px] font-medium leading-[1.2] ${
+                    activas ? "hover:border-border-h" : "cursor-default opacity-50"
+                  }`}
+                >
+                  <Icon name={o.icon} size={15} className="flex-none text-acc-text" />
+                  <span className="line-clamp-2 min-w-0 min-[760px]:line-clamp-3">{o.text}</span>
+                </m.button>
+              ))}
+            </m.div>
+          </>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 function MessageView({
   msg,
   copy,
-  senaMonto,
   turnstileSiteKey,
+  enSoluciones,
   onOpcion,
 }: {
   msg: Msg;
   copy: MalejoCopy;
-  senaMonto: number;
   turnstileSiteKey?: string;
+  enSoluciones: boolean;
   onOpcion?: (texto: string) => void;
 }) {
   if (msg.role === "user") {
     return (
-      <div className="max-w-[80%] self-end whitespace-pre-wrap rounded-[16px_16px_6px_16px] bg-ic-bg px-[13px] py-2.5 text-sm leading-[1.45] text-user-text">
+      <div data-msg={msg.id} className="max-w-[80%] self-end whitespace-pre-wrap rounded-[16px_16px_6px_16px] bg-ic-bg px-[13px] py-2.5 text-sm leading-[1.45] text-user-text">
         {msg.text}
       </div>
     );
   }
   const segs: Seg[] = (msg.segs ?? [{ t: "text", text: msg.text }, ...msg.cards.map((card) => ({ t: "card" as const, card }))]).filter(
-    (s) => (s.t === "card" ? s.card.kind !== "opciones" || Boolean(onOpcion) : s.text.trim()),
+    (s) => (s.t === "card" ? true : s.text.trim()),
   );
   if (!segs.length) return null;
   return (
-    <div className="flex items-end gap-2">
+    <div data-msg={msg.id} className="flex items-end gap-2">
       <Avatar size={32} />
       <div className="flex min-w-0 flex-1 flex-col gap-2.5">
         {segs.map((s, i) =>
@@ -424,15 +700,24 @@ function MessageView({
               {rich(s.text.trim())}
             </div>
           ) : s.card.kind === "opciones" ? (
+            // Las respuestas sugeridas: tocables solo en el último mensaje; después, en gris.
             <div key={i} role="group" aria-label={copy.opcionesLabel} className="flex flex-wrap gap-2">
               {s.card.opciones.map((o) => (
-                <button key={o} type="button" className="chip h-auto min-h-9 py-1.5 text-left" onClick={() => onOpcion?.(o)}>
+                <button
+                  key={o}
+                  type="button"
+                  aria-disabled={!onOpcion || undefined}
+                  className={`chip h-auto min-h-11 py-1.5 text-left ${onOpcion ? "" : "cursor-default opacity-50"}`}
+                  onClick={() => onOpcion?.(o)}
+                >
                   {o}
                 </button>
               ))}
             </div>
+          ) : s.card.kind === "armado" ? (
+            <ArmadoCard key={i} card={s.card} copy={copy} enSoluciones={enSoluciones} />
           ) : (
-            <CardView key={i} card={s.card} copy={copy} senaMonto={senaMonto} turnstileSiteKey={turnstileSiteKey} />
+            <CardView key={i} card={s.card} copy={copy} turnstileSiteKey={turnstileSiteKey} />
           ),
         )}
       </div>
@@ -440,15 +725,63 @@ function MessageView({
   );
 }
 
+/**
+ * La sugerencia de `sugerir_armado` (tanda P2, D5): cada ítem con su precio,
+ * el porqué y "Agregar al armado". **El clic es de la persona**: emite
+ * `malejo:armado` con `origen: "malejo"` y el carrito lo marca "Sugerido por
+ * Malejo". Fuera de Soluciones, un solo botón: "Abrir en Soluciones".
+ */
+function ArmadoCard({ card, copy, enSoluciones }: { card: Extract<Card, { kind: "armado" }>; copy: MalejoCopy; enSoluciones: boolean }) {
+  const armado = useArmado();
+  const esta = (id: string) => armado.items.some((i) => i.id === id) || armado.extras.includes(id);
+  return (
+    <div className="card hi flex flex-col gap-2 rounded-[18px] p-3.5">
+      <span className="lbl lbl-o text-[10px]">{copy.armado.label}</span>
+      <ul className="m-0 flex list-none flex-col p-0">
+        {card.items.map((it) => (
+          <li key={it.id} className="flex flex-col gap-1 border-t border-border py-2.5 first:border-t-0 first:pt-0.5">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-2">
+              <span className="h text-[15px]">{it.nombre}</span>
+              <span className="text-[12px] text-muted">{it.precio}</span>
+            </div>
+            <p className="m-0 text-[13px] leading-snug text-muted">{it.porque}</p>
+            {enSoluciones ? (
+              esta(it.id) ? (
+                <span className="inline-flex min-h-11 items-center text-[13px] font-semibold text-ok-text">{copy.armado.agregado}</span>
+              ) : (
+                <button
+                  type="button"
+                  className="btn btn-p btn-sm min-h-11 self-start"
+                  onClick={() => {
+                    emitir({ accion: "agregar", id: it.id, origen: "malejo" }, (x) => ({ id: x, tipo: it.tipo }));
+                    track("armado_sugerencia_aceptada", { id: it.id });
+                    track("armado_agregar", { origen: "malejo", id: it.id });
+                    vibrar();
+                  }}
+                >
+                  {copy.armado.agregar}
+                </button>
+              )
+            ) : null}
+          </li>
+        ))}
+      </ul>
+      {enSoluciones ? null : (
+        <Link href={card.href} onClick={() => track("chat_clic", { destino: "soluciones" })} className="btn btn-p btn-sm min-h-11 w-full">
+          {copy.armado.abrir}
+        </Link>
+      )}
+    </div>
+  );
+}
+
 function CardView({
   card,
   copy,
-  senaMonto,
   turnstileSiteKey,
 }: {
   card: Card;
   copy: MalejoCopy;
-  senaMonto: number;
   turnstileSiteKey?: string;
 }) {
   if (card.kind === "quote") {
@@ -489,7 +822,13 @@ function CardView({
           </p>
         ))}
         <Link href={card.demoHref} onClick={() => track("chat_clic", { destino: "demo" })} className="btn btn-p btn-sm w-full">
-          {copy.quote.demo.replace("{SENA}", fmt(senaMonto))}
+          {card.sena?.tipo === "plan-escrito"
+            ? copy.quote.planEscrito.replace("{SENA}", fmt(card.sena.monto))
+            : card.sena?.tipo === "sin-cargo"
+              ? copy.quote.demoSinCargo
+              : card.sena
+                ? copy.quote.demo.replace("{SENA}", fmt(card.sena.monto))
+                : copy.quote.demoSolo}
         </Link>
       </div>
     );
@@ -536,7 +875,7 @@ function CardView({
       </a>
     );
   }
-  if (card.kind === "opciones") return null;
+  if (card.kind === "opciones" || card.kind === "armado") return null;
   if (card.kind === "formContacto") return <ContactFormCard card={card} copy={copy} turnstileSiteKey={turnstileSiteKey} />;
   return <ConsentCard card={card} copy={copy} turnstileSiteKey={turnstileSiteKey} />;
 }

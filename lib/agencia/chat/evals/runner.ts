@@ -27,7 +27,7 @@ type Ev = { type: string; text?: string; card?: Card; ficha?: Ficha };
  */
 const espera = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-async function turno(base: string, msgs: ChatMsg[], ficha: Ficha, usuario: string): Promise<{ t: Turno; ficha: Ficha }> {
+async function turno(base: string, msgs: ChatMsg[], ficha: Ficha, usuario: string, extra: Pick<Caso, "pagina" | "armado"> = {}): Promise<{ t: Turno; ficha: Ficha }> {
   const pausa = Number(process.env.EVAL_PAUSA_MS ?? 0);
   if (pausa > 0) await espera(pausa);
   const inicio = Date.now();
@@ -44,6 +44,9 @@ async function turno(base: string, msgs: ChatMsg[], ficha: Ficha, usuario: strin
       messages: armarHistorial([...msgs, { role: "user", text: usuario, cards: [] }]),
       ficha,
       shownCards: firmasMostradas(msgs),
+      // Tanda P2: la página (modo armado) y el armado del carrito, como los manda el widget.
+      ...(extra.pagina ? { pagina: extra.pagina } : {}),
+      ...(extra.armado ? { armado: extra.armado } : {}),
     }),
     signal: AbortSignal.timeout(90_000),
   });
@@ -67,12 +70,13 @@ export function objetivo(total: number): number {
 }
 
 export async function correrCaso(base: string, caso: Caso): Promise<Corrida> {
-  const msgs: ChatMsg[] = [{ role: "assistant", text: "¡Hola! Soy Malejo, el asistente de Mauro.", cards: [] }];
+  // La bienvenida, como en el widget: se muestra pero no va al servidor (P2, Fase 5 bis).
+  const msgs: ChatMsg[] = [{ role: "assistant", text: "Hola, soy Malejo, el asistente de Mauro 👋", cards: [], saludo: true }];
   let ficha: Ficha = {};
   const turnos: Turno[] = [];
   try {
     for (const u of caso.turnos) {
-      const r = await turno(base, msgs, ficha, u);
+      const r = await turno(base, msgs, ficha, u, caso);
       turnos.push(r.t);
       ficha = r.ficha;
       msgs.push({ role: "user", text: u, cards: [] }, { role: "assistant", text: r.t.texto, cards: r.t.cards });

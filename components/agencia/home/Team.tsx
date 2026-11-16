@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { home, proyectosDeLaHome } from "@/content/agencia/home";
 import { MalejoMark } from "../MalejoMark";
-import { Sprite } from "../Sprite";
+import { CaraMalejo } from "../CaraMalejo";
 import { ProjectVideo } from "../client/ProjectVideo";
 import { Reveal } from "../client/Reveal";
 
@@ -31,8 +31,14 @@ export function Retrato({ className = "" }: { className?: string }) {
     );
   }
   return (
-    <span className={`relative inline-flex h-24 w-20 flex-none items-start justify-center overflow-hidden rounded-22 bg-ic-bg pt-2 sm:h-28 sm:w-24 ${className}`}>
-      <Sprite alto={123} alt={team.spriteAlt} />
+    // Tanda P3-4: la cara (CaraMalejo) en lugar del cuerpo entero recortado arriba. Dos tamaños: 80 × 96 y, desde `sm`, 96 × 112.
+    <span className={`relative inline-flex h-24 w-20 flex-none overflow-hidden rounded-22 bg-ic-bg sm:h-28 sm:w-24 ${className}`}>
+      <span className="flex sm:hidden">
+        <CaraMalejo tamano={80} alto={96} pose="normal" alt={team.spriteAlt} />
+      </span>
+      <span className="hidden sm:flex">
+        <CaraMalejo tamano={96} alto={112} pose="normal" alt={team.spriteAlt} />
+      </span>
     </span>
   );
 }

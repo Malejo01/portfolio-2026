@@ -79,7 +79,8 @@ export function MobileMenu({
   }, []);
 
   const onPanelClick = (e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).closest("a")) setOpen(false);
+    // P3-4: también "¿Cómo uso la página?" (un botón con `data-cierra-menu`).
+    if ((e.target as HTMLElement).closest("a, [data-cierra-menu]")) setOpen(false);
   };
 
   return (

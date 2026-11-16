@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { site } from "@/content/agencia/site";
 import { MalejoMark } from "./MalejoMark";
+import { ComoUsar } from "./client/ComoUsar";
+import { recorridoCopy } from "@/content/agencia/recorrido";
 
 /**
  * Pie (DISENO.md §4, `10-pie-*.png`): marca + tres columnas. Los links miden
@@ -22,6 +24,10 @@ export function Footer() {
             <span className="h text-2xl">{site.name}</span>
           </span>
           <p className="pie-muted m-0 max-w-[24em] text-sm text-muted">{footer.tagline}</p>
+          <ComoUsar
+            label={recorridoCopy.enlace}
+            className="pie-muted flex min-h-11 items-center self-start text-sm text-muted underline underline-offset-4 sm:min-h-8"
+          />
         </div>
         {footer.columns.map((col) => (
           <div key={col.label} className={`flex flex-col text-[14px] leading-[1.3] ${col.links.length > 2 ? "row-span-2 sm:row-span-1" : ""}`}>

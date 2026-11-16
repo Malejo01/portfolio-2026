@@ -21,6 +21,8 @@ import type { Pose } from "@/content/agencia/estilos";
 import { dibujoSiguiente, elegirDibujo } from "@/lib/agencia/estilo";
 import { reproducir } from "@/lib/agencia/sprite-anim";
 import { Sprite } from "../Sprite";
+import { CaraMalejo } from "../CaraMalejo";
+import { CHAT_ABIERTO_EVENT } from "@/lib/agencia/recorrido";
 import { vibrar } from "./AgregarBoton";
 import { useTurnstile } from "./turnstile";
 import { useArmado } from "./useArmado";
@@ -210,6 +212,8 @@ export default function MalejoWidget({
   const spriteFlotante = useRef<HTMLSpanElement>(null);
   useEffect(() => {
     if (!open) return;
+    // Tanda P3-4: si el chat se abre antes de que salga el recorrido de bienvenida, ya no sale.
+    window.dispatchEvent(new CustomEvent(CHAT_ABIERTO_EVENT));
     const raf = requestAnimationFrame(() => {
       void reproducir(spriteFlotante.current?.querySelector("[data-sprite]"), "saludo");
     });
@@ -527,13 +531,14 @@ export default function MalejoWidget({
 }
 
 /**
- * La cara de Malejo: el sprite del dibujo activo recortado a la cabeza
- * (tanda P3-1). En el encabezado es un botón que pasa al dibujo siguiente.
+ * La cara de Malejo (tanda P3-4: `CaraMalejo`, recortada por la caja `cara`
+ * de cada dibujo). En el encabezado es un botón que pasa al dibujo siguiente.
  */
 function Avatar({ size, cambiar }: { size: 32 | 40; cambiar?: string }) {
-  const caja = `inline-flex flex-none items-start justify-center overflow-hidden bg-ic-bg pt-0.5 ${size === 40 ? "h-10 w-10 rounded-13" : "h-8 w-8 rounded-11"}`;
-  const sprite = <Sprite pose="ok" alto={size === 40 ? 88 : 70} alt="" />;
-  if (!cambiar) return <span className={caja} aria-hidden="true">{sprite}</span>;
+  const radio = size === 40 ? "rounded-13" : "rounded-11";
+  const caja = `inline-flex flex-none ${radio}`;
+  const sprite = <CaraMalejo tamano={size} className={`bg-ic-bg ${radio}`} />;
+  if (!cambiar) return sprite;
   return (
     <button
       type="button"

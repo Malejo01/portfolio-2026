@@ -9,6 +9,8 @@ import { MobileMenu } from "./client/MobileMenu";
 import { SectionSpy } from "./client/SectionSpy";
 import { ThemeTextToggle, ThemeToggle } from "./client/ThemeToggle";
 import { EstiloSelector } from "./client/EstiloSelector";
+import { ComoUsar } from "./client/ComoUsar";
+import { recorridoCopy } from "@/content/agencia/recorrido";
 import { DIBUJO_ORIGINAL, ESTILO_ORIGINAL, estilos, selectorCopy } from "@/content/agencia/estilos";
 import { configArranque } from "@/lib/agencia/estilo";
 import { LogoEstilo } from "./EstiloPiezas";
@@ -66,6 +68,7 @@ export function Header() {
             fuentesPor={Object.fromEntries(estilos.filter((e) => e.fuentes).map((e) => [e.id, e.fuentes!]))}
             cssPor={hojasDeEstilos(estilos.filter((e) => e.disponible && e.id !== ESTILO_ORIGINAL).map((e) => e.id))}
             personajes={personajes()}
+            comoUsar={recorridoCopy.enlace}
           />
 
           <ul className="hidden flex-1 gap-1 lg:flex">
@@ -84,7 +87,7 @@ export function Header() {
 
           <div className="ml-auto flex items-center gap-1.5 sm:gap-2.5 lg:ml-0 lg:gap-[18px]">
             <ThemeToggle toLight={nav.themeToLight} toDark={nav.themeToDark} className="hidden lg:inline-flex" />
-            <AbrirChat href={wa} className="btn btn-p btn-sm hidden lg:inline-flex">
+            <AbrirChat href={wa} className="btn btn-p btn-sm hidden lg:inline-flex" recorrido="malejo" prioridad={2}>
               <Icon name="chat" size={16} />
               {nav.cta}
             </AbrirChat>
@@ -113,7 +116,8 @@ export function Header() {
                   <Icon name="chat" size={18} />
                   {nav.cta}
                 </AbrirChat>
-                <div className="flex justify-end">
+                <div className="flex items-center justify-between gap-3">
+                  <ComoUsar label={recorridoCopy.enlace} className="lnk min-h-11 underline underline-offset-4" />
                   <ThemeTextToggle
                     darkLabel={explorer.darkLabel}
                     lightLabel={explorer.lightLabel}

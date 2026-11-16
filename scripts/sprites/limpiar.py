@@ -14,6 +14,10 @@ reescalarlos los ensucia. Verifica:
 El recorte es la unión de los recuadros opacos, con 2 bloques de aire
 arriba para el salto del festejo (animar.py) y los pies en la última fila.
 
+Tanda P3-4: traduce la caja `cara` de config.json (coordenadas del lienzo
+fuente) al lienzo recortado y la escribe en public/agencia/sprites/sprites.json.
+No la recorta a 0 ni al ancho: lo que cae afuera es aire transparente.
+
 Uso: python3 scripts/sprites/limpiar.py   (o npm run sprites)
 """
 import json
@@ -99,14 +103,28 @@ def recortar(im: Image.Image, caja) -> Image.Image:
     return im.crop(caja)
 
 
+def cara_recortada(dibujo: str, caja) -> list:
+    """La caja `cara` del lienzo fuente, en coordenadas del lienzo recortado."""
+    x0, y0, x1, y1 = CONFIG[dibujo]["cara"]
+    return [x0 - caja[0], y0 - caja[1], x1 - caja[0], y1 - caja[1]]
+
+
 def main():
+    caras = {}
     for dibujo in ["16bit", "chibi", "anime"]:
         ims, caja, aire = recorte(dibujo)
         (SALIDA / dibujo).mkdir(parents=True, exist_ok=True)
         for p in POSES:
             guardar(recortar(ims[p], caja), SALIDA / dibujo / f"{p}.png")
         ancho, alto = caja[2] - caja[0], caja[3] - caja[1]
-        print(f"✓ {dibujo}: {ancho}×{alto} (recorte {caja}, aire {aire})")
+        caras[dibujo] = cara_recortada(dibujo, caja)
+        print(f"✓ {dibujo}: {ancho}×{alto} (recorte {caja}, aire {aire}, cara {caras[dibujo]})")
+    # La cara va a sprites.json (animar.py conserva lo que ya está ahí).
+    ruta = SALIDA / "sprites.json"
+    datos = json.loads(ruta.read_text()) if ruta.exists() else {}
+    for dibujo, cara in caras.items():
+        datos.setdefault(dibujo, {})["cara"] = cara
+    ruta.write_text(json.dumps(datos, indent=2, ensure_ascii=False) + "\n")
 
 
 if __name__ == "__main__":

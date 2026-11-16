@@ -57,9 +57,35 @@ export function Sprite({
 }
 
 function SpriteDibujo({ dibujo, pose, alto, animaciones }: { dibujo: Dibujo; pose: Pose; alto: number; animaciones: ("saludo" | "festejo")[] }) {
-  const { w, h } = medida(dibujo, alto);
+  return <DibujoEnPantalla dibujo={dibujo} pose={pose} animaciones={animaciones} {...medida(dibujo, alto)} />;
+}
+
+/**
+ * Un dibujo con un tamaño en pantalla dado (y, si se pasa, corrido a `x`,
+ * `y` dentro de un contenedor posicionado: lo usa `CaraMalejo`). El mismo
+ * marcado de siempre (`.sprite` y las tiras), así `SpritesVivos` y
+ * `reproducir()` funcionan igual.
+ */
+export function DibujoEnPantalla({
+  dibujo,
+  pose,
+  animaciones,
+  w,
+  h,
+  x,
+  y,
+}: {
+  dibujo: Dibujo;
+  pose: Pose;
+  animaciones: ("saludo" | "festejo")[];
+  w: number;
+  h: number;
+  x?: number;
+  y?: number;
+}) {
+  const lugar = x === undefined ? {} : { position: "absolute" as const, left: x, top: y };
   return (
-    <span data-solo-dibujo={dibujo} className="sprite" style={{ width: w, height: h }}>
+    <span data-solo-dibujo={dibujo} className="sprite" style={{ width: w, height: h, ...lugar }}>
       {pose === "normal" ? (
         <img src={srcTira(dibujo, "idle")} alt="" width={w * 3} height={h} loading="lazy" decoding="async" className="sprite-tira tira-idle" />
       ) : (

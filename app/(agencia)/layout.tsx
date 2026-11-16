@@ -7,10 +7,12 @@ import { Header } from "@/components/agencia/Header";
 import { BarraEstilo } from "@/components/agencia/EstiloPiezas";
 import { BottomNav } from "@/components/agencia/client/BottomNav";
 import { MalejoLoader } from "@/components/agencia/client/MalejoLoader";
+import { RecorridoLoader } from "@/components/agencia/client/RecorridoLoader";
 import { SpritesVivos } from "@/components/agencia/client/SpritesVivos";
 import { WHATSAPP_TEXTO } from "@/content/agencia/home";
 import { waLink } from "@/lib/agencia/config";
 import { malejoCopy } from "@/content/agencia/malejo";
+import { recorridoCopy } from "@/content/agencia/recorrido";
 import { DIBUJO_ORIGINAL, ESTILO_ORIGINAL, estilos } from "@/content/agencia/estilos";
 import { configArranque, scriptDeArranque } from "@/lib/agencia/estilo";
 import { hojasDeEstilos } from "@/lib/agencia/estilos-css";
@@ -106,9 +108,10 @@ const FONT_VARIABLES = `${outfit.variable} ${inter.variable} ${jetbrains.variabl
 /**
  * Antes del primer paint: marca `js` (contrato de `data-reveal`), pone el
  * estilo (`data-estilo`), el dibujo del personaje (`data-dibujo`) y el tema.
- * Tema: cookie `malejo-theme` si existe; si no, el tema de entrada del estilo
- * (Institucional arranca en claro) y, por defecto, **oscuro** — la agencia
- * no sigue a `prefers-color-scheme` (DISENO.md §2). La lógica está en
+ * Tema (tanda P3-4): **por estilo**, `localStorage["malejo-tema-<estilo>"]`;
+ * sin clave, el tema de entrada del estilo (Tech y Aula oscuro, Institucional
+ * y Tienda claro). La cookie vieja `malejo-theme` se migra una vez a Tech. La
+ * agencia no sigue a `prefers-color-scheme` (DISENO.md §2). La lógica está en
  * `lib/agencia/estilo.ts → arrancar`.
  *
  * Es el mismo patrón que `components/layout/SiteDocument.tsx`, con la misma
@@ -168,6 +171,7 @@ export default function AgenciaRootLayout({ children }: { children: React.ReactN
         <Footer />
         <BottomNav copy={site.bottomNav} whatsapp={waLink(WHATSAPP_TEXTO)} />
         <MalejoLoader copy={malejoCopy} turnstileSiteKey={process.env.TURNSTILE_SITE_KEY || undefined} />
+        <RecorridoLoader copy={recorridoCopy} />
         <SpritesVivos />
         <Analytics />
         {/*

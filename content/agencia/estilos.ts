@@ -31,7 +31,8 @@ export interface Estilo {
   disponible: boolean;
   /**
    * El tema con el que arranca el estilo cuando la persona nunca eligió uno
-   * (no hay cookie `malejo-theme`). Sin esto, oscuro: el de siempre.
+   * dentro de ese estilo (no hay `malejo-tema-<estilo>`, tanda P3-4). Sin
+   * esto, oscuro: el de siempre.
    */
   temaDeEntrada?: "claro" | "oscuro";
   /**
@@ -72,6 +73,7 @@ export const estilos: Estilo[] = [
     categoria: "ia",
     etiquetaCategoria: "Webs, sistemas e IA",
     disponible: true,
+    temaDeEntrada: "oscuro",
     fraseHero: "Así se ve un asistente con IA",
   },
   {

@@ -19,9 +19,14 @@ export interface DatosDibujo {
   ancho: number;
   alto: number;
   aire: number;
+  /**
+   * Tanda P3-4: la cara, un cuadrado [x0, y0, x1, y1] en el lienzo recortado
+   * (puede salirse del lienzo: lo de afuera es aire transparente).
+   */
+  cara: [number, number, number, number];
 }
 
-export const SPRITES = datos as Record<Dibujo, DatosDibujo & { animaciones: Record<Animacion, { total: number }> }>;
+export const SPRITES = datos as unknown as Record<Dibujo, DatosDibujo & { animaciones: Record<Animacion, { total: number }> }>;
 export const DIBUJOS_SPRITE = Object.keys(SPRITES) as Dibujo[];
 
 /** Tamaño en pantalla de un dibujo para que el personaje mida `alto` px (de la cabeza a los pies). */
@@ -29,6 +34,24 @@ export function medida(dibujo: Dibujo, alto: number): { w: number; h: number } {
   const d = SPRITES[dibujo];
   const s = alto / (d.alto - d.aire);
   return { w: Math.round(d.ancho * s), h: Math.round(d.alto * s) };
+}
+
+/**
+ * Tanda P3-4 · cómo escalar y correr un dibujo para que su `cara` llene un
+ * contenedor de `ancho` × `alto` px (cubriendo el lado mayor y centrada).
+ * Devuelve el tamaño del lienzo en pantalla y dónde va su esquina.
+ */
+export function medidaCara(dibujo: Dibujo, ancho: number, alto: number = ancho): { w: number; h: number; x: number; y: number } {
+  const d = SPRITES[dibujo];
+  const [x0, y0, x1] = d.cara;
+  const lado = x1 - x0;
+  const s = Math.max(ancho, alto) / lado;
+  return {
+    w: Math.round(d.ancho * s),
+    h: Math.round(d.alto * s),
+    x: Math.round((ancho - lado * s) / 2 - x0 * s),
+    y: Math.round((alto - lado * s) / 2 - y0 * s),
+  };
 }
 
 export function srcPose(dibujo: Dibujo, pose: Pose): string {

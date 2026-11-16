@@ -4,7 +4,7 @@ import { waLink } from "@/lib/agencia/config";
 import { estiloCopy } from "@/content/agencia/estilos";
 import { Check } from "../../../icons";
 import { MalejoMark } from "../../../MalejoMark";
-import { Sprite } from "../../../Sprite";
+import { CaraMalejo } from "../../../CaraMalejo";
 import { AbrirChat } from "../../../client/AbrirChat";
 import { Typewriter } from "../../../client/Typewriter";
 
@@ -45,8 +45,9 @@ export function HeroTech() {
         <p className="relative m-0 text-[15px] leading-[1.5] text-muted sm:hidden">{hero.leadCorto}</p>
         <p className="relative m-0 hidden max-w-[30em] text-[19px] leading-[1.55] text-muted sm:block">{hero.lead}</p>
         <div className="relative flex items-center gap-3">
-          <span className="relative inline-flex h-16 w-14 flex-none items-start justify-center overflow-hidden rounded-18 border border-border bg-ic-bg pt-1">
-            <Sprite alto={123} alt={estiloCopy.alt.normal} saludoAlEntrar />
+          {/* Tanda P3-4: la cara (CaraMalejo) en lugar del cuerpo entero recortado arriba; sigue saludando. */}
+          <span className="relative inline-flex h-16 w-14 flex-none overflow-hidden rounded-18 border border-border bg-ic-bg">
+            <CaraMalejo tamano={54} alto={62} pose="normal" animaciones={["saludo"]} alt={estiloCopy.alt.normal} saludoAlEntrar />
           </span>
           <span className="flex min-w-0 flex-col leading-tight">
             <strong className="text-[15px]">{hero.quien.nombre}</strong>
@@ -54,10 +55,10 @@ export function HeroTech() {
           </span>
         </div>
         <div className="relative flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-          <AbrirChat href={wa} className="btn btn-p w-full sm:w-auto">
+          <AbrirChat href={wa} className="btn btn-p w-full sm:w-auto" recorrido="malejo" prioridad={3}>
             {hero.primary}
           </AbrirChat>
-          <Link href={hero.secondary.href} className="btn btn-s w-full sm:w-auto">
+          <Link href={hero.secondary.href} data-recorrido="kit" data-recorrido-prioridad={2} className="btn btn-s w-full sm:w-auto">
             {hero.secondary.label}
           </Link>
         </div>

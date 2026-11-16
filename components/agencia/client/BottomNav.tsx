@@ -8,7 +8,7 @@ import type { site } from "@/content/agencia/site";
 import { abrirChat } from "@/lib/agencia/abrir-chat";
 import { agendaLink } from "@/lib/agencia/config";
 import { Icon } from "../icons";
-import { Sprite } from "../Sprite";
+import { CaraMalejo } from "../CaraMalejo";
 import { Hoja } from "./Hoja";
 
 /**
@@ -45,7 +45,7 @@ export function BottomNav({ copy, whatsapp }: { copy: Copy; whatsapp: string }) 
             </Link>
           </li>
           <li className="flex flex-1">
-            <Link href={copy.soluciones.href} aria-current={activo === "soluciones" ? "page" : undefined} className={item}>
+            <Link href={copy.soluciones.href} aria-current={activo === "soluciones" ? "page" : undefined} className={item} data-recorrido="kit" data-recorrido-prioridad={1}>
               <Icon name="grid" size={22} />
               {copy.soluciones.label}
             </Link>
@@ -54,6 +54,8 @@ export function BottomNav({ copy, whatsapp }: { copy: Copy; whatsapp: string }) 
             <button
               type="button"
               data-malejo-abrir
+              data-recorrido="malejo"
+              data-recorrido-prioridad={1}
               aria-label={copy.malejo.aria}
               onClick={() => {
                 const abierto = abrirChat({});
@@ -62,9 +64,9 @@ export function BottomNav({ copy, whatsapp }: { copy: Copy; whatsapp: string }) 
               }}
               className="-mt-4 flex min-w-0 flex-col items-center gap-0.5 text-[11px] font-semibold text-text"
             >
-              {/* Tanda P3-1: la cabeza del dibujo activo, sobre el color del botón de Malejo del estilo. */}
-              <span className="inline-flex h-14 w-14 items-start justify-center overflow-hidden rounded-full border-4 border-bg bg-malejo-btn pt-1 text-malejo-btn-ink shadow-btn">
-                <Sprite pose="ok" alto={104} alt="" />
+              {/* La cara del dibujo activo (P3-4: CaraMalejo), sobre el color del botón de Malejo del estilo. */}
+              <span className="inline-flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-4 border-bg bg-malejo-btn text-malejo-btn-ink shadow-btn">
+                <CaraMalejo tamano={48} forma="circulo" />
               </span>
               {copy.malejo.label}
             </button>

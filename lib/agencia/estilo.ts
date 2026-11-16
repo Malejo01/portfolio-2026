@@ -12,12 +12,19 @@
  * - `malejo-dibujo`: el dibujo que la persona eligió a mano. Si existe, manda.
  * - `malejo-dibujo-bolsa`: `{ actual, resto }`, el shuffle bag. Cada cambio
  *   de estilo saca el siguiente dibujo; solo corre si la persona nunca eligió.
+ * - `malejo-tema-<estilo>` (tanda P3-4): el tema que la persona eligió
+ *   **dentro de ese estilo** (`"dark"` | `"light"`). Sin clave, el tema de
+ *   entrada del estilo; una clave de otro estilo no cuenta. La cookie vieja
+ *   `malejo-theme` se migra una vez a `malejo-tema-tech` y se borra.
  */
 import { AGENCIA_THEME_COOKIE } from "./theme";
 
 export const ESTILO_KEY = "malejo-estilo";
 export const DIBUJO_KEY = "malejo-dibujo";
 export const BOLSA_KEY = "malejo-dibujo-bolsa";
+/** Tanda P3-4: el tema de cada estilo. `temaKey("aula")` → `malejo-tema-aula`. */
+export const TEMA_PREFIJO = "malejo-tema-";
+export const temaKey = (estilo: string) => TEMA_PREFIJO + estilo;
 /** Avisa a las islas que cambió el estilo o el dibujo (además del MutationObserver). */
 export const ESTILO_EVENT = "malejo:estilo";
 
@@ -36,7 +43,35 @@ export interface ConfigArranque {
    * Solo se agrega la del estilo activo, así Tech no paga por los demás.
    */
   css: Record<string, string>;
+  /** La cookie vieja del tema (`malejo-theme`): solo para migrarla a Tech. */
   cookie: string;
+}
+
+export type Tema = "dark" | "light";
+
+/**
+ * Tanda P3-4 · el tema con el que se ve un estilo. Pura, sin nada de afuera:
+ * la usa el script inline (se serializa con `toString()` junto a `arrancar`),
+ * el respaldo del 404, el selector y los tests.
+ *
+ * - Si el estilo tiene su clave (`malejo-tema-<estilo>`), vale esa.
+ * - Si no, y es Tech y hay cookie vieja (`malejo-theme`), vale la cookie y se
+ *   pide migrarla (`migrar: true`: guardar la clave de Tech y borrar la cookie).
+ * - Si no, el tema de entrada del estilo (`entrada[estilo]`: "dark", "light"
+ *   o "" = oscuro, el de siempre del sitio).
+ *
+ * Una clave de otro estilo no cuenta, y la cookie vieja solo cuenta para Tech.
+ */
+export function resolverTema(
+  estilo: string,
+  guardado: string | null,
+  cookieVieja: string | null,
+  entrada: Record<string, string>,
+  original: string,
+): { tema: Tema; migrar: boolean } {
+  if (guardado === "dark" || guardado === "light") return { tema: guardado, migrar: false };
+  if (estilo === original && (cookieVieja === "dark" || cookieVieja === "light")) return { tema: cookieVieja, migrar: true };
+  return { tema: entrada[estilo] === "light" ? "light" : "dark", migrar: false };
 }
 
 /**
@@ -44,7 +79,7 @@ export interface ConfigArranque {
  * llama en el respaldo del 404 (`components/agencia/client/theme.ts`): por
  * eso no usa nada de afuera (ni imports, ni spread, ni helpers).
  */
-export function arrancar(c: ConfigArranque, enHead = true) {
+export function arrancar(c: ConfigArranque, enHead = true, resolver: typeof resolverTema = resolverTema) {
   const d = document.documentElement;
   d.classList.add("js");
   let ls: Storage | null = null;
@@ -75,8 +110,16 @@ export function arrancar(c: ConfigArranque, enHead = true) {
       document.head.appendChild(l);
     }
   }
+  // El tema de este estilo (P3-4): su clave, la cookie vieja si es Tech, o su tema de entrada.
   const m = document.cookie.match(new RegExp("(?:^|; )" + c.cookie + "=(dark|light)"));
-  const dark = m ? m[1] === "dark" : c.estilos[est] !== "light";
+  const t = resolver(est, leer("malejo-tema-" + est), m ? m[1] : null, c.estilos, c.original);
+  if (t.migrar) {
+    try {
+      if (ls) ls.setItem("malejo-tema-" + est, t.tema);
+      document.cookie = c.cookie + "=; path=/; max-age=0; samesite=lax";
+    } catch {}
+  }
+  const dark = t.tema === "dark";
   d.classList.toggle("dark", dark);
   d.style.colorScheme = dark ? "dark" : "light";
   let dib = leer("malejo-dibujo");
@@ -108,9 +151,9 @@ export function configArranque(
   return { estilos: mapa, original, dibujos: DIBUJOS, dibujoOriginal, dibujoPor, css, cookie: AGENCIA_THEME_COOKIE };
 }
 
-/** El `<script>` del `<head>`: la función y su configuración, sin nada más. */
+/** El `<script>` del `<head>`: la función, su configuración y el resolvedor del tema, sin nada más. */
 export function scriptDeArranque(c: ConfigArranque): string {
-  return `(${arrancar.toString()})(${JSON.stringify(c).replace(/</g, "\\u003c")});`;
+  return `(${arrancar.toString()})(${JSON.stringify(c).replace(/</g, "\\u003c")}, true, ${resolverTema.toString()});`;
 }
 
 /* ─── Desde las islas ─────────────────────────────────────────────── */
@@ -175,11 +218,12 @@ export function siguienteDeBolsa(actual: string, azar: () => number = Math.rando
 }
 
 /**
- * Cambia el estilo: lo guarda, pone `data-estilo` y, si la persona nunca
- * eligió tema, el tema de entrada del estilo. Si nunca eligió dibujo, saca
- * el siguiente de la bolsa. Todo en una sola View Transition.
+ * Cambia el estilo: lo guarda, pone `data-estilo` y el tema **de ese estilo**
+ * (el que la persona eligió ahí o, si no, su tema de entrada; P3-4). Si nunca
+ * eligió dibujo, el del estilo o el siguiente de la bolsa. Todo en una sola
+ * View Transition.
  */
-export async function elegirEstilo(id: string, temaDeEntrada: "light" | "dark" | "", cookie: string, dibujoPorDefecto?: string, fuentes: string[] = [], css?: string) {
+export async function elegirEstilo(id: string, temaDeEntrada: "light" | "dark" | "", dibujoPorDefecto?: string, fuentes: string[] = [], css?: string) {
   const d = document.documentElement;
   if (id === estiloActual()) return;
   // La hoja del estilo (P3-3), antes que nada: sin ella el estilo se pintaría con los tokens de Tech.
@@ -199,14 +243,13 @@ export async function elegirEstilo(id: string, temaDeEntrada: "light" | "dark" |
     dib = bolsa.actual;
   }
   guardar(ESTILO_KEY, id);
-  const sinTema = !new RegExp(`(?:^|; )${cookie}=(dark|light)`).test(document.cookie);
+  // La cookie vieja ya se migró al arrancar: acá no cuenta (y solo valía para Tech).
+  const { tema } = resolverTema(id, leer(temaKey(id)), null, { [id]: temaDeEntrada }, "");
   conTransicion(() => {
     d.setAttribute("data-estilo", id);
-    if (sinTema) {
-      const dark = temaDeEntrada !== "light";
-      d.classList.toggle("dark", dark);
-      d.style.colorScheme = dark ? "dark" : "light";
-    }
+    const dark = tema === "dark";
+    d.classList.toggle("dark", dark);
+    d.style.colorScheme = dark ? "dark" : "light";
     if (dib) d.setAttribute("data-dibujo", dib);
     avisar();
   });

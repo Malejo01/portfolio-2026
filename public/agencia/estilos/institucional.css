@@ -88,6 +88,7 @@
   --hoja-alto: 64dvh;
   /* El panel del selector y la hoja del chat: las únicas sombras. */
   --sombra-panel: 0 24px 60px rgba(16, 42, 58, 0.18);
+  --recorrido-velo: rgba(16, 42, 58, 0.55);
 }
 
 /* Las familias, en `body` (ver la nota en `agencia.css`). */
@@ -148,6 +149,7 @@
   --malejo-btn: #b4532a;
   --malejo-btn-ink: #ffffff;
   --sombra-panel: 0 24px 60px rgba(0, 0, 0, 0.5);
+  --recorrido-velo: rgba(0, 0, 0, 0.7);
 }
 
 /* ── Institucional: composición que no es un color ───────────────── */

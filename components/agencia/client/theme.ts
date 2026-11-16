@@ -1,14 +1,18 @@
 import { useCallback, useLayoutEffect, useSyncExternalStore } from "react";
-import { AGENCIA_THEME_COOKIE } from "@/lib/agencia/theme";
 import { DIBUJO_ORIGINAL, ESTILO_ORIGINAL, estilos } from "@/content/agencia/estilos";
-import { arrancar, configArranque } from "@/lib/agencia/estilo";
+import { arrancar, configArranque, estiloActual, temaKey } from "@/lib/agencia/estilo";
 
 /**
  * Tema de la agencia. La fuente de verdad es la clase `dark` en `<html>`,
  * escrita por el script inline del layout (`app/(agencia)/layout.tsx`)
  * antes del primer paint. Acá solo se lee (con `useSyncExternalStore`) y se
- * alterna. Cookie propia, `malejo-theme`: el tema de la agencia y el del
- * portfolio son independientes.
+ * alterna.
+ *
+ * Tanda P3-4: el tema es **por estilo**. El toggle guarda en `localStorage`
+ * la clave del estilo activo (`malejo-tema-<estilo>`), así cambiar el tema en
+ * Institucional no toca a Tech. La cookie vieja (`malejo-theme`) ya no se
+ * escribe: el arranque la migra una vez a Tech y la borra. La del portfolio
+ * es otra (`theme`) y no se toca.
  */
 
 export type AgenciaTheme = "dark" | "light";
@@ -52,7 +56,11 @@ export function useAgenciaTheme() {
   const toggle = useCallback(() => {
     const next: AgenciaTheme = getSnapshot() === "dark" ? "light" : "dark";
     apply(next);
-    document.cookie = `${AGENCIA_THEME_COOKIE}=${next}; path=/; max-age=31536000; samesite=lax`;
+    try {
+      window.localStorage.setItem(temaKey(estiloActual()), next);
+    } catch {
+      // Modo privado: el cambio vale para esta vista.
+    }
   }, []);
 
   return { theme, toggle };

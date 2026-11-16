@@ -55,10 +55,10 @@ export function HeroTech() {
           </span>
         </div>
         <div className="relative flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-          <AbrirChat href={wa} className="btn btn-p w-full sm:w-auto">
+          <AbrirChat href={wa} className="btn btn-p w-full sm:w-auto" recorrido="malejo" prioridad={3}>
             {hero.primary}
           </AbrirChat>
-          <Link href={hero.secondary.href} className="btn btn-s w-full sm:w-auto">
+          <Link href={hero.secondary.href} data-recorrido="kit" data-recorrido-prioridad={2} className="btn btn-s w-full sm:w-auto">
             {hero.secondary.label}
           </Link>
         </div>

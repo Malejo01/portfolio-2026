@@ -84,6 +84,7 @@
   --malejo-btn-ink: #ffffff;
   --resaltador: #ffe58a;
   --sombra-panel: 0 24px 60px rgba(31, 42, 36, 0.18);
+  --recorrido-velo: rgba(31, 42, 36, 0.55);
 }
 
 [data-estilo="aula"] body {
@@ -148,6 +149,7 @@
   --pie-acc: #f6d365;
   --resaltador: rgba(246, 211, 101, 0.25);
   --sombra-panel: 0 24px 60px rgba(0, 0, 0, 0.45);
+  --recorrido-velo: rgba(0, 0, 0, 0.7);
 }
 /* La textura del pizarrón: dos manchas blancas muy suaves. */
 [data-estilo="aula"].dark body {

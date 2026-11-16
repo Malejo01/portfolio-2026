@@ -3,6 +3,7 @@
 /* eslint-disable @next/next/no-img-element -- pixel art chico, sin optimizar a propósito */
 import { track } from "@vercel/analytics";
 import { useEffect, useId, useRef, useState } from "react";
+import { ComoUsar } from "./ComoUsar";
 import type { selectorCopy as SelectorCopy } from "@/content/agencia/estilos";
 import { dibujoSiguiente, elegirDibujo, elegirEstilo } from "@/lib/agencia/estilo";
 import { Icon } from "../icons";
@@ -49,8 +50,11 @@ export function EstiloSelector({
   fuentesPor,
   cssPor,
   personajes,
+  comoUsar,
 }: {
   copy: typeof SelectorCopy;
+  /** P3-4: "¿Cómo uso la página?", al final del panel. */
+  comoUsar: string;
   estilos: EstiloLigero[];
   /** id → tema de entrada ("light" | "dark" | ""), de `configArranque`. */
   temas: Record<string, string>;
@@ -107,6 +111,7 @@ export function EstiloSelector({
         type="button"
         aria-label={copy.abrir}
         aria-haspopup="dialog"
+        data-recorrido="estilos"
         onClick={() => setAbierto(true)}
         className="js-only ibtn text-tono-2 min-[760px]:hidden"
       >
@@ -117,6 +122,7 @@ export function EstiloSelector({
         type="button"
         aria-haspopup="dialog"
         aria-label={copy.abrir}
+        data-recorrido="estilos"
         onClick={() => setAbierto(true)}
         className="estilos-pestana js-only hidden min-[760px]:flex"
       >
@@ -211,6 +217,10 @@ export function EstiloSelector({
             >
               {copy.original}
             </button>
+          </div>
+
+          <div className="border-t border-border pt-3">
+            <ComoUsar label={comoUsar} className="lnk min-h-11 underline underline-offset-4" alAbrir={() => setAbierto(false)} />
           </div>
         </div>
       </dialog>

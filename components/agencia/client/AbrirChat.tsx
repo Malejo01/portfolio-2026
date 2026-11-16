@@ -18,6 +18,8 @@ export function AbrirChat({
   className,
   children,
   ariaLabel,
+  recorrido,
+  prioridad,
 }: {
   /** Respaldo: WhatsApp con el texto genérico (`waLink(WHATSAPP_TEXTO)`). */
   href: string;
@@ -25,6 +27,9 @@ export function AbrirChat({
   className?: string;
   children: React.ReactNode;
   ariaLabel?: string;
+  /** Tanda P3-4: objetivo del recorrido de bienvenida (`data-recorrido`) y su prioridad. */
+  recorrido?: string;
+  prioridad?: number;
 }) {
   return (
     <a
@@ -33,6 +38,8 @@ export function AbrirChat({
       rel="noopener"
       className={className}
       aria-label={ariaLabel}
+      data-recorrido={recorrido}
+      data-recorrido-prioridad={prioridad}
       onClick={(e) => {
         if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
         // Embudo: qué botón trae a la gente al chat (o a WhatsApp, si el chat no está).

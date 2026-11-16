@@ -22,6 +22,7 @@ import { dibujoSiguiente, elegirDibujo } from "@/lib/agencia/estilo";
 import { reproducir } from "@/lib/agencia/sprite-anim";
 import { Sprite } from "../Sprite";
 import { CaraMalejo } from "../CaraMalejo";
+import { CHAT_ABIERTO_EVENT } from "@/lib/agencia/recorrido";
 import { vibrar } from "./AgregarBoton";
 import { useTurnstile } from "./turnstile";
 import { useArmado } from "./useArmado";
@@ -211,6 +212,8 @@ export default function MalejoWidget({
   const spriteFlotante = useRef<HTMLSpanElement>(null);
   useEffect(() => {
     if (!open) return;
+    // Tanda P3-4: si el chat se abre antes de que salga el recorrido de bienvenida, ya no sale.
+    window.dispatchEvent(new CustomEvent(CHAT_ABIERTO_EVENT));
     const raf = requestAnimationFrame(() => {
       void reproducir(spriteFlotante.current?.querySelector("[data-sprite]"), "saludo");
     });

@@ -83,6 +83,7 @@
   --toldo-2: #fbf4e8;
   --barra-tienda: #1f6f4a;
   --sombra-panel: 0 24px 60px rgba(43, 33, 24, 0.2);
+  --recorrido-velo: rgba(43, 33, 24, 0.55);
 }
 
 [data-estilo="tienda"] body {
@@ -143,6 +144,7 @@
   --toldo-2: #282019;
   --barra-tienda: #1f6f4a;
   --sombra-panel: 0 24px 60px rgba(0, 0, 0, 0.5);
+  --recorrido-velo: rgba(0, 0, 0, 0.7);
 }
 
 /* ── Tienda: composición que no es un color ───────────────────────── */

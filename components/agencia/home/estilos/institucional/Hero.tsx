@@ -59,10 +59,10 @@ export function HeroInstitucional() {
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <AbrirChat href={wa} className="btn btn-p w-full text-[16px] sm:w-auto">
+            <AbrirChat href={wa} className="btn btn-p w-full text-[16px] sm:w-auto" recorrido="malejo" prioridad={3}>
               {c.primary}
             </AbrirChat>
-            <Link href={hero.secondary.href} className="btn btn-s w-full text-[16px] sm:w-auto">
+            <Link href={hero.secondary.href} data-recorrido="kit" data-recorrido-prioridad={2} className="btn btn-s w-full text-[16px] sm:w-auto">
               {c.secondary}
             </Link>
           </div>

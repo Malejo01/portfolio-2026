@@ -135,6 +135,8 @@
   --hoja-alto: max(55dvh, 432px);
   /* Sombra del panel del selector de estilos y de la hoja del chat. */
   --sombra-panel: var(--shadow-h);
+  /* P3-4: el velo del recorrido de bienvenida (alrededor del hueco). */
+  --recorrido-velo: rgba(10, 11, 15, 0.55);
 
   color-scheme: light;
 }
@@ -164,6 +166,7 @@
   --hi-s: 0 24px 56px rgba(255, 90, 31, 0.16), 0 18px 40px rgba(0, 0, 0, 0.5);
   --mock-bg: radial-gradient(120% 90% at 80% 0%, #1e1410 0%, #0e1014 60%);
   --nav-bg: rgba(10, 11, 15, 0.72);
+  --recorrido-velo: rgba(0, 0, 0, 0.7);
 
   color-scheme: dark;
 }
@@ -1028,6 +1031,32 @@ html.js [data-sprite][data-visible]:not([data-anim]) .tira-idle {
     border-bottom-right-radius: 0;
     max-height: 88dvh;
   }
+}
+
+/* ============================================================
+   RECORRIDO DE BIENVENIDA (tanda P3-4, client/Recorrido.tsx)
+   La capa transparente tapa toda la página (nada se toca mientras dura,
+   tampoco el objetivo); el hueco oscurece todo lo demás con una sombra
+   enorme del color `--recorrido-velo` y marca el objetivo con un borde del
+   color de acción; el globito va encima de los dos.
+   ============================================================ */
+.recorrido-capa {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+}
+.recorrido-hueco {
+  position: fixed;
+  z-index: 91;
+  pointer-events: none;
+  border: 2px solid var(--acc);
+  box-shadow: 0 0 0 200vmax var(--recorrido-velo);
+}
+.recorrido-globo {
+  position: fixed;
+  z-index: 92;
+  padding: 16px;
+  box-shadow: var(--sombra-panel);
 }
 
 /* La barra inferior del celular (BottomNav). */

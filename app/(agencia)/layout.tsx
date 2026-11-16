@@ -7,10 +7,12 @@ import { Header } from "@/components/agencia/Header";
 import { BarraEstilo } from "@/components/agencia/EstiloPiezas";
 import { BottomNav } from "@/components/agencia/client/BottomNav";
 import { MalejoLoader } from "@/components/agencia/client/MalejoLoader";
+import { RecorridoLoader } from "@/components/agencia/client/RecorridoLoader";
 import { SpritesVivos } from "@/components/agencia/client/SpritesVivos";
 import { WHATSAPP_TEXTO } from "@/content/agencia/home";
 import { waLink } from "@/lib/agencia/config";
 import { malejoCopy } from "@/content/agencia/malejo";
+import { recorridoCopy } from "@/content/agencia/recorrido";
 import { DIBUJO_ORIGINAL, ESTILO_ORIGINAL, estilos } from "@/content/agencia/estilos";
 import { configArranque, scriptDeArranque } from "@/lib/agencia/estilo";
 import { hojasDeEstilos } from "@/lib/agencia/estilos-css";
@@ -169,6 +171,7 @@ export default function AgenciaRootLayout({ children }: { children: React.ReactN
         <Footer />
         <BottomNav copy={site.bottomNav} whatsapp={waLink(WHATSAPP_TEXTO)} />
         <MalejoLoader copy={malejoCopy} turnstileSiteKey={process.env.TURNSTILE_SITE_KEY || undefined} />
+        <RecorridoLoader copy={recorridoCopy} />
         <SpritesVivos />
         <Analytics />
         {/*

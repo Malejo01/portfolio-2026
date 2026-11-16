@@ -45,7 +45,7 @@ export function BottomNav({ copy, whatsapp }: { copy: Copy; whatsapp: string }) 
             </Link>
           </li>
           <li className="flex flex-1">
-            <Link href={copy.soluciones.href} aria-current={activo === "soluciones" ? "page" : undefined} className={item}>
+            <Link href={copy.soluciones.href} aria-current={activo === "soluciones" ? "page" : undefined} className={item} data-recorrido="kit" data-recorrido-prioridad={1}>
               <Icon name="grid" size={22} />
               {copy.soluciones.label}
             </Link>
@@ -54,6 +54,8 @@ export function BottomNav({ copy, whatsapp }: { copy: Copy; whatsapp: string }) 
             <button
               type="button"
               data-malejo-abrir
+              data-recorrido="malejo"
+              data-recorrido-prioridad={1}
               aria-label={copy.malejo.aria}
               onClick={() => {
                 const abierto = abrirChat({});

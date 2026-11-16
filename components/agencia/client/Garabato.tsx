@@ -41,9 +41,15 @@ export function Garabato({
               data-reveal=""
               vectorEffect="non-scaling-stroke"
               initial={reducido ? false : { pathLength: 0 }}
-              whileInView={{ pathLength: 1 }}
+              /*
+               * `useReducedMotion()` da `null` en el primer render, así que
+               * `initial` ya montó el trazo en 0. Cuando la preferencia llega,
+               * `animate` lo completa al instante, esté o no a la vista.
+               */
+              animate={reducido ? { pathLength: 1 } : undefined}
+              whileInView={reducido ? undefined : { pathLength: 1 }}
               viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.7, delay: demora + i * 0.25, ease: "easeInOut" }}
+              transition={reducido ? { duration: 0 } : { duration: 0.7, delay: demora + i * 0.25, ease: "easeInOut" }}
             />
           ))}
         </svg>

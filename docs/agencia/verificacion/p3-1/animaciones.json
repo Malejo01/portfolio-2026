@@ -1,0 +1,421 @@
+{
+  "chibi/idle": {
+    "gif": "docs/agencia/sprites/referencia/chibi-idle.gif",
+    "secuencia_gif": [
+      [
+        0,
+        450
+      ],
+      [
+        1,
+        900
+      ],
+      [
+        0,
+        1350
+      ],
+      [
+        2,
+        110
+      ],
+      [
+        0,
+        1400
+      ]
+    ],
+    "secuencia_sitio": [
+      [
+        0,
+        450
+      ],
+      [
+        1,
+        900
+      ],
+      [
+        0,
+        1350
+      ],
+      [
+        2,
+        110
+      ],
+      [
+        0,
+        1400
+      ]
+    ],
+    "coincide": true,
+    "pixeles_distintos_por_cuadro": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "pixeles_por_cuadro": 348672
+  },
+  "16bit/saludo": {
+    "gif": "docs/agencia/sprites/malejo-animaciones/16bit/saludo-referencia.gif",
+    "secuencia_gif": [
+      [
+        0,
+        300
+      ],
+      [
+        1,
+        220
+      ],
+      [
+        2,
+        220
+      ],
+      [
+        1,
+        220
+      ],
+      [
+        2,
+        220
+      ],
+      [
+        1,
+        220
+      ],
+      [
+        0,
+        700
+      ]
+    ],
+    "secuencia_sitio": [
+      [
+        0,
+        300
+      ],
+      [
+        1,
+        220
+      ],
+      [
+        2,
+        220
+      ],
+      [
+        1,
+        220
+      ],
+      [
+        2,
+        220
+      ],
+      [
+        1,
+        220
+      ],
+      [
+        0,
+        700
+      ]
+    ],
+    "coincide": true,
+    "pixeles_distintos_por_cuadro": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "pixeles_por_cuadro": 77400
+  },
+  "16bit/festejo": {
+    "gif": "docs/agencia/sprites/malejo-animaciones/16bit/festejo-referencia.gif",
+    "secuencia_gif": [
+      [
+        0,
+        250
+      ],
+      [
+        1,
+        120
+      ],
+      [
+        2,
+        900
+      ],
+      [
+        0,
+        600
+      ]
+    ],
+    "secuencia_sitio": [
+      [
+        0,
+        250
+      ],
+      [
+        1,
+        120
+      ],
+      [
+        2,
+        900
+      ],
+      [
+        0,
+        600
+      ]
+    ],
+    "coincide": true,
+    "pixeles_distintos_por_cuadro": [
+      0,
+      375,
+      0,
+      0
+    ],
+    "pixeles_por_cuadro": 77400
+  },
+  "chibi/saludo": {
+    "gif": "docs/agencia/sprites/malejo-animaciones/chibi/saludo-referencia.gif",
+    "secuencia_gif": [
+      [
+        0,
+        300
+      ],
+      [
+        1,
+        220
+      ],
+      [
+        2,
+        220
+      ],
+      [
+        1,
+        220
+      ],
+      [
+        2,
+        220
+      ],
+      [
+        1,
+        220
+      ],
+      [
+        0,
+        700
+      ]
+    ],
+    "secuencia_sitio": [
+      [
+        0,
+        300
+      ],
+      [
+        1,
+        220
+      ],
+      [
+        2,
+        220
+      ],
+      [
+        1,
+        220
+      ],
+      [
+        2,
+        220
+      ],
+      [
+        1,
+        220
+      ],
+      [
+        0,
+        700
+      ]
+    ],
+    "coincide": true,
+    "pixeles_distintos_por_cuadro": [
+      1706,
+      2591,
+      2503,
+      2591,
+      2503,
+      2591,
+      1706
+    ],
+    "pixeles_por_cuadro": 89088
+  },
+  "chibi/festejo": {
+    "gif": "docs/agencia/sprites/malejo-animaciones/chibi/festejo-referencia.gif",
+    "secuencia_gif": [
+      [
+        0,
+        250
+      ],
+      [
+        1,
+        120
+      ],
+      [
+        2,
+        900
+      ],
+      [
+        0,
+        600
+      ]
+    ],
+    "secuencia_sitio": [
+      [
+        0,
+        250
+      ],
+      [
+        1,
+        120
+      ],
+      [
+        2,
+        900
+      ],
+      [
+        0,
+        600
+      ]
+    ],
+    "coincide": true,
+    "pixeles_distintos_por_cuadro": [
+      1706,
+      2381,
+      2381,
+      1706
+    ],
+    "pixeles_por_cuadro": 89088
+  },
+  "anime/saludo": {
+    "gif": "docs/agencia/sprites/malejo-animaciones/anime/saludo-referencia.gif",
+    "secuencia_gif": [
+      [
+        0,
+        300
+      ],
+      [
+        1,
+        220
+      ],
+      [
+        2,
+        220
+      ],
+      [
+        1,
+        220
+      ],
+      [
+        2,
+        220
+      ],
+      [
+        1,
+        220
+      ],
+      [
+        0,
+        700
+      ]
+    ],
+    "secuencia_sitio": [
+      [
+        0,
+        300
+      ],
+      [
+        1,
+        220
+      ],
+      [
+        2,
+        220
+      ],
+      [
+        1,
+        220
+      ],
+      [
+        2,
+        220
+      ],
+      [
+        1,
+        220
+      ],
+      [
+        0,
+        700
+      ]
+    ],
+    "coincide": true,
+    "pixeles_distintos_por_cuadro": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "pixeles_por_cuadro": 74880
+  },
+  "anime/festejo": {
+    "gif": "docs/agencia/sprites/malejo-animaciones/anime/festejo-referencia.gif",
+    "secuencia_gif": [
+      [
+        0,
+        250
+      ],
+      [
+        1,
+        120
+      ],
+      [
+        2,
+        900
+      ],
+      [
+        0,
+        600
+      ]
+    ],
+    "secuencia_sitio": [
+      [
+        0,
+        250
+      ],
+      [
+        1,
+        120
+      ],
+      [
+        2,
+        900
+      ],
+      [
+        0,
+        600
+      ]
+    ],
+    "coincide": true,
+    "pixeles_distintos_por_cuadro": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "pixeles_por_cuadro": 74880
+  }
+}

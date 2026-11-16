@@ -329,6 +329,15 @@ html[data-dibujo="anime"] [data-solo-dibujo]:not([data-solo-dibujo="anime"]) {
   border-bottom: 4px solid var(--tono-2);
 }
 
+/* "¿Qué necesitás?" sobre la banda de sección a lo ancho (F-home-claro). */
+[data-estilo="institucional"] #soluciones {
+  background: var(--surf-2);
+  box-shadow: 0 0 0 100vmax var(--surf-2);
+  clip-path: inset(0 -100vmax);
+  padding-bottom: 56px;
+  margin-bottom: 0;
+}
+
 /* Etiquetas: gris con la raya terracota a la izquierda (la del hero). */
 .lbl-raya {
   border-left: 3px solid var(--tono-2);
@@ -372,6 +381,10 @@ html[data-dibujo="anime"] [data-solo-dibujo]:not([data-solo-dibujo="anime"]) {
 }
 [data-estilo="institucional"] .barra-armado > button :where(span, strong, svg) {
   color: inherit;
+}
+[data-estilo="institucional"] .barra-armado > button > span:last-child {
+  background: rgb(255 255 255 / 0.16);
+  border-color: transparent;
 }
 /* Malejo: la bienvenida con borde petróleo y las opciones con su color. */
 [data-estilo="institucional"] .burbuja-malejo {

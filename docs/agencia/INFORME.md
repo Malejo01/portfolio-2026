@@ -830,3 +830,60 @@ Re-corrida de control después del arreglo (`evals/2026-11-16T0201.md`, B, AQ, A
 
 ## Capturas
 `verificacion/p2-1/`: `/soluciones` a 1280 y 2560 px en "Proyectos a medida" y con la pestaña Malejo abierta, y la hoja del kit a 390 px.
+
+# Tanda P3-1 · Sistema de estilos, estilo Institucional y el personaje en 3 dibujos
+
+Rama `p3-1-estilos` desde `main` (`f4aa244`), PR contra `main`. `npm run lint`, `npm test` (235, con el test de contraste nuevo) y `npm run build` en verde, con las mismas rutas `○`/`●` que en P2. `verificacion/p3-1/verificar.js`: **todo en orden**. `verificacion/p3-1/animaciones.py`: las 7 animaciones coinciden con sus GIF.
+
+## Qué se hizo
+1. **Sistema de estilos.** `content/agencia/estilos.ts` es la fuente única: Tech/IA (representa `ia`) e Institucional (`webs`) disponibles; Aula virtual y Tienda declaradas con `disponible: false` ("Próximamente"). El script inline del layout (`lib/agencia/estilo.ts → arrancar`) pone `data-estilo` y `data-dibujo` en `<html>` antes del primer pintado desde `localStorage`; sin nada guardado, **siempre Tech/IA y 16-bit**. Sin JS no hay atributo y vale el CSS de base. El respaldo del 404 llama a la misma función. Ningún Server Component lee nada: las rutas siguen `○`.
+2. **Tokens por estilo.** `app/(agencia)/estilos.css` redefine los mismos tokens de `agencia.css` por `[data-estilo]` en claro y oscuro. Para que Institucional pudiera cambiar la forma sin tocar componentes, `agencia.css` pasó a tokens lo que estaba fijo: radios (`--r-card`, `--r-btn`… y `--r-max`, el tope de todas las utilidades `rounded-*`, que se renombraron a una escala con nombre: `rounded-14`, `rounded-22`…), la fuente, el peso y el color de los titulares, la fuente de etiquetas y botones, el borde del botón secundario, los 3 tonos, la franja, el pie, el isotipo y el botón de Malejo. **Tech queda igual** (verificado con capturas contra `main`).
+3. **Institucional.** Source Serif 4 (variable, `preload: false`) en titulares y precios, Inter en el resto, radios de 4 px, bordes de 1 px, sin sombras salvo el panel del selector y la hoja del chat, la franja de 3 colores arriba y en el pie, la barra superior oscura, el menú a lo ancho con la "M" en un cuadrado, las tarjetas de categoría con borde superior de su tono, "Cómo trabajo" sobre los tintes, el pie oscuro. En Soluciones: categoría activa con borde izquierdo petróleo, contadores y "Recomendado" en terracota, la barra del kit en petróleo; en el chat, la bienvenida con borde petróleo y las 6 opciones con borde de su color; la hoja de Malejo al 64 %. Arranca en **claro** si la persona nunca eligió tema (`temaDeEntrada`).
+4. **Selector** (`EstiloSelector`): pestaña vertical "Estilos" en el borde derecho desde 760 px y la paleta al lado del logo en el celular. Panel "Mirá la web en otro estilo" (`<dialog>`; hoja abajo en el celular) con las 4 miniaturas, la fila Personaje, "Sorprendeme" y "Volver al original". Cambia con `startViewTransition()` (sin transición con movimiento reducido). Analytics `estilo_cambiado { id }` y `personaje_cambiado { dibujo }`.
+5. **Selector rápido de personaje:** el grupo "Personaje: Pixel · Chibi · Anime" debajo del ejemplo del hero (escritorio), el botón de flechas al lado de "Soy Mauro" (celular) y el avatar del encabezado del chat. Un dibujo elegido a mano manda: el shuffle bag solo corre si nunca se eligió.
+6. **Heroes por estilo** (`components/agencia/home/estilos/<id>/Hero.tsx`): Tech es el de siempre; Institucional, la composición aprobada con la «Cooperativa del Valle» en una ventana de navegador (HTML y CSS, `aria-hidden`) y "Así se vería tu web institucional →" a `/soluciones?cat=webs`. Los dos conservan el H1, los 2 botones y los chips arriba del pliegue en el celular.
+7. **El personaje en 3 dibujos.** `scripts/sprites/limpiar.py` verifica (lienzo, alfa binaria, ≤ 24 colores, pies alineados) y recorta el margen común sin reescalar; `animar.py` arma las tiras `idle` (respira 1 bloque y parpadea, por código), `saludo` y `festejo`, escribe `sprites.json` y genera las `@keyframes` (`sprites-animaciones.css`). Los PNG van con paleta exacta (sin cuantizar): pesan entre 2 y 50 kB. `npm run sprites` corre los dos. `<Sprite pose alto alt />` renderiza los 3 dibujos con el mismo alto de personaje y el CSS muestra el de `data-dibujo`. El idle corre solo a la vista (`SpritesVivos`, una sola isla) y nunca con movimiento reducido. El saludo sale al abrir el chat y la primera vez que se ve el hero en la sesión; el festejo, en la pantalla de éxito del kit. Poses por contexto: en espera `normal` (idle), escribiendo `pensando`, con tarjeta o en el éxito `ok`. Se borraron `malejo-saludo.png`, `.sprite-saludo`, `SpriteVivo` y los 3 PNG viejos (pasaron a `16bit/`).
+
+## Verificación
+- **Recorrido** (Tech e Institucional × claro/oscuro × 390 y 1280 px, en la home, `/soluciones`, `/servicios/webs`, `/demo`, el 404 y la home con el chat abierto; 48 combinaciones): sin overflow horizontal y **sin texto bajo AA** contra el fondo efectivo (el medidor se probó con un texto gris de 1,9:1 y lo detecta).
+- **Primera pantalla del celular:** a 390 × 844 y 360 × 740, los 2 botones y los chips quedan arriba de la barra inferior en los dos estilos.
+- **El personaje mide lo mismo** en los 3 dibujos: 176, 123 y 120 px de la cabeza a los pies en el hero de Institucional, el equipo y el flotante, iguales en 16-bit, chibi y anime (`dibujos-y-poses.png`).
+- **Sin JS:** Tech/IA, 16-bit, el hero de Tech, sin la pestaña de estilos ni overflow.
+- **Persistencia:** primera visita Tech + 16-bit + oscuro; elegir Institucional lo pone en claro y saca otro dibujo de la bolsa; recargar lo mantiene; elegir Anime en el selector rápido y volver a Tech mantiene Anime.
+- **Animaciones** (`animaciones.json`): el idle del chibi coincide píxel a píxel con `chibi-idle.gif` (solo difiere la cuantización del GIF) y en tiempos; saludo y festejo de los 3 dibujos, en cuadros y tiempos. En el chibi, saludo y festejo muestran ~2 % de píxeles distintos porque el GIF de referencia está a la mitad del tamaño y el recorte arranca en un píxel impar; el cuadro que gana es el mismo. El saludo del chat se ve ~2 s y no se repite; con movimiento reducido no hay idle ni saludo.
+- **Contraste de tokens:** `lib/agencia/estilos.test.ts` (Tech e Institucional, claro y oscuro).
+
+## Rendimiento (Lighthouse 12.6 móvil, build de producción local, `main` construida al lado)
+Criterio acordado con Mauro: TBT ≤ 250 ms y CLS ≤ 0,05 obligatorios; el LCP no puede empeorar más de un 10 % frente a `main` en la misma máquina (en este contenedor el LCP de `main` ya da 4,3 s; el número absoluto se mide con PageSpeed Insights en el preview). Institucional se mide con un perfil que ya tiene el estilo guardado.
+
+| Página | Corridas | LCP (mediana) | TBT (mediana) | CLS |
+|---|---|---|---|---|
+| `/` `main` | 6 | 4,33 s | 243 ms | 0 |
+| `/` Tech | 3 | 4,32 s (0 %) | 233 ms | 0–0,008 |
+| `/` Institucional | 3 | 3,93 s | 79 ms | 0 |
+| `/soluciones` `main` | 4 | 3,31 s | 301 ms | 0 |
+| `/soluciones` Tech | 3 | 2,88 s | 210 ms | 0 |
+| `/soluciones` Institucional | 3 | 3,38 s (+2 %) | 240 ms | 0 |
+
+- **Cumple** en las dos páginas y los dos estilos: TBT ≤ 250 ms y CLS ≤ 0,05 de mediana, y el LCP no empeora más de un 2 % frente a `main` (el de `main` en este contenedor ya es 4,3 s en la home; el número absoluto hay que mirarlo en PageSpeed Insights).
+- **CLS:** la primera medición de Institucional dio **0,054** por el cambio de fuente del H1 (Source Serif sin precarga, y un respaldo sin métricas ajustadas porque Linux y Android no tienen Times New Roman). Se resolvió con `display: "optional"`. En una primera visita lenta, esa vista puede quedar con la serif del sistema; la siguiente ya usa Source Serif.
+- El TBT de este contenedor varía mucho entre corridas (de 105 a 309 ms en la misma página): por eso las medianas. `main` en `/soluciones` da 301 ms acá (en P2 daba 221).
+
+## Decisiones
+1. **Terracota y salvia un 5 % más oscuras para texto chico sobre su tinte** (`--tono-2-texto` y `--tono-3-texto`): con los de la ESPEC, "Ingresar →" y "Ver todas →" daban 4,3:1 y el test de contraste fallaba. Sobre blanco y en los íconos se usan los de la ESPEC tal cual.
+2. **El isotipo queda fuera del test de contraste:** los logotipos están exentos y el naranja de Tech claro sobre `--bg` ya daba 2,9:1 en P2.
+3. **El botón de Malejo de la barra inferior** muestra la cabeza del dibujo activo, como pide la tanda, sobre el color del estilo (terracota en Institucional, como la referencia). Hasta P2 tenía el isotipo, no la cabeza.
+4. **La paleta del header en el celular:** al lado del logo, como pide la tanda (la referencia la pone al lado del ☰). Para que entre a 360 px, con JS el link "Soluciones" del header se oculta debajo de 420 px: la barra inferior ya lo tiene.
+5. **El ejemplo de la Cooperativa en el celular** va debajo de los chips (la referencia del celular solo muestra la primera pantalla).
+6. **Las familias de fuente de los tokens se declaran en `body`:** las variables de `next/font` viven ahí y, declaradas en `<html>`, se resolvían vacías (Tech perdía Outfit). Quedó anotado en `CLAUDE.md`.
+7. **Las clases de las tiras se llaman `tira-*`**, no `sprite-saludo`, para que no quede ningún uso del nombre viejo.
+
+## Pendiente
+- **Anime: activado** (es uno de los 3 dibujos del selector y de la bolsa).
+- Medir con PageSpeed Insights en el preview de Vercel (ver Rendimiento).
+- Accesorios por estilo y easter eggs: tandas siguientes.
+
+## Capturas (`verificacion/p3-1/`)
+- Heroes de los 2 estilos a 390 y 1280 px, en claro y oscuro (`<ancho>-home-<estilo>-<tema>.png`), y al lado las pantallas aprobadas renderizadas (`ref-F-*.png`); `lado-a-lado-*.png` las junta.
+- `/soluciones` en Institucional a 1280 px y a 390 px con Malejo abierto; el selector a 1280 px; la home sin JS.
+- `dibujos-y-poses.png`: los 3 dibujos × 3 poses, al mismo alto.

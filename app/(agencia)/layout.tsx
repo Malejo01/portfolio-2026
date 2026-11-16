@@ -58,10 +58,16 @@ const jetbrains = JetBrains_Mono({
  * Tanda P3-1: los titulares y precios del estilo Institucional. Variable
  * (mismo motivo que Outfit) y sin precarga: solo la descarga el navegador
  * cuando el estilo activo la usa, así Tech/IA no paga por ella.
+ *
+ * `display: "optional"` y no "swap": sin precarga llega tarde, y el cambio
+ * de la serif de respaldo (en Android y Linux no hay Times New Roman para
+ * el ajuste de métricas) a Source Serif movía el H1 (CLS 0,054 medido).
+ * Con "optional" no hay salto: si no llegó a tiempo, esa vista sigue con
+ * el respaldo y la próxima ya la tiene en caché.
  */
 const sourceSerif = Source_Serif_4({
   subsets: ["latin"],
-  display: "swap",
+  display: "optional",
   preload: false,
   variable: "--font-source-serif",
 });

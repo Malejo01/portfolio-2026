@@ -339,7 +339,9 @@ npm run db:migrate  # las aplica Mauro, con DATABASE_URL
   `AgregarBoton` (sin catálogo) y el hook `useArmado`, `Carrusel`
   (scroll-snap nativo), `Caminos`, `Hoja` (hoja inferior con `<dialog>`),
   `BottomNav` (barra inferior < 760 px: Inicio · Soluciones · Malejo ·
-  Contacto; reemplaza a la burbuja del chat en el celular) y `SpriteVivo`. FAQ y "Ver otras opciones" son `<details>`,
+  Contacto; reemplaza a la burbuja del chat en el celular). Desde P3-1:
+  `EstiloSelector` (con `PersonajeRapido` y `PersonajeCiclo`), el hook
+  `useEstilo` y `SpritesVivos` (una sola isla para todos los sprites). FAQ y "Ver otras opciones" son `<details>`,
   sin JS. `PlanCard`, `PlanDetalle` e `InfoPagos` son Server Components.
 - **Modales (P1):** `PlanDialog` es un `<dialog>` nativo con `showModal()`;
   el contenido llega como `children` del servidor. Sin JS, "Ver qué
@@ -360,9 +362,45 @@ npm run db:migrate  # las aplica Mauro, con DATABASE_URL
   el link sigue a WhatsApp. Malejo es la acción principal del sitio;
   WhatsApp, la secundaria; "Pedí tu demo", el paso siguiente.
 - **Tema:** cookie `malejo-theme` (independiente de la del portfolio) y, sin
-  cookie, **oscuro** — no sigue a `prefers-color-scheme`. Mismo patrón que
+  cookie, el **tema de entrada del estilo** (Institucional arranca en claro)
+  y si no, **oscuro** — no sigue a `prefers-color-scheme`. Mismo patrón que
   el portfolio: script inline en el `<head>` del layout, respaldo para el 404
   en `components/agencia/client/theme.ts`, ningún Server Component lee la cookie.
+- **Estilos de la web (P3-1).** `content/agencia/estilos.ts` es la fuente
+  única (hoy Tech/IA e Institucional; Aula y Tienda, "Próximamente"). El
+  script inline (`lib/agencia/estilo.ts → arrancar`, el mismo que llama el
+  respaldo del 404) pone `data-estilo` y `data-dibujo` en `<html>` desde
+  `localStorage` (`malejo-estilo`, `malejo-dibujo`, `malejo-dibujo-bolsa`);
+  sin nada, **Tech/IA y 16-bit**, nunca al azar. Sin JS no hay atributo y
+  vale el CSS de base (Tech). `app/(agencia)/estilos.css` redefine **los
+  mismos tokens** por `[data-estilo="x"]` y `[data-estilo="x"].dark`;
+  **ningún componente ramifica por estilo en JS**: lo distinto va como
+  token (`--r-*` radios y `--r-max` tope de `rounded-*`, `--fuente-titulo`,
+  `--titulo`, `--tono-1..3`, `--tope`, `--franja`, `--pie-*`, `--marca`,
+  `--malejo-btn`, `--hoja-alto`, `--sombra-panel`…) o como clase de
+  composición en `estilos.css` (`.header-ag`, `.pie-ag`, `.cat-tab`…).
+  Las **familias de fuente** de los tokens se declaran en `body`, no en
+  `:root`: las variables de `next/font` viven en `body` y un token en
+  `<html>` las resuelve vacías. `[data-solo-estilo="x"]` y
+  `[data-solo-dibujo="x"]` ocultan lo que no va (los heroes de
+  `components/agencia/home/estilos/<id>/Hero.tsx` se renderizan todos). El
+  contraste de los pares de tokens lo cubre `lib/agencia/estilos.test.ts`.
+  Un estilo nuevo = su fila en `estilos.ts`, su bloque en `estilos.css`, una
+  línea en las reglas `data-solo-estilo` y su hero.
+- **El personaje (P3-1).** 3 dibujos (`16bit`, `chibi`, `anime`) × 3 poses
+  (`normal`, `pensando`, `ok`) en `public/agencia/sprites/<dibujo>/`, más
+  las tiras `idle` (respira y parpadea por código), `saludo` y `festejo`.
+  Los generan `scripts/sprites/limpiar.py` y `animar.py` (`npm run sprites`)
+  desde `docs/agencia/sprites/`; la configuración a mano (bloque, fila del
+  jean, cajas de los ojos) está en `scripts/sprites/config.json` y las
+  `@keyframes` salen generadas en `app/(agencia)/sprites-animaciones.css`.
+  `<Sprite pose alto alt />` (`components/agencia/Sprite.tsx`, sin hooks:
+  sirve en el servidor y en el widget) renderiza los 3 dibujos con el mismo
+  alto de personaje, apoyados por los pies. El idle corre solo a la vista
+  (`SpritesVivos`) y nunca con movimiento reducido; saludo y festejo se
+  reproducen una vez con `reproducir()` (`lib/agencia/sprite-anim.ts`).
+  Verificá con `docs/agencia/verificacion/p3-1/verificar.js` y
+  `animaciones.py`.
 - **Rutas estáticas:** todo `○`/`●` salvo los catch-all y `/api/*`. `?plan=`
   y `?cat=` se leen en el cliente para no volver dinámicas `/demo` ni la home.
 - **404:** `app/(agencia)/[...notFound]` atrapa toda URL de la raíz sin ruta;

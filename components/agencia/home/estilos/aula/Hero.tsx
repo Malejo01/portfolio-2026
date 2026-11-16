@@ -80,12 +80,13 @@ export function HeroAula() {
           </ul>
         </div>
 
-        <div className="relative flex min-w-0 flex-col gap-3">
-          <span className="pointer-events-none absolute -left-[110px] top-[30px] hidden h-[90px] w-[150px] text-tono-2 lg:block">
-            <Garabato trazos={["M6 70 C 40 10, 100 4, 138 30", "M124 18 L140 31 L120 38"]} viewBox="0 0 150 90" ancho={3.5} className="absolute inset-0" />
-            <span aria-hidden="true" className="absolute -bottom-2 left-0 font-titulo text-[24px] leading-none">
+        <div className="relative flex min-w-0 flex-col gap-3 lg:pt-[72px]">
+          {/* La flecha "¡mirá!" baja desde arriba al ejemplo, sin cruzar el texto del hero. */}
+          <span className="garabato absolute left-0 top-0 hidden h-[68px] w-[190px] text-tono-2 lg:block">
+            <span aria-hidden="true" className="absolute left-0 top-0 font-titulo text-[26px] leading-none">
               {a.garabatos.mira}
             </span>
+            <Garabato trazos={["M70 14 C 120 4, 168 18, 176 52", "M164 42 L176 56 L186 40"]} viewBox="0 0 190 68" ancho={3.5} className="absolute inset-0" />
           </span>
           <span className="font-titulo text-[26px] leading-tight text-tono-2">{a.ejemplo.etiqueta}</span>
           <div className="relative">

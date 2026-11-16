@@ -1,0 +1,229 @@
+{
+  "fecha": "2026-11-16T13:44:44.903Z",
+  "base": "http://localhost:3001",
+  "recorrido": {
+    "aula/light/360/": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/light/360/soluciones?a=landing-profesional,turnos-online": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/light/360/servicios/ia": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/light/360/demo": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/light/360/no-existe-esta-pagina": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/light/360/#chat": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/light/390/": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/light/390/soluciones?a=landing-profesional,turnos-online": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/light/390/servicios/ia": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/light/390/demo": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/light/390/no-existe-esta-pagina": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/light/390/#chat": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/light/1280/": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/light/1280/soluciones?a=landing-profesional,turnos-online": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/light/1280/servicios/ia": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/light/1280/demo": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/light/1280/no-existe-esta-pagina": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/light/1280/#chat": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/dark/360/": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/dark/360/soluciones?a=landing-profesional,turnos-online": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/dark/360/servicios/ia": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/dark/360/demo": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/dark/360/no-existe-esta-pagina": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/dark/360/#chat": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/dark/390/": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/dark/390/soluciones?a=landing-profesional,turnos-online": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/dark/390/servicios/ia": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/dark/390/demo": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/dark/390/no-existe-esta-pagina": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/dark/390/#chat": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/dark/1280/": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/dark/1280/soluciones?a=landing-profesional,turnos-online": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/dark/1280/servicios/ia": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/dark/1280/demo": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/dark/1280/no-existe-esta-pagina": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    },
+    "aula/dark/1280/#chat": {
+      "overflow": 0,
+      "contraste": 0,
+      "garabatos": 0
+    }
+  },
+  "pliegue": {
+    "aula/390x844": {
+      "botones": [
+        460,
+        522
+      ],
+      "chips": 554,
+      "nav": 788
+    },
+    "aula/360x740": {
+      "botones": [
+        482,
+        544
+      ],
+      "chips": 576,
+      "nav": 684
+    }
+  },
+  "personajeYTema": {
+    "proximamente": false,
+    "desdeSelector": {
+      "estilo": "aula",
+      "dibujo": "anime",
+      "dark": true
+    },
+    "fuentes": true,
+    "recarga": {
+      "estilo": "aula",
+      "dibujo": "anime",
+      "dark": true
+    },
+    "chibiElegido": {
+      "estilo": "aula",
+      "dibujo": "chibi",
+      "dark": true
+    },
+    "claroElegido": {
+      "estilo": "aula",
+      "dibujo": "anime",
+      "dark": false
+    }
+  },
+  "fallas": []
+}

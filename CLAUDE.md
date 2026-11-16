@@ -341,7 +341,8 @@ npm run db:migrate  # las aplica Mauro, con DATABASE_URL
   `BottomNav` (barra inferior < 760 px: Inicio · Soluciones · Malejo ·
   Contacto; reemplaza a la burbuja del chat en el celular). Desde P3-1:
   `EstiloSelector` (con `PersonajeRapido` y `PersonajeCiclo`), el hook
-  `useEstilo` y `SpritesVivos` (una sola isla para todos los sprites). FAQ y "Ver otras opciones" son `<details>`,
+  `useEstilo` y `SpritesVivos` (una sola isla para todos los sprites).
+  Desde P3-2: `Garabato`. FAQ y "Ver otras opciones" son `<details>`,
   sin JS. `PlanCard`, `PlanDetalle` e `InfoPagos` son Server Components.
 - **Modales (P1):** `PlanDialog` es un `<dialog>` nativo con `showModal()`;
   el contenido llega como `children` del servidor. Sin JS, "Ver qué
@@ -386,7 +387,16 @@ npm run db:migrate  # las aplica Mauro, con DATABASE_URL
   `components/agencia/home/estilos/<id>/Hero.tsx` se renderizan todos). El
   contraste de los pares de tokens lo cubre `lib/agencia/estilos.test.ts`.
   Un estilo nuevo = su fila en `estilos.ts`, su bloque en `estilos.css`, una
-  línea en las reglas `data-solo-estilo` y su hero.
+  línea en las reglas `data-solo-estilo` y su hero. Cada estilo puede traer
+  `temaDeEntrada` (Institucional claro, Aula oscuro), `dibujoPorDefecto`
+  (Aula: anime; manda solo si la persona nunca eligió dibujo) y `fuentes`
+  propias: van con `next/font`, `preload: false` y `display: "optional"`
+  (con `swap` el cambio de fuente movía el H1), y el selector las descarga
+  con `document.fonts.load()` antes de cambiar de estilo; sin eso, la vista
+  en la que se elige quedaría con la fuente de respaldo. Aula (P3-2) suma
+  los garabatos: `client/Garabato.tsx` dibuja trazos SVG con `pathLength`
+  una vez (quietos con movimiento reducido) y los textos van en
+  `estilos.ts`; en Aula la cursiva (Caveat) nunca baja de 22 px.
 - **El personaje (P3-1).** 3 dibujos (`16bit`, `chibi`, `anime`) × 3 poses
   (`normal`, `pensando`, `ok`) en `public/agencia/sprites/<dibujo>/`, más
   las tiras `idle` (respira y parpadea por código), `saludo` y `festejo`.

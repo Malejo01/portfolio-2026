@@ -153,7 +153,7 @@ export function PlanCard({
       ) : null}
       {plan.rec ? (
         // Tanda P3-2: en Aula virtual el sello es "¡recomendado!" en un óvalo de tiza.
-        <span data-solo-estilo="aula" className="absolute -top-6 left-1/2 flex h-11 w-[180px] -translate-x-1/2 items-center justify-center text-tono-2">
+        <span data-solo-estilo="aula" className="garabato absolute -top-6 left-1/2 flex h-11 w-[180px] -translate-x-1/2 items-center justify-center text-tono-2">
           <span className="relative z-10 font-titulo text-[24px] font-bold leading-none">{estiloCopy.aula.garabatos.recomendado}</span>
           <Garabato trazos={[OVALO]} viewBox="0 0 180 44" ancho={2.5} className="absolute inset-0" />
         </span>

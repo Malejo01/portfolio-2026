@@ -755,6 +755,11 @@ html[data-dibujo="anime"] [data-solo-dibujo]:not([data-solo-dibujo="anime"]) {
   background: var(--surf);
   color: var(--text);
 }
-[data-estilo="aula"] .panel-madera.card {
-  border-top: 0;
+/* En el celular, "Paso N" va arriba del texto (la cursiva grande no entra al costado). */
+[data-estilo="aula"] .paso-tono {
+  flex-direction: column;
+  gap: 4px;
+}
+[data-estilo="aula"] .lnk {
+  white-space: normal;
 }

@@ -81,7 +81,7 @@ export function HeroTienda() {
           </span>
           <div className="relative">
             <Almacen />
-            <span className="pointer-events-none absolute -bottom-10 -right-5 hidden lg:block">
+            <span className="pointer-events-none absolute -bottom-1 -left-12 hidden lg:block">
               <Sprite alto={110} alt={estiloCopy.alt.normal} saludoAlEntrar />
             </span>
           </div>

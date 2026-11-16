@@ -88,6 +88,8 @@ const Body = z.object({
       extras: z.array(z.string().max(60)).max(24).optional(),
     })
     .optional(),
+  /** P2.1: la persona ya mandó su kit a Mauro (desde esta pestaña). */
+  kitEnviado: z.boolean().optional(),
 });
 
 /** Al llegar a un tope: mensaje amable y WhatsApp con la ficha. */
@@ -161,7 +163,7 @@ export async function POST(request: Request) {
   // Un reintento como mucho: el timeout por ronda manda sobre la espera total.
   const client = new Anthropic({ maxRetries: 1 });
   // La ficha del bloque final es la que llegó con el pedido: fija durante el turno.
-  const system = systemBlocks(ctx.ficha, await contextoDePagina(body.pagina), { modo: modoDePagina(body.pagina), armado });
+  const system = systemBlocks(ctx.ficha, await contextoDePagina(body.pagina), { modo: modoDePagina(body.pagina), armado, enviado: body.kitEnviado === true });
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream<Uint8Array>({

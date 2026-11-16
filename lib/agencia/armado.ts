@@ -193,3 +193,26 @@ export function escuchar(cb: (e: ArmadoEvento) => void): () => void {
   window.addEventListener(ARMADO_EVENT, on);
   return () => window.removeEventListener(ARMADO_EVENT, on);
 }
+
+/* ─── El kit ya se mandó a Mauro (P2.1, punto 5) ─────────────────── */
+
+/**
+ * Se marca cuando "Mandale tu kit a Mauro" sale bien. El widget lo manda con
+ * cada pedido: recién ahí Malejo puede ofrecer la demo sin que la pidan.
+ * Solo esta pestaña, como el resto.
+ */
+export const KIT_ENVIADO_KEY = "malejo-kit-enviado";
+
+export function marcarKitEnviado(): void {
+  try {
+    window.sessionStorage.setItem(KIT_ENVIADO_KEY, "1");
+  } catch {}
+}
+
+export function kitEnviado(): boolean {
+  try {
+    return window.sessionStorage.getItem(KIT_ENVIADO_KEY) === "1";
+  } catch {
+    return false;
+  }
+}

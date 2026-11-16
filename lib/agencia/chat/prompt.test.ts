@@ -97,4 +97,13 @@ describe("system prompt", () => {
     expect(ficha.text).toContain("- Dudas abiertas: ¿Cuotas?");
     expect(bloqueFicha({})).toContain("Todavía nada");
   });
+
+  it("P2.1: el embudo del kit y la demo solo si la piden o ya mandó el kit", () => {
+    expect(base).toMatch(/\(1\) entender, con como mucho 3 preguntas; \(2\) sugerir con sugerir_armado/);
+    expect(base).toMatch(/pedir_demo SOLO si la persona pide la demo explícitamente/);
+    expect(base).toContain("¿Se lo mandás a Mauro así te arma la propuesta?");
+    expect(base).not.toMatch(/\barmado\b(?!\])/i);
+    expect(bloqueFicha({}, null, { modo: null, enviado: true })).toContain("Ya le mandó su kit a Mauro");
+    expect(bloqueFicha({}, null, { modo: null })).not.toContain("Ya le mandó su kit");
+  });
 });

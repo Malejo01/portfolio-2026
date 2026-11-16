@@ -159,7 +159,8 @@ export const tools: Anthropic.Tool[] = [
   },
   {
     name: "pedir_demo",
-    description: "Muestra el botón para pedir la demo con seña (y la agenda de la videollamada). Usala cuando la persona quiera avanzar con un plan del catálogo. No es para proyectos grandes.",
+    description:
+      "Muestra el botón para pedir la demo con seña (y la agenda de la videollamada). Usala SOLO si la persona pide la demo explícitamente o si ya mandó su kit a Mauro. Si la pide antes de tener su kit, primero mostrá la sugerencia con sugerir_armado en esa misma respuesta. No es para proyectos grandes.",
     eager_input_streaming: true,
     input_schema: {
       type: "object",

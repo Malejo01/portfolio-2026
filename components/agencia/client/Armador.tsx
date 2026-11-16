@@ -8,7 +8,7 @@ import type { SolucionesCopy } from "@/content/agencia/soluciones";
 import { getCombo, getPlan } from "@/content/agencia/pricing";
 import { abrirChat } from "@/lib/agencia/abrir-chat";
 import { ABRIR_CHAT_EVENT } from "@/lib/agencia/abrir-chat";
-import { aQuery, armadoVacio, deQuery, emitir, escuchar, firmaArmado, leer, type Armado } from "@/lib/agencia/armado";
+import { aQuery, armadoVacio, deQuery, emitir, escuchar, firmaArmado, leer, marcarKitEnviado, type Armado } from "@/lib/agencia/armado";
 import { leerSesion } from "@/lib/agencia/chat/sesion";
 import { agendaLink, waLink } from "@/lib/agencia/config";
 import { ahorroEnPesos, clasificarId, estimarArmado, fmt, lineaDePagos, lineaDeSena, type EstimadoArmado } from "@/lib/agencia/pricing";
@@ -839,6 +839,7 @@ function FormArmado({
       const r = (await res.json()) as { ok: boolean; error?: string };
       if (!r.ok) throw new Error(r.error);
       track("armado_enviado", { n: e.cotizacion.items.length, sena: e.sena.tipo });
+      marcarKitEnviado();
       onExito();
     } catch (err) {
       setEstado("error");

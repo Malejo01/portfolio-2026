@@ -24,7 +24,8 @@ import { preguntas } from "./aserciones";
  * Tanda R3 (simulación de 22 charlas): AE a AJ. Tanda P1 (precios nuevos y
  * 3 pagos): AK a AO, y O pasa a pedir los 3 pagos. Tanda P2 (el armador
  * de Soluciones y la seña escalonada): AP a AU, y AV para la bienvenida con
- * opciones. Los montos esperados salen del catálogo, no escritos a mano.
+ * opciones. Tanda P2.1 (el embudo del kit): AW y AX. Los montos esperados
+ * salen del catálogo, no escritos a mano.
  * Cada caso es una conversación de uno o más turnos del usuario y sus
  * checks deterministas. Los corre `npm run eval:chat` (`scripts/eval-chat.ts`)
  * contra `/api/chat`; además valen las aserciones generales de cada turno.
@@ -76,7 +77,11 @@ export const casos: Caso[] = [
     checks: [
       { nombre: "cotiza turnos o el combo", ok: (r) => quotes(r).some((q) => q.ids.some((id) => /turnos/.test(id))) },
       { nombre: "MP con cuotas mencionadas", ok: (r) => /cuota/i.test(r.turnos[1].texto) || quotes(r).some((q) => q.medio === "mp") },
-      { nombre: "tarjeta de demo al avanzar", ok: (r) => de(ultimo(r).cards, "demo").length > 0 },
+      // P2.1: al avanzar, el camino es el kit (sugerencia y "mandale tu kit a Mauro"); la demo, si la pide.
+      {
+        nombre: "al avanzar: el kit (o la demo)",
+        ok: (r) => hay(r, "armado") || /\bkit\b/i.test(ultimo(r).texto) || de(ultimo(r).cards, "demo").length > 0,
+      },
       { nombre: "no repite la cotización al avanzar", ok: (r) => de(ultimo(r).cards, "quote").length === 0 },
       // El formulario de contacto (pedir_contacto, regla 7 del prompt) es la oferta misma.
       {
@@ -613,6 +618,42 @@ export const casos: Caso[] = [
       { nombre: "pregunta el rubro o qué hace", ok: (r) => /\?/.test(r.turnos[0].texto) && /rubro|negocio|vend(é|e)s|te dedic|qu[ée] hac(é|e)s|servicio/i.test(r.turnos[0].texto) },
       { nombre: "ofrece respuestas sugeridas", ok: (r) => hay(r, "opciones") },
       { nombre: "no repite el saludo", ok: (r) => !/soy Malejo/i.test(r.turnos[0].texto) },
+    ],
+  },
+  // ── Tanda P2.1: el embudo del kit (entender → sugerir → mandar el kit → demo) ──
+  {
+    id: "AW",
+    titulo: "P2.1: aula virtual para un instituto, desde la home",
+    pagina: "/",
+    turnos: [
+      "Quiero un aula virtual para mi instituto",
+      "Es un instituto terciario con unos 200 alumnos",
+      "Que los docentes suban los programas y las evaluaciones",
+      "Dale, ¿qué me conviene?",
+    ],
+    maxPalabras: 90,
+    checks: [
+      {
+        nombre: "pregunta como mucho 2 cosas antes de sugerir",
+        ok: (r) => {
+          const i = r.turnos.findIndex((t) => t.cards.some((c) => c.kind === "armado"));
+          return i >= 0 && r.turnos.slice(0, i).reduce((s, t) => s + Math.min(1, preguntas(t.texto)), 0) <= 2;
+        },
+      },
+      { nombre: "sugiere el aula virtual con sugerir_armado", ok: (r) => de(todasCards(r), "armado").some((c) => c.items.some((i) => i.id === "plataforma-educativa-con-ia")) },
+      { nombre: "no usa pedir_demo", ok: (r) => !hay(r, "demo") },
+      { nombre: "nombra \"tu kit\"", ok: texto(/\btu kit\b/i) },
+    ],
+  },
+  {
+    id: "AX",
+    titulo: "P2.1: \"quiero ver una demo ya\"",
+    turnos: ["Tengo una ferretería y quiero que me encuentren en Google. Quiero ver una demo ya"],
+    maxPalabras: 90,
+    checks: [
+      { nombre: "la demo está permitida y sale", ok: (r) => hay(r, "demo") },
+      { nombre: "antes, una sugerencia para el kit", ok: (r) => hay(r, "armado") || /\bkit\b/i.test(todoTexto(r)) },
+      { nombre: "la sugerencia va en una línea, sin frenar", ok: (r) => palabras(r.turnos[0].texto) <= 60 },
     ],
   },
 ];

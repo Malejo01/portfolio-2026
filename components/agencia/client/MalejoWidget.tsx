@@ -8,7 +8,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import { createPortal } from "react-dom";
 import { Icon } from "@/components/agencia/icons";
 import type { MalejoCopy, OpcionBienvenida } from "@/content/agencia/malejo";
-import { emitir, leer } from "@/lib/agencia/armado";
+import { emitir, kitEnviado, leer } from "@/lib/agencia/armado";
 import type { Card } from "@/lib/agencia/chat/cards";
 import { mergeFicha, type Ficha } from "@/lib/agencia/chat/ficha";
 import { armarHistorial, firmasMostradas, ultimaQuote } from "@/lib/agencia/chat/history";
@@ -277,7 +277,7 @@ export default function MalejoWidget({
           method: "POST",
           headers: { "content-type": "application/json" },
           // El armado va como la ficha: el servidor lo valida y no lo guarda.
-          body: JSON.stringify({ messages: history, ficha, shownCards, pagina: location.pathname, armado: leer() }),
+          body: JSON.stringify({ messages: history, ficha, shownCards, pagina: location.pathname, armado: leer(), kitEnviado: kitEnviado() }),
         });
         if (!res.ok || !res.body) throw new Error(String(res.status));
         const reader = res.body.getReader();

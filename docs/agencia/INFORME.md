@@ -811,3 +811,20 @@ Tres o cuatro corridas por página, en el mismo contenedor, contra esta rama y c
 6. Medir con PageSpeed Insights en el preview (el LCP de este contenedor no es representativo; `main` da lo mismo).
 7. El link de acceso del preview que se usó para las evals vence a las 23 h.
 8. Probar en su celular: el teclado abierto en el chat y la vibración al agregar.
+
+# Tanda P2.1 · Correcciones de Mauro sobre el preview de P2
+
+Sobre la misma rama del PR #9, un commit por punto. `npm test` (231), `npm run lint` y `npm run build` en verde, con las mismas rutas `○`/`●` y las mismas 308. `verificacion/p2-1/verificar.js` y `verificacion/p2/verificar.js` (adaptado a "kit" y a la columna con pestañas): **todo en orden**.
+
+## Qué se hizo
+1. **Al cambiar de categoría, volver arriba.** El cambio lleva al título de la categoría con `scroll-margin-top` (header fijo y, en celular, la fila de chips; se descuenta el `scroll-padding-top` del `html`), suave o directo con movimiento reducido, sin moverse si el título ya se ve, y con el foco en el título. Verificado a 1280 y 390 px desde el fondo de la página, en las 7 categorías: el título queda a 106 px (escritorio) y 167 px (celular), sin taparse.
+2. **"Proyectos a medida".** Línea de tiempo vertical (`GrandesLinea`): tarjetas a lo ancho con el número en un círculo, dos zonas que se apilan debajo de 640 px de columna (container query) y el precio como mucho del tamaño de `h2`, sin partir renglón. El plazo (⏱) va en la fila de "PASO N" o al lado del nombre con `flex-wrap`, también en `PlanCard` y en `/servicios/grandes`. A 390, 1024, 1280, 1536, 1920 y 2560 px: ningún badge fuera de su tarjeta, títulos de 1 o 2 renglones, precios en uno, sin overflow. La columna central mide como mucho ~565 px porque el sitio usa un contenedor de 1.240 px, así que las dos zonas se ven apiladas en todos los anchos.
+3. **La columna derecha.** Panel fijo de 3 zonas con pestañas "Tu kit" | "Malejo": solo el cuerpo scrollea (barra fina), el pie con el estimado, los pagos, la seña y "Mandale tu kit a Mauro" queda fijo. El chat de Malejo se monta adentro con un portal (mismo widget, misma sesión) y en Soluciones no hay flotante desde 760 px. "Ayudame a elegir", "Preguntale a Malejo" y el header abren la pestaña; lo agregado desde una sugerencia marca "Tu kit" con un punto de novedad sin cambiar de pestaña. Con 8 ítems, a 1024, 1280, 1536 y 2560 px de ancho y 720, 900 y 1300 de alto: el pie se ve completo, el panel no scrollea entero y no hay flotante encima. En celular, la hoja del kit lleva el mismo pie fijo.
+4. **"Armado" → "kit"** en toda la copy y en el chat (tabla del pedido). El código no se renombra. El glosario prohíbe "armado"; tres textos del catálogo pasaron a "listos", "estándar" y "creadas".
+5. **El embudo del chat.** Entender (≤ 3 preguntas) → `sugerir_armado` para el kit → "Mandale tu kit a Mauro" y la videollamada → la demo. `pedir_demo` solo si la piden explícitamente (antes, una sugerencia en una línea) o si el kit ya se mandó (el armador lo marca y el widget lo avisa). Ante "¿cuánto me sale todo esto?", cierra con "¿Se lo mandás a Mauro así te arma la propuesta?". Después de las evals se sumó: nunca pedir que toquen «Agregar al kit» sin haber mostrado la tarjeta.
+
+## Evals reales (16-11, contra el preview)
+`evals/2026-11-16T0120.md`: **48 de 50** ✅ (objetivo 46 = el 44 de P2 más los 2 nuevos). Pasan AQ (ahora cierra con "¿Se lo mandás a Mauro…?"), AW (aula virtual desde la home: sugiere `plataforma-educativa-con-ia`, sin `pedir_demo`, nombra "tu kit") y AX ("quiero ver una demo ya": sugerencia en una línea y la demo). Fallas: **B**, donde Malejo pidió tocar «Agregar al kit» sin haber mostrado la tarjeta (arreglado en el prompt después de la corrida; la B ahora acepta la sugerencia como alternativa a cotizar) y no habló de cuotas ante "¿y con Mercado Pago?"; y **Q**, de P1 (abre la tienda con otra opción).
+
+## Capturas
+`verificacion/p2-1/`: `/soluciones` a 1280 y 2560 px en "Proyectos a medida" y con la pestaña Malejo abierta, y la hoja del kit a 390 px.

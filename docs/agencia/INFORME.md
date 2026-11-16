@@ -1000,7 +1000,7 @@ Home y `/soluciones` a 390 y 1280 px en claro y oscuro (a 390 con Malejo abierto
 |---|---|---|
 | P3-1 · Sistema de estilos, Institucional y el personaje en 3 dibujos | [#10](https://github.com/Malejo01/portfolio-2026/pull/10) | `p3-1-estilos` → `main` |
 | P3-2 · Aula virtual | [#11](https://github.com/Malejo01/portfolio-2026/pull/11) | `p3-2-aula` → `p3-1-estilos` |
-| P3-3 · Tienda | #12 | `p3-3-tienda` → `p3-2-aula` |
+| P3-3 · Tienda | [#12](https://github.com/Malejo01/portfolio-2026/pull/12) | `p3-3-tienda` → `p3-2-aula` |
 
 Se mergean en orden. Al mergear uno y borrar su rama, GitHub pasa la base del siguiente a `main`. Correcciones hechas en una rama anterior después de pasar a la siguiente (con `git merge` hacia adelante, sin rebase): en P3-1, el selector descarga la fuente del estilo antes de cambiar y se corrigió su informe de rendimiento.
 

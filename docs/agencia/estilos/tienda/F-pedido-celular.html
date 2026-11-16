@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>A1 · Almacén · pedido en el celular</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&amp;family=Nunito:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FBF4E8}
+a{color:#C2410C}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; font-family: Nunito, system-ui, sans-serif; color: #2B2118; background: #FBF4E8; display: flex; flex-direction: column; overflow: hidden">
+  <div style="background: #2B2118; color: #FFFFFF; text-align: center; font-size: 12px; font-weight: 700; padding: 6px">Ejemplo · así lo ve tu cliente</div>
+  <div aria-hidden="true" style="height: 14px; flex: none; background: repeating-linear-gradient(90deg, #C2410C 0 26px, #FBF4E8 26px 52px); border-radius: 0 0 10px 10px"></div>
+  <main style="padding: 14px 18px 0; flex: 1; display: flex; flex-direction: column; gap: 10px; overflow: hidden">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; margin-bottom: 8px"><div><div style="font-family: Fredoka, system-ui, sans-serif; font-size: 24px; font-weight: 700; color: #2B2118">Almacén Doña Rosa</div><div style="font-size: 13px; color: #5A4A3B">Almacén · Dulces caseros</div></div><span style="background: #E1F1E7; color: #1F6F4A; font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 999px">● Abierto · hasta 21 h</span></div>
+<div style="margin-bottom: 6px"><span style="display: inline-flex; background: #FBEFD3; border-radius: 999px; padding: 3px; font-size: 13px; font-weight: 800"><span style="background: #FFFFFF; border-radius: 999px; padding: 6px 12px; color: #2B2118">Delivery</span><span style="padding: 6px 12px; color: #5A4A3B">Retiro</span></span></div>
+    <div style="display: flex; gap: 8px; overflow: hidden"><span style="flex: none; padding: 8px 14px; border-radius: 999px; font-size: 14px; font-weight: 800; background: #2B2118; color: #FFFFFF">Almacén</span><span style="flex: none; padding: 8px 14px; border-radius: 999px; font-size: 14px; font-weight: 800; background: #FFFFFF; color: #2B2118; border: 2px solid #E7D9C4">Caseros</span><span style="flex: none; padding: 8px 14px; border-radius: 999px; font-size: 14px; font-weight: 800; background: #FFFFFF; color: #2B2118; border: 2px solid #E7D9C4">Bebidas</span></div>
+    <div style="background: #FFFFFF; border: 2px solid #E7D9C4; border-radius: 20px; padding: 4px 12px"><div style="display: flex; align-items: center; gap: 12px; padding: 10px 0; ">
+<span style="width: 56px; height: 56px; flex: none; border-radius: 14px; background: #FDE6D8; display: flex; align-items: center; justify-content: center"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#C2410C" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13a8 5.5 0 0116 0v5H4z"></path><path d="M8 9.5l1 3M12 8.5v4M16 9.5l-1 3"></path></svg></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 800; font-size: 15px; color: #2B2118">Pan casero</span><span style="font-size: 13px; color: #5A4A3B">1 kg, del día</span><span style="align-self: flex-start; margin-top: 4px; background: #D29330; color: #2B2118; font-family: Fredoka, system-ui, sans-serif; font-weight: 700; font-size: 14px; padding: 2px 10px 2px 16px; border-radius: 4px 999px 999px 4px; position: relative">$3.500<span style="position: absolute; left: 6px; top: 50%; width: 5px; height: 5px; margin-top: -2.5px; border-radius: 50%; background: #FFFFFF"></span></span></span>
+<span style="display: flex; align-items: center; gap: 4px; border: 2px solid #E7D9C4; border-radius: 999px; padding: 2px"><button aria-label="Quitar uno" style="width: 30px; height: 30px; border: none; background: transparent; font-size: 18px; font-weight: 700; color: #2B2118">−</button><span style="min-width: 14px; text-align: center; font-weight: 800">1</span><button aria-label="Agregar uno" style="width: 30px; height: 30px; border: none; border-radius: 50%; background: #C2410C; color: #FFFFFF; font-size: 18px; font-weight: 700">+</button></span></div><div style="display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px dashed #E7D9C4;">
+<span style="width: 56px; height: 56px; flex: none; border-radius: 14px; background: #E1F1E7; display: flex; align-items: center; justify-content: center"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#1F6F4A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3h8v3H8zM7 6h10v13a2 2 0 01-2 2H9a2 2 0 01-2-2z"></path><path d="M7 11h10"></path></svg></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 800; font-size: 15px; color: #2B2118">Dulce de leche</span><span style="font-size: 13px; color: #5A4A3B">Casero, 500 g</span><span style="align-self: flex-start; margin-top: 4px; background: #D29330; color: #2B2118; font-family: Fredoka, system-ui, sans-serif; font-weight: 700; font-size: 14px; padding: 2px 10px 2px 16px; border-radius: 4px 999px 999px 4px; position: relative">$4.800<span style="position: absolute; left: 6px; top: 50%; width: 5px; height: 5px; margin-top: -2.5px; border-radius: 50%; background: #FFFFFF"></span></span></span>
+<span style="display: flex; align-items: center; gap: 4px; border: 2px solid #E7D9C4; border-radius: 999px; padding: 2px"><button aria-label="Quitar uno" style="width: 30px; height: 30px; border: none; background: transparent; font-size: 18px; font-weight: 700; color: #2B2118">−</button><span style="min-width: 14px; text-align: center; font-weight: 800">1</span><button aria-label="Agregar uno" style="width: 30px; height: 30px; border: none; border-radius: 50%; background: #C2410C; color: #FFFFFF; font-size: 18px; font-weight: 700">+</button></span></div><div style="display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px dashed #E7D9C4;">
+<span style="width: 56px; height: 56px; flex: none; border-radius: 14px; background: #FBEFD3; display: flex; align-items: center; justify-content: center"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#8A5A0B" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="9" cy="13" rx="4" ry="5.5"></ellipse><ellipse cx="16.5" cy="14.5" rx="3.5" ry="4.5"></ellipse></svg></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 800; font-size: 15px; color: #2B2118">Huevos de campo</span><span style="font-size: 13px; color: #5A4A3B">La docena</span><span style="align-self: flex-start; margin-top: 4px; background: #D29330; color: #2B2118; font-family: Fredoka, system-ui, sans-serif; font-weight: 700; font-size: 14px; padding: 2px 10px 2px 16px; border-radius: 4px 999px 999px 4px; position: relative">$3.900<span style="position: absolute; left: 6px; top: 50%; width: 5px; height: 5px; margin-top: -2.5px; border-radius: 50%; background: #FFFFFF"></span></span></span>
+<button aria-label="Agregar Huevos de campo" style="width: 38px; height: 38px; border: none; border-radius: 50%; background: #C2410C; color: #FFFFFF; font-size: 20px; font-weight: 700">+</button></div><div style="display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px dashed #E7D9C4;">
+<span style="width: 56px; height: 56px; flex: none; border-radius: 14px; background: #FDE6D8; display: flex; align-items: center; justify-content: center"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#C2410C" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13a8 5.5 0 0116 0v5H4z"></path><path d="M8 9.5l1 3M12 8.5v4M16 9.5l-1 3"></path></svg></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 800; font-size: 15px; color: #2B2118">Bizcochitos de grasa</span><span style="font-size: 13px; color: #5A4A3B">Medio kilo</span><span style="align-self: flex-start; margin-top: 4px; background: #D29330; color: #2B2118; font-family: Fredoka, system-ui, sans-serif; font-weight: 700; font-size: 14px; padding: 2px 10px 2px 16px; border-radius: 4px 999px 999px 4px; position: relative">$2.800<span style="position: absolute; left: 6px; top: 50%; width: 5px; height: 5px; margin-top: -2.5px; border-radius: 50%; background: #FFFFFF"></span></span></span>
+<button aria-label="Agregar Bizcochitos de grasa" style="width: 38px; height: 38px; border: none; border-radius: 50%; background: #C2410C; color: #FFFFFF; font-size: 20px; font-weight: 700">+</button></div></div>
+  </main>
+  <div style="padding: 12px 18px 22px; background: #FBF4E8; border-top: 1px solid #E7D9C4; display: flex; flex-direction: column; gap: 8px">
+    <a href="#pedido" style="text-decoration: none; display: flex; justify-content: space-between; align-items: center; background: #C2410C; color: #FFFFFF; padding: 14px 18px; border-radius: 999px; box-shadow: 0 4px 0 #8F2F08; font-weight: 800; font-size: 16px"><span>Ver pedido · 2</span><span>$8.300</span></a>
+    <span style="text-align: center; font-size: 12px; color: #5A4A3B">Lo confirmás por WhatsApp o pagás con Mercado Pago</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

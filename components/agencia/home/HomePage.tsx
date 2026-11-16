@@ -6,6 +6,7 @@ import { siteUrl } from "@/lib/links";
 import { Cta } from "./Cta";
 import { HeroAula } from "./estilos/aula/Hero";
 import { HeroInstitucional } from "./estilos/institucional/Hero";
+import { HeroTienda } from "./estilos/tienda/Hero";
 import { HeroTech } from "./estilos/tech/Hero";
 import { Needs } from "./Needs";
 import { Steps } from "./Steps";
@@ -58,6 +59,7 @@ export function HomePage() {
         <HeroTech />
         <HeroInstitucional />
         <HeroAula />
+        <HeroTienda />
       </div>
       <Needs />
       <Steps />

@@ -18,6 +18,11 @@ export function BarraEstilo() {
           <span>{barra.derecha}</span>
         </div>
       </div>
+      {/* Tienda (P3-3): la barra verde y el toldo, que se despliega una vez. */}
+      <div data-solo-estilo="tienda">
+        <div className="est-barra-tienda py-1.5 text-center text-[13px] font-bold max-[759px]:hidden">{estiloCopy.barraTienda}</div>
+        <div aria-hidden="true" className="toldo" />
+      </div>
     </>
   );
 }

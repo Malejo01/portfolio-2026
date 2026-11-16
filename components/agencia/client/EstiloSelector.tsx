@@ -3,7 +3,7 @@
 /* eslint-disable @next/next/no-img-element -- pixel art chico, sin optimizar a propósito */
 import { track } from "@vercel/analytics";
 import { useEffect, useId, useRef, useState } from "react";
-import type { estiloCopy as EstiloCopy } from "@/content/agencia/estilos";
+import type { selectorCopy as SelectorCopy } from "@/content/agencia/estilos";
 import { dibujoSiguiente, elegirDibujo, elegirEstilo } from "@/lib/agencia/estilo";
 import { AGENCIA_THEME_COOKIE } from "@/lib/agencia/theme";
 import { Icon } from "../icons";
@@ -20,6 +20,8 @@ export interface EstiloLigero {
 export interface Personaje {
   id: string;
   nombre: string;
+  /** Nombre en un estilo puntual (Tienda: "16-bit"). */
+  nombrePor?: Record<string, string>;
   src: string;
   w: number;
   h: number;
@@ -46,9 +48,10 @@ export function EstiloSelector({
   temas,
   dibujosPor,
   fuentesPor,
+  cssPor,
   personajes,
 }: {
-  copy: typeof EstiloCopy;
+  copy: typeof SelectorCopy;
   estilos: EstiloLigero[];
   /** id → tema de entrada ("light" | "dark" | ""), de `configArranque`. */
   temas: Record<string, string>;
@@ -56,6 +59,8 @@ export function EstiloSelector({
   dibujosPor: Record<string, string>;
   /** id → fuentes del estilo, para descargarlas antes de cambiar. */
   fuentesPor: Record<string, string[]>;
+  /** id → hoja del estilo (P3-3), para descargarla antes de cambiar. */
+  cssPor: Record<string, string>;
   personajes: Personaje[];
 }) {
   const ref = useRef<HTMLDialogElement>(null);
@@ -82,7 +87,7 @@ export function EstiloSelector({
 
   const elegir = (id: string) => {
     if (id === estilo) return;
-    void elegirEstilo(id, (temas[id] ?? "") as "light" | "dark" | "", AGENCIA_THEME_COOKIE, dibujosPor[id], fuentesPor[id]);
+    void elegirEstilo(id, (temas[id] ?? "") as "light" | "dark" | "", AGENCIA_THEME_COOKIE, dibujosPor[id], fuentesPor[id], cssPor[id]);
     track("estilo_cambiado", { id });
   };
 
@@ -189,7 +194,7 @@ export function EstiloSelector({
                   <span className="flex h-16 items-end">
                     <img src={p.src} alt="" width={p.w} height={p.h} className="pixel block h-16 w-auto" loading="lazy" />
                   </span>
-                  {p.nombre}
+                  <NombreDibujo p={p} />
                 </button>
               ))}
             </div>
@@ -218,7 +223,7 @@ export function EstiloSelector({
  * El selector rápido de personaje (pedido de Mauro): "Personaje: Pixel ·
  * Chibi · Anime" debajo del ejemplo del hero, en escritorio.
  */
-export function PersonajeRapido({ copy, personajes, className = "" }: { copy: typeof EstiloCopy; personajes: Personaje[]; className?: string }) {
+export function PersonajeRapido({ copy, personajes, className = "" }: { copy: typeof SelectorCopy; personajes: Personaje[]; className?: string }) {
   const { dibujo } = useEstilo();
   return (
     <div role="group" aria-label={copy.personajeGrupo} className={`js-only flex items-center gap-1.5 ${className}`}>
@@ -235,7 +240,7 @@ export function PersonajeRapido({ copy, personajes, className = "" }: { copy: ty
           className="inline-flex min-h-9 items-center gap-1.5 rounded-10 border border-border bg-surf px-2.5 text-[12px] font-medium text-titulo aria-pressed:border-acc-text aria-pressed:bg-ic-bg aria-pressed:font-semibold"
         >
           <img src={p.src} alt="" width={Math.round((p.w * 16) / p.h)} height={16} className="pixel h-4 w-auto" loading="lazy" />
-          {p.nombre}
+          <NombreDibujo p={p} />
         </button>
       ))}
     </div>
@@ -243,7 +248,7 @@ export function PersonajeRapido({ copy, personajes, className = "" }: { copy: ty
 }
 
 /** El botón de flechas al lado de "Soy Mauro" (celular) y el avatar del chat: pasa al dibujo siguiente. */
-export function PersonajeCiclo({ label, className = "" }: { label: string; className?: string }) {
+export function PersonajeCiclo({ label, className = "", texto }: { label: string; className?: string; texto?: React.ReactNode }) {
   return (
     <button
       type="button"
@@ -253,9 +258,29 @@ export function PersonajeCiclo({ label, className = "" }: { label: string; class
         elegirDibujo(sig);
         track("personaje_cambiado", { dibujo: sig });
       }}
-      className={`js-only ibtn h-10 w-10 ${className}`}
+      className={`js-only ibtn h-10 ${texto ? "w-auto px-3.5 text-[14px] font-bold" : "w-10"} ${className}`}
     >
-      <Icon name="rotar" size={18} />
+      {texto ?? <Icon name="rotar" size={18} />}
     </button>
+  );
+}
+
+/**
+ * El nombre del dibujo: si algún estilo le dice distinto, van las dos
+ * versiones y `estilos.css` muestra la que corresponde (sin JS por estilo).
+ */
+function NombreDibujo({ p }: { p: Personaje }) {
+  const otros = Object.entries(p.nombrePor ?? {});
+  if (!otros.length) return <>{p.nombre}</>;
+  const resto = ["tech", "institucional", "aula", "tienda"].filter((e) => !otros.some(([k]) => k === e)).join(" ");
+  return (
+    <>
+      <span data-solo-estilo={resto}>{p.nombre}</span>
+      {otros.map(([e, n]) => (
+        <span key={e} data-solo-estilo={e}>
+          {n}
+        </span>
+      ))}
+    </>
   );
 }

@@ -935,3 +935,82 @@ TBT y CLS se cumplen. El LCP simulado de `/soluciones` sube por el mismo artefac
 
 ## Capturas (`verificacion/p3-2/`)
 Home y `/soluciones` a 390 y 1280 px en claro y oscuro (a 390 con Malejo abierto), las pantallas aprobadas renderizadas (`ref-F-*.png`) y `lado-a-lado-*.png`.
+
+# Tanda P3-3 · Estilo Tienda («Almacén de barrio»)
+
+> **Para que decida Mauro (rendimiento de la home).** La tanda pide renderizar los heroes de todos los estilos disponibles y que el CSS muestre el activo. Con cuatro estilos, la home pesa más (HTML de 127 a 226 kB sin comprimir, la mitad es el payload de React que repite el marcado) y, medido contra `main` en el mismo contenedor, el LCP empeora más del 10 % acordado en estos casos:
+> - **Visita tibia** (el camino real: a un estilo se llega por el selector, que ya descargó su hoja y sus fuentes), CPU 4× y red lenta: `main` 368 ms; Tech 428 ms (+16 %), Institucional 484 ms (+32 %), Aula 540 ms (+47 %), Tienda 532 ms (+45 %). En valor absoluto son 60 a 170 ms.
+> - **Visita en frío ya en un estilo no original** (no pasa en una primera visita, que siempre es Tech): Tienda 2,33 s contra 1,94 s (+20 %), por su hoja y sus fuentes propias.
+> - **Primera visita (Tech, en frío), que es lo que miden PageSpeed Insights y Search Console:** +4 % (2,03 s contra 1,94 s). Cumple.
+>
+> Lo que ya se hizo para bajarlo está en "Rendimiento". Si hace falta más, las salidas cambian la arquitectura y por eso no las tomé solo: (a) aceptar el costo; (b) mandar los heroes no activos como fragmentos que se cargan al elegir el estilo (la home deja de traer los cuatro, pero un estilo guardado mostraría un instante el hero de Tech, o haría falta una ruta por estilo); (c) sacar de la home el ejemplo de los estilos no activos y dejar solo el H1, los botones y el personaje en el HTML.
+
+Rama `p3-3-tienda` desde `p3-2-aula`, PR con base `p3-2-aula`. `npm run lint`, `npm test` (239) y `npm run build` en verde, con las mismas rutas `○`/`●`. `verificacion/p3-3/verificar.js`: **todo en orden**. La verificación de P3-1 (Tech e Institucional) se volvió a correr sobre este build porque la tanda toca `Needs`, `PlanCard` y la carga del CSS: **todo en orden** también, igual que la de P3-2.
+
+## Qué se hizo
+1. **El estilo.** `tienda` disponible en `estilos.ts`: representa `tiendas`, bajada "Toma pedidos.", arranca en **claro** si nunca se eligió tema (el mismo `temaDeEntrada` que ya usaban Institucional y Aula) y `dibujoPorDefecto: "chibi"`. El dibujo pixelado se llama "16-bit" en Tienda y "Pixel" en el resto (`dibujos → nombrePor`; las dos versiones van en el HTML y el CSS muestra la del estilo).
+2. **Tokens** de la ESPEC en claro y en «Noche cálida». `--acc` (fondo del botón) y `--acc-text` (texto, íconos y enlaces) ya estaban separados: en oscuro el botón sigue tomate y el texto va en la versión suave (`#F08A5D`, `#8CC9A6`, `#E3B45C`). Forma por tokens: tarjetas de 22 px y borde de 2 px, botones en píldora (`--r-btn: 999px`), sombra plana `0 6px 0` y `0 4px 0` como tokens de sombra, y el toldo (`--toldo-1`, `--toldo-2`, en 22 y 14 px de alto) como rayas con el borde de abajo redondeado.
+3. **Tipografía:** Fredoka con `next/font`, `preload: false` y `display: "optional"` (Nunito ya estaba desde P3-2).
+4. **Hero** con la barra verde, el toldo (se despliega una vez, `scaleY`), la "IA" en píldora mostaza rotada −3°, "Así se vería tu almacén →" a `/soluciones?cat=tiendas` y el selector rápido en píldoras ("16-bit · Chibi · Anime").
+5. **«Almacén Doña Rosa»:** HTML y CSS con íconos SVG inline y la copy en `estilos.ts`; precios de mentira con `fmt()` y el total y la cantidad calculados con los mismos números ($8.300 y 2). Es una ilustración: `role="img"` con el texto alternativo y todo lo de adentro `aria-hidden`, sin botones ni nada tabulable. En el celular va debajo de los dos botones, con las categorías en pastillas.
+6. **`EtiquetaPrecio`** (Server Component, sin estado): forma de etiqueta con agujero, chica (home y ejemplo) y grande (planes), `white-space: nowrap` y `max-width: 100%`, "Desde" arriba y aparte. Recibe el texto ya formateado. En Tech, Institucional y Aula es texto común. Se balancea una vez al entrar (−8° → 4° → 0°, 600 ms, escalonado de 60 ms); `SpritesVivos` le pone `data-visto` con un IntersectionObserver, sin envolver tarjetas `.lift`.
+7. **Soluciones y chat:** categoría activa con borde tomate, sombra plana y contador; "El más pedido" como sticker tomate rotado 4°; pestañas sobre mostaza clara y la columna del kit con borde inferior troquelado; en el chat, el toldo arriba de la hoja, la burbuja con la punta arriba a la izquierda y las opciones en píldoras de los 3 colores; la barra del kit en tomate; "Cómo trabajo" sobre los tintes con el número en un círculo; "Cambiar" (dibujo) al lado de "Soy Mauro" en el celular.
+8. **Selector:** la miniatura de Tienda (crema con rayas tomate y la etiqueta mostaza) deja de decir "Próximamente".
+
+## Verificación
+- **Recorrido** (Tienda × claro/oscuro × 360, 390 y 1280 px, en la home, `/soluciones`, `/soluciones?cat=tiendas`, `/servicios/tiendas`, `/demo`, el 404 y el chat abierto; 42 combinaciones): sin overflow, sin texto bajo AA y **ninguna etiqueta de precio más ancha que su tarjeta ni cortada**, "Desde $747.000" incluida.
+- **Primera pantalla del celular:** los 2 botones y los chips arriba de la barra inferior a 390 × 844 y 360 × 740; el ejemplo queda abajo.
+- **Personaje:** entrar a Tienda desde el selector sin haber elegido dibujo muestra el chibi; elegir anime, pasar a Tech y volver mantiene el anime. El selector rápido dice "16-bit".
+- **Tema:** sin tema elegido, claro; con el oscuro elegido, Noche cálida.
+- **Ejemplo:** 40 pulsaciones de Tab no entran nunca al almacén; tiene `aria-label` y su contenido es `aria-hidden`.
+- **Fuentes:** al elegir Tienda desde el selector, Fredoka y Nunito ya están cargadas.
+- **Contraste de tokens:** `estilos.test.ts` suma Tienda en los dos modos, incluidos blanco sobre tomate, verde y ocre (`--surf` sobre los tonos en claro), `#2B2118` sobre la mostaza, el texto secundario y los colores suaves sobre la superficie y los tintes oscuros.
+
+## Rendimiento
+**Hojas de estilo separadas (cambio de arquitectura de esta tanda).** Con los cuatro estilos en `estilos.css`, el CSS que bloquea el primer pintado pasó de 13 a 20 kB comprimido y la home de Tech daba +14 % de LCP contra `main` con throttling real (la hoja principal terminaba de bajar 210 ms después). Ahora `estilos.css` tiene solo lo común (5 kB sin comprimir) y cada estilo no original va en `public/agencia/estilos/<id>.css` (8 a 12 kB, unos 3-4 kB comprimidos), con un hash del contenido en la URL. El script inline escribe en el `<head>` solo la hoja del estilo activo; el layout las precarga con prioridad baja (si no, la del estilo activo se pedía recién al terminar la principal, porque un script inline espera a las hojas que tiene adelante) y el selector la descarga antes de cambiar. Además, las islas del selector reciben solo su copy (`selectorCopy`) y no los ejemplos de los heroes.
+
+Lighthouse con throttling real (`devtools`), 4 corridas, home:
+
+| | LCP (mediana) | frente a `main` |
+|---|---|---|
+| `main` | 1,94 s | — |
+| Tech, antes de separar las hojas | 2,21 s | +14 % |
+| Tech, con las hojas separadas | 2,03 s | **+4 %** |
+| Tienda en frío, con las hojas separadas | 2,33 s | +20 % |
+
+Lighthouse simulado (3 corridas, antes de separar las hojas): home de Tienda 4,52 s (`main` 4,33 s), `/soluciones` 3,54 s (`main` 2,87 s; el mismo artefacto de las fuentes que en P3-1 y P3-2). TBT ≤ 250 ms y CLS 0 en todas las corridas simuladas.
+
+La medición con caché tibia y lo que queda por decidir están arriba de todo.
+
+
+## Decisiones
+1. **El tomate de texto va un 7 % más oscuro en claro** (`--acc-text: #b43c0b`): el `#C2410C` de la ESPEC da 4,3:1 sobre su tinte (por ejemplo, la pestaña activa del menú). El botón sigue `#C2410C`.
+2. **En el celular, "Desde" sale de la etiqueta en las tarjetas de categorías:** con dos tarjetas por fila, "Desde $177.000 · …" no entraba y quedaba cortada. La línea de pagos va debajo, fuera de la etiqueta.
+3. **El toldo se despliega con una animación CSS** (una vez, al cargar, sin JS de por medio) y no con Framer Motion: está arriba de todo y no hace falta esperar a que entre a la vista.
+4. **La pestaña "Estilos" queda a la derecha**, como en P3-1, en tomate (la referencia la dibuja a la izquierda; la tanda pide "la del sistema de P3-1").
+5. **Queda afuera, por ser composición nueva en componentes compartidos:** la franja de ícono arriba de cada plan y el título "TU PEDIDO A MAURO" del ticket. El ticket sí tiene el borde troquelado y el resto de la piel.
+6. **El cierre "¿Lo charlamos?"** sigue siendo la tarjeta del sistema (con las preguntas frecuentes adentro) y no la banda verde de la referencia: pasarlo a banda cambiaba la estructura de la home.
+
+## Capturas (`verificacion/p3-3/`)
+Home y `/soluciones` a 390 y 1280 px en claro y oscuro (a 390 con Malejo abierto), las pantallas aprobadas renderizadas (`ref-F-*.png`) y `lado-a-lado-*.png`.
+
+# Resumen de la cadena P3 (16-11)
+
+| Tanda | PR | Rama → base |
+|---|---|---|
+| P3-1 · Sistema de estilos, Institucional y el personaje en 3 dibujos | [#10](https://github.com/Malejo01/portfolio-2026/pull/10) | `p3-1-estilos` → `main` |
+| P3-2 · Aula virtual | [#11](https://github.com/Malejo01/portfolio-2026/pull/11) | `p3-2-aula` → `p3-1-estilos` |
+| P3-3 · Tienda | #12 | `p3-3-tienda` → `p3-2-aula` |
+
+Se mergean en orden. Al mergear uno y borrar su rama, GitHub pasa la base del siguiente a `main`. Correcciones hechas en una rama anterior después de pasar a la siguiente (con `git merge` hacia adelante, sin rebase): en P3-1, el selector descarga la fuente del estilo antes de cambiar y se corrigió su informe de rendimiento.
+
+**Pendiente:**
+- **Decidir el costo de rendimiento de la home** con cuatro estilos (ver arriba de todo en P3-3). La primera visita (Tech) cumple; con caché tibia, los estilos no originales quedan 60 a 170 ms arriba de `main`.
+- Medir con PageSpeed Insights en el preview (en este contenedor el LCP absoluto no es representativo).
+- Tienda: la franja de ícono arriba de cada plan, el "TU PEDIDO A MAURO" del ticket y el cierre como banda verde quedaron afuera (decisiones 5 y 6 de P3-3).
+- Accesorios por estilo, los otros cuatro estilos del plan y los easter eggs: tandas siguientes.
+
+**Capturas para mirar** (cada carpeta tiene `lado-a-lado-*.png` con la pantalla aprobada al lado):
+- `docs/agencia/verificacion/p3-1/`: heroes de Tech e Institucional a 390 y 1280 px en claro y oscuro, Soluciones, el selector, la home sin JS y `dibujos-y-poses.png`.
+- `docs/agencia/verificacion/p3-2/`: Aula a 390 y 1280 px en claro y oscuro, home y Soluciones (a 390, con Malejo).
+- `docs/agencia/verificacion/p3-3/`: Tienda a 390 y 1280 px en claro y oscuro, home y Soluciones (a 390, con Malejo).

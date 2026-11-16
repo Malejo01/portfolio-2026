@@ -120,6 +120,12 @@
   --marco: var(--border);
   --marco-borde: var(--border-2);
   --resaltador: transparent;
+  /* P3-3: la etiqueta de precio y el toldo (solo los usa Tienda). */
+  --precio-bg: var(--surf);
+  --precio-ink: var(--text);
+  --toldo-1: var(--acc);
+  --toldo-2: var(--bg);
+  --barra-tienda: var(--acc);
   /* Etiquetas chicas grises, el isotipo y el botón de Malejo de la barra inferior. */
   --etiqueta: var(--muted);
   --marca: var(--acc);

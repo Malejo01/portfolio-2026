@@ -374,7 +374,12 @@ npm run db:migrate  # las aplica Mauro, con DATABASE_URL
   `localStorage` (`malejo-estilo`, `malejo-dibujo`, `malejo-dibujo-bolsa`);
   sin nada, **Tech/IA y 16-bit**, nunca al azar. Sin JS no hay atributo y
   vale el CSS de base (Tech). `app/(agencia)/estilos.css` redefine **los
-  mismos tokens** por `[data-estilo="x"]` y `[data-estilo="x"].dark`;
+  mismos tokens** por `[data-estilo="x"]` y `[data-estilo="x"].dark`, pero
+  desde P3-3 solo lo común queda ahí: los tokens y la composición de cada
+  estilo no original van en `public/agencia/estilos/<id>.css` (con hash en
+  la URL, `lib/agencia/estilos-css.ts`), que el script inline escribe en el
+  `<head>` solo si ese estilo está activo y el layout precarga con
+  prioridad baja; así Tech no paga el CSS de los demás;
   **ningún componente ramifica por estilo en JS**: lo distinto va como
   token (`--r-*` radios y `--r-max` tope de `rounded-*`, `--fuente-titulo`,
   `--titulo`, `--tono-1..3`, `--tope`, `--franja`, `--pie-*`, `--marca`,
@@ -386,8 +391,9 @@ npm run db:migrate  # las aplica Mauro, con DATABASE_URL
   `[data-solo-dibujo="x"]` ocultan lo que no va (los heroes de
   `components/agencia/home/estilos/<id>/Hero.tsx` se renderizan todos). El
   contraste de los pares de tokens lo cubre `lib/agencia/estilos.test.ts`.
-  Un estilo nuevo = su fila en `estilos.ts`, su bloque en `estilos.css`, una
-  línea en las reglas `data-solo-estilo` y su hero. Cada estilo puede traer
+  Un estilo nuevo = su fila en `estilos.ts`, su hoja en
+  `public/agencia/estilos/`, una línea en las reglas `data-solo-estilo` de
+  `estilos.css` y su hero; el test de contraste lee las hojas. Cada estilo puede traer
   `temaDeEntrada` (Institucional claro, Aula oscuro), `dibujoPorDefecto`
   (Aula: anime; manda solo si la persona nunca eligió dibujo) y `fuentes`
   propias: van con `next/font`, `preload: false` y `display: "optional"`
@@ -396,7 +402,13 @@ npm run db:migrate  # las aplica Mauro, con DATABASE_URL
   en la que se elige quedaría con la fuente de respaldo. Aula (P3-2) suma
   los garabatos: `client/Garabato.tsx` dibuja trazos SVG con `pathLength`
   una vez (quietos con movimiento reducido) y los textos van en
-  `estilos.ts`; en Aula la cursiva (Caveat) nunca baja de 22 px.
+  `estilos.ts`; en Aula la cursiva (Caveat) nunca baja de 22 px. Tienda
+  (P3-3, claro de entrada, chibi por defecto) suma `EtiquetaPrecio`
+  (`components/agencia/EtiquetaPrecio.tsx`): recibe el texto ya formateado
+  y en los demás estilos es texto común; el toldo y la barra verde están
+  en `EstiloPiezas.tsx`, y el ejemplo «Almacén Doña Rosa» es una
+  ilustración `role="img"` sin nada tabulable, con precios de `fmt()` y el
+  total calculado.
 - **El personaje (P3-1).** 3 dibujos (`16bit`, `chibi`, `anime`) × 3 poses
   (`normal`, `pensando`, `ok`) en `public/agencia/sprites/<dibujo>/`, más
   las tiras `idle` (respira y parpadea por código), `saludo` y `festejo`.

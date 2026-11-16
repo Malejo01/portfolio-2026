@@ -9,10 +9,11 @@ import { MobileMenu } from "./client/MobileMenu";
 import { SectionSpy } from "./client/SectionSpy";
 import { ThemeTextToggle, ThemeToggle } from "./client/ThemeToggle";
 import { EstiloSelector } from "./client/EstiloSelector";
-import { DIBUJO_ORIGINAL, ESTILO_ORIGINAL, estiloCopy, estilos } from "@/content/agencia/estilos";
+import { DIBUJO_ORIGINAL, ESTILO_ORIGINAL, estilos, selectorCopy } from "@/content/agencia/estilos";
 import { configArranque } from "@/lib/agencia/estilo";
 import { LogoEstilo } from "./EstiloPiezas";
 import { personajes } from "@/lib/agencia/sprites";
+import { hojasDeEstilos } from "@/lib/agencia/estilos-css";
 
 /**
  * Menú en píldora, sticky (DISENO.md §4, `01-menu-*.png`). Sin el botón
@@ -52,17 +53,18 @@ export function Header() {
             <span className="h text-[22px] max-[359px]:sr-only">
               {site.name}
               {/* Aula virtual: "Malejo." con el punto de tiza rosa. */}
-              <span data-solo-estilo="aula" aria-hidden="true" className="text-tono-2">
+              <span data-solo-estilo="aula tienda" aria-hidden="true" className="punto-logo text-tono-2">
                 .
               </span>
             </span>
           </Link>
           <EstiloSelector
-            copy={estiloCopy}
+            copy={selectorCopy}
             estilos={estilos.map(({ id, nombre, descripcion, etiquetaCategoria, disponible }) => ({ id, nombre, descripcion, etiquetaCategoria, disponible }))}
             temas={configArranque(estilos, ESTILO_ORIGINAL, DIBUJO_ORIGINAL).estilos}
             dibujosPor={configArranque(estilos, ESTILO_ORIGINAL, DIBUJO_ORIGINAL).dibujoPor}
             fuentesPor={Object.fromEntries(estilos.filter((e) => e.fuentes).map((e) => [e.id, e.fuentes!]))}
+            cssPor={hojasDeEstilos(estilos.filter((e) => e.disponible && e.id !== ESTILO_ORIGINAL).map((e) => e.id))}
             personajes={personajes()}
           />
 

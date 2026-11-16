@@ -40,6 +40,6 @@ export function srcTira(dibujo: Dibujo, anim: Animacion): string {
 }
 
 /** Los 3 dibujos para los selectores de personaje (miniatura de la pose normal). */
-export function personajes(alto = 64): { id: Dibujo; nombre: string; src: string; w: number; h: number }[] {
-  return dibujos.map((d) => ({ id: d.id, nombre: d.nombre, src: srcPose(d.id, "normal"), ...medida(d.id, alto) }));
+export function personajes(alto = 64): { id: Dibujo; nombre: string; nombrePor?: Record<string, string>; src: string; w: number; h: number }[] {
+  return dibujos.map((d) => ({ id: d.id, nombre: d.nombre, nombrePor: d.nombrePor, src: srcPose(d.id, "normal"), ...medida(d.id, alto) }));
 }

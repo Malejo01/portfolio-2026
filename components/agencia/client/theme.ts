@@ -44,7 +44,9 @@ export function useAgenciaTheme() {
     const root = document.documentElement;
     // El mismo arranque del `<head>` (estilo, dibujo y tema), tanda P3-1.
     if (root.classList.contains("js")) return;
-    arrancar(configArranque(estilos, ESTILO_ORIGINAL, DIBUJO_ORIGINAL));
+    // Sin el hash de versión (solo se calcula en el servidor): es el camino raro del 404.
+    const hojas = Object.fromEntries(estilos.filter((e) => e.disponible && e.id !== ESTILO_ORIGINAL).map((e) => [e.id, `/agencia/estilos/${e.id}.css`]));
+    arrancar(configArranque(estilos, ESTILO_ORIGINAL, DIBUJO_ORIGINAL, hojas), false);
   }, []);
 
   const toggle = useCallback(() => {

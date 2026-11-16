@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Caveat, Inter, JetBrains_Mono, Nunito, Outfit, Source_Serif_4 } from "next/font/google";
+import { Caveat, Fredoka, Inter, JetBrains_Mono, Nunito, Outfit, Source_Serif_4 } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { Footer } from "@/components/agencia/Footer";
 import { Header } from "@/components/agencia/Header";
@@ -12,6 +12,7 @@ import { waLink } from "@/lib/agencia/config";
 import { malejoCopy } from "@/content/agencia/malejo";
 import { DIBUJO_ORIGINAL, ESTILO_ORIGINAL, estilos } from "@/content/agencia/estilos";
 import { configArranque, scriptDeArranque } from "@/lib/agencia/estilo";
+import { hojasDeEstilos } from "@/lib/agencia/estilos-css";
 import { site } from "@/content/agencia/site";
 import { siteUrl } from "@/lib/links";
 import "./agencia.css";
@@ -90,8 +91,16 @@ const nunito = Nunito({
   variable: "--font-nunito",
 });
 
+/** Tanda P3-3: Tienda. Fredoka en titulares, logo, etiquetas de precio y pestañas. */
+const fredoka = Fredoka({
+  subsets: ["latin"],
+  display: "optional",
+  preload: false,
+  variable: "--font-fredoka",
+});
+
 /** En `<body>`, no en `<html>`: mismo motivo que en `SiteDocument`. */
-const FONT_VARIABLES = `${outfit.variable} ${inter.variable} ${jetbrains.variable} ${sourceSerif.variable} ${caveat.variable} ${nunito.variable}`;
+const FONT_VARIABLES = `${outfit.variable} ${inter.variable} ${jetbrains.variable} ${sourceSerif.variable} ${caveat.variable} ${nunito.variable} ${fredoka.variable}`;
 
 /**
  * Antes del primer paint: marca `js` (contrato de `data-reveal`), pone el
@@ -106,7 +115,8 @@ const FONT_VARIABLES = `${outfit.variable} ${inter.variable} ${jetbrains.variabl
  * vive en `components/agencia/client/theme.ts`. Ningún Server Component lee
  * la cookie ni el estilo: eso volvería dinámicas todas las rutas.
  */
-const bootScript = scriptDeArranque(configArranque(estilos, ESTILO_ORIGINAL, DIBUJO_ORIGINAL));
+const HOJAS = hojasDeEstilos(estilos.filter((e) => e.disponible && e.id !== ESTILO_ORIGINAL).map((e) => e.id));
+const bootScript = scriptDeArranque(configArranque(estilos, ESTILO_ORIGINAL, DIBUJO_ORIGINAL, HOJAS));
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -140,6 +150,15 @@ export default function AgenciaRootLayout({ children }: { children: React.ReactN
     <html lang="es" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: bootScript }} />
+        {/*
+          Tanda P3-3: las hojas de los estilos no originales, precargadas con
+          prioridad baja. No bloquean el pintado de Tech; el script de arriba
+          espera a la hoja principal antes de escribir la del estilo activo,
+          y así ya la encuentra descargada en vez de pedirla recién ahí.
+        */}
+        {Object.values(HOJAS).map((href) => (
+          <link key={href} rel="preload" as="style" href={href} fetchPriority="low" />
+        ))}
       </head>
       <body className={FONT_VARIABLES}>
         <BarraEstilo />

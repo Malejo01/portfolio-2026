@@ -1070,7 +1070,7 @@ Rama `p3-3-1-cierre` desde `main` (`d14cfc1`), PR contra `main`. `npm run lint`,
 
 # Tanda P3-4 · Recorrido de bienvenida, tema por estilo y caras del personaje
 
-Rama `p3-4-recorrido` desde `main` (`60f3910`), PR contra `main`. El pedido está en `docs/agencia/tanda-p3-4-recorrido-y-ajustes.md`. `npm run lint`, `npm test` (__TESTS__) y `npm run build` están en verde, con la misma tabla de rutas que `main`: todo `○`/`●` salvo los catch-all y `/api/*`.
+Rama `p3-4-recorrido` desde `main` (`60f3910`), PR contra `main`. El pedido está en `docs/agencia/tanda-p3-4-recorrido-y-ajustes.md`. `npm run lint`, `npm test` (249) y `npm run build` están en verde, con la misma tabla de rutas que `main`: todo `○`/`●` salvo los catch-all y `/api/*`.
 
 ## Qué se hizo
 1. **Tema por estilo.**
@@ -1122,7 +1122,14 @@ Rama `p3-4-recorrido` desde `main` (`60f3910`), PR contra `main`. El pedido est�
   - Capturas: `recorrido-<estilo>-<tema>-<ancho>-<paso>.png` (el paso 1 en todas; los 3 pasos a 390 y 1280 px en el tema de entrada de cada estilo).
 
 ## Presupuesto (`verificacion/p3-4/presupuesto.txt`, contra `main` construida al lado)
-__PRESUPUESTO__
+| Regla | Medición | Resultado |
+|---|---|---|
+| Primera visita (Tech): LCP como mucho +10 % frente a `main` | Lighthouse con throttling devtools, 4 corridas, medianas: `main` 2,02 s, rama 1,98 s | **−2 %** ✅ |
+| Estilo elegido: como mucho +200 ms, con caché tibia | CPU 4× y red lenta, 5 corridas (`tibio.js`). Frente a `main` en el mismo estilo: Tech +76 ms, Institucional +24 ms, Aula +12 ms, Tienda −8 ms. Frente a `main` en Tech (392 ms): Institucional +108 ms, Aula +144 ms, Tienda +128 ms | ✅ |
+| TBT ≤ 250 ms | Lighthouse simulado, 3 corridas, medianas: home 245 ms (`main` 237), `/soluciones` 192 ms (`main` 253) | ✅ (la home queda justa: el ruido entre corridas es de ±60 ms en las dos ramas) |
+| CLS ≤ 0,05 | 0 en todas las corridas | ✅ |
+
+El recorrido no pesa en la carga. `RecorridoLoader` es un efecto chico y la isla `Recorrido` se baja recién a los 4 s del hero, con el navegador libre. El LCP simulado de la home, con más ruido, dio 3,99 s en la rama y 4,45 s en `main` (medianas).
 
 ## Decisiones
 - **El velo es una sombra**, no un SVG con máscara. Una `box-shadow` de 200vmax alrededor del hueco anima posición, tamaño y radio con Framer sin recalcular un trazado, y el color sale de un token por estilo. Las invariantes del portfolio no aplican a la agencia, que ya usa sombras.

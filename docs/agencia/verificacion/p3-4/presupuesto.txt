@@ -1,0 +1,31 @@
+# P3-4 · presupuesto contra main (60f3910) construida al lado. 3001 = rama, 3002 = main.
+# p34s: Lighthouse 12.6 móvil simulado; p34d: throttling devtools; tibio: CPU 4x + red lenta, caché tibia (tibio.js de P3-3.1).
+p34s-main-home-1 LCP 3.86 TBT 231 CLS 0.000
+p34s-rama-home-1 LCP 3.77 TBT 162 CLS 0.000
+p34s-main-sol-1 LCP 3.12 TBT 253 CLS 0.000
+p34s-rama-sol-1 LCP 3.04 TBT 309 CLS 0.000
+p34s-main-home-2 LCP 4.55 TBT 282 CLS 0.000
+p34s-rama-home-2 LCP 3.99 TBT 271 CLS 0.000
+p34s-main-sol-2 LCP 3.81 TBT 210 CLS 0.000
+p34s-rama-sol-2 LCP 3.03 TBT 192 CLS 0.000
+p34s-main-home-3 LCP 4.45 TBT 237 CLS 0.000
+p34s-rama-home-3 LCP 4.61 TBT 245 CLS 0.000
+p34s-main-sol-3 LCP 3.05 TBT 322 CLS 0.000
+p34s-rama-sol-3 LCP 3.04 TBT 187 CLS 0.000
+p34d-main-1 LCP 2.02 TBT 208 CLS 0.000
+p34d-rama-1 LCP 1.93 TBT 257 CLS 0.000
+p34d-main-2 LCP 1.94 TBT 259 CLS 0.000
+p34d-rama-2 LCP 2.03 TBT 327 CLS 0.000
+p34d-main-3 LCP 2.01 TBT 393 CLS 0.000
+p34d-rama-3 LCP 2.04 TBT 376 CLS 0.000
+p34d-main-4 LCP 2.02 TBT 227 CLS 0.000
+p34d-rama-4 LCP 1.93 TBT 333 CLS 0.000
+tech 3002 LCP tibio (ms): 360, 384, 392, 472, 516 mediana 392
+tech 3001 LCP tibio (ms): 384, 444, 468, 472, 472 mediana 468
+institucional 3002 LCP tibio (ms): 452, 456, 476, 508, 608 mediana 476
+institucional 3001 LCP tibio (ms): 472, 476, 500, 512, 520 mediana 500
+aula 3002 LCP tibio (ms): 500, 512, 524, 596, 604 mediana 524
+aula 3001 LCP tibio (ms): 496, 516, 536, 540, 552 mediana 536
+tienda 3002 LCP tibio (ms): 504, 508, 528, 536, 552 mediana 528
+tienda 3001 LCP tibio (ms): 476, 512, 520, 548, 572 mediana 520
+FIN

@@ -5,6 +5,7 @@ import { AnimatePresence, LazyMotion, domAnimation, m, useReducedMotion } from "
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Icon } from "@/components/agencia/icons";
 import type { MalejoCopy, OpcionBienvenida } from "@/content/agencia/malejo";
 import { emitir, leer } from "@/lib/agencia/armado";
@@ -96,6 +97,29 @@ function useCelular(): boolean {
   return cel;
 }
 
+/**
+ * P2.1 (punto 3): en `/soluciones`, desde 760 px, el chat vive **adentro de
+ * la columna derecha** (la pestaña "Malejo" del armador, `#malejo-panel`) y
+ * no como flotante. Es el mismo componente con la misma sesión: se monta con
+ * un portal. Se vuelve a buscar al cambiar de ruta o de ancho.
+ */
+export const MALEJO_PANEL_ID = "malejo-panel";
+
+function useHostPanel(pathname: string | null): HTMLElement | null {
+  const [host, setHost] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 760px)");
+    const on = () => setHost(mq.matches ? document.getElementById(MALEJO_PANEL_ID) : null);
+    const raf = requestAnimationFrame(on);
+    mq.addEventListener("change", on);
+    return () => {
+      cancelAnimationFrame(raf);
+      mq.removeEventListener("change", on);
+    };
+  }, [pathname]);
+  return host;
+}
+
 /** Teclado abierto: el área visible se achicó mucho (`visualViewport`). */
 function useTeclado(activo: boolean): boolean {
   const [abierto, setAbierto] = useState(false);
@@ -131,6 +155,10 @@ export default function MalejoWidget({
   const [grande, setGrande] = useState(false);
   const celular = useCelular();
   const teclado = useTeclado(open && celular);
+  const host = useHostPanel(pathname);
+  const embebido = Boolean(host);
+  /** El chat está a la vista: abierto como flotante o adentro de la columna. */
+  const visible = open || embebido;
   const nextId = useRef(1);
   const spriteBtn = useRef<HTMLButtonElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -182,13 +210,13 @@ export default function MalejoWidget({
   }, []);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open || embebido) return;
     // En el celular a media pantalla no se abre el teclado solo: se lee la bienvenida.
     if (!celular) inputRef.current?.focus();
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [open, close, celular]);
+  }, [open, close, celular, embebido]);
 
   // La hoja a media pantalla avisa su alto: la barra del armado queda encima.
   const media = open && celular && !grande && !teclado;
@@ -207,7 +235,7 @@ export default function MalejoWidget({
   };
   useLayoutEffect(() => {
     const el = listRef.current;
-    if (!el || !open) return;
+    if (!el || !visible) return;
     const ultimo = msgs[msgs.length - 1];
     if (!ultimo) return;
     if (ultimo.role === "user") {
@@ -227,7 +255,7 @@ export default function MalejoWidget({
       }
     }
     if (abajo.current) el.scrollTo({ top: el.scrollHeight });
-  }, [msgs, open]);
+  }, [msgs, visible]);
 
   const send = useCallback(
     async (text: string) => {
@@ -298,6 +326,8 @@ export default function MalejoWidget({
     const raf = requestAnimationFrame(() => {
       atendido.current = pedido.n;
       setOpen(true);
+      // Adentro de la columna no hay ventana que abrir: el foco va al campo.
+      if (document.getElementById(MALEJO_PANEL_ID)?.offsetParent) requestAnimationFrame(() => inputRef.current?.focus({ preventScroll: true }));
       track("chat_abierto", { origen: pedido.tema ? "tema" : "boton" });
       if (pedido.tema) {
         setMsgs((ms) => (ms.some((x) => x.role === "user") ? ms : ms.map((x) => (x.saludo ? { ...x, sinOpciones: true } : x))));
@@ -317,11 +347,111 @@ export default function MalejoWidget({
   const pose = open && busy ? "pensando" : "ok";
   const completa = celular && (grande || teclado);
 
+  // El chat en sí: igual como flotante, como hoja en el celular o adentro de la columna de Soluciones.
+  const cuerpo = (
+    <>
+      {celular ? (
+        <button
+          type="button"
+          onClick={() => setGrande((g) => !g)}
+          aria-label={grande ? copy.header.achicar : copy.header.expandir}
+          className="flex h-4 flex-none items-center justify-center pt-1.5"
+        >
+          <span aria-hidden="true" className="block h-1.5 w-10 rounded-full bg-border-h" />
+        </button>
+      ) : null}
+      <ChatHeader
+        copy={copy}
+        // Adentro de la columna no se cierra: se cambia de pestaña.
+        onClose={embebido ? undefined : close}
+        waHref={waHref}
+        onRestart={sinMensajes ? undefined : reiniciar}
+        expandir={celular ? { grande, toggle: () => setGrande((g) => !g) } : undefined}
+      />
+
+      <div ref={listRef} onScroll={onScroll} className="scroll-fino flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-contain px-3 py-2.5 max-[379px]:py-1.5 min-[760px]:px-4 min-[760px]:py-3" aria-live="polite">
+        {msgs.map((msg) => {
+          const ultimo = msg.id === msgs[msgs.length - 1]?.id;
+          return msg.saludo ? (
+            <Bienvenida
+              key={msg.id}
+              id={msg.id}
+              copy={copy}
+              opciones={msg.sinOpciones ? [] : opciones}
+              activas={ultimo && !busy}
+              onOpcion={(t) => {
+                track("chat_opcion", { origen: "bienvenida" });
+                send(t);
+              }}
+            />
+          ) : (
+            <MessageView
+              key={msg.id}
+              msg={msg}
+              copy={copy}
+              turnstileSiteKey={turnstileSiteKey}
+              enSoluciones={modo === "armado"}
+              // Las respuestas sugeridas solo se pueden tocar en el último mensaje.
+              onOpcion={
+                !busy && ultimo
+                  ? (t) => {
+                      track("chat_opcion");
+                      send(t);
+                    }
+                  : undefined
+              }
+            />
+          );
+        })}
+        {busy && !msgs[msgs.length - 1]?.text && !msgs[msgs.length - 1]?.cards.length ? (
+          <div className="flex items-center gap-2 pl-10" aria-label={copy.typing} role="status">
+            {[0, 1, 2].map((i) => (
+              <span key={i} className="typing-dot h-1.5 w-1.5 rounded-full bg-muted" />
+            ))}
+          </div>
+        ) : null}
+      </div>
+
+      <div className="flex flex-none flex-col gap-1.5 border-t border-border px-3 pb-[calc(8px+env(safe-area-inset-bottom))] pt-2.5 min-[760px]:gap-2 min-[760px]:px-4 min-[760px]:pb-3 min-[760px]:pt-3">
+        <form
+          className="flex gap-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            send(input);
+          }}
+        >
+          <label htmlFor="malejo-input" className="sr-only">
+            {copy.inputLabel}
+          </label>
+          <input
+            id="malejo-input"
+            ref={inputRef}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            maxLength={2000}
+            autoComplete="off"
+            placeholder={copy.placeholder}
+            className="h-11 min-w-0 flex-1 rounded-[14px] border border-border bg-bg px-3.5 text-[16px] shadow-inset placeholder:text-muted focus:outline-none focus-visible:outline-2 focus-visible:outline-acc-text min-[760px]:text-[15px]"
+          />
+          <button type="submit" aria-label={copy.send} disabled={busy || !input.trim()} className="btn btn-p h-11 w-11 flex-none rounded-[14px] p-0 disabled:opacity-60">
+            <Icon name="send" size={18} />
+          </button>
+        </form>
+        <p className="m-0 text-[11px] leading-snug text-muted">
+          {copy.privacy}{" "}
+          <Link href="/legal/privacidad" className="text-acc-text underline underline-offset-2">
+            {copy.privacyLink}
+          </Link>
+        </p>
+      </div>
+    </>
+  );
+
   return (
     <LazyMotion features={domAnimation}>
       <div className="pointer-events-none fixed bottom-3 right-3 z-[60] flex items-end gap-3 min-[760px]:bottom-0 min-[760px]:right-7">
         <AnimatePresence>
-          {open ? (
+          {open && !embebido ? (
             <m.div
               key="chat"
               role="dialog"
@@ -335,102 +465,20 @@ export default function MalejoWidget({
                 completa ? "rounded-none" : "rounded-b-none rounded-t-[24px]"
               }`}
             >
-              {celular ? (
-                <button
-                  type="button"
-                  onClick={() => setGrande((g) => !g)}
-                  aria-label={grande ? copy.header.achicar : copy.header.expandir}
-                  className="flex h-4 flex-none items-center justify-center pt-1.5"
-                >
-                  <span aria-hidden="true" className="block h-1.5 w-10 rounded-full bg-border-h" />
-                </button>
-              ) : null}
-              <ChatHeader
-                copy={copy}
-                onClose={close}
-                waHref={waHref}
-                onRestart={sinMensajes ? undefined : reiniciar}
-                expandir={celular ? { grande, toggle: () => setGrande((g) => !g) } : undefined}
-              />
-
-              <div ref={listRef} onScroll={onScroll} className="flex flex-1 flex-col gap-3 overflow-y-auto overscroll-contain px-3 py-2.5 max-[379px]:py-1.5 min-[760px]:px-4 min-[760px]:py-3" aria-live="polite">
-                {msgs.map((msg) => {
-                  const ultimo = msg.id === msgs[msgs.length - 1]?.id;
-                  return msg.saludo ? (
-                    <Bienvenida
-                      key={msg.id}
-                      id={msg.id}
-                      copy={copy}
-                      opciones={msg.sinOpciones ? [] : opciones}
-                      activas={ultimo && !busy}
-                      onOpcion={(t) => {
-                        track("chat_opcion", { origen: "bienvenida" });
-                        send(t);
-                      }}
-                    />
-                  ) : (
-                    <MessageView
-                      key={msg.id}
-                      msg={msg}
-                      copy={copy}
-                      turnstileSiteKey={turnstileSiteKey}
-                      enSoluciones={modo === "armado"}
-                      // Las respuestas sugeridas solo se pueden tocar en el último mensaje.
-                      onOpcion={
-                        !busy && ultimo
-                          ? (t) => {
-                              track("chat_opcion");
-                              send(t);
-                            }
-                          : undefined
-                      }
-                    />
-                  );
-                })}
-                {busy && !msgs[msgs.length - 1]?.text && !msgs[msgs.length - 1]?.cards.length ? (
-                  <div className="flex items-center gap-2 pl-10" aria-label={copy.typing} role="status">
-                    {[0, 1, 2].map((i) => (
-                      <span key={i} className="typing-dot h-1.5 w-1.5 rounded-full bg-muted" />
-                    ))}
-                  </div>
-                ) : null}
-              </div>
-
-              <div className="flex flex-none flex-col gap-1.5 border-t border-border px-3 pb-[calc(8px+env(safe-area-inset-bottom))] pt-2.5 min-[760px]:gap-2 min-[760px]:px-4 min-[760px]:pb-3 min-[760px]:pt-3">
-                <form
-                  className="flex gap-2"
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    send(input);
-                  }}
-                >
-                  <label htmlFor="malejo-input" className="sr-only">
-                    {copy.inputLabel}
-                  </label>
-                  <input
-                    id="malejo-input"
-                    ref={inputRef}
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    maxLength={2000}
-                    autoComplete="off"
-                    placeholder={copy.placeholder}
-                    className="h-11 min-w-0 flex-1 rounded-[14px] border border-border bg-bg px-3.5 text-[16px] shadow-inset placeholder:text-muted focus:outline-none focus-visible:outline-2 focus-visible:outline-acc-text min-[760px]:text-[15px]"
-                  />
-                  <button type="submit" aria-label={copy.send} disabled={busy || !input.trim()} className="btn btn-p h-11 w-11 flex-none rounded-[14px] p-0 disabled:opacity-60">
-                    <Icon name="send" size={18} />
-                  </button>
-                </form>
-                <p className="m-0 text-[11px] leading-snug text-muted">
-                  {copy.privacy}{" "}
-                  <Link href="/legal/privacidad" className="text-acc-text underline underline-offset-2">
-                    {copy.privacyLink}
-                  </Link>
-                </p>
-              </div>
+              {cuerpo}
             </m.div>
           ) : null}
         </AnimatePresence>
+
+        {/* Soluciones desde 760 px: el mismo chat, adentro de la pestaña "Malejo" de la columna. */}
+        {host
+          ? createPortal(
+              <div role="region" aria-labelledby="malejo-chat-title" className="pointer-events-auto flex min-h-0 flex-1 flex-col">
+                {cuerpo}
+              </div>,
+              host,
+            )
+          : null}
 
         {/*
           El sprite flotante, desde 760 px: en el celular, Malejo está en la barra
@@ -491,7 +539,7 @@ function ChatHeader({
   expandir,
 }: {
   copy: MalejoCopy;
-  onClose: () => void;
+  onClose?: () => void;
   waHref: string;
   onRestart?: () => void;
   /** Celular: agrandar a pantalla completa o volver a media pantalla. */
@@ -536,9 +584,11 @@ function ChatHeader({
           <Icon name="expand" size={16} />
         </button>
       ) : null}
-      <button type="button" className="ibtn h-11 w-11 rounded-xl min-[760px]:h-9 min-[760px]:w-9" aria-label={copy.header.close} onClick={onClose}>
-        <Icon name="close" size={16} />
-      </button>
+      {onClose ? (
+        <button type="button" className="ibtn h-11 w-11 rounded-xl min-[760px]:h-9 min-[760px]:w-9" aria-label={copy.header.close} onClick={onClose}>
+          <Icon name="close" size={16} />
+        </button>
+      ) : null}
     </div>
   );
 }

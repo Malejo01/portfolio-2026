@@ -7,7 +7,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { SolucionesCopy } from "@/content/agencia/soluciones";
 import { getCombo, getPlan } from "@/content/agencia/pricing";
 import { abrirChat } from "@/lib/agencia/abrir-chat";
-import { aQuery, armadoVacio, deQuery, emitir, firmaArmado, leer, type Armado } from "@/lib/agencia/armado";
+import { ABRIR_CHAT_EVENT } from "@/lib/agencia/abrir-chat";
+import { aQuery, armadoVacio, deQuery, emitir, escuchar, firmaArmado, leer, type Armado } from "@/lib/agencia/armado";
 import { leerSesion } from "@/lib/agencia/chat/sesion";
 import { agendaLink, waLink } from "@/lib/agencia/config";
 import { ahorroEnPesos, clasificarId, estimarArmado, fmt, lineaDePagos, lineaDeSena, type EstimadoArmado } from "@/lib/agencia/pricing";
@@ -48,6 +49,10 @@ export interface CategoriaArmador {
 }
 
 type Vista = "carrito" | "form" | "exito";
+type Pestana = "kit" | "malejo";
+
+/** Donde el widget de Malejo monta el chat en la columna (`MalejoWidget`, `useHostPanel`). */
+const MALEJO_PANEL_ID = "malejo-panel";
 
 const plural = (n: number) => String(n);
 
@@ -88,6 +93,44 @@ export function Armador({
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const listo = useRef(false);
   const barraRef = useRef<HTMLButtonElement>(null);
+
+  /*
+   * La columna derecha (P2.1, punto 3): pestañas "Tu kit" | "Malejo". Abrir
+   * el chat desde cualquier botón (`malejo:abrir`: "Ayudame a elegir",
+   * "Preguntale a Malejo", el header) pasa a "Malejo" y trae la columna a la
+   * vista. Lo que se agrega desde una sugerencia de Malejo marca "Tu kit"
+   * con un punto de novedad, sin cambiar de pestaña.
+   */
+  const [pestana, setPestana] = useState<Pestana>("kit");
+  const [novedad, setNovedad] = useState(false);
+  const pestanaRef = useRef(pestana);
+  useEffect(() => {
+    pestanaRef.current = pestana;
+  });
+  useEffect(() => {
+    const onAbrir = () => {
+      if (!window.matchMedia("(min-width: 760px)").matches) return;
+      setPestana("malejo");
+      const panel = document.getElementById("catalogo");
+      if (panel && panel.getBoundingClientRect().top > 120) {
+        panel.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+      }
+    };
+    window.addEventListener(ABRIR_CHAT_EVENT, onAbrir);
+    const dejar = escuchar((ev) => {
+      if (ev.accion === "agregar" && ev.origen === "malejo" && pestanaRef.current === "malejo") setNovedad(true);
+    });
+    return () => {
+      window.removeEventListener(ABRIR_CHAT_EVENT, onAbrir);
+      dejar();
+    };
+  }, []);
+  const elegirPestana = (p: Pestana) => {
+    setPestana(p);
+    if (p === "kit") setNovedad(false);
+    // El chat se carga cuando el navegador está libre: si todavía no llegó, se pide.
+    if (p === "malejo" && !document.getElementById(MALEJO_PANEL_ID)?.childElementCount) abrirChat({});
+  };
 
   // `?cat=` y `?a=` en el primer frame: la URL es estado externo y la ruta, estática.
   useEffect(() => {
@@ -220,8 +263,10 @@ export function Armador({
   const actual = categorias.find((c) => c.key === activa) ?? categorias[0];
   if (!actual) return null;
 
+  const enviarKit = () => setVista("form");
+  const pie = vista === "carrito" && e.cotizacion.items.length ? <CarritoPie e={e} copy={copy} senaSlot={senaSlot} onEnviar={enviarKit} /> : null;
   const carrito = (
-    <Carrito
+    <CarritoCuerpo
       armado={armado}
       e={e}
       copy={copy}
@@ -238,6 +283,11 @@ export function Armador({
       }}
     />
   );
+
+  const pestanas: { key: Pestana; label: string }[] = [
+    { key: "kit", label: copy.panel.kit },
+    { key: "malejo", label: copy.panel.malejo },
+  ];
 
   return (
     <LazyMotion features={domAnimation}>
@@ -356,13 +406,55 @@ export function Armador({
           })}
         </div>
 
-        {/* Carrito: columna fija desde 760 px. Termina antes del sprite de Malejo (abajo a la derecha). */}
+        {/*
+          La columna derecha desde 760 px (P2.1, punto 3): un panel fijo de 3
+          zonas que nunca scrollea entero. Arriba las pestañas; al medio el
+          cuerpo (la lista o el chat), la única parte que scrollea; abajo, en
+          "Tu kit", el pie con el estimado y el botón, siempre completo.
+        */}
         <aside
-          aria-label={copy.carrito.label}
-          className="card hi hidden min-w-0 flex-col gap-4 p-5 min-[760px]:sticky min-[760px]:top-[104px] min-[760px]:col-start-2 min-[760px]:row-span-2 min-[760px]:row-start-1 min-[760px]:flex min-[760px]:max-h-[calc(100dvh-290px)] min-[760px]:overflow-y-auto lg:col-start-3"
+          aria-label={copy.panel.label}
+          className={`card hi hidden min-w-0 flex-col overflow-hidden min-[760px]:sticky min-[760px]:top-[104px] min-[760px]:col-start-2 min-[760px]:row-span-2 min-[760px]:row-start-1 min-[760px]:flex min-[760px]:max-h-[calc(100dvh-120px)] lg:col-start-3 ${
+            pestana === "malejo" ? "min-[760px]:h-[calc(100dvh-120px)]" : ""
+          }`}
         >
-          <EncabezadoCarrito copy={copy} n={n} rebote={rebote} />
-          {carrito}
+          <div role="tablist" aria-label={copy.panel.label} className="flex flex-none gap-1 border-b border-border p-1.5">
+            {pestanas.map((t) => {
+              const on = pestana === t.key;
+              return (
+                <button
+                  key={t.key}
+                  type="button"
+                  role="tab"
+                  id={`panel-tab-${t.key}`}
+                  aria-selected={on}
+                  aria-controls={`panel-${t.key}`}
+                  onClick={() => elegirPestana(t.key)}
+                  className={`relative flex min-h-11 flex-1 items-center justify-center gap-2 rounded-[14px] px-3 text-[15px] font-semibold transition-colors ${
+                    on ? "bg-ic-bg text-acc-text" : "text-muted hover:text-text"
+                  }`}
+                >
+                  {t.key === "malejo" ? <Icon name="chat" size={16} /> : null}
+                  {t.label}
+                  {t.key === "kit" && n ? <Contador n={n} rebote={rebote} /> : null}
+                  {t.key === "kit" && novedad && !on ? (
+                    <span aria-label={copy.panel.novedad} className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-acc" />
+                  ) : null}
+                </button>
+              );
+            })}
+          </div>
+          <div id="panel-kit" role="tabpanel" aria-labelledby="panel-tab-kit" hidden={pestana !== "kit"} className="flex min-h-0 flex-1 flex-col">
+            <div className="scroll-fino min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-4">{carrito}</div>
+            {pie ? <div className="flex-none border-t border-border px-5 py-4">{pie}</div> : null}
+          </div>
+          <div
+            id={MALEJO_PANEL_ID}
+            role="tabpanel"
+            aria-labelledby="panel-tab-malejo"
+            hidden={pestana !== "malejo"}
+            className="flex min-h-0 flex-1 flex-col"
+          />
         </aside>
       </div>
 
@@ -417,6 +509,7 @@ export function Armador({
           }}
           titulo={copy.carrito.label}
           cerrarLabel={copy.carrito.cerrar}
+          pie={pie}
         >
           {carrito}
         </Hoja>
@@ -458,17 +551,13 @@ function Contador({ n, rebote }: { n: number; rebote: number }) {
   );
 }
 
-function EncabezadoCarrito({ copy, n, rebote }: { copy: SolucionesCopy; n: number; rebote: number }) {
-  return (
-    <div className="flex items-center justify-between gap-2">
-      <span className="lbl lbl-o">{copy.carrito.label}</span>
-      {n ? <Contador n={n} rebote={rebote} /> : null}
-    </div>
-  );
-}
-
-/** El contenido del carrito: igual en la columna de escritorio y en la hoja del celular. */
-function Carrito({
+/**
+ * El cuerpo del kit (lo que scrollea): la lista, el combo, los extras,
+ * compartir y vaciar; o el formulario, o la pantalla de éxito. Igual en la
+ * columna de escritorio y en la hoja del celular. El estimado y el botón
+ * van aparte, en `CarritoPie`, que queda fijo abajo (P2.1, punto 3).
+ */
+function CarritoCuerpo({
   armado,
   e,
   copy,
@@ -611,35 +700,6 @@ function Carrito({
 
       <div className="flex flex-wrap items-center justify-between gap-2">{extrasSlot}</div>
 
-      <div aria-live="polite" className="flex flex-col gap-1.5 rounded-[16px] bg-surf-2 p-4">
-        <span className="lbl text-[10px]">{k.estimadoLabel}</span>
-        {e.piso ? (
-          <strong className="h text-[24px] leading-tight">{k.estimado.replace("{X}", fmt(e.piso)).replace("{Y}", fmt(e.techo))}</strong>
-        ) : (
-          <strong className="text-[15px]">{k.soloMensual}</strong>
-        )}
-        {linea ? <span className="text-[14px] font-semibold text-acc-text">{linea}</span> : null}
-        {e.mensual ? (
-          <span className="text-[14px]">
-            + <strong>{fmt(e.mensual)}</strong> <span className="text-muted">{k.porMes}</span>
-          </span>
-        ) : null}
-        {e.anual ? (
-          <span className="text-[14px]">
-            + <strong>{fmt(e.anual)}</strong> <span className="text-muted">{k.porAnio}</span>
-          </span>
-        ) : null}
-        <span className="flex flex-wrap items-center gap-x-2 text-[14px]">
-          {lineaDeSena(e.sena)}
-          <span className="contents">{senaSlot}</span>
-        </span>
-        <span className="text-[12px] leading-snug text-muted">{k.nota}</span>
-      </div>
-
-      <button type="button" className="btn btn-p w-full whitespace-normal" onClick={() => setVista("form")}>
-        {k.enviar}
-      </button>
-
       <div className="flex flex-wrap items-center justify-between gap-2">
         <button type="button" className="btn btn-s btn-sm min-h-11" onClick={compartir}>
           <Icon name="share" size={16} />
@@ -671,6 +731,52 @@ function Carrito({
 
       <button type="button" className="lnk min-h-11 self-start whitespace-normal text-left text-[14px]" onClick={onAyuda}>
         {k.ayuda}
+      </button>
+    </div>
+  );
+}
+
+/**
+ * El pie fijo del kit (P2.1, punto 3): el estimado como rango, la línea de
+ * pagos, lo mensual, la seña y el botón para mandárselo a Mauro. Nunca
+ * scrollea ni queda cortado: en la columna es la tercera zona del panel y en
+ * el celular va en el `pie` de la hoja.
+ */
+function CarritoPie({ e, copy, senaSlot, onEnviar }: { e: EstimadoArmado; copy: SolucionesCopy; senaSlot: React.ReactNode; onEnviar: () => void }) {
+  const k = copy.carrito;
+  const linea = lineaDePagos(e.pagos?.total);
+  return (
+    <div className="flex flex-col gap-3">
+      <div aria-live="polite" className="flex flex-col gap-1 rounded-[16px] bg-surf-2 px-4 py-3">
+        <span className="lbl text-[10px]">{k.estimadoLabel}</span>
+        {e.piso ? (
+          <strong className="h text-[22px] leading-tight">{k.estimado.replace("{X}", fmt(e.piso)).replace("{Y}", fmt(e.techo))}</strong>
+        ) : (
+          <strong className="text-[15px]">{k.soloMensual}</strong>
+        )}
+        {linea ? <span className="text-[14px] font-semibold text-acc-text">{linea}</span> : null}
+        {e.mensual || e.anual ? (
+          <span className="text-[14px]">
+            {e.mensual ? (
+              <>
+                + <strong>{fmt(e.mensual)}</strong> <span className="text-muted">{k.porMes}</span>
+              </>
+            ) : null}
+            {e.anual ? (
+              <>
+                {e.mensual ? " " : ""}+ <strong>{fmt(e.anual)}</strong> <span className="text-muted">{k.porAnio}</span>
+              </>
+            ) : null}
+          </span>
+        ) : null}
+        <span className="flex flex-wrap items-center gap-x-2 text-[14px]">
+          {lineaDeSena(e.sena)}
+          <span className="contents">{senaSlot}</span>
+        </span>
+        <span className="text-[12px] leading-snug text-muted">{k.nota}</span>
+      </div>
+      <button type="button" className="btn btn-p w-full whitespace-normal" onClick={onEnviar}>
+        {k.enviar}
       </button>
     </div>
   );

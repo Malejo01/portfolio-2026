@@ -37,6 +37,14 @@ export const solucionesCopy = {
   /** Sin JS, cada plan lleva a la demo. */
   sinJsDemo: "Pedí tu demo",
 
+  /** La columna derecha en escritorio (P2.1): dos pestañas. */
+  panel: {
+    label: "Tu kit y Malejo",
+    kit: "Tu kit",
+    malejo: "Malejo",
+    novedad: "Hay algo nuevo en tu kit",
+  },
+
   /** El carrito (D2, D3). */
   carrito: {
     label: "Tu armado",

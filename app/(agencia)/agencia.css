@@ -791,3 +791,17 @@ html.js .carrusel-slide:not([data-activa]) {
   height: var(--nav-inf);
   padding-bottom: env(safe-area-inset-bottom);
 }
+
+/* P2.1: la única parte que scrollea de la columna derecha (y el chat), con
+   la barra fina del tema. */
+.scroll-fino {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-h) transparent;
+}
+.scroll-fino::-webkit-scrollbar {
+  width: 6px;
+}
+.scroll-fino::-webkit-scrollbar-thumb {
+  background: var(--border-h);
+  border-radius: 6px;
+}

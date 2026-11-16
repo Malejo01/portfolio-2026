@@ -877,6 +877,7 @@ Criterio acordado con Mauro: TBT ≤ 250 ms y CLS ≤ 0,05 obligatorios; el LCP 
 5. **El ejemplo de la Cooperativa en el celular** va debajo de los chips (la referencia del celular solo muestra la primera pantalla).
 6. **Las familias de fuente de los tokens se declaran en `body`:** las variables de `next/font` viven ahí y, declaradas en `<html>`, se resolvían vacías (Tech perdía Outfit). Quedó anotado en `CLAUDE.md`.
 7. **Las clases de las tiras se llaman `tira-*`**, no `sprite-saludo`, para que no quede ningún uso del nombre viejo.
+8. **El selector descarga las fuentes del estilo antes de cambiar** (`estilos.ts → fuentes`, `document.fonts.load()` con tope de 1,5 s). Con `display: "optional"` y sin precarga, una fuente que se pide recién al pintar el estilo no entra en esa vista: el cambio en vivo a Institucional mostraba la serif de respaldo hasta recargar. Arreglado después de abrir el PR, antes de seguir con P3-2.
 
 ## Pendiente
 - **Anime: activado** (es uno de los 3 dibujos del selector y de la bolsa).

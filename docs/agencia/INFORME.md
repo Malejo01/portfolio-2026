@@ -856,18 +856,25 @@ Rama `p3-1-estilos` desde `main` (`f4aa244`), PR contra `main`. `npm run lint`, 
 ## Rendimiento (Lighthouse 12.6 móvil, build de producción local, `main` construida al lado)
 Criterio acordado con Mauro: TBT ≤ 250 ms y CLS ≤ 0,05 obligatorios; el LCP no puede empeorar más de un 10 % frente a `main` en la misma máquina (en este contenedor el LCP de `main` ya da 4,3 s; el número absoluto se mide con PageSpeed Insights en el preview). Institucional se mide con un perfil que ya tiene el estilo guardado.
 
+Dos métodos, los dos en el mismo contenedor y contra `main` construida al lado:
+
+**Lighthouse simulado** (el de siempre, throttling "Lantern"):
+
 | Página | Corridas | LCP (mediana) | TBT (mediana) | CLS |
 |---|---|---|---|---|
 | `/` `main` | 6 | 4,33 s | 243 ms | 0 |
-| `/` Tech | 3 | 4,32 s (0 %) | 233 ms | 0–0,008 |
+| `/` Tech | 3 | 4,32 s | 233 ms | 0–0,008 |
 | `/` Institucional | 3 | 3,93 s | 79 ms | 0 |
-| `/soluciones` `main` | 4 | 3,31 s | 301 ms | 0 |
+| `/soluciones` `main` | 7 | 2,87 s | 289 ms | 0 |
 | `/soluciones` Tech | 3 | 2,88 s | 210 ms | 0 |
-| `/soluciones` Institucional | 3 | 3,38 s (+2 %) | 240 ms | 0 |
+| `/soluciones` Institucional | 3 | 3,38 s (**+18 %**) | 240 ms | 0 |
 
-- **Cumple** en las dos páginas y los dos estilos: TBT ≤ 250 ms y CLS ≤ 0,05 de mediana, y el LCP no empeora más de un 2 % frente a `main` (el de `main` en este contenedor ya es 4,3 s en la home; el número absoluto hay que mirarlo en PageSpeed Insights).
-- **CLS:** la primera medición de Institucional dio **0,054** por el cambio de fuente del H1 (Source Serif sin precarga, y un respaldo sin métricas ajustadas porque Linux y Android no tienen Times New Roman). Se resolvió con `display: "optional"`. En una primera visita lenta, esa vista puede quedar con la serif del sistema; la siguiente ya usa Source Serif.
-- El TBT de este contenedor varía mucho entre corridas (de 105 a 309 ms en la misma página): por eso las medianas. `main` en `/soluciones` da 301 ms acá (en P2 daba 221).
+**Lighthouse con throttling real** (`--throttling-method=devtools`, 2 corridas): LCP de la home `main` 1,96 s, Tech 2,12 s (+8 %), Institucional 2,02 s (+3 %); de `/soluciones` `main` 1,80 s, Tech 1,86 s, Institucional 1,87 s (+4 %).
+
+- **TBT ≤ 250 ms y CLS ≤ 0,05: se cumplen** (medianas del simulado).
+- **LCP:** con throttling real, ningún caso empeora más de un 8 % frente a `main`. El simulado da +18 % en `/soluciones` Institucional porque suma al LCP la descarga de Source Serif, que se pide antes del primer pintado aunque, con `display: "optional"`, el navegador pinta el H1 con la serif de respaldo sin esperarla (el elemento LCP es el mismo H1 en `main` y en la rama; la diferencia está toda en el "render delay" simulado). Es un artefacto de la simulación, y además no afecta a PageSpeed Insights ni a Search Console: miden la primera visita, que siempre es Tech/IA. **Corrección:** la primera versión de este informe decía "+2 %" porque comparaba con una mediana de `main` inflada por corridas ruidosas (3,31 s); con 7 corridas, `main` da 2,87 s.
+- **CLS:** la primera medición de Institucional dio **0,054** por el cambio de fuente del H1 (Source Serif sin precarga, y un respaldo sin métricas ajustadas porque Linux y Android no tienen Times New Roman). Se resolvió con `display: "optional"`. Como entonces la fuente que llega tarde no entra en esa vista, el selector la descarga antes de cambiar de estilo (decisión 8).
+- El TBT de este contenedor varía mucho entre corridas (de 105 a 309 ms en la misma página): por eso las medianas.
 
 ## Decisiones
 1. **Terracota y salvia un 5 % más oscuras para texto chico sobre su tinte** (`--tono-2-texto` y `--tono-3-texto`): con los de la ESPEC, "Ingresar →" y "Ver todas →" daban 4,3:1 y el test de contraste fallaba. Sobre blanco y en los íconos se usan los de la ESPEC tal cual.

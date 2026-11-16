@@ -826,5 +826,7 @@ Sobre la misma rama del PR #9, un commit por punto. `npm test` (231), `npm run l
 ## Evals reales (16-11, contra el preview)
 `evals/2026-11-16T0120.md`: **48 de 50** ✅ (objetivo 46 = el 44 de P2 más los 2 nuevos). Pasan AQ (ahora cierra con "¿Se lo mandás a Mauro…?"), AW (aula virtual desde la home: sugiere `plataforma-educativa-con-ia`, sin `pedir_demo`, nombra "tu kit") y AX ("quiero ver una demo ya": sugerencia en una línea y la demo). Fallas: **B**, donde Malejo pidió tocar «Agregar al kit» sin haber mostrado la tarjeta (arreglado en el prompt después de la corrida; la B ahora acepta la sugerencia como alternativa a cotizar) y no habló de cuotas ante "¿y con Mercado Pago?"; y **Q**, de P1 (abre la tienda con otra opción).
 
+Re-corrida de control después del arreglo (`evals/2026-11-16T0201.md`, B, AQ, AW y AX): pasan B, AQ y AW. AX mostró la sugerencia para el kit y la demo, como se pide, pero sumó una segunda frase después de las tarjetas y llegó a 61 palabras (tope 60); en la corrida completa había pasado.
+
 ## Capturas
 `verificacion/p2-1/`: `/soluciones` a 1280 y 2560 px en "Proyectos a medida" y con la pestaña Malejo abierta, y la hoja del kit a 390 px.

@@ -13,7 +13,10 @@ import { estilos } from "@/content/agencia/estilos";
  * íconos). Texto: 4,5:1. Texto grande e íconos: 3:1.
  */
 const raiz = path.join(process.cwd(), "app/(agencia)");
-const css = readFileSync(path.join(raiz, "agencia.css"), "utf8") + "\n" + readFileSync(path.join(raiz, "estilos.css"), "utf8");
+const hojas = path.join(process.cwd(), "public/agencia/estilos");
+const css = [path.join(raiz, "agencia.css"), path.join(raiz, "estilos.css"), ...estilos.filter((e) => e.disponible && e.id !== "tech").map((e) => path.join(hojas, `${e.id}.css`))]
+  .map((f) => readFileSync(f, "utf8"))
+  .join("\n");
 
 function bloque(selector: string): Record<string, string> {
   const out: Record<string, string> = {};
@@ -94,6 +97,8 @@ const PARES: [string, string, number][] = [
   ["--pie-texto", "--pie-bg", 4.5],
   // P3-2: las pestañas del kit sobre el marco (madera en el pizarrón).
   ["--text", "--marco", 4.5],
+  // P3-3: la etiqueta de precio (#2B2118 sobre mostaza en Tienda).
+  ["--precio-ink", "--precio-bg", 4.5],
   ["--pie-muted", "--pie-bg", 4.5],
   // Los 3 tonos: precios y "Ingresar →" sobre la superficie y sobre su tinte.
   ...[1, 2, 3].flatMap((n) => [
@@ -102,6 +107,8 @@ const PARES: [string, string, number][] = [
     [`--tono-${n}-texto`, `--tono-${n}-bg`, 4.5],
     ["--muted", `--tono-${n}-bg`, 4.5],
     ["--titulo", `--tono-${n}-bg`, 4.5],
+    // P3-3: el número de "Cómo trabajo" en un círculo del tono (texto de la superficie).
+    ["--surf", `--tono-${n}`, 4.5],
   ] as [string, string, number][]),
 ];
 

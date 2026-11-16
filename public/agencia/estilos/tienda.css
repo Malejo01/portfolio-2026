@@ -1,0 +1,415 @@
+/*
+ * Estilo Tienda (tanda P3-3): se carga solo cuando el estilo está activo.
+ * El script inline del layout lo agrega en el <head> (bloquea el primer
+ * pintado, así no hay destello) y el selector lo descarga antes de cambiar.
+ * Los tokens y nombres son los de `app/(agencia)/agencia.css`; lo común a
+ * todos los estilos está en `app/(agencia)/estilos.css`.
+ */
+/* ============================================================
+   TIENDA · claro: el almacén de barrio
+   (docs/agencia/estilos/tienda/ESPEC.md, tanda P3-3)
+   ============================================================ */
+[data-estilo="tienda"] {
+  --bg: #fbf4e8;
+  --surf: #ffffff;
+  --surf-2: #fbf4e8;
+  --border: #e7d9c4;
+  --border-2: #e7d9c4;
+  --border-h: #d6c3a6;
+  --hl: #e7d9c4;
+  --text: #2b2118;
+  --muted: #5a4a3b;
+  --titulo: #2b2118;
+  /* El botón principal (fondo) y el color de texto, separados (P3-3). */
+  --acc: #c2410c;
+  --acc-ink: #ffffff;
+  /* El tomate de la ESPEC da 4,3:1 sobre su tinte: el texto va un 7 % más oscuro (AA). */
+  --acc-text: #b43c0b;
+  --ic-bg: #fde6d8;
+  --ok: #1f6f4a;
+  --ok-text: #1f6f4a;
+  --save-bg: #e1f1e7;
+  --user-text: #2b2118;
+  /* Sombra plana, sin desenfoque. */
+  --shadow: 0 6px 0 #e7d9c4;
+  --shadow-h: 0 8px 0 #e7d9c4;
+  --hi-b: #c2410c;
+  --hi-t: #c2410c;
+  --hi-s: 0 6px 0 #e7d9c4;
+  --mid-bg: #fbf4e8;
+  --mock-bg: #fbf4e8;
+  --nav-bg: rgba(251, 244, 232, 0.94);
+  --btn-shadow: 0 4px 0 #8f2f08;
+  --btn-shadow-active: 0 1px 0 #8f2f08;
+  --inset: none;
+
+  --r-max: 999px;
+  --r-card: 22px;
+  --r-card-big: 22px;
+  --r-btn: 999px;
+  --r-btn-sm: 999px;
+  --r-ibtn: 999px;
+  --r-ic: 12px;
+  --r-tag: 999px;
+  --r-chip: 999px;
+  --borde-ancho: 2px;
+  --borde-estilo: solid;
+  --peso-titulo: 700;
+  --tracking-titulo: -0.01em;
+  --peso-etiqueta: 700;
+  --tracking-etiqueta: 0;
+  --peso-boton: 800;
+  --lbl-tamano: 13px;
+  --lbl-mayus: none;
+  --btn-s-borde: #2b2118;
+  --btn-s-texto: #2b2118;
+
+  --tono-1: #c2410c;
+  --tono-2: #1f6f4a;
+  --tono-3: #8a5a0b;
+  --tono-1-bg: #fde6d8;
+  --tono-2-bg: #e1f1e7;
+  --tono-3-bg: #fbefd3;
+  --tono-1-texto: #b43c0b;
+  --etiqueta: #1f6f4a;
+  --marca: #c2410c;
+  --malejo-btn: #1f6f4a;
+  --malejo-btn-ink: #ffffff;
+  --pie-bg: transparent;
+  /* La etiqueta de precio y el toldo. */
+  --precio-bg: #d29330;
+  --precio-ink: #2b2118;
+  --toldo-1: #c2410c;
+  --toldo-2: #fbf4e8;
+  --barra-tienda: #1f6f4a;
+  --sombra-panel: 0 24px 60px rgba(43, 33, 24, 0.2);
+}
+
+[data-estilo="tienda"] body {
+  --fuente-titulo: var(--font-fredoka), ui-rounded, system-ui, sans-serif;
+  --fuente-etiqueta: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+  --fuente-boton: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+  --fuente-cuerpo: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ============================================================
+   TIENDA · oscuro: N1 · Noche cálida. Los botones mantienen sus colores;
+   el texto, los íconos y los enlaces de color van en versión suave.
+   ============================================================ */
+[data-estilo="tienda"].dark {
+  --bg: #1c1611;
+  --surf: #282019;
+  --surf-2: #1c1611;
+  --border: #3b2f25;
+  --border-2: #3b2f25;
+  --border-h: #54443a;
+  --hl: #3b2f25;
+  --text: #f3e9dc;
+  --muted: #c8b8a5;
+  --titulo: #f3e9dc;
+  --acc: #c2410c;
+  --acc-ink: #ffffff;
+  --acc-text: #f08a5d;
+  --ic-bg: #3a2419;
+  --ok: #8cc9a6;
+  --ok-text: #8cc9a6;
+  --save-bg: #1c3127;
+  --user-text: #f3e9dc;
+  --shadow: 0 6px 0 #3b2f25;
+  --shadow-h: 0 8px 0 #3b2f25;
+  --hi-b: #f08a5d;
+  --hi-t: #f08a5d;
+  --hi-s: 0 6px 0 #3b2f25;
+  --mid-bg: #1c1611;
+  --mock-bg: #1c1611;
+  --nav-bg: rgba(28, 22, 17, 0.94);
+  --btn-s-borde: #f3e9dc;
+  --btn-s-texto: #f3e9dc;
+
+  --tono-1: #f08a5d;
+  --tono-2: #8cc9a6;
+  --tono-3: #e3b45c;
+  --tono-1-bg: #3a2419;
+  --tono-2-bg: #1c3127;
+  --tono-3-bg: #3a2e17;
+  --tono-1-texto: #f08a5d;
+  --tono-2-texto: #8cc9a6;
+  --tono-3-texto: #e3b45c;
+  --etiqueta: #8cc9a6;
+  --marca: #f08a5d;
+  --malejo-btn: #1f6f4a;
+  --malejo-btn-ink: #ffffff;
+  --toldo-1: #a8390b;
+  --toldo-2: #282019;
+  --barra-tienda: #1f6f4a;
+  --sombra-panel: 0 24px 60px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Tienda: composición que no es un color ───────────────────────── */
+/* La barra verde de arriba y el toldo debajo, que se despliega una vez. */
+.est-barra-tienda {
+  background: var(--barra-tienda);
+  color: #ffffff;
+}
+.toldo {
+  height: 22px;
+  background: repeating-linear-gradient(90deg, var(--toldo-1) 0 40px, var(--toldo-2) 40px 80px);
+  -webkit-mask: radial-gradient(circle at 50% calc(100% - 8px), #000 7.5px, transparent 8px) 0 100% / 40px 16px repeat-x, linear-gradient(#000, #000) 0 0 / 100% calc(100% - 8px) no-repeat;
+  mask: radial-gradient(circle at 50% calc(100% - 8px), #000 7.5px, transparent 8px) 0 100% / 40px 16px repeat-x, linear-gradient(#000, #000) 0 0 / 100% calc(100% - 8px) no-repeat;
+  transform-origin: top;
+}
+@media (max-width: 759px) {
+  .toldo {
+    height: 14px;
+    background-size: auto;
+    background-image: repeating-linear-gradient(90deg, var(--toldo-1) 0 26px, var(--toldo-2) 26px 52px);
+    -webkit-mask-size: 26px 10px, 100% calc(100% - 5px);
+    mask-size: 26px 10px, 100% calc(100% - 5px);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  html.js .toldo {
+    animation: toldo-baja 0.4s ease-out both;
+  }
+}
+@keyframes toldo-baja {
+  from {
+    transform: scaleY(0);
+  }
+}
+[data-estilo="tienda"] .header-ag .nav-pill {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+/* Etiquetas de sección en verde, sin mayúsculas. */
+[data-estilo="tienda"] .lbl-o {
+  color: var(--etiqueta);
+}
+
+/* La etiqueta de precio (EtiquetaPrecio). En los demás estilos no se nota:
+   es texto común. En Tienda, la etiqueta mostaza con su agujero. */
+[data-estilo="tienda"] .etiqueta-precio {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 4px 12px 4px 20px;
+  border-radius: 6px 999px 999px 6px;
+  background: var(--precio-bg);
+  color: var(--precio-ink);
+  font-family: var(--fuente-titulo);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.3;
+  transform-origin: 8px 50%;
+}
+[data-estilo="tienda"] .etiqueta-precio * {
+  color: inherit !important;
+}
+[data-estilo="tienda"] .etiqueta-precio .h,
+[data-estilo="tienda"] .etiqueta-precio strong {
+  font-family: inherit;
+  font-size: inherit;
+  letter-spacing: 0;
+}
+[data-estilo="tienda"] .etiqueta-precio::before {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin-top: -3px;
+  border-radius: 999px;
+  background: var(--surf);
+}
+[data-estilo="tienda"] .etiqueta-precio-grande {
+  font-size: 22px;
+  padding: 6px 16px 6px 26px;
+}
+[data-estilo="tienda"] .etiqueta-precio-grande::before {
+  left: 9px;
+  width: 8px;
+  height: 8px;
+  margin-top: -4px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-estilo="tienda"] .etiqueta-precio[data-visto] {
+    animation: balanceo 0.6s ease-out both;
+    animation-delay: calc(var(--i, 0) * 60ms);
+  }
+}
+@keyframes balanceo {
+  0% {
+    transform: rotate(-8deg);
+  }
+  50% {
+    transform: rotate(4deg);
+  }
+  100% {
+    transform: rotate(0);
+  }
+}
+
+/* "Cómo trabajo": recuadros entintados con el número en un círculo. */
+[data-estilo="tienda"] .paso-tono {
+  background: var(--t-bg);
+  border: 0;
+  box-shadow: none;
+}
+[data-estilo="tienda"] .paso-num {
+  border-radius: 999px;
+  background: var(--t);
+  color: var(--surf);
+  font-family: var(--fuente-titulo);
+  font-size: 18px;
+  width: 40px;
+  height: 40px;
+}
+[data-estilo="tienda"] .con-tono .ic {
+  background: var(--t-bg);
+  color: var(--t);
+}
+
+/* Soluciones: la categoría activa con borde tomate, sombra plana y contador. */
+[data-estilo="tienda"] .cat-tab {
+  background: transparent;
+  border: 2px solid transparent;
+  box-shadow: none;
+  border-radius: 16px;
+  color: var(--text);
+}
+[data-estilo="tienda"] .cat-tab[aria-selected="true"] {
+  background: var(--surf);
+  border-color: var(--acc-text);
+  box-shadow: var(--shadow);
+  color: var(--text);
+}
+[data-estilo="tienda"] .contador {
+  background: var(--acc);
+  color: var(--acc-ink);
+}
+/* "El más pedido": sticker tomate rotado. */
+[data-estilo="tienda"] .sello-rec {
+  display: none;
+}
+.sticker {
+  transform: rotate(4deg);
+  border-radius: 999px;
+  background: var(--acc);
+  color: var(--acc-ink);
+  box-shadow: var(--btn-shadow);
+  font-family: var(--fuente-titulo);
+}
+/* Las pestañas del kit sobre mostaza clara y el ticket troquelado. */
+[data-estilo="tienda"] .pestanas-madera {
+  background: var(--tono-3-bg);
+}
+[data-estilo="tienda"] .pestanas-madera [role="tab"] {
+  font-family: var(--fuente-titulo);
+  font-size: 17px;
+  border-radius: 14px;
+}
+[data-estilo="tienda"] .pestanas-madera [role="tab"][aria-selected="true"] {
+  background: var(--surf);
+  color: var(--text);
+}
+[data-estilo="tienda"] aside.panel-madera {
+  --troquel: 8px;
+  -webkit-mask: radial-gradient(circle at 50% 100%, transparent 7px, #000 7.5px) 0 100% / 20px 10px repeat-x, linear-gradient(#000, #000) 0 0 / 100% calc(100% - 9px) no-repeat;
+  mask: radial-gradient(circle at 50% 100%, transparent 7px, #000 7.5px) 0 100% / 20px 10px repeat-x, linear-gradient(#000, #000) 0 0 / 100% calc(100% - 9px) no-repeat;
+  padding-bottom: 10px;
+  box-shadow: none;
+}
+/* La barra del kit del celular: tomate. */
+[data-estilo="tienda"] .barra-armado > button {
+  background: var(--acc);
+  border-color: var(--acc);
+  color: var(--acc-ink);
+}
+[data-estilo="tienda"] .barra-armado > button :where(span, strong, svg) {
+  color: inherit;
+}
+[data-estilo="tienda"] .barra-armado > button > span:last-child {
+  background: rgb(255 255 255 / 0.16);
+  border-color: transparent;
+}
+/* Malejo: el toldo arriba de la hoja, la burbuja con la punta arriba a la
+   izquierda y las opciones en píldoras con borde de los 3 colores. */
+[data-estilo="tienda"] .panel-madera:not(aside) {
+  border-top: 0;
+}
+[data-estilo="tienda"] .panel-madera:not(aside)::before {
+  content: "";
+  display: block;
+  flex: none;
+  height: 14px;
+  background: repeating-linear-gradient(90deg, var(--toldo-1) 0 26px, var(--toldo-2) 26px 52px);
+}
+[data-estilo="tienda"] .burbuja-malejo {
+  border-radius: 4px 18px 18px 18px;
+}
+[data-estilo="tienda"] .opcion-tono {
+  border: 2px solid var(--t);
+  border-radius: 999px;
+  font-weight: 700;
+}
+[data-estilo="tienda"] .opcion-tono svg {
+  color: var(--t);
+}
+
+/* La "IA" del H1 de Tienda: píldora mostaza rotada. */
+.ia-pildora {
+  display: inline-block;
+  padding: 0 0.22em;
+  border-radius: 999px;
+  background: var(--precio-bg);
+  color: var(--precio-ink);
+  transform: rotate(-3deg);
+}
+/* El selector rápido de personaje en píldoras (la activa, oscura). */
+[data-estilo="tienda"] .personaje-rapido button {
+  border-radius: 999px;
+  border-width: 2px;
+  font-weight: 700;
+}
+[data-estilo="tienda"] .personaje-rapido button[aria-pressed="true"] {
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
+}
+[data-estilo="tienda"] .personaje-rapido button[aria-pressed="true"] img {
+  display: none;
+}
+[data-estilo="tienda"] .punto-logo {
+  color: var(--acc-text);
+}
+
+/* "Desde" aparte y arriba de la etiqueta (en los demás estilos, en línea). */
+[data-estilo="tienda"] .etiqueta-desde {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  max-width: 100%;
+  min-width: 0;
+}
+[data-estilo="tienda"] .etiqueta-desde-txt {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+}
+@media (max-width: 639px) {
+  [data-estilo="tienda"] .etiqueta-precio:not(.etiqueta-precio-grande) {
+    padding: 3px 10px 3px 17px;
+    font-size: 14px;
+  }
+  [data-estilo="tienda"] .etiqueta-precio:not(.etiqueta-precio-grande)::before {
+    left: 6px;
+  }
+}

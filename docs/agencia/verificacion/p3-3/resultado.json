@@ -1,0 +1,265 @@
+{
+  "fecha": "2026-11-16T14:50:57.324Z",
+  "base": "http://localhost:3001",
+  "recorrido": {
+    "tienda/light/360/": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 9
+    },
+    "tienda/light/360/soluciones?a=landing-profesional,turnos-online": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 18
+    },
+    "tienda/light/360/soluciones?cat=tiendas": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 18
+    },
+    "tienda/light/360/servicios/tiendas": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 3
+    },
+    "tienda/light/360/demo": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 0
+    },
+    "tienda/light/360/no-existe-esta-pagina": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 0
+    },
+    "tienda/light/360/#chat": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 9
+    },
+    "tienda/light/390/": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 9
+    },
+    "tienda/light/390/soluciones?a=landing-profesional,turnos-online": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 18
+    },
+    "tienda/light/390/soluciones?cat=tiendas": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 18
+    },
+    "tienda/light/390/servicios/tiendas": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 3
+    },
+    "tienda/light/390/demo": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 0
+    },
+    "tienda/light/390/no-existe-esta-pagina": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 0
+    },
+    "tienda/light/390/#chat": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 9
+    },
+    "tienda/light/1280/": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 9
+    },
+    "tienda/light/1280/soluciones?a=landing-profesional,turnos-online": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 18
+    },
+    "tienda/light/1280/soluciones?cat=tiendas": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 18
+    },
+    "tienda/light/1280/servicios/tiendas": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 3
+    },
+    "tienda/light/1280/demo": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 0
+    },
+    "tienda/light/1280/no-existe-esta-pagina": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 0
+    },
+    "tienda/light/1280/#chat": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 9
+    },
+    "tienda/dark/360/": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 9
+    },
+    "tienda/dark/360/soluciones?a=landing-profesional,turnos-online": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 18
+    },
+    "tienda/dark/360/soluciones?cat=tiendas": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 18
+    },
+    "tienda/dark/360/servicios/tiendas": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 3
+    },
+    "tienda/dark/360/demo": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 0
+    },
+    "tienda/dark/360/no-existe-esta-pagina": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 0
+    },
+    "tienda/dark/360/#chat": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 9
+    },
+    "tienda/dark/390/": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 9
+    },
+    "tienda/dark/390/soluciones?a=landing-profesional,turnos-online": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 18
+    },
+    "tienda/dark/390/soluciones?cat=tiendas": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 18
+    },
+    "tienda/dark/390/servicios/tiendas": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 3
+    },
+    "tienda/dark/390/demo": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 0
+    },
+    "tienda/dark/390/no-existe-esta-pagina": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 0
+    },
+    "tienda/dark/390/#chat": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 9
+    },
+    "tienda/dark/1280/": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 9
+    },
+    "tienda/dark/1280/soluciones?a=landing-profesional,turnos-online": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 18
+    },
+    "tienda/dark/1280/soluciones?cat=tiendas": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 18
+    },
+    "tienda/dark/1280/servicios/tiendas": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 3
+    },
+    "tienda/dark/1280/demo": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 0
+    },
+    "tienda/dark/1280/no-existe-esta-pagina": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 0
+    },
+    "tienda/dark/1280/#chat": {
+      "overflow": 0,
+      "contraste": 0,
+      "etiquetas": 9
+    }
+  },
+  "pliegue": {
+    "tienda/390x844": {
+      "botones": [
+        464,
+        526
+      ],
+      "chips": 558,
+      "nav": 788
+    },
+    "tienda/360x740": {
+      "botones": [
+        461,
+        523
+      ],
+      "chips": 555,
+      "nav": 684
+    }
+  },
+  "personajeYTema": {
+    "proximamente": false,
+    "desdeSelector": {
+      "estilo": "tienda",
+      "dibujo": "chibi",
+      "dark": false
+    },
+    "fuentes": true,
+    "nombre16": [
+      "16-bit",
+      "Chibi",
+      "Anime"
+    ],
+    "ejemplo": {
+      "alt": "Ejemplo: un almacén que recibe pedidos por WhatsApp",
+      "tabulables": 0,
+      "ocultoAdentro": "true"
+    },
+    "tabEnEjemplo": 0,
+    "animeElegido": {
+      "estilo": "tienda",
+      "dibujo": "anime",
+      "dark": false
+    },
+    "oscuroElegido": {
+      "estilo": "tienda",
+      "dibujo": "chibi",
+      "dark": true
+    }
+  },
+  "fallas": []
+}

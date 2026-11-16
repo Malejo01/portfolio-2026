@@ -12,7 +12,8 @@ const SALUDO_HERO_KEY = "malejo-saludo-hero";
  * personaje del hero aparece (`data-saludo-entrada`), lo hace saludar.
  *
  * Mira los sprites que agregan después (el chat) con un MutationObserver
- * liviano. Sin JS no hay `data-visible` y se ve la pose quieta.
+ * liviano. Sin JS no hay `data-visible` y se ve la pose quieta. Desde P3-3
+ * también marca `data-visto` en las etiquetas de precio (`EtiquetaPrecio`).
  */
 export function SpritesVivos() {
   useEffect(() => {
@@ -34,17 +35,36 @@ export function SpritesVivos() {
       }
     };
     mirar();
+    // Tanda P3-3: las etiquetas de precio de Tienda se balancean una vez al entrar.
+    const vistas = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        e.target.setAttribute("data-visto", "");
+        vistas.unobserve(e.target);
+      }
+    });
+    const etiquetas = new WeakSet<Element>();
+    const mirarEtiquetas = () => {
+      for (const el of document.querySelectorAll("[data-etiqueta-precio]")) {
+        if (etiquetas.has(el)) continue;
+        etiquetas.add(el);
+        vistas.observe(el);
+      }
+    };
+    mirarEtiquetas();
     let pendiente = 0;
     const mo = new MutationObserver(() => {
       if (pendiente) return;
       pendiente = requestAnimationFrame(() => {
         pendiente = 0;
         mirar();
+        mirarEtiquetas();
       });
     });
     mo.observe(document.body, { childList: true, subtree: true });
     return () => {
       io.disconnect();
+      vistas.disconnect();
       mo.disconnect();
       cancelAnimationFrame(pendiente);
     };

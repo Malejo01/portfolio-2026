@@ -9,6 +9,7 @@ import { PlanDialog } from "./client/PlanDialog";
 import { Check } from "./icons";
 import { estiloCopy } from "@/content/agencia/estilos";
 import { Garabato } from "./client/Garabato";
+import { EtiquetaPrecio } from "./EtiquetaPrecio";
 import { OVALO } from "./home/garabatos";
 import { ComboDetalle, PlanDetalle } from "./PlanDetalle";
 
@@ -101,7 +102,9 @@ function Precio({ plan }: { plan: Plan }) {
       <div>
         <span className="lbl text-[10px]">{p.etiqueta}</span>
         <div className="flex flex-wrap items-baseline gap-1.5">
-          <span className="h text-[34px] tracking-[-.02em]">{fmt(porMes)}</span>
+          <EtiquetaPrecio tamano="grande">
+            <span className="h text-[34px] tracking-[-.02em]">{fmt(porMes)}</span>
+          </EtiquetaPrecio>
           <span className="text-sm text-muted">{pagosCopy.anualUnidad}</span>
         </div>
       </div>
@@ -115,7 +118,9 @@ function Precio({ plan }: { plan: Plan }) {
         {p.precio == null ? (
           <span className="text-sm text-muted">{p.texto}</span>
         ) : (
-          <span className="h text-[34px] tracking-[-.02em]">{fmt(p.precio)}</span>
+          <EtiquetaPrecio tamano="grande">
+            <span className="h text-[34px] tracking-[-.02em]">{fmt(p.precio)}</span>
+          </EtiquetaPrecio>
         )}
         {p.unidad ? <span className="text-sm text-muted">{p.unidad}</span> : null}
       </div>
@@ -149,6 +154,12 @@ export function PlanCard({
       {plan.rec ? (
         <span className="sello-rec absolute -top-3 left-6 rounded-full bg-acc px-2.5 py-1.5 font-mono text-[11px] font-semibold uppercase leading-none tracking-[.08em] text-acc-ink">
           {pricing.recommended}
+        </span>
+      ) : null}
+      {plan.rec ? (
+        // Tanda P3-3: en Tienda, "El más pedido" como sticker tomate rotado.
+        <span data-solo-estilo="tienda" className="sticker absolute -top-3.5 right-5 px-3 py-1.5 text-[14px] font-bold leading-none">
+          {estiloCopy.tienda.masPedido}
         </span>
       ) : null}
       {plan.rec ? (
@@ -316,7 +327,9 @@ export function GrandesSteps({ plans }: { plans: Plan[] }) {
                   <span className="h text-[34px] tracking-[-.02em]">{copy.free}</span>
                 ) : (
                   <div className="flex flex-wrap items-baseline gap-1.5">
-                    <span className="h text-[34px] tracking-[-.02em]">{fmt(p.precio)}</span>
+                    <EtiquetaPrecio tamano="grande">
+            <span className="h text-[34px] tracking-[-.02em]">{fmt(p.precio)}</span>
+          </EtiquetaPrecio>
                     {p.unidad ? <span className="text-sm text-muted">{p.unidad}</span> : null}
                   </div>
                 )}

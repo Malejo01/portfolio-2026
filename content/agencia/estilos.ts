@@ -114,11 +114,14 @@ export const estilos: Estilo[] = [
   {
     id: "tienda",
     nombre: "Tienda",
-    descripcion: "Próximamente",
+    descripcion: "Toma pedidos.",
     categoria: "tiendas",
     etiquetaCategoria: "Catálogos y tiendas",
-    disponible: false,
-    fraseHero: "Así se vería tu tienda",
+    disponible: true,
+    temaDeEntrada: "claro",
+    dibujoPorDefecto: "chibi",
+    fuentes: ["700 1em Fredoka", "400 1em Nunito"],
+    fraseHero: "Así se vería tu almacén",
   },
 ];
 
@@ -129,8 +132,12 @@ export function getEstilo(id: string): Estilo | undefined {
   return estilos.find((e) => e.id === id);
 }
 
-export const dibujos: { id: Dibujo; nombre: string }[] = [
-  { id: "16bit", nombre: "Pixel" },
+/**
+ * `nombrePor`: el nombre que lleva el dibujo en un estilo puntual (Tienda le
+ * dice "16-bit", como su referencia; el resto, "Pixel").
+ */
+export const dibujos: { id: Dibujo; nombre: string; nombrePor?: Partial<Record<EstiloId, string>> }[] = [
+  { id: "16bit", nombre: "Pixel", nombrePor: { tienda: "16-bit" } },
   { id: "chibi", nombre: "Chibi" },
   { id: "anime", nombre: "Anime" },
 ];
@@ -158,6 +165,8 @@ export const estiloCopy = {
     pensando: "Mauro dibujado, pensando",
     ok: "Mauro dibujado, haciendo el gesto de OK",
   } satisfies Record<Pose, string>,
+  /** La barra verde de arriba de Tienda. */
+  barraTienda: "Precios publicados · 3 pagos sin interés · Demo antes de pagar",
   /** Las líneas de la barra de arriba del estilo Institucional. */
   barra: {
     izquierda: "Malejo · Software con IA para negocios e instituciones",
@@ -174,6 +183,35 @@ export const estiloCopy = {
     secondary: "Armar mi kit",
     /** Los chips en el celular, en una sola fila. */
     chipsCortos: ["Precios publicados", "Demo antes", "3 pagos"],
+  },
+  /**
+   * Tanda P3-3: Tienda. El ejemplo «Almacén Doña Rosa» es una ilustración
+   * (`aria-hidden`, con `alt` para lectores): precios de mentira, que se
+   * escriben con `fmt()`; el total y la cantidad se calculan, no se escriben.
+   */
+  tienda: {
+    masPedido: "El más pedido",
+    cambiar: "Cambiar",
+    ejemplo: {
+      alt: "Ejemplo: un almacén que recibe pedidos por WhatsApp",
+      etiqueta: "Así se vería tu almacén",
+      ejemploCelular: "Ejemplo · así lo ve tu cliente",
+      nombre: "Almacén Doña Rosa",
+      rubro: "Almacén · Dulces caseros",
+      abierto: "Abierto · hasta 21 h",
+      modos: ["Delivery", "Retiro"],
+      categorias: ["Almacén", "Caseros", "Bebidas"],
+      productos: [
+        { nombre: "Pan casero", detalle: "1 kg, del día", precio: 3500, cantidad: 1, icono: "pan", tono: 1 },
+        { nombre: "Dulce de leche", detalle: "Casero, 500 g", precio: 4800, cantidad: 1, icono: "frasco", tono: 2 },
+        { nombre: "Huevos de campo", detalle: "La docena", precio: 3900, cantidad: 0, icono: "huevos", tono: 3 },
+      ],
+      tuPedido: "Tu pedido",
+      total: "Total",
+      enviar: "Enviar pedido por WhatsApp",
+      pagar: "Pagar con Mercado Pago",
+      link: "Así se vería tu almacén →",
+    },
   },
   /** Tanda P3-2: el hero de Aula virtual y sus garabatos (decorativos). */
   aula: {
@@ -207,4 +245,24 @@ export const estiloCopy = {
       link: "Así se vería tu aula virtual →",
     },
   },
+};
+
+/**
+ * Lo que necesitan las islas del selector (`EstiloSelector`,
+ * `PersonajeRapido`): solo esto viaja al cliente, no los ejemplos de los
+ * heroes (P3-3: el payload de la home crecía con cada estilo).
+ */
+export const selectorCopy = {
+  pestana: estiloCopy.pestana,
+  abrir: estiloCopy.abrir,
+  titulo: estiloCopy.titulo,
+  bajada: estiloCopy.bajada,
+  cerrar: estiloCopy.cerrar,
+  actual: estiloCopy.actual,
+  proximamente: estiloCopy.proximamente,
+  personaje: estiloCopy.personaje,
+  personajeGrupo: estiloCopy.personajeGrupo,
+  personajeCorto: estiloCopy.personajeCorto,
+  sorprendeme: estiloCopy.sorprendeme,
+  original: estiloCopy.original,
 };

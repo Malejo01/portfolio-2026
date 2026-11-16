@@ -10,6 +10,7 @@ import { RevealGroup, RevealItem } from "../client/Reveal";
 import { Garabato } from "../client/Garabato";
 import { estiloCopy } from "@/content/agencia/estilos";
 import { SUBRAYADO } from "./garabatos";
+import { EtiquetaPrecio } from "../EtiquetaPrecio";
 
 /**
  * "Desde $177.000 · 3 × $59.000": el menor pago único de la categoría con
@@ -59,7 +60,9 @@ export function NeedTiles({ heading = "h3", destino = "precios" }: { heading?: "
               <div className="mt-auto flex flex-col gap-1 border-t border-border pt-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:pt-3">
                 {desde ? (
                   <span className="inline-flex flex-wrap items-baseline gap-x-1.5 text-[13px] text-muted sm:text-sm">
-                    {needs.fromLabel} <strong className="text-[15px] text-text sm:text-base">{desde.monto}</strong>
+                    <EtiquetaPrecio i={i} desde={needs.fromLabel}>
+                      <strong className="text-[15px] text-text sm:text-base">{desde.monto}</strong>
+                    </EtiquetaPrecio>
                     {desde.pagos ? <span className="tono-texto">· {desde.pagos}</span> : null}
                   </span>
                 ) : null}

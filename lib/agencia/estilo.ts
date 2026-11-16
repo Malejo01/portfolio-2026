@@ -31,6 +31,11 @@ export interface ConfigArranque {
   dibujoOriginal: string;
   /** Estilos con dibujo propio (P3-2): si la persona nunca eligió uno, se ve ese. */
   dibujoPor: Record<string, string>;
+  /**
+   * La hoja de cada estilo no original (P3-3): `public/agencia/estilos/<id>.css`.
+   * Solo se agrega la del estilo activo, así Tech no paga por los demás.
+   */
+  css: Record<string, string>;
   cookie: string;
 }
 
@@ -39,7 +44,7 @@ export interface ConfigArranque {
  * llama en el respaldo del 404 (`components/agencia/client/theme.ts`): por
  * eso no usa nada de afuera (ni imports, ni spread, ni helpers).
  */
-export function arrancar(c: ConfigArranque) {
+export function arrancar(c: ConfigArranque, enHead = true) {
   const d = document.documentElement;
   d.classList.add("js");
   let ls: Storage | null = null;
@@ -56,6 +61,20 @@ export function arrancar(c: ConfigArranque) {
   let est = leer("malejo-estilo");
   if (!est || !Object.prototype.hasOwnProperty.call(c.estilos, est)) est = c.original;
   d.setAttribute("data-estilo", est);
+  // La hoja del estilo: en el <head>, escrita por el parser (bloquea el
+  // primer pintado, así no hay destello de Tech); en el respaldo del 404,
+  // agregada a mano.
+  const href = c.css[est];
+  if (href && !document.querySelector('link[data-estilo-css="' + est + '"]')) {
+    if (enHead) document.write('<link rel="stylesheet" href="' + href + '" data-estilo-css="' + est + '">');
+    else {
+      const l = document.createElement("link");
+      l.rel = "stylesheet";
+      l.href = href;
+      l.setAttribute("data-estilo-css", est);
+      document.head.appendChild(l);
+    }
+  }
   const m = document.cookie.match(new RegExp("(?:^|; )" + c.cookie + "=(dark|light)"));
   const dark = m ? m[1] === "dark" : c.estilos[est] !== "light";
   d.classList.toggle("dark", dark);
@@ -77,6 +96,7 @@ export function configArranque(
   estilos: { id: string; disponible: boolean; temaDeEntrada?: "claro" | "oscuro"; dibujoPorDefecto?: string }[],
   original: string,
   dibujoOriginal: string,
+  css: Record<string, string> = {},
 ): ConfigArranque {
   const mapa: Record<string, string> = {};
   const dibujoPor: Record<string, string> = {};
@@ -85,7 +105,7 @@ export function configArranque(
     mapa[e.id] = e.temaDeEntrada === "claro" ? "light" : e.temaDeEntrada === "oscuro" ? "dark" : "";
     if (e.dibujoPorDefecto) dibujoPor[e.id] = e.dibujoPorDefecto;
   }
-  return { estilos: mapa, original, dibujos: DIBUJOS, dibujoOriginal, dibujoPor, cookie: AGENCIA_THEME_COOKIE };
+  return { estilos: mapa, original, dibujos: DIBUJOS, dibujoOriginal, dibujoPor, css, cookie: AGENCIA_THEME_COOKIE };
 }
 
 /** El `<script>` del `<head>`: la función y su configuración, sin nada más. */
@@ -159,9 +179,11 @@ export function siguienteDeBolsa(actual: string, azar: () => number = Math.rando
  * eligió tema, el tema de entrada del estilo. Si nunca eligió dibujo, saca
  * el siguiente de la bolsa. Todo en una sola View Transition.
  */
-export async function elegirEstilo(id: string, temaDeEntrada: "light" | "dark" | "", cookie: string, dibujoPorDefecto?: string, fuentes: string[] = []) {
+export async function elegirEstilo(id: string, temaDeEntrada: "light" | "dark" | "", cookie: string, dibujoPorDefecto?: string, fuentes: string[] = [], css?: string) {
   const d = document.documentElement;
   if (id === estiloActual()) return;
+  // La hoja del estilo (P3-3), antes que nada: sin ella el estilo se pintaría con los tokens de Tech.
+  if (css) await cargarHoja(id, css);
   // Las fuentes del estilo van con `display: optional`: si se pidieran recién
   // al pintarlo, esta vista quedaría con la de respaldo. Se descargan antes
   // (con un tope de 1,5 s, por si la red no ayuda).
@@ -187,6 +209,25 @@ export async function elegirEstilo(id: string, temaDeEntrada: "light" | "dark" |
     }
     if (dib) d.setAttribute("data-dibujo", dib);
     avisar();
+  });
+}
+
+/** Agrega la hoja de un estilo y espera a que cargue (tope de 3 s). */
+function cargarHoja(id: string, href: string): Promise<void> {
+  const ya = document.querySelector<HTMLLinkElement>(`link[data-estilo-css="${id}"]`);
+  if (ya && ya.sheet) return Promise.resolve();
+  return new Promise((listo) => {
+    const l = ya ?? document.createElement("link");
+    const fin = () => listo();
+    l.addEventListener("load", fin, { once: true });
+    l.addEventListener("error", fin, { once: true });
+    setTimeout(fin, 3000);
+    if (!ya) {
+      l.rel = "stylesheet";
+      l.href = href;
+      l.setAttribute("data-estilo-css", id);
+      document.head.appendChild(l);
+    }
   });
 }
 

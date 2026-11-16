@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { WHATSAPP_TEXTO, home } from "@/content/agencia/home";
-import { estiloCopy, getEstilo } from "@/content/agencia/estilos";
+import { estiloCopy, getEstilo, selectorCopy } from "@/content/agencia/estilos";
 import { waLink } from "@/lib/agencia/config";
 import { personajes } from "@/lib/agencia/sprites";
 import { Check } from "../../../icons";
@@ -94,7 +94,7 @@ export function HeroInstitucional() {
           <Link href={`/soluciones?cat=${estilo.categoria}`} className="lnk self-start underline underline-offset-4">
             {ej.link}
           </Link>
-          <PersonajeRapido copy={estiloCopy} personajes={personajes()} className="mt-2 hidden justify-end lg:flex" />
+          <PersonajeRapido copy={selectorCopy} personajes={personajes()} className="mt-2 hidden justify-end lg:flex" />
         </div>
       </div>
     </section>

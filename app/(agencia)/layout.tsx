@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Caveat, Fredoka, Inter, JetBrains_Mono, Nunito, Outfit, Source_Serif_4 } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Footer } from "@/components/agencia/Footer";
 import { Header } from "@/components/agencia/Header";
 import { BarraEstilo } from "@/components/agencia/EstiloPiezas";
@@ -169,6 +170,12 @@ export default function AgenciaRootLayout({ children }: { children: React.ReactN
         <MalejoLoader copy={malejoCopy} turnstileSiteKey={process.env.TURNSTILE_SITE_KEY || undefined} />
         <SpritesVivos />
         <Analytics />
+        {/*
+          Tanda P3-3.1: Web Vitals de visitas reales (LCP p75 en celular), solo
+          en la agencia. Manda datos recién cuando Mauro activa Speed Insights
+          en el panel de Vercel. Mismo origen (`/_vercel/speed-insights/*`).
+        */}
+        <SpeedInsights />
       </body>
     </html>
   );

@@ -5,8 +5,9 @@
  * Solo para las rutas de la agencia: la fuente excluye `/portfolio` (y
  * todo lo que cuelga de ahí), así el portfolio no cambia. La CSP va en modo
  * **report-only**: el navegador avisa en consola qué bloquearía, pero no
- * bloquea nada. Permite lo que hoy usa el sitio: Vercel Analytics (mismo
- * origen, `/_vercel/insights`), Turnstile, Cal.com embebido, los videos y
+ * bloquea nada. Permite lo que hoy usa el sitio: Vercel Analytics y Speed
+ * Insights (mismo origen, `/_vercel/insights` y `/_vercel/speed-insights`;
+ * en desarrollo, `va.vercel-scripts.com`), Turnstile, Cal.com embebido, los videos y
  * pósters propios, las fuentes de `next/font` (servidas desde el sitio) y
  * los scripts inline del tema y del JSON-LD. `wa.me` es navegación (links),
  * que la CSP no restringe.

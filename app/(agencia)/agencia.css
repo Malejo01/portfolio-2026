@@ -930,6 +930,14 @@ html.js [data-sprite][data-visible]:not([data-anim]) .tira-idle {
 [data-anim] .sprite-quieta {
   visibility: hidden;
 }
+/* Tanda P3-4 · la cara de Malejo (CaraMalejo): el dibujo corrido y escalado
+   adentro de un recuadro que recorta. */
+.cara-malejo {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  overflow: hidden;
+}
 /* Entre poses (ok ↔ pensando en el chat), un fundido corto. */
 @media (prefers-reduced-motion: no-preference) {
   .sprite-fundido .sprite {

@@ -86,7 +86,9 @@ def tira(cuadros):
 
 
 def main():
-    datos = {}
+    # Lo que ya escribió limpiar.py (la cara, P3-4) se conserva.
+    ruta = SALIDA / "sprites.json"
+    datos = json.loads(ruta.read_text()) if ruta.exists() else {}
     for dibujo in ["16bit", "chibi", "anime"]:
         c = CONFIG[dibujo]
         ims, caja, aire = recorte(dibujo)
@@ -97,6 +99,7 @@ def main():
         for nombre, cuadros in [("idle", idle), ("saludo", saludo), ("festejo", festejo)]:
             guardar(tira([recortar(x, caja) for x in cuadros]), SALIDA / dibujo / f"{nombre}.png")
         datos[dibujo] = {
+            **datos.get(dibujo, {}),
             "nombre": c["nombre"],
             "bloque": c["bloque"],
             "ancho": caja[2] - caja[0],
@@ -108,7 +111,7 @@ def main():
             },
         }
         print(f"✓ {dibujo}: idle, saludo y festejo")
-    (SALIDA / "sprites.json").write_text(json.dumps(datos, indent=2, ensure_ascii=False) + "\n")
+    ruta.write_text(json.dumps(datos, indent=2, ensure_ascii=False) + "\n")
     (RAIZ / "app/(agencia)/sprites-animaciones.css").write_text(keyframes())
 
 

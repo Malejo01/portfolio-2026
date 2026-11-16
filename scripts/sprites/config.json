@@ -1,5 +1,5 @@
 {
-  "_doc": "Configuración a mano de los sprites (tanda P3-1). Coordenadas en el lienzo original de docs/agencia/sprites/fuente/<dibujo>/. `ojos`: cada caja es el lente con su marco [x0, y0, x1, y1]; animar.py respeta un anillo de 2 bloques arriba, abajo y a la izquierda y de 1 a la derecha, como la referencia aprobada del chibi (docs/agencia/sprites/referencia/chibi-idle.gif). `filaJean`: la primera fila del jean (el respiro mueve lo que está 2 bloques más arriba). limpiar.py y animar.py la leen y escriben public/agencia/sprites/sprites.json.",
+  "_doc": "Configuración a mano de los sprites (tanda P3-1). Coordenadas en el lienzo original de docs/agencia/sprites/fuente/<dibujo>/. `ojos`: cada caja es el lente con su marco [x0, y0, x1, y1]; animar.py respeta un anillo de 2 bloques arriba, abajo y a la izquierda y de 1 a la derecha, como la referencia aprobada del chibi (docs/agencia/sprites/referencia/chibi-idle.gif). `filaJean`: la primera fila del jean (el respiro mueve lo que está 2 bloques más arriba). limpiar.py y animar.py la leen y escriben public/agencia/sprites/sprites.json. `cara` (tanda P3-4): un cuadrado [x0, y0, x1, y1] en el lienzo fuente, centrado en los anteojos, que CaraMalejo hace llenar su contenedor; un valor negativo o que se pasa del lienzo es aire transparente.",
   "16bit": {
     "nombre": "Pixel",
     "bloque": 10,
@@ -39,6 +39,12 @@
       30,
       24,
       28
+    ],
+    "cara": [
+      -5,
+      6,
+      355,
+      367
     ]
   },
   "chibi": {
@@ -80,6 +86,12 @@
       21,
       20,
       27
+    ],
+    "cara": [
+      38,
+      73,
+      472,
+      508
     ]
   },
   "anime": {
@@ -116,6 +128,12 @@
       18,
       17,
       23
+    ],
+    "cara": [
+      94,
+      9,
+      287,
+      202
     ]
   }
 }

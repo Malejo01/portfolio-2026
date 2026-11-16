@@ -431,6 +431,15 @@ npm run db:migrate  # las aplica Mauro, con DATABASE_URL
   reproducen una vez con `reproducir()` (`lib/agencia/sprite-anim.ts`).
   Verificá con `docs/agencia/verificacion/p3-1/verificar.js` y
   `animaciones.py`.
+  **Caras (P3-4):** todo recorte chico del personaje usa
+  `<CaraMalejo tamano alto? forma pose? />` (`components/agencia/CaraMalejo.tsx`,
+  sin hooks): escala cada dibujo para que su caja `cara` llene el recuadro.
+  La caja va a mano en `scripts/sprites/config.json` (lienzo fuente, puede
+  salirse: es aire) y `limpiar.py` la traduce al lienzo recortado en
+  `sprites.json`. Hoy: avatar del chat (40 y 32 px), botón de la barra
+  inferior (56 px), "Soy Mauro" del hero de Tech (con el idle y el saludo) y
+  el retrato del equipo. No recortes un `Sprite` de cuerpo entero con
+  `overflow-hidden`: usá `CaraMalejo`.
 - **Presupuesto de rendimiento (Mauro, 16-11, tanda P3-3.1).** Se acepta el
   costo de traer los heroes de los cuatro estilos en la home. Reglas:
   - la **primera visita (Tech)** puede subir el LCP como mucho un **+10 %**

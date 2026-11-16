@@ -25,7 +25,10 @@ function recomendadaPrimero(plans: Plan[]): Plan[] {
 export function PanelArmado({ category }: { category: Category }) {
   const titulo = (
     <summary className="cat-summary flex min-h-11 items-center justify-between gap-3">
-      <h2 className="h text-[22px] sm:text-[26px]">{category.label}</h2>
+      {/* `tabIndex={-1}`: al cambiar de categoría el foco viene acá (P2.1). */}
+      <h2 id={`sol-titulo-${category.key}`} tabIndex={-1} className="h text-[22px] outline-none sm:text-[26px]">
+        {category.label}
+      </h2>
       <span aria-hidden="true" className="plans-arrow nojs-only text-acc-text">
         ▾
       </span>

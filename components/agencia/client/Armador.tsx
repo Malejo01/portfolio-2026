@@ -84,7 +84,6 @@ export function Armador({
   const [vista, setVista] = useState<Vista>("carrito");
   const [chips, setChips] = useState(false);
   const grillaRef = useRef<HTMLDivElement>(null);
-  const tituloRef = useRef<HTMLDivElement>(null);
   const chipsRef = useRef<HTMLDivElement>(null);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const listo = useRef(false);
@@ -146,12 +145,34 @@ export function Armador({
     chipsRef.current?.querySelector<HTMLElement>(`[data-cat="${activa}"]`)?.scrollIntoView({ inline: "center", block: "nearest", behavior: reduced ? "auto" : "smooth" });
   }, [chips, activa, reduced]);
 
+  /**
+   * Cambiar de categoría (P2.1, punto 1): con la página scrolleada, los
+   * planes nuevos quedaban fuera de la vista. Se vuelve al título de la
+   * categoría descontando el header fijo y, en celular, la fila de chips
+   * (`scroll-margin-top`); suave, o directo con movimiento reducido. Si el
+   * título ya se ve arriba, no se mueve. El foco va al título para los
+   * lectores de pantalla (con el teclado, en las pestañas, se queda en la pestaña).
+   */
   const elegir = useCallback(
     (key: string, { scroll }: { scroll: boolean }) => {
       setActiva(key);
-      if (scroll && window.matchMedia("(max-width: 759px)").matches) {
-        requestAnimationFrame(() => tituloRef.current?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" }));
-      }
+      if (!scroll) return;
+      requestAnimationFrame(() => {
+        const titulo = document.getElementById(`sol-titulo-${key}`);
+        if (!titulo) return;
+        const header = document.querySelector("header")?.getBoundingClientRect().bottom ?? 0;
+        const celular = window.matchMedia("(max-width: 759px)").matches;
+        // La fila de chips aparece apenas la grilla sale de la pantalla: se cuenta siempre en celular.
+        const chipsAlto = celular ? (chipsRef.current?.parentElement?.getBoundingClientRect().height || 60) : 0;
+        const margen = Math.round(header + chipsAlto + 12);
+        // El `html` ya tiene `scroll-padding-top` (el header): se suma, así que se descuenta.
+        const padding = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+        titulo.style.scrollMarginTop = `${Math.max(0, margen - padding)}px`;
+        const top = titulo.getBoundingClientRect().top;
+        const yaSeVe = top >= margen - 4 && top < window.innerHeight * 0.45;
+        if (!yaSeVe) titulo.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+        titulo.focus({ preventScroll: true });
+      });
     },
     [reduced],
   );
@@ -306,11 +327,8 @@ export function Armador({
 
         {/* Los planes de la categoría activa */}
         <div
-          ref={(el) => {
-            tituloRef.current = el;
-            panelesRef.current = el;
-          }}
-          className="min-w-0 scroll-mt-[150px] pb-24 min-[760px]:col-start-1 min-[760px]:pb-0 lg:col-start-2 lg:row-start-1">
+          ref={panelesRef}
+          className="min-w-0 pb-24 min-[760px]:col-start-1 min-[760px]:pb-0 lg:col-start-2 lg:row-start-1">
           {categorias.map((c) => {
             const on = c.key === actual.key;
             return (

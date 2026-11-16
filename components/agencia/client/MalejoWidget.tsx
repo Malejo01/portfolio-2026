@@ -480,7 +480,7 @@ export default function MalejoWidget({
               exit={reduced ? { opacity: 0 } : celular ? { y: "100%" } : { opacity: 0, scale: 0.96 }}
               transition={celular && !reduced ? { type: "spring", stiffness: 420, damping: 38, mass: 0.9 } : { duration: 0.22, ease: "easeOut" }}
               style={{ transformOrigin: "100% 100%", ...(celular ? { height: completa ? "100dvh" : MEDIA_HOJA } : {}) }}
-              className={`card pointer-events-auto fixed inset-x-0 bottom-0 z-[75] flex flex-col overflow-hidden overscroll-contain min-[760px]:static min-[760px]:z-auto min-[760px]:mb-[18px] min-[760px]:h-[min(600px,calc(100vh-110px))] min-[760px]:w-[380px] min-[760px]:rounded-24 ${
+              className={`card panel-madera pointer-events-auto fixed inset-x-0 bottom-0 z-[75] flex flex-col overflow-hidden overscroll-contain min-[760px]:static min-[760px]:z-auto min-[760px]:mb-[18px] min-[760px]:h-[min(600px,calc(100vh-110px))] min-[760px]:w-[380px] min-[760px]:rounded-24 ${
                 completa ? "rounded-none" : "rounded-b-none rounded-t-24"
               }`}
             >
@@ -655,7 +655,7 @@ function Bienvenida({
     // Sin avatar al lado (ya está en el encabezado): la burbuja gana ancho y las opciones entran en la hoja.
     <div data-msg={id} className="flex">
       <div className="min-w-0 flex-1 burbuja-malejo border border-border bg-surf-2 px-3 py-2.5 text-sm leading-[1.45] max-[379px]:px-2.5 max-[379px]:py-2 max-[379px]:text-[13px]">
-        <p className="m-0">{copy.greeting}</p>
+        <p className="saludo-malejo m-0">{copy.greeting}</p>
         {opciones.length ? (
           <>
             <p className="m-0 mt-0.5 text-[12px] text-muted">{copy.greetingHint}</p>

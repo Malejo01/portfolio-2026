@@ -7,6 +7,9 @@ import { ahorro, ahorroEnPesos, fmt, lineaDePagos, lineaDePlan, mensualDeAnual, 
 import { AgregarBoton } from "./client/AgregarBoton";
 import { PlanDialog } from "./client/PlanDialog";
 import { Check } from "./icons";
+import { estiloCopy } from "@/content/agencia/estilos";
+import { Garabato } from "./client/Garabato";
+import { OVALO } from "./home/garabatos";
 import { ComboDetalle, PlanDetalle } from "./PlanDetalle";
 
 /**
@@ -146,6 +149,13 @@ export function PlanCard({
       {plan.rec ? (
         <span className="sello-rec absolute -top-3 left-6 rounded-full bg-acc px-2.5 py-1.5 font-mono text-[11px] font-semibold uppercase leading-none tracking-[.08em] text-acc-ink">
           {pricing.recommended}
+        </span>
+      ) : null}
+      {plan.rec ? (
+        // Tanda P3-2: en Aula virtual el sello es "¡recomendado!" en un óvalo de tiza.
+        <span data-solo-estilo="aula" className="garabato absolute -top-6 left-1/2 flex h-11 w-[180px] -translate-x-1/2 items-center justify-center text-tono-2">
+          <span className="relative z-10 font-titulo text-[24px] font-bold leading-none">{estiloCopy.aula.garabatos.recomendado}</span>
+          <Garabato trazos={[OVALO]} viewBox="0 0 180 44" ancho={2.5} className="absolute inset-0" />
         </span>
       ) : null}
       <div className="flex flex-col gap-1.5">

@@ -5,6 +5,9 @@ import { completarPagos } from "../pagos";
 import { PlanDialog } from "../client/PlanDialog";
 import { SenaTabla } from "../SenaTabla";
 import { Reveal } from "../client/Reveal";
+import { Garabato } from "../client/Garabato";
+import { estiloCopy } from "@/content/agencia/estilos";
+import { SUBRAYADO } from "./garabatos";
 
 /**
  * Cómo trabajo (tanda P2, §6.5): 3 pasos, "Armás lo que necesitás → Lo
@@ -31,9 +34,15 @@ export function Steps() {
 
   return (
     <section id="como-trabajo" className="wrap pt-14 sm:pt-16">
-      <Reveal>
+      <Reveal className="relative">
         <span className="lbl lbl-o">{steps.label}</span>
         <h2 className="h h2">{steps.title}</h2>
+        <span data-solo-estilo="aula" className="block h-4 w-[min(320px,80%)] text-tono-2">
+          <Garabato trazos={[SUBRAYADO]} viewBox="0 0 320 16" ancho={4} className="h-4 w-full" />
+        </span>
+        <span data-solo-estilo="aula" aria-hidden="true" className="garabato absolute right-4 top-2 hidden -rotate-3 font-titulo text-[30px] text-tono-1 lg:block">
+          {estiloCopy.aula.garabatos.demo}
+        </span>
       </Reveal>
       <Reveal>
         <ol className="card m-0 mt-6 flex list-none flex-col gap-3 p-5 sm:mt-7 sm:grid sm:grid-cols-3 sm:gap-5 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
@@ -45,6 +54,9 @@ export function Steps() {
               >
                 <span data-solo-estilo="tech">{i + 1}</span>
                 <span data-solo-estilo="institucional">{String(i + 1).padStart(2, "0")}</span>
+                <span data-solo-estilo="aula">
+                  {steps.stepLabel} {i + 1}
+                </span>
               </span>
               <div className="flex flex-col gap-1">
                 <h3 className="h text-[17px] sm:text-xl">

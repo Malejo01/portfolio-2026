@@ -895,3 +895,43 @@ Dos métodos, los dos en el mismo contenedor y contra `main` construida al lado:
 - Heroes de los 2 estilos a 390 y 1280 px, en claro y oscuro (`<ancho>-home-<estilo>-<tema>.png`), y al lado las pantallas aprobadas renderizadas (`ref-F-*.png`); `lado-a-lado-*.png` las junta.
 - `/soluciones` en Institucional a 1280 px y a 390 px con Malejo abierto; el selector a 1280 px; la home sin JS.
 - `dibujos-y-poses.png`: los 3 dibujos × 3 poses, al mismo alto.
+
+# Tanda P3-2 · Estilo Aula virtual («Pizarrón»)
+
+Rama `p3-2-aula` desde `p3-1-estilos`, PR con base `p3-1-estilos`. `npm run lint`, `npm test` (237) y `npm run build` en verde, con las mismas rutas `○`/`●` que en P3-1. `verificacion/p3-2/verificar.js`: **todo en orden**.
+
+## Qué se hizo
+1. **El estilo.** `aula` disponible en `estilos.ts`: representa `ia` (`plataforma-educativa-con-ia`), arranca en **oscuro** si la persona no eligió tema y suma el campo `dibujoPorDefecto` (`"anime"`): el arranque y el selector lo usan solo si la persona nunca eligió dibujo a mano; los estilos sin el campo siguen con la bolsa de P3-1.
+2. **Tokens** de `ESPEC.md` en `estilos.css`: pizarrón (oscuro, con la textura de dos manchas suaves) y pizarra blanca (claro). Forma por tokens: radio de 6 px, tarjetas con borde punteado de 2 px (`--borde-ancho`, `--borde-estilo`, nuevos y también en Tech e Institucional con su valor de siempre) y el marco (`--marco`) como franja de 14 px arriba, en las pestañas del kit y en la hoja de Malejo.
+3. **Tipografía:** Caveat y Nunito con `next/font`, `preload: false` y `display: "optional"`, igual que Source Serif. Caveat en titulares, etiquetas, enlaces de texto, el saludo de Malejo, las categorías y las opciones del chat; Nunito en el cuerpo y los botones (`--fuente-cuerpo`, token nuevo). La cursiva nunca baja de 22 px (las etiquetas `.lbl` y los enlaces `.lnk` suben a 22 px en este estilo).
+4. **Hero** «Instituto del Sol · Matemática I · Funciones» (avance, clases tildadas, asistente con IA), con "Así se vería tu aula virtual →" a `/soluciones?cat=ia`, el selector rápido en cursiva y el anime en la esquina.
+5. **Garabatos** (`client/Garabato.tsx`): trazos SVG que se dibujan con `pathLength` una vez al entrar y quedan quietos con movimiento reducido. "f(idea) = idea + IA" con su subrayado, la flecha "¡mirá!", los subrayados de los títulos de sección (amarillo y rosa), "∑ clientes ✓", "demo en ≈ 72 h ★", la mancha de borrador (solo en oscuro) y, en Soluciones, el óvalo "¡recomendado!". Los textos van en `estilos.ts` y pasan el glosario.
+6. **Soluciones y chat:** casilleros dibujados en las categorías (la activa tildada) con el contador entre paréntesis en rosa, planes punteados con título y precio en cursiva, pestañas sobre la madera, la barra del kit en amarillo, el saludo de Malejo en cursiva y las 6 opciones en recuadros punteados de los 3 colores. "Paso 1/2/3" en cursiva grande en "Cómo trabajo".
+7. **Selector:** la miniatura de Aula (verde pizarrón con una línea amarilla y una rosa) deja de decir "Próximamente".
+
+## Verificación
+- **Recorrido** (Aula × claro/oscuro × 360, 390 y 1280 px, en la home, `/soluciones`, `/servicios/ia`, `/demo`, el 404 y el chat abierto; 36 combinaciones): sin overflow, sin texto bajo AA y **ningún garabato encima de texto, enlaces o botones** (se comparan las cajas del texto real, no la caja de bloque del título; el flotante y la barra inferior, que son `fixed`, no cuentan).
+- **Primera pantalla del celular:** los 2 botones y los chips arriba de la barra inferior a 390 × 844 y 360 × 740.
+- **Personaje:** entrar a Aula desde el selector sin haber elegido dibujo muestra el anime (y sigue después de recargar); elegir chibi, pasar a Tech y volver a Aula mantiene el chibi.
+- **Tema:** sin tema elegido, oscuro; con el claro elegido, la pizarra blanca.
+- **Fuentes:** al elegir Aula desde el selector, Caveat y Nunito ya están cargadas cuando se pinta.
+- **Contraste de tokens:** `estilos.test.ts` suma Aula en los dos modos (amarillo sobre verde, verde sobre amarillo en los botones, los tres fibrones sobre blanco, el texto secundario) y las pestañas sobre el marco.
+
+## Rendimiento (mismo método que P3-1)
+| Página | LCP simulado (mediana de 3) | LCP con throttling real (2) | TBT (mediana) | CLS |
+|---|---|---|---|---|
+| `/` `main` | 4,33 s | 1,96 s | 243 ms | 0 |
+| `/` Aula | 4,53 s (+5 %) | 2,08 s (+6 %) | 106 ms | 0 |
+| `/soluciones` `main` | 2,87 s | 1,80 s | 289 ms | 0 |
+| `/soluciones` Aula | 3,70 s (+29 %) | 1,81 s (+1 %) | 120 ms | 0 |
+
+TBT y CLS se cumplen. El LCP simulado de `/soluciones` sube por el mismo artefacto que en Institucional (la simulación suma Caveat y Nunito, que el navegador no espera); con throttling real, Aula queda igual que `main`.
+
+## Decisiones
+1. **Garabatos de Soluciones con dos excepciones a "SVG con `pathLength`":** el óvalo "¡recomendado!" sí es un trazo animado, pero los casilleros de las categorías son CSS (son estado de la pestaña, no decoración) y no se dibujan al entrar.
+2. **La flecha "¡mirá!" baja desde arriba al ejemplo** en lugar de cruzar el texto del hero como en la referencia: la tanda pide que ningún garabato tape texto.
+3. **Fuentes sin precarga y `optional`:** una persona que llega a Aula por el selector ya las tiene descargadas; en la vista donde todavía no estén (por ejemplo, un link compartido abierto en otro dispositivo con Aula guardada sin caché), se ve la de respaldo y la siguiente ya usa Caveat.
+4. **En la pizarra blanca el naranja de texto chico sobre su tinte va un 5 % más oscuro** (`--tono-2-texto: #b83d0b`): el de la ESPEC daba 4,4:1.
+
+## Capturas (`verificacion/p3-2/`)
+Home y `/soluciones` a 390 y 1280 px en claro y oscuro (a 390 con Malejo abierto), las pantallas aprobadas renderizadas (`ref-F-*.png`) y `lado-a-lado-*.png`.

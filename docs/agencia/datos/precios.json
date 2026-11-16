@@ -182,6 +182,7 @@
       "plans": [
         {
           "id": "menu-digital-qr",
+          "icono": "qr",
           "name": "Carta digital con QR",
           "paraQuien": "Bares, restós y cafés que cambian precios seguido.",
           "enUnaLinea": "Bares y restós: tu carta en el celular.",
@@ -206,6 +207,7 @@
         },
         {
           "id": "catalogo-con-pedidos-por-whatsapp",
+          "icono": "whatsapp",
           "name": "Catálogo que arma el pedido por WhatsApp",
           "paraQuien": "Vendés por WhatsApp o Instagram y estás cansado de pasar fotos y precios uno por uno.",
           "enUnaLinea": "Vendés por WhatsApp o Instagram y querés ordenar los pedidos.",
@@ -230,6 +232,7 @@
         },
         {
           "id": "tienda-online-con-mercado-pago",
+          "icono": "bolsa",
           "name": "Tienda que cobra sola",
           "paraQuien": "Querés vender y cobrar online, con envío o retiro, sin comisión por venta para mí.",
           "enUnaLinea": "Querés cobrar online sin intervenir en cada venta.",

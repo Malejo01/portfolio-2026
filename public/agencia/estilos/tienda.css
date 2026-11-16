@@ -413,3 +413,9 @@
     left: 6px;
   }
 }
+
+/* Tanda P3-3.1: la franja con el ícono de los planes y el título del ticket. */
+[data-estilo="tienda"] {
+  --plan-franja: flex;
+  --kit-titulo: block;
+}

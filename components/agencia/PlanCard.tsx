@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { home } from "@/content/agencia/home";
-import { pagosCopy, type Combo, type Plan } from "@/content/agencia/pricing";
-import { solucionDeCombo } from "@/content/agencia/servicios";
+import { getCategory, pagosCopy, type Combo, type Plan } from "@/content/agencia/pricing";
+import { solucionDeCombo, soluciones } from "@/content/agencia/servicios";
 import { solucionesCopy } from "@/content/agencia/soluciones";
 import { ahorro, ahorroEnPesos, fmt, lineaDePagos, lineaDePlan, mensualDeAnual, precioDePlan } from "@/lib/agencia/pricing";
 import { AgregarBoton } from "./client/AgregarBoton";
 import { PlanDialog } from "./client/PlanDialog";
-import { Check } from "./icons";
+import { Check, Icon, type IconName } from "./icons";
 import { estiloCopy } from "@/content/agencia/estilos";
 import { Garabato } from "./client/Garabato";
 import { EtiquetaPrecio } from "./EtiquetaPrecio";
@@ -136,6 +136,11 @@ function Precio({ plan }: { plan: Plan }) {
   );
 }
 
+/** El ícono de la franja: el del plan (`precios.json → icono`) o el de su categoría. */
+function iconoDePlan(plan: Plan): IconName {
+  return (plan.icono as IconName | undefined) ?? soluciones.find((s) => s.category === plan.category)?.icon ?? "box";
+}
+
 export function PlanCard({
   plan,
   heading = "h3",
@@ -148,9 +153,12 @@ export function PlanCard({
   modo?: ModoTarjeta;
 }) {
   const H = heading;
+  // Tanda P3-3.1: el tono de la tarjeta sale de su lugar en la categoría
+  // (1.º tomate, 2.º verde, 3.º ocre en Tienda); solo lo usa la franja.
+  const tono = ((getCategory(plan.category)?.plans.findIndex((p) => p.id === plan.id) ?? 0) % 3) + 1;
 
   return (
-    <article className={`card lift relative flex flex-col gap-4 p-[26px] ${plan.rec ? "hi" : ""}`}>
+    <article className={`card lift relative flex flex-col gap-4 p-[26px] tono-${tono} ${plan.rec ? "hi" : ""}`}>
       {plan.rec ? (
         <span className="sello-rec absolute -top-3 left-6 rounded-full bg-acc px-2.5 py-1.5 font-mono text-[11px] font-semibold uppercase leading-none tracking-[.08em] text-acc-ink">
           {pricing.recommended}
@@ -169,6 +177,14 @@ export function PlanCard({
           <Garabato trazos={[OVALO]} viewBox="0 0 180 44" ancho={2.5} className="absolute inset-0" />
         </span>
       ) : null}
+      {/*
+        Tanda P3-3.1: la franja con el ícono del plan sobre el tinte de la
+        tarjeta. Solo la muestra Tienda, por token (`--plan-franja`); en los
+        demás estilos es `display: none` y no ocupa lugar. Decorativa.
+      */}
+      <div aria-hidden="true" className="plan-franja">
+        <Icon name={iconoDePlan(plan)} size={46} strokeWidth={1.5} />
+      </div>
       <div className="flex flex-col gap-1.5">
         {/* P2.1: el plazo nunca sale de la tarjeta; si no entra al lado del nombre, baja. */}
         <div className="flex flex-wrap items-start justify-between gap-x-2.5 gap-y-1.5">

@@ -20,6 +20,12 @@ export interface Plan {
    */
   id: string;
   category: CategoryKey;
+  /**
+   * Tanda P3-3.1: el ícono de la franja de arriba de la tarjeta (solo la
+   * muestra Tienda, por token). Un nombre de `components/agencia/icons.tsx`;
+   * sin él, se usa el de la categoría.
+   */
+  icono?: string;
   name: string;
   /** Para quién es, completo: el modal y el chat (que lo usa para recomendar). */
   paraQuien: string;
@@ -116,6 +122,8 @@ export interface Extra {
 /** Forma del JSON: los campos opcionales no están en todos los planes. */
 interface RawPlan {
   id: string;
+  /** P3-3.1: ícono de la franja de la tarjeta (`icons.tsx`). Sin él, el de la categoría. */
+  icono?: string;
   name: string;
   paraQuien: string;
   enUnaLinea?: string;
@@ -221,6 +229,7 @@ export const categories: Category[] = catalog.categorias.map((c) => ({
   plans: c.plans.map((p) => ({
     id: p.id,
     category: c.key as CategoryKey,
+    icono: p.icono,
     name: p.name,
     paraQuien: p.paraQuien,
     enUnaLinea: p.enUnaLinea ?? p.paraQuien,

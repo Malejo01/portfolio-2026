@@ -26,7 +26,9 @@ export type IconName =
   | "expand"
   | "phone"
   | "paleta"
-  | "rotar";
+  | "rotar"
+  | "qr"
+  | "bolsa";
 
 const PATHS: Record<IconName, React.ReactNode> = {
   web: (
@@ -118,6 +120,16 @@ const PATHS: Record<IconName, React.ReactNode> = {
     </>
   ),
   rotar: <path d="M4 12a8 8 0 0114-5.3L20 9M20 4v5h-5M20 12a8 8 0 01-14 5.3L4 15M4 20v-5h5" />,
+  /* Tanda P3-3.1: la franja de los planes de Tienda (F-soluciones.html). */
+  qr: (
+    <>
+      <rect x="3" y="3" width="7" height="7" />
+      <rect x="14" y="3" width="7" height="7" />
+      <rect x="3" y="14" width="7" height="7" />
+      <path d="M14 14h3v3h-3zM20 14v7M14 20h3" />
+    </>
+  ),
+  bolsa: <path d="M4 7h16l-1.5 10h-13zM9 7a3 3 0 016 0" />,
 };
 
 const STROKE: Partial<Record<IconName, number>> = { check: 2.4, arrow: 2, close: 2, send: 2, up: 2.2 };

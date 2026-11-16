@@ -16,6 +16,8 @@ import { Icon, type IconName } from "../icons";
 import { VUELO_EVENT, type VueloDetail } from "./AgregarBoton";
 import { Hoja } from "./Hoja";
 import { useTurnstile } from "./turnstile";
+import { reproducir } from "@/lib/agencia/sprite-anim";
+import { Sprite } from "../Sprite";
 import { useArmado } from "./useArmado";
 
 /**
@@ -318,7 +320,7 @@ export function Armador({
                   tabIndex={on ? 0 : -1}
                   onClick={() => elegir(c.key, { scroll: true })}
                   onKeyDown={(ev) => onTabKey(ev, i)}
-                  className={`flex min-h-11 min-w-0 items-center gap-2 rounded-[14px] px-3 py-2 text-left text-[14px] font-semibold leading-tight transition-colors lg:min-h-12 lg:text-[15px] ${
+                  className={`cat-tab flex min-h-11 min-w-0 items-center gap-2 rounded-14 px-3 py-2 text-left text-[14px] font-semibold leading-tight transition-colors lg:min-h-12 lg:text-[15px] ${
                     on ? "bg-acc text-acc-ink" : "border border-border bg-surf text-text shadow-card"
                   }`}
                 >
@@ -328,7 +330,7 @@ export function Armador({
                   {k ? (
                     <span
                       aria-label={copy.enArmado.replace("{N}", plural(k))}
-                      className={`inline-flex h-6 min-w-6 flex-none items-center justify-center rounded-full px-1.5 font-mono text-[12px] ${on ? "bg-acc-ink text-acc" : "bg-ic-bg text-acc-text"}`}
+                      className={`contador inline-flex h-6 min-w-6 flex-none items-center justify-center rounded-full px-1.5 font-mono text-[12px] ${on ? "bg-acc-ink text-acc" : "bg-ic-bg text-acc-text"}`}
                     >
                       {k}
                     </span>
@@ -429,7 +431,7 @@ export function Armador({
                   aria-selected={on}
                   aria-controls={`panel-${t.key}`}
                   onClick={() => elegirPestana(t.key)}
-                  className={`relative flex min-h-11 flex-1 items-center justify-center gap-2 rounded-[14px] px-3 text-[15px] font-semibold transition-colors ${
+                  className={`relative flex min-h-11 flex-1 items-center justify-center gap-2 rounded-14 px-3 text-[15px] font-semibold transition-colors ${
                     on ? "bg-ic-bg text-acc-text" : "text-muted hover:text-text"
                   }`}
                 >
@@ -478,7 +480,7 @@ export function Armador({
               onClick={() => setHoja(true)}
               aria-haspopup="dialog"
               aria-label={`${copy.carrito.abrir}: ${copy.carrito.cantidad.replace("{N}", plural(n))}`}
-              className="card hi flex min-h-14 w-full items-center justify-between gap-3 rounded-[18px] px-4 py-2 text-left"
+              className="card hi flex min-h-14 w-full items-center justify-between gap-3 rounded-18 px-4 py-2 text-left"
             >
               <span className="flex min-w-0 flex-col">
                 <span className="flex items-center gap-1.5 text-[15px] font-semibold">
@@ -524,7 +526,7 @@ export function Armador({
             animate={{ x: vuelo.hasta.x - 70, y: vuelo.hasta.y - 22, scale: 0.35, opacity: 0 }}
             transition={{ duration: 0.55, ease: [0.4, 0, 0.2, 1] }}
             onAnimationComplete={() => setVuelo(null)}
-            className="pointer-events-none fixed left-0 top-0 z-[80] flex h-11 w-[140px] items-center justify-center truncate rounded-[14px] bg-acc px-3 text-[13px] font-semibold text-acc-ink"
+            className="pointer-events-none fixed left-0 top-0 z-[80] flex h-11 w-[140px] items-center justify-center truncate rounded-14 bg-acc px-3 text-[13px] font-semibold text-acc-ink"
           >
             {vuelo.nombre}
           </m.div>
@@ -543,7 +545,7 @@ function Contador({ n, rebote }: { n: number; rebote: number }) {
       initial={reduced || !rebote ? false : { scale: 1.45 }}
       animate={{ scale: 1 }}
       transition={{ type: "spring", stiffness: 520, damping: 14 }}
-      className="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-acc px-1.5 font-mono text-[12px] font-semibold text-acc-ink"
+      className="contador inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-acc px-1.5 font-mono text-[12px] font-semibold text-acc-ink"
     >
       {n}
     </m.span>
@@ -618,6 +620,7 @@ function CarritoCuerpo({
   if (vista === "exito") {
     return (
       <div role="status" className="flex flex-col gap-3">
+        <Festejo />
         <p className="h m-0 text-[22px] leading-tight">{copy.exito.titulo}</p>
         <p className="m-0 text-[15px] text-muted">{copy.exito.lead}</p>
         <a href={agendaLink()} target="_blank" rel="noopener" onClick={() => track("armado_agenda")} className="btn btn-p w-full">
@@ -653,7 +656,7 @@ function CarritoCuerpo({
   return (
     <div className="flex flex-col gap-4">
       {compartido ? (
-        <p role="status" className="m-0 rounded-[12px] bg-ic-bg px-3 py-2 text-[13px] text-acc-text">
+        <p role="status" className="m-0 rounded-12 bg-ic-bg px-3 py-2 text-[13px] text-acc-text">
           {k.compartido}
         </p>
       ) : null}
@@ -691,7 +694,7 @@ function CarritoCuerpo({
       </ul>
 
       {combo ? (
-        <p className="m-0 rounded-[12px] bg-save-bg px-3 py-2 text-[13px] font-semibold text-ok-text">{k.combo.replace("{AHORRO}", fmt(ahorroEnPesos(combo)))}</p>
+        <p className="m-0 rounded-12 bg-save-bg px-3 py-2 text-[13px] font-semibold text-ok-text">{k.combo.replace("{AHORRO}", fmt(ahorroEnPesos(combo)))}</p>
       ) : null}
 
       <div className="flex flex-wrap items-center justify-between gap-2">{extrasSlot}</div>
@@ -743,7 +746,7 @@ function CarritoPie({ e, copy, senaSlot, onEnviar }: { e: EstimadoArmado; copy: 
   const linea = lineaDePagos(e.pagos?.total);
   return (
     <div className="flex flex-col gap-3">
-      <div aria-live="polite" className="flex flex-col gap-1 rounded-[16px] bg-surf-2 px-4 py-3">
+      <div aria-live="polite" className="flex flex-col gap-1 rounded-16 bg-surf-2 px-4 py-3">
         <span className="lbl text-[10px]">{k.estimadoLabel}</span>
         {e.piso ? (
           <strong className="h text-[22px] leading-tight">{k.estimado.replace("{X}", fmt(e.piso)).replace("{Y}", fmt(e.techo))}</strong>
@@ -847,7 +850,7 @@ function FormArmado({
     }
   };
 
-  const campo = "h-12 w-full rounded-[12px] border border-border-2 bg-bg px-3 text-[16px] text-text";
+  const campo = "h-12 w-full rounded-12 border border-border-2 bg-bg px-3 text-[16px] text-text";
   return (
     <form onSubmit={enviar} className="flex flex-col gap-3" noValidate>
       <p className="h m-0 text-[20px] leading-tight">{f.titulo}</p>
@@ -866,7 +869,7 @@ function FormArmado({
       </label>
       <label className="flex flex-col gap-1">
         <span className="text-[14px] font-semibold">{f.nota}</span>
-        <textarea name="nota" maxLength={300} rows={3} className="w-full rounded-[12px] border border-border-2 bg-bg px-3 py-2 text-[16px] text-text" />
+        <textarea name="nota" maxLength={300} rows={3} className="w-full rounded-12 border border-border-2 bg-bg px-3 py-2 text-[16px] text-text" />
       </label>
       <label className="flex min-h-11 cursor-pointer items-start gap-2.5 text-[14px]">
         <input type="checkbox" name="consent" className="mt-0.5 h-5 w-5 flex-none accent-(--acc)" />
@@ -895,5 +898,21 @@ function FormArmado({
         {f.volver}
       </button>
     </form>
+  );
+}
+
+/**
+ * Tanda P3-1: en la pantalla de éxito del kit, Mauro festeja una vez y queda
+ * en la pose `ok` (con movimiento reducido, directo en `ok`).
+ */
+function Festejo() {
+  const ref = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    void reproducir(ref.current?.querySelector("[data-sprite]"), "festejo");
+  }, []);
+  return (
+    <span ref={ref} className="flex h-[104px] items-end">
+      <Sprite pose="ok" alto={96} alt="" animaciones={["festejo"]} />
+    </span>
   );
 }

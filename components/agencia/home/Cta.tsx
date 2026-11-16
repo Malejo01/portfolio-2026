@@ -19,9 +19,9 @@ export function Cta() {
   return (
     <section id="contacto" className="wrap pb-16 pt-14 sm:pb-20 sm:pt-16">
       <Reveal>
-        <div className="card card-big hi grid grid-cols-1 items-center gap-6 bg-[radial-gradient(80%_120%_at_100%_0%,var(--ic-bg)_0%,var(--surf)_55%)] p-6 sm:gap-8 sm:p-10 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+        <div className="cierre-ag card card-big hi grid grid-cols-1 items-center gap-6 bg-[radial-gradient(80%_120%_at_100%_0%,var(--ic-bg)_0%,var(--surf)_55%)] p-6 sm:gap-8 sm:p-10 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
           <div className="relative flex flex-col gap-3 sm:gap-4">
-            <MalejoMark size={48} className="hidden text-acc sm:block" />
+            <MalejoMark size={48} className="hidden text-marca sm:block" />
             <span className="lbl lbl-o">{cta.label}</span>
             <h2 className="h text-[40px] leading-none sm:text-[52px]">{cta.title}</h2>
             <p className="m-0 text-[17px] leading-[1.55] text-muted sm:text-lg">{cta.lead}</p>

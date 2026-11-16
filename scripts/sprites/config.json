@@ -1,0 +1,121 @@
+{
+  "_doc": "Configuración a mano de los sprites (tanda P3-1). Coordenadas en el lienzo original de docs/agencia/sprites/fuente/<dibujo>/. `ojos`: cada caja es el lente con su marco [x0, y0, x1, y1]; animar.py respeta un anillo de 2 bloques arriba, abajo y a la izquierda y de 1 a la derecha, como la referencia aprobada del chibi (docs/agencia/sprites/referencia/chibi-idle.gif). `filaJean`: la primera fila del jean (el respiro mueve lo que está 2 bloques más arriba). limpiar.py y animar.py la leen y escriben public/agencia/sprites/sprites.json.",
+  "16bit": {
+    "nombre": "Pixel",
+    "bloque": 10,
+    "filaJean": 520,
+    "piel": [
+      [
+        236,
+        190,
+        156
+      ],
+      [
+        206,
+        152,
+        118
+      ],
+      [
+        200,
+        142,
+        110
+      ]
+    ],
+    "ojos": [
+      [
+        80,
+        140,
+        170,
+        220
+      ],
+      [
+        180,
+        140,
+        270,
+        220
+      ]
+    ],
+    "oscuro": [
+      30,
+      24,
+      28
+    ]
+  },
+  "chibi": {
+    "nombre": "Chibi",
+    "bloque": 4,
+    "filaJean": 535,
+    "piel": [
+      [
+        234,
+        181,
+        145
+      ],
+      [
+        229,
+        189,
+        164
+      ],
+      [
+        184,
+        123,
+        102
+      ]
+    ],
+    "ojos": [
+      [
+        161,
+        257,
+        222,
+        307
+      ],
+      [
+        285,
+        257,
+        350,
+        307
+      ]
+    ],
+    "oscuro": [
+      21,
+      20,
+      27
+    ]
+  },
+  "anime": {
+    "nombre": "Anime",
+    "bloque": 3,
+    "filaJean": 383,
+    "piel": [
+      [
+        238,
+        188,
+        155
+      ],
+      [
+        197,
+        140,
+        119
+      ]
+    ],
+    "ojos": [
+      [
+        154,
+        88,
+        188,
+        116
+      ],
+      [
+        193,
+        88,
+        228,
+        116
+      ]
+    ],
+    "oscuro": [
+      18,
+      17,
+      23
+    ]
+  }
+}

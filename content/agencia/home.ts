@@ -117,7 +117,7 @@ export const home = {
     /** §4.1: dos líneas, sin párrafo. */
     body: "Profe de matemática y desarrollador: explico simple y armo lo que tu negocio necesita.",
     photoAlt: "Mauro Lizárraga",
-    spriteAlt: "Mauro en pixel art con las manos en los bolsillos",
+    spriteAlt: "Mauro dibujado, con las manos en los bolsillos",
     projectsTitle: "Proyectos propios que ya están funcionando",
     projects: ["quepintasalta", "tuki", "afiniajobs"] satisfies Proyecto["key"][],
     more: { label: "Ver más proyectos →", href: "/portfolio#casos" },

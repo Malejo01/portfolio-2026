@@ -1,13 +1,17 @@
 import Link from "next/link";
 import { WHATSAPP_TEXTO, home } from "@/content/agencia/home";
 import { waLink } from "@/lib/agencia/config";
-import { Check } from "../icons";
-import { MalejoMark } from "../MalejoMark";
-import { AbrirChat } from "../client/AbrirChat";
-import { SpriteVivo } from "../client/SpriteVivo";
-import { Typewriter } from "../client/Typewriter";
+import { estiloCopy } from "@/content/agencia/estilos";
+import { Check } from "../../../icons";
+import { MalejoMark } from "../../../MalejoMark";
+import { Sprite } from "../../../Sprite";
+import { AbrirChat } from "../../../client/AbrirChat";
+import { Typewriter } from "../../../client/Typewriter";
 
 /**
+ * Hero de Tech/IA, el original (tanda P3-1: uno por estilo, `HomePage` los
+ * renderiza todos y `estilos.css` muestra el de `data-estilo`).
+ *
  * Hero bento (DISENO.md §4 Hero, `02-hero-*.png`). Tanda P2 (D7 y D8,
  * celular primero): "Software con IA para tu negocio." y, a 390 × 844 y a
  * 360 × 740, todo arriba del pliegue con la barra inferior incluida: el H1
@@ -19,12 +23,12 @@ import { Typewriter } from "../client/Typewriter";
  * Los chips no llevan entrada al scroll: están arriba del pliegue, y
  * arrancar en `opacity: 0` hasta hidratar empeoraba el LCP en celular.
  */
-export function Hero() {
-  const { hero, team } = home;
+export function HeroTech() {
+  const { hero } = home;
   const wa = waLink(WHATSAPP_TEXTO);
 
   return (
-    <section id="inicio" className="wrap pt-1 sm:pt-4">
+    <section data-solo-estilo="tech" className="wrap pt-1 sm:pt-4">
       <div className="card card-big relative flex flex-col justify-center gap-3.5 overflow-hidden p-5 sm:gap-6 sm:p-12 lg:min-h-[440px]">
         <MalejoMark
           size={420}
@@ -41,8 +45,8 @@ export function Hero() {
         <p className="relative m-0 text-[15px] leading-[1.5] text-muted sm:hidden">{hero.leadCorto}</p>
         <p className="relative m-0 hidden max-w-[30em] text-[19px] leading-[1.55] text-muted sm:block">{hero.lead}</p>
         <div className="relative flex items-center gap-3">
-          <span className="relative inline-flex h-16 w-14 flex-none justify-center overflow-hidden rounded-[18px] border border-border bg-ic-bg pt-1">
-            <SpriteVivo label={team.spriteAlt} />
+          <span className="relative inline-flex h-16 w-14 flex-none items-start justify-center overflow-hidden rounded-18 border border-border bg-ic-bg pt-1">
+            <Sprite alto={123} alt={estiloCopy.alt.normal} saludoAlEntrar />
           </span>
           <span className="flex min-w-0 flex-col leading-tight">
             <strong className="text-[15px]">{hero.quien.nombre}</strong>

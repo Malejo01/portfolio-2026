@@ -21,12 +21,12 @@ export function FaqList({
   return (
     <div className={`flex flex-col ${compact ? "mt-3 gap-2 lg:grid lg:grid-cols-3 lg:items-start lg:gap-3" : "mt-7 gap-3"}`}>
       {items.map((item, i) => (
-        <details key={item.q} name={name} open={primeraAbierta && i === 0} className={`faq-item card ${compact ? "rounded-[16px] shadow-none" : ""}`}>
+        <details key={item.q} name={name} open={primeraAbierta && i === 0} className={`faq-item card ${compact ? "rounded-16 shadow-none" : ""}`}>
           <summary className={`flex items-center justify-between gap-4 font-semibold ${compact ? "min-h-12 px-4 py-2.5 text-[15px]" : "px-6 py-5 text-[17px]"}`}>
             {item.q}
             <span
               aria-hidden="true"
-              className="inline-flex h-8 w-8 flex-none items-center justify-center rounded-[10px] bg-ic-bg text-lg text-acc-text"
+              className="inline-flex h-8 w-8 flex-none items-center justify-center rounded-10 bg-ic-bg text-lg text-acc-text"
             >
               <span className="faq-plus">+</span>
               <span className="faq-minus">−</span>

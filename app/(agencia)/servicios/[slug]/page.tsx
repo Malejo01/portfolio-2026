@@ -227,7 +227,7 @@ export default async function ServicioPage({ params }: Props) {
                 width={960}
                 height={439}
                 loading="lazy"
-                className="shot block aspect-[960/439] h-auto w-28 flex-none rounded-[12px] object-cover object-top sm:w-40"
+                className="shot block aspect-[960/439] h-auto w-28 flex-none rounded-12 object-cover object-top sm:w-40"
               />
               <span className="flex min-w-0 flex-col gap-0.5">
                 <span className="lbl lbl-o text-[10px]">{detail.proyectoLabel}</span>

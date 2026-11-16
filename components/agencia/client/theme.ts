@@ -1,5 +1,7 @@
 import { useCallback, useLayoutEffect, useSyncExternalStore } from "react";
 import { AGENCIA_THEME_COOKIE } from "@/lib/agencia/theme";
+import { DIBUJO_ORIGINAL, ESTILO_ORIGINAL, estilos } from "@/content/agencia/estilos";
+import { arrancar, configArranque } from "@/lib/agencia/estilo";
 
 /**
  * Tema de la agencia. La fuente de verdad es la clase `dark` en `<html>`,
@@ -40,10 +42,9 @@ export function useAgenciaTheme() {
   // dato, no corre. Si `<html>` no tiene `js`, se replica acá antes del paint.
   useLayoutEffect(() => {
     const root = document.documentElement;
+    // El mismo arranque del `<head>` (estilo, dibujo y tema), tanda P3-1.
     if (root.classList.contains("js")) return;
-    root.classList.add("js");
-    const m = document.cookie.match(new RegExp(`(?:^|; )${AGENCIA_THEME_COOKIE}=(dark|light)`));
-    apply(m && m[1] === "light" ? "light" : "dark");
+    arrancar(configArranque(estilos, ESTILO_ORIGINAL, DIBUJO_ORIGINAL));
   }, []);
 
   const toggle = useCallback(() => {

@@ -59,7 +59,7 @@ export function DemoSena({ copy, alias, children }: { copy: DemoCopy["sena"]; al
       ) : (
         <>
           {alias && sena?.tipo !== "sin-cargo" ? (
-            <div className="rounded-[14px] border border-border bg-surf-2 p-4">
+            <div className="rounded-14 border border-border bg-surf-2 p-4">
               <span className="lbl text-[10px]">{copy.alias}</span>
               <div className="mt-1 font-mono text-lg font-semibold">{alias}</div>
             </div>

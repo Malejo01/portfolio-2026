@@ -32,7 +32,7 @@ export default async function BlogPage() {
                 ))}
               </div>
               <h2 className="h text-[22px] leading-tight">
-                <Link href={`/blog/${p.slug}`} className="no-underline after:absolute after:inset-0 after:rounded-[22px] after:content-['']">
+                <Link href={`/blog/${p.slug}`} className="no-underline after:absolute after:inset-0 after:rounded-22 after:content-['']">
                   {p.titulo}
                 </Link>
               </h2>

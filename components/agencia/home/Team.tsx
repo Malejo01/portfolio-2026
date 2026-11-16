@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { home, proyectosDeLaHome } from "@/content/agencia/home";
 import { MalejoMark } from "../MalejoMark";
+import { Sprite } from "../Sprite";
 import { ProjectVideo } from "../client/ProjectVideo";
 import { Reveal } from "../client/Reveal";
 
@@ -25,20 +26,13 @@ export function Retrato({ className = "" }: { className?: string }) {
         alt={team.photoAlt}
         width={160}
         height={160}
-        className={`h-24 w-24 flex-none rounded-[22px] object-cover sm:h-28 sm:w-28 ${className}`}
+        className={`h-24 w-24 flex-none rounded-22 object-cover sm:h-28 sm:w-28 ${className}`}
       />
     );
   }
   return (
-    <span className={`relative inline-flex h-24 w-20 flex-none items-end justify-center overflow-hidden rounded-[22px] bg-ic-bg sm:h-28 sm:w-24 ${className}`}>
-      <Image
-        src="/agencia/sprites/malejo-bolsillos.png"
-        alt={team.spriteAlt}
-        width={54}
-        height={123}
-        unoptimized
-        className="pixel -mb-6 h-[123px] w-[54px]"
-      />
+    <span className={`relative inline-flex h-24 w-20 flex-none items-start justify-center overflow-hidden rounded-22 bg-ic-bg pt-2 sm:h-28 sm:w-24 ${className}`}>
+      <Sprite alto={123} alt={team.spriteAlt} />
     </span>
   );
 }
@@ -61,7 +55,7 @@ export function Team() {
       <span id="sobre-mi" className="block scroll-mt-[104px]" />
       <Reveal>
         <span className="lbl lbl-o inline-flex items-center gap-2">
-          <MalejoMark size={18} className="text-acc" />
+          <MalejoMark size={18} className="text-marca" />
           {team.label}
         </span>
       </Reveal>
@@ -82,7 +76,7 @@ export function Team() {
             {proyectos.map((p) => (
               <li key={p.key} className="flex w-[78%] flex-none sm:w-[46%] lg:w-auto">
                 <article className="card lift relative flex flex-1 flex-col gap-2.5 p-3">
-                  <div className="shot aspect-[960/439] rounded-[14px]">
+                  <div className="shot aspect-[960/439] rounded-14">
                     <ProjectVideo
                       src={`/agencia/proyectos/${p.key}.mp4`}
                       poster={`/agencia/proyectos/${p.key}.jpg`}
@@ -97,7 +91,7 @@ export function Team() {
                         href={p.href}
                         target="_blank"
                         rel="noopener"
-                        className="no-underline after:absolute after:inset-0 after:rounded-[22px] after:content-['']"
+                        className="no-underline after:absolute after:inset-0 after:rounded-22 after:content-['']"
                       >
                         {p.problema}
                       </a>

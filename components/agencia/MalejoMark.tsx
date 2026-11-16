@@ -9,11 +9,14 @@ export function MalejoMark({
   strokeWidth = 4.8,
   className,
   style,
+  "data-solo-estilo": soloEstilo,
 }: {
   size?: number;
   strokeWidth?: number;
   className?: string;
   style?: React.CSSProperties;
+  /** Tanda P3-1: se ve solo en ese estilo (ver `estilos.css`). */
+  "data-solo-estilo"?: string;
 }) {
   return (
     <svg
@@ -23,6 +26,7 @@ export function MalejoMark({
       aria-hidden="true"
       focusable="false"
       className={className}
+      data-solo-estilo={soloEstilo}
       style={{ flex: "none", ...style }}
     >
       <g fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinejoin="round">

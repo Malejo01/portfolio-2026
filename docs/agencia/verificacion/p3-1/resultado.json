@@ -1,0 +1,289 @@
+{
+  "fecha": "2026-11-16T13:25:27.863Z",
+  "base": "http://localhost:3001",
+  "recorrido": {
+    "tech/light/390/": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "tech/light/390/soluciones?a=landing-profesional,turnos-online": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "tech/light/390/servicios/webs": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "tech/light/390/demo": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "tech/light/390/no-existe-esta-pagina": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "tech/light/390/#chat": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "tech/light/1280/": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "tech/light/1280/soluciones?a=landing-profesional,turnos-online": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "tech/light/1280/servicios/webs": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "tech/light/1280/demo": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "tech/light/1280/no-existe-esta-pagina": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "tech/light/1280/#chat": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "tech/dark/390/": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "tech/dark/390/soluciones?a=landing-profesional,turnos-online": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "tech/dark/390/servicios/webs": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "tech/dark/390/demo": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "tech/dark/390/no-existe-esta-pagina": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "tech/dark/390/#chat": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "tech/dark/1280/": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "tech/dark/1280/soluciones?a=landing-profesional,turnos-online": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "tech/dark/1280/servicios/webs": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "tech/dark/1280/demo": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "tech/dark/1280/no-existe-esta-pagina": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "tech/dark/1280/#chat": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "institucional/light/390/": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "institucional/light/390/soluciones?a=landing-profesional,turnos-online": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "institucional/light/390/servicios/webs": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "institucional/light/390/demo": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "institucional/light/390/no-existe-esta-pagina": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "institucional/light/390/#chat": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "institucional/light/1280/": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "institucional/light/1280/soluciones?a=landing-profesional,turnos-online": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "institucional/light/1280/servicios/webs": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "institucional/light/1280/demo": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "institucional/light/1280/no-existe-esta-pagina": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "institucional/light/1280/#chat": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "institucional/dark/390/": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "institucional/dark/390/soluciones?a=landing-profesional,turnos-online": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "institucional/dark/390/servicios/webs": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "institucional/dark/390/demo": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "institucional/dark/390/no-existe-esta-pagina": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "institucional/dark/390/#chat": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "institucional/dark/1280/": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "institucional/dark/1280/soluciones?a=landing-profesional,turnos-online": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "institucional/dark/1280/servicios/webs": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "institucional/dark/1280/demo": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "institucional/dark/1280/no-existe-esta-pagina": {
+      "overflow": 0,
+      "contraste": 0
+    },
+    "institucional/dark/1280/#chat": {
+      "overflow": 0,
+      "contraste": 0
+    }
+  },
+  "pliegue": {
+    "tech/390x844": {
+      "botones": [
+        380,
+        442
+      ],
+      "chips": 526,
+      "nav": 788
+    },
+    "tech/360x740": {
+      "botones": [
+        394,
+        456
+      ],
+      "chips": 578,
+      "nav": 684
+    },
+    "institucional/390x844": {
+      "botones": [
+        427,
+        489
+      ],
+      "chips": 533,
+      "nav": 788
+    },
+    "institucional/360x740": {
+      "botones": [
+        418,
+        480
+      ],
+      "chips": 524,
+      "nav": 684
+    }
+  },
+  "tamanos": {
+    "16bit": [
+      176,
+      123,
+      120
+    ],
+    "chibi": [
+      176,
+      123,
+      120
+    ],
+    "anime": [
+      176,
+      123,
+      120
+    ]
+  },
+  "sinJs": {
+    "estilo": null,
+    "heroTech": true,
+    "heroInst": false,
+    "dibujo16": true,
+    "chibi": false,
+    "selector": false,
+    "overflow": 0
+  },
+  "persistencia": {
+    "primera": {
+      "estilo": "tech",
+      "dibujo": "16bit",
+      "dark": true
+    },
+    "trasElegir": {
+      "estilo": "institucional",
+      "dibujo": "anime",
+      "dark": false
+    },
+    "recarga": {
+      "estilo": "institucional",
+      "dibujo": "anime",
+      "dark": false
+    },
+    "elegidoYCambio": {
+      "estilo": "tech",
+      "dibujo": "anime",
+      "dark": true
+    }
+  },
+  "animaciones": {
+    "heroSaludo": "1",
+    "chat": "- saludo saludo saludo saludo saludo saludo saludo saludo - - - - - - -",
+    "reducido": {
+      "idle": 0,
+      "anim": 0
+    }
+  },
+  "fallas": []
+}

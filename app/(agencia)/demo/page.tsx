@@ -85,7 +85,7 @@ export default function DemoPage() {
                 src={calEmbed(CALCOM_URL)}
                 title={copy.agenda.frameTitle}
                 loading="lazy"
-                className="h-[560px] w-full rounded-[14px] border border-border bg-surf"
+                className="h-[560px] w-full rounded-14 border border-border bg-surf"
               />
             ) : (
               <a href={waLink("Quiero agendar una videollamada")} target="_blank" rel="noopener" className="btn btn-s">

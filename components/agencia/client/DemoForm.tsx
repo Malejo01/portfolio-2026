@@ -85,7 +85,7 @@ export function DemoForm({
 
   const err = state.errors ?? {};
   const v = state.values ?? {};
-  const field = "h-12 w-full rounded-[14px] border border-border-2 bg-bg px-3.5 text-[15px] text-text placeholder:text-muted aria-[invalid=true]:border-acc-text";
+  const field = "h-12 w-full rounded-14 border border-border-2 bg-bg px-3.5 text-[15px] text-text placeholder:text-muted aria-[invalid=true]:border-acc-text";
   const describe = (name: keyof typeof err) => (err[name] ? { "aria-invalid": true, "aria-describedby": `${name}-error` } : {});
   const fieldError = (name: keyof typeof err) =>
     err[name] ? (
@@ -96,9 +96,9 @@ export function DemoForm({
 
   return (
     <form key={delChat ? "con-chat" : "vacio"} action={action} noValidate className="flex flex-col gap-4">
-      {delChat && state.status === "idle" ? <p className="m-0 rounded-[12px] bg-surf-2 px-3.5 py-2.5 text-[13px] text-muted">{b.delChat}</p> : null}
+      {delChat && state.status === "idle" ? <p className="m-0 rounded-12 bg-surf-2 px-3.5 py-2.5 text-[13px] text-muted">{b.delChat}</p> : null}
       {state.status === "bloqueado" ? (
-        <div role="alert" className="rounded-[14px] border border-hi-b bg-ic-bg p-4 text-sm text-user-text">
+        <div role="alert" className="rounded-14 border border-hi-b bg-ic-bg p-4 text-sm text-user-text">
           {b.bloqueado}
         </div>
       ) : null}
@@ -108,7 +108,7 @@ export function DemoForm({
         <input id={CAMPO_TRAMPA} name={CAMPO_TRAMPA} type="text" tabIndex={-1} autoComplete="off" defaultValue="" />
       </div>
       {state.status === "error" ? (
-        <div ref={summary} tabIndex={-1} role="alert" className="rounded-[14px] border border-hi-b bg-ic-bg p-4 text-sm text-user-text">
+        <div ref={summary} tabIndex={-1} role="alert" className="rounded-14 border border-hi-b bg-ic-bg p-4 text-sm text-user-text">
           <strong>{b.errorsTitle}</strong>
           <ul className="m-0 mt-1 list-disc pl-5">
             {Object.values(err).map((e) => (
@@ -176,7 +176,7 @@ export function DemoForm({
       </div>
       <div>
         {/* Toda la fila es el área táctil (44 px como mínimo, auditoría P1-10). */}
-        <label className="-mx-2 flex min-h-11 cursor-pointer items-center gap-3 rounded-[12px] px-2 py-2 text-sm hover:bg-surf-2">
+        <label className="-mx-2 flex min-h-11 cursor-pointer items-center gap-3 rounded-12 px-2 py-2 text-sm hover:bg-surf-2">
           <input type="checkbox" name="consent" required className="h-6 w-6 flex-none accent-(--acc)" {...describe("consent")} />
           <span>
             {b.consent}{" "}

@@ -11,20 +11,23 @@ export function Footer() {
   const { footer } = site;
 
   return (
-    <footer className="border-t border-border">
+    // `pie-ag`: en Institucional el pie es la banda oscura con la franja de 3
+    // colores (`estilos.css`); en Tech, transparente con su borde de siempre.
+    <footer className="pie-ag border-t border-border">
+      <div aria-hidden="true" className="franja franja-pie" />
       <div className="wrap grid grid-cols-2 gap-x-5 gap-y-6 pb-10 pt-9 sm:grid-cols-3 sm:gap-8 lg:grid-cols-[minmax(0,1.4fr)_repeat(3,minmax(0,1fr))]">
         <div className="col-span-2 flex flex-col gap-2 sm:col-span-3 lg:col-span-1">
           <span className="inline-flex items-center gap-2.5">
-            <MalejoMark size={28} className="text-acc" />
+            <MalejoMark size={28} className="text-(--pie-acc)" />
             <span className="h text-2xl">{site.name}</span>
           </span>
-          <p className="m-0 max-w-[24em] text-sm text-muted">{footer.tagline}</p>
+          <p className="pie-muted m-0 max-w-[24em] text-sm text-muted">{footer.tagline}</p>
         </div>
         {footer.columns.map((col) => (
           <div key={col.label} className={`flex flex-col text-[14px] leading-[1.3] ${col.links.length > 2 ? "row-span-2 sm:row-span-1" : ""}`}>
             <span className="lbl mb-1">{col.label}</span>
             {col.links.map((l) => (
-              <Link key={l.href} href={l.href} className="flex min-h-11 items-center text-text no-underline hover:text-acc-text sm:min-h-8">
+              <Link key={l.href} href={l.href} className="flex min-h-11 items-center text-text no-underline hover:underline sm:min-h-8">
                 {l.label}
               </Link>
             ))}

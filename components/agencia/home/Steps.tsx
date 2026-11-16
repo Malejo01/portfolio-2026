@@ -38,12 +38,13 @@ export function Steps() {
       <Reveal>
         <ol className="card m-0 mt-6 flex list-none flex-col gap-3 p-5 sm:mt-7 sm:grid sm:grid-cols-3 sm:gap-5 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
           {steps.items.map((s, i) => (
-            <li key={s.title} className="flex gap-3.5 sm:flex-col sm:gap-2.5 sm:rounded-[22px] sm:border sm:border-border sm:border-t-hl sm:bg-surf sm:p-5 sm:shadow-card">
+            <li key={s.title} className={`con-tono tono-${(i % 3) + 1} paso-tono flex gap-3.5 sm:flex-col sm:gap-2.5 sm:rounded-22 sm:border sm:border-border sm:border-t-hl sm:bg-surf sm:p-5 sm:shadow-card`}>
               <span
                 aria-hidden="true"
-                className="inline-flex h-8 w-8 flex-none items-center justify-center rounded-[10px] bg-ic-bg font-mono text-sm font-semibold text-acc-text"
+                className="paso-num inline-flex h-8 w-8 flex-none items-center justify-center rounded-10 bg-ic-bg font-mono text-sm font-semibold text-acc-text"
               >
-                {i + 1}
+                <span data-solo-estilo="tech">{i + 1}</span>
+                <span data-solo-estilo="institucional">{String(i + 1).padStart(2, "0")}</span>
               </span>
               <div className="flex flex-col gap-1">
                 <h3 className="h text-[17px] sm:text-xl">

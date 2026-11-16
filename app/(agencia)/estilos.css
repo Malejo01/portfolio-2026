@@ -1,0 +1,413 @@
+/*
+ * Estilos de la web (tanda P3-1). Cada estilo redefine **los mismos tokens**
+ * de `agencia.css` por `[data-estilo="…"]` (claro) y `[data-estilo="…"].dark`
+ * (oscuro). Los componentes no se enteran del estilo: lo que cambia entre
+ * estilos va como token (color, radio, fuente de titulares, franja, tonos).
+ *
+ * `data-estilo` y `data-dibujo` los pone el script inline del layout
+ * (`lib/agencia/estilo.ts`). Sin JS no hay atributo y vale lo de
+ * `agencia.css`: Tech/IA con el dibujo 16-bit.
+ *
+ * Fuente de verdad de cada estilo: `docs/agencia/estilos/<id>/ESPEC.md` y sus
+ * pantallas. Los tokens nuevos de P3-1 están en `agencia.css` (bloque
+ * "Tanda P3-1"); un estilo nuevo solo suma su bloque acá, un hero y la fila
+ * de `content/agencia/estilos.ts`.
+ */
+
+/* ============================================================
+   QUÉ SE VE SEGÚN EL ESTILO Y EL DIBUJO
+   `data-solo-estilo="institucional"` solo se ve en ese estilo;
+   `data-solo-dibujo="chibi"`, solo con ese dibujo. El elemento conserva
+   su `display` propio: acá solo se ocultan los que no van.
+   ============================================================ */
+html:not([data-estilo]) [data-solo-estilo]:not([data-solo-estilo~="tech"]),
+html[data-estilo="tech"] [data-solo-estilo]:not([data-solo-estilo~="tech"]),
+html[data-estilo="institucional"] [data-solo-estilo]:not([data-solo-estilo~="institucional"]) {
+  display: none !important;
+}
+html:not([data-dibujo]) [data-solo-dibujo]:not([data-solo-dibujo="16bit"]),
+html[data-dibujo="16bit"] [data-solo-dibujo]:not([data-solo-dibujo="16bit"]),
+html[data-dibujo="chibi"] [data-solo-dibujo]:not([data-solo-dibujo="chibi"]),
+html[data-dibujo="anime"] [data-solo-dibujo]:not([data-solo-dibujo="anime"]) {
+  display: none !important;
+}
+
+/* El cambio de estilo y de dibujo: un fundido corto (View Transition). */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.28s;
+}
+
+/* ============================================================
+   PIEZAS COMUNES QUE SOLO ALGUNOS ESTILOS MUESTRAN
+   ============================================================ */
+
+/* Franja de 3 colores (arriba de todo y en el pie). Alto 0 en Tech. */
+.franja {
+  height: var(--franja);
+  background: linear-gradient(
+    90deg,
+    var(--franja-1) 0 33.34%,
+    var(--franja-2) 33.34% 66.67%,
+    var(--franja-3) 66.67%
+  );
+}
+.franja-pie {
+  height: calc(var(--franja) - 1px);
+}
+
+/* Tarjetas con tono: en Tech, el naranja de siempre. Los estilos con
+   `--tope` le ponen un borde superior del color que les toca. */
+.con-tono {
+  --t: var(--acc-text);
+  --t-bg: var(--ic-bg);
+}
+[data-estilo="institucional"] .con-tono {
+  border-top: var(--tope) solid var(--t);
+}
+.tono-1 {
+  --t: var(--tono-1);
+  --t-bg: var(--tono-1-bg);
+}
+.tono-2 {
+  --t: var(--tono-2);
+  --t-bg: var(--tono-2-bg);
+}
+.tono-3 {
+  --t: var(--tono-3);
+  --t-bg: var(--tono-3-bg);
+}
+.con-tono .ic {
+  background: var(--t-bg);
+  color: var(--t);
+}
+.tono-texto {
+  color: var(--t);
+}
+
+/* Miniaturas del selector: un pedacito de cada estilo, con sus colores. */
+.mini {
+  --m-bg: #0a0b0f;
+  --m-1: #ff5a1f;
+  --m-2: #3a3f4b;
+}
+.mini {
+  background: var(--m-bg);
+}
+.mini-l1,
+.mini-l2,
+.mini-b {
+  position: absolute;
+  left: 10px;
+  border-radius: 2px;
+}
+.mini-l1 {
+  top: 12px;
+  width: 60%;
+  height: 8px;
+  background: var(--m-1);
+}
+.mini-l2 {
+  top: 28px;
+  width: 40%;
+  height: 6px;
+  background: var(--m-2);
+}
+.mini-b {
+  bottom: 10px;
+  width: 30px;
+  height: 12px;
+  border-radius: 3px;
+  background: var(--m-1);
+}
+.mini-institucional {
+  --m-bg: #ffffff;
+  --m-1: #0b4f6c;
+  --m-2: #dde2e7;
+}
+.mini-aula {
+  --m-bg: #f7f5ef;
+  --m-1: #e0948a;
+  --m-2: #e3e2dc;
+}
+.mini-tienda {
+  --m-bg: #fffaf5;
+  --m-1: #e07ba6;
+  --m-2: #ecdfe3;
+}
+
+/* ============================================================
+   INSTITUCIONAL · claro (docs/agencia/estilos/institucional/ESPEC.md)
+   Sobrio estatal: Source Serif 4 en titulares, radios de 4 px, bordes de
+   1 px, sin sombras y la franja petróleo · terracota · salvia.
+   ============================================================ */
+[data-estilo="institucional"] {
+  --bg: #ffffff;
+  --surf: #ffffff;
+  --surf-2: #f7f5f2;
+  --border: #dde2e7;
+  --border-2: #c9d1d8;
+  --border-h: #aeb8c1;
+  --hl: #dde2e7;
+  --text: #1b2430;
+  --muted: #3b4754;
+  --titulo: #102a3a;
+  --acc: #0b4f6c;
+  --acc-ink: #ffffff;
+  --acc-text: #0b4f6c;
+  --ic-bg: #e6f0f4;
+  --ok: #3f7a5a;
+  --ok-text: #2f6447;
+  --save-bg: #e5f0e9;
+  --user-text: #102a3a;
+  --shadow: none;
+  --shadow-h: none;
+  --hi-b: #b4532a;
+  --hi-t: #b4532a;
+  --hi-s: none;
+  --mid-bg: #f7f5f2;
+  --mock-bg: #f7f5f2;
+  --nav-bg: rgba(255, 255, 255, 0.94);
+  --btn-shadow: none;
+  --btn-shadow-active: none;
+  --inset: none;
+
+  --r-max: 4px;
+  --r-card: 4px;
+  --r-card-big: 4px;
+  --r-btn: 4px;
+  --r-btn-sm: 4px;
+  --r-ibtn: 4px;
+  --r-ic: 4px;
+  --r-tag: 4px;
+  --r-chip: 4px;
+  --peso-titulo: 600;
+  --tracking-titulo: -0.005em;
+  --peso-etiqueta: 500;
+  --tracking-etiqueta: 0.12em;
+  --peso-boton: 600;
+  --btn-s-borde: #0b4f6c;
+  --btn-s-texto: #0b4f6c;
+
+  --tono-1: #0b4f6c;
+  --tono-2: #b4532a;
+  --tono-3: #3f7a5a;
+  --tono-1-bg: #e6f0f4;
+  --tono-2-bg: #fbeae2;
+  --tono-3-bg: #e5f0e9;
+  /* Terracota y salvia de la ESPEC dan 4,3:1 sobre su tinte: para texto chico
+     ahí ("Ingresar →", "Ver todas →") van un 5 % más oscuros (AA). */
+  --tono-2-texto: #a74d27;
+  --tono-3-texto: #3a7153;
+  --tope: 4px;
+  --franja: 5px;
+  --franja-1: #0b4f6c;
+  --franja-2: #b4532a;
+  --franja-3: #3f7a5a;
+  --pie-bg: #102a3a;
+  --pie-texto: #ffffff;
+  --pie-muted: #dce6ec;
+  --pie-borde: rgba(255, 255, 255, 0.16);
+  --pie-acc: #ffffff;
+  /* Etiqueta chica gris de Institucional (#4A5868 en la ESPEC). */
+  --etiqueta: #4a5868;
+  --marca: #0b4f6c;
+  /* Botón de Malejo de la barra inferior y contador del kit: terracota. */
+  --malejo-btn: #b4532a;
+  --malejo-btn-ink: #ffffff;
+  /* La hoja de Malejo en el celular: al 64 %. */
+  --hoja-alto: 64dvh;
+  /* El panel del selector y la hoja del chat: las únicas sombras. */
+  --sombra-panel: 0 24px 60px rgba(16, 42, 58, 0.18);
+}
+
+/* Las familias, en `body` (ver la nota en `agencia.css`). */
+[data-estilo="institucional"] body {
+  --fuente-titulo: var(--font-source-serif), Georgia, "Times New Roman", serif;
+  --fuente-etiqueta: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --fuente-boton: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ============================================================
+   INSTITUCIONAL · oscuro (colores más suaves, pedido de Mauro)
+   ============================================================ */
+[data-estilo="institucional"].dark {
+  --bg: #0e1a21;
+  --surf: #14242d;
+  --surf-2: #112029;
+  --border: #26394a;
+  --border-2: #34495c;
+  --border-h: #4a6278;
+  --hl: #26394a;
+  --text: #e8eef2;
+  --muted: #a9b7c0;
+  --titulo: #e8eef2;
+  --acc: #0b4f6c;
+  --acc-ink: #ffffff;
+  --acc-text: #7fb3c8;
+  --ic-bg: #142c36;
+  --ok: #9cc0a8;
+  --ok-text: #9cc0a8;
+  --save-bg: #1d2c25;
+  --user-text: #e8eef2;
+  --hi-b: #d49a7e;
+  --hi-t: #d49a7e;
+  --mid-bg: #112029;
+  --mock-bg: #112029;
+  --nav-bg: rgba(14, 26, 33, 0.94);
+  --btn-s-borde: #7fb3c8;
+  --btn-s-texto: #7fb3c8;
+
+  --tono-1: #7fb3c8;
+  --tono-2: #d49a7e;
+  --tono-3: #9cc0a8;
+  --tono-1-bg: #142c36;
+  --tono-2-bg: #2e2420;
+  --tono-3-bg: #1d2c25;
+  --tono-2-texto: #d49a7e;
+  --tono-3-texto: #9cc0a8;
+  --franja-1: #3e7f99;
+  --franja-2: #9c6a55;
+  --franja-3: #5e8a70;
+  --pie-bg: #08121a;
+  --pie-texto: #e8eef2;
+  --pie-muted: #a9b7c0;
+  --pie-borde: rgba(255, 255, 255, 0.1);
+  --pie-acc: #e8eef2;
+  --etiqueta: #a9b7c0;
+  --marca: #7fb3c8;
+  --malejo-btn: #b4532a;
+  --malejo-btn-ink: #ffffff;
+  --sombra-panel: 0 24px 60px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Institucional: composición que no es un color ───────────────── */
+
+/* La barra de arriba ("Malejo · Software con IA…"): solo en Institucional. */
+.est-barra {
+  background: var(--pie-bg);
+  color: var(--pie-muted);
+}
+
+/* El menú deja de ser una píldora: una barra a lo ancho con borde abajo. */
+[data-estilo="institucional"] .header-ag {
+  padding-block: 0;
+  border-bottom: 1px solid var(--border);
+}
+[data-estilo="institucional"] .header-ag .nav-pill {
+  border: 0;
+  background: transparent;
+  padding-inline: 0;
+  padding-block: 12px;
+}
+[data-estilo="institucional"] .header-ag .nav-pill a[aria-current="true"] {
+  background: transparent;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 8px;
+}
+
+/* El pie oscuro con la franja. */
+.pie-ag {
+  background: var(--pie-bg);
+  color: var(--pie-texto);
+  border-color: var(--pie-borde);
+}
+.pie-ag .h {
+  color: var(--pie-texto);
+}
+.pie-ag .lbl,
+.pie-ag .pie-muted {
+  color: var(--pie-muted);
+}
+.pie-ag a {
+  color: var(--pie-texto);
+}
+
+/* La "IA" del H1 de Institucional, subrayada en terracota. */
+.ia-subrayada {
+  border-bottom: 4px solid var(--tono-2);
+}
+
+/* "¿Qué necesitás?" sobre la banda de sección a lo ancho (F-home-claro). */
+[data-estilo="institucional"] #soluciones {
+  background: var(--surf-2);
+  box-shadow: 0 0 0 100vmax var(--surf-2);
+  clip-path: inset(0 -100vmax);
+  padding-bottom: 56px;
+  margin-bottom: 0;
+}
+
+/* Etiquetas: gris con la raya terracota a la izquierda (la del hero). */
+.lbl-raya {
+  border-left: 3px solid var(--tono-2);
+  padding-left: 10px;
+}
+
+/* Los pasos de "Cómo trabajo": cada uno sobre el tinte de su tono. */
+[data-estilo="institucional"] .paso-tono {
+  background: var(--t-bg);
+  border: 0;
+}
+[data-estilo="institucional"] .paso-tono .paso-num {
+  width: auto;
+  height: auto;
+  background: transparent;
+  font-family: var(--fuente-titulo);
+  font-size: 34px;
+  font-weight: 600;
+  color: var(--t);
+}
+
+/* ── Institucional en /soluciones y en el chat (F-soluciones*.html) ── */
+/* Categoría activa: tinte petróleo con borde izquierdo de 4 px. */
+[data-estilo="institucional"] .cat-tab[aria-selected="true"] {
+  background: var(--ic-bg);
+  color: var(--titulo);
+  border: 1px solid var(--acc-text);
+  border-left-width: 4px;
+}
+/* Contadores del kit y sello "Recomendado": terracota. */
+[data-estilo="institucional"] .contador,
+[data-estilo="institucional"] .sello-rec {
+  background: var(--malejo-btn);
+  color: var(--malejo-btn-ink);
+}
+/* La barra del kit del celular: en petróleo. */
+[data-estilo="institucional"] .barra-armado > button {
+  background: var(--acc);
+  border-color: var(--acc);
+  color: var(--acc-ink);
+}
+[data-estilo="institucional"] .barra-armado > button :where(span, strong, svg) {
+  color: inherit;
+}
+[data-estilo="institucional"] .barra-armado > button > span:last-child {
+  background: rgb(255 255 255 / 0.16);
+  border-color: transparent;
+}
+/* Malejo: la bienvenida con borde petróleo y las opciones con su color. */
+[data-estilo="institucional"] .burbuja-malejo {
+  border-left: 3px solid var(--acc-text);
+}
+[data-estilo="institucional"] .opcion-tono {
+  border-left: 3px solid var(--t);
+}
+[data-estilo="institucional"] .opcion-tono svg {
+  color: var(--t);
+}
+
+/* El cierre "¿Lo charlamos?": sin el degradé, con la franja arriba. */
+[data-estilo="institucional"] .cierre-ag {
+  background: var(--surf);
+  border-top: 0;
+  position: relative;
+  overflow: hidden;
+}
+[data-estilo="institucional"] .cierre-ag::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  background: linear-gradient(90deg, var(--franja-1) 0 33.34%, var(--franja-2) 33.34% 66.67%, var(--franja-3) 66.67%);
+}

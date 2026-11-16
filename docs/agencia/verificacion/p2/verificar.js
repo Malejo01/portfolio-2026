@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-require-imports -- script suelto de Node (CommonJS), no es parte de la app */
-// Verificación de la tanda P2 (Playwright). Uso, con un build de producción
+// Verificación de la tanda P2 (Playwright; P2.1 la adaptó a "kit" y a la columna con pestañas). Uso, con un build de producción
 // y el modelo simulado (no gasta tokens):
 //   npx tsx <script que levanta lib/agencia/chat/mock-anthropic.ts con una sugerencia>
 //   ANTHROPIC_API_KEY=x ANTHROPIC_BASE_URL=<url del mock> CHAT_ALLOWED_ORIGINS=http://localhost:3001 npx next start -p 3001
@@ -145,7 +145,7 @@ async function solapesSoluciones(b) {
     await abrir(p, `${BASE}/soluciones?a=${ARMADO}&cat=webs`);
     const r = await p.evaluate(() => {
       const q = (s) => document.querySelector(s)?.getBoundingClientRect() ?? null;
-      return { tabs: q("[role=tablist]"), panel: q("#sol-panel-webs"), carrito: q('aside[aria-label="Tu armado"]'), widget: q('button[aria-label="Abrir chat con Malejo"]') };
+      return { tabs: q("[role=tablist]"), panel: q("#sol-panel-webs"), carrito: q('aside[aria-label="Tu kit y Malejo"]'), widget: q('button[aria-label="Abrir chat con Malejo"]') };
     });
     if (solapan(r.tabs, r.panel) || solapan(r.panel, r.carrito) || solapan(r.tabs, r.carrito)) falla(`/soluciones ${w}: categorías, planes y carrito se pisan`);
     if (solapan(r.carrito, r.widget)) falla(`/soluciones ${w}: el carrito pisa el botón de Malejo`);
@@ -238,10 +238,10 @@ async function flujo(b) {
     await route.fulfill({ json: { ok: true } });
   });
   await abrir(p, `${BASE}/soluciones?cat=webs`);
-  const aside = p.locator('aside[aria-label="Tu armado"]');
-  await p.locator("#sol-panel-webs button", { hasText: "Agregar al armado" }).first().click();
+  const aside = p.locator('aside[aria-label="Tu kit y Malejo"]');
+  await p.locator("#sol-panel-webs button", { hasText: "Agregar al kit" }).first().click();
   await p.locator("#sol-tab-turnos").click();
-  await p.locator("#sol-panel-turnos button", { hasText: "Agregar al armado" }).first().click();
+  await p.locator("#sol-panel-turnos button", { hasText: "Agregar al kit" }).first().click();
   await p.waitForTimeout(400);
   const texto = (await aside.innerText()).replace(/\s+/g, " ");
   out.combo = /Se aplicó el combo/.test(texto);
@@ -257,8 +257,8 @@ async function flujo(b) {
   // ?a= en otra pestaña (otra sesión): el aviso de armado compartido.
   const otra = await (await b.newContext({ viewport: { width: 1280, height: 900 } })).newPage();
   await abrir(otra, `${BASE}/soluciones?a=${ARMADO}`);
-  out.compartido = await otra.locator('aside[aria-label="Tu armado"]').innerText();
-  if (!/Te compartieron este armado/.test(out.compartido)) falla("?a= no muestra el aviso de compartido");
+  out.compartido = await otra.locator('aside[aria-label="Tu kit y Malejo"]').innerText();
+  if (!/Te compartieron este kit/.test(out.compartido)) falla("?a= no muestra el aviso de compartido");
   out.compartido = out.compartido.split("\n").slice(0, 6).join(" | ");
   await otra.close();
   // "Ayudame a elegir" → opción → sugerencia (modelo simulado) → Agregar.
@@ -266,23 +266,29 @@ async function flujo(b) {
   await p.waitForTimeout(1500);
   await p.locator('[aria-labelledby=malejo-chat-title] [role=group] button', { hasText: "Doy servicios con turno" }).click();
   await p.waitForTimeout(2500);
-  const agregar = p.locator('[aria-labelledby=malejo-chat-title] button', { hasText: "Agregar al armado" });
+  const agregar = p.locator('[aria-labelledby=malejo-chat-title] button', { hasText: "Agregar al kit" });
   out.sugerencia = await agregar.count();
   if (!out.sugerencia) falla("no llegó la tarjeta de sugerencia del armado");
   else {
     await agregar.first().click();
     await p.waitForTimeout(500);
+    // P2.1: la pestaña se queda en "Malejo" y "Tu kit" muestra el punto de novedad.
+    out.sigueEnMalejo = await p.evaluate(() => document.getElementById("panel-tab-malejo")?.getAttribute("aria-selected") === "true");
+    out.novedad = await p.locator('[aria-label="Hay algo nuevo en tu kit"]').count();
+    if (!out.sigueEnMalejo || !out.novedad) falla(`al agregar desde Malejo: ${JSON.stringify({ sigueEnMalejo: out.sigueEnMalejo, novedad: out.novedad })}`);
+    await p.click("#panel-tab-kit");
+    await p.waitForTimeout(300);
     const t = await aside.innerText();
     out.sugerido = /Sugerido por Malejo/i.test(t);
     if (!out.sugerido) falla("lo agregado desde Malejo no lleva la marca");
   }
-  await p.locator('[aria-labelledby=malejo-chat-title] button[aria-label="Cerrar chat"]').click();
+  await p.click("#panel-tab-kit");
   // Mandar el armado.
-  await aside.getByRole("button", { name: "Mandale tu armado a Mauro" }).click();
+  await aside.getByRole("button", { name: "Mandale tu kit a Mauro" }).click();
   await aside.getByLabel("Tu nombre").fill("Ana Prueba");
   await aside.getByLabel("Tu WhatsApp (con código de área)").fill("3875813233");
   await aside.getByRole("checkbox").check();
-  await aside.getByRole("button", { name: "Mandar mi armado" }).click();
+  await aside.getByRole("button", { name: "Mandar mi kit" }).click();
   await p.waitForTimeout(800);
   out.envio = enviado && { armado: enviado.armado, campos: Object.keys(enviado) };
   out.exito = /Mauro te escribe en hasta 2 días hábiles/.test(await aside.innerText());
@@ -296,11 +302,11 @@ async function flujo(b) {
   await cel.click(".barra-armado button");
   await cel.waitForTimeout(500);
   const hoja = cel.locator("dialog.hoja[open]");
-  await hoja.getByRole("button", { name: "Mandale tu armado a Mauro" }).click();
+  await hoja.getByRole("button", { name: "Mandale tu kit a Mauro" }).click();
   await hoja.getByLabel("Tu nombre").fill("Ana Prueba");
   await hoja.getByLabel("Tu WhatsApp (con código de área)").fill("3875813233");
   await hoja.getByRole("checkbox").check();
-  await hoja.getByRole("button", { name: "Mandar mi armado" }).click();
+  await hoja.getByRole("button", { name: "Mandar mi kit" }).click();
   await cel.waitForTimeout(800);
   await cel.screenshot({ path: path.join(DIR, "390-soluciones-exito.png") });
   await cel.close();
@@ -318,17 +324,17 @@ async function sinJs(b) {
     return {
       categorias: detalles.length,
       demos: [...document.querySelectorAll('a[href^="/demo?plan="]')].filter(visible).length,
-      agregarVisibles: [...document.querySelectorAll("button")].filter((x) => /Agregar al armado/.test(x.textContent) && visible(x)).length,
+      agregarVisibles: [...document.querySelectorAll("button")].filter((x) => /Agregar al kit/.test(x.textContent) && visible(x)).length,
       whatsapp: [...document.querySelectorAll(".nojs-only a")].some((a) => /WhatsApp/.test(a.textContent) && visible(a)),
       contame: [...document.querySelectorAll(".nojs-only a")].some((a) => /Contame qué necesitás/.test(a.textContent) && visible(a)),
-      carrito: visible(document.querySelector('aside[aria-label="Tu armado"]')),
+      carrito: visible(document.querySelector('aside[aria-label="Tu kit y Malejo"]')),
       barraInferior: visible(document.querySelector("nav.nav-inf")),
     };
   });
   await p.locator("details.cat-panel >> nth=2").evaluate((d) => (d.open = true));
   r.abreOtra = await p.evaluate(() => document.querySelectorAll("details.cat-panel")[2].querySelectorAll('a[href^="/demo?plan="]').length > 0);
   if (r.categorias !== 7) falla(`sin JS: ${r.categorias} categorías en <details>`);
-  if (!r.demos || r.agregarVisibles) falla("sin JS: falta \"Pedí tu demo\" o se ve \"Agregar al armado\"");
+  if (!r.demos || r.agregarVisibles) falla("sin JS: falta \"Pedí tu demo\" o se ve \"Agregar al kit\"");
   if (!r.whatsapp || !r.contame || r.carrito || r.barraInferior) falla(`sin JS: ${JSON.stringify(r)}`);
   await ctx.close();
   ok("camino sin JS revisado");

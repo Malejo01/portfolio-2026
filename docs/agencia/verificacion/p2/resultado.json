@@ -1,35 +1,35 @@
 {
-  "fecha": "2026-11-15T21:41:49.629Z",
+  "fecha": "2026-11-16T00:39:34.081Z",
   "base": "http://localhost:3001",
   "pantallas": {
     "/": {
       "celular": {
-        "palabras": 299,
-        "pantallas": 4.64
+        "palabras": 296,
+        "pantallas": 4.61
       },
       "escritorio": {
-        "palabras": 312,
+        "palabras": 309,
         "pantallas": 3.29
       }
     },
     "/soluciones": {
       "celular": {
-        "palabras": 416,
-        "pantallas": 3.74
+        "palabras": 417,
+        "pantallas": 3.71
       },
       "escritorio": {
-        "palabras": 453,
-        "pantallas": 3.63
+        "palabras": 455,
+        "pantallas": 3.64
       }
     },
     "/soluciones?cat=turnos": {
       "celular": {
-        "palabras": 309,
-        "pantallas": 3.56
+        "palabras": 310,
+        "pantallas": 3.57
       },
       "escritorio": {
-        "palabras": 346,
-        "pantallas": 2.97
+        "palabras": 348,
+        "pantallas": 2.98
       }
     },
     "/servicios/webs": {
@@ -39,23 +39,23 @@
       },
       "escritorio": {
         "palabras": 446,
-        "pantallas": 3.66
+        "pantallas": 3.67
       }
     },
     "/servicios/ia": {
       "celular": {
         "palabras": 450,
-        "pantallas": 6.07
+        "pantallas": 6.12
       },
       "escritorio": {
         "palabras": 450,
-        "pantallas": 3.66
+        "pantallas": 3.67
       }
     },
     "/servicios/grandes": {
       "celular": {
         "palabras": 364,
-        "pantallas": 4.86
+        "pantallas": 4.88
       },
       "escritorio": {
         "palabras": 364,
@@ -709,20 +709,20 @@
         "x": 32,
         "y": 925.578125,
         "width": 380,
-        "height": 2844.4375,
+        "height": 2857.4375,
         "top": 925.578125,
         "right": 412,
-        "bottom": 3770.015625,
+        "bottom": 3783.015625,
         "left": 32
       },
       "carrito": {
         "x": 436,
         "y": 597.578125,
         "width": 300,
-        "height": 610,
+        "height": 780,
         "top": 597.578125,
         "right": 736,
-        "bottom": 1207.578125,
+        "bottom": 1377.578125,
         "left": 436
       },
       "widget": {
@@ -751,20 +751,20 @@
         "x": 256,
         "y": 556.984375,
         "width": 402,
-        "height": 2764.4375,
+        "height": 2777.4375,
         "top": 556.984375,
         "right": 658,
-        "bottom": 3321.421875,
+        "bottom": 3334.421875,
         "left": 256
       },
       "carrito": {
         "x": 682,
         "y": 556.984375,
         "width": 310,
-        "height": 610,
+        "height": 780,
         "top": 556.984375,
         "right": 992,
-        "bottom": 1166.984375,
+        "bottom": 1336.984375,
         "left": 682
       },
       "widget": {
@@ -793,20 +793,20 @@
         "x": 276,
         "y": 536.6875,
         "width": 618,
-        "height": 2301.09375,
+        "height": 2314.09375,
         "top": 536.6875,
         "right": 894,
-        "bottom": 2837.78125,
+        "bottom": 2850.78125,
         "left": 276
       },
       "carrito": {
         "x": 918,
         "y": 536.6875,
         "width": 310,
-        "height": 610,
+        "height": 780,
         "top": 536.6875,
         "right": 1228,
-        "bottom": 1146.6875,
+        "bottom": 1316.6875,
         "left": 918
       },
       "widget": {
@@ -885,8 +885,10 @@
     "rango": true,
     "url": "?cat=turnos&a=landing-profesional%2Cturnos-online",
     "quitado": true,
-    "compartido": "TU ARMADO | 2 |  | Te compartieron este armado. Podés cambiarlo. |  | Combo Página + turnos",
+    "compartido": "Tu kit | 2 | Malejo |  | Te compartieron este kit. Podés cambiarlo. | ",
     "sugerencia": 1,
+    "sigueEnMalejo": true,
+    "novedad": 1,
     "sugerido": true,
     "envio": {
       "armado": {

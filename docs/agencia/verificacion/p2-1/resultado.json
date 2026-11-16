@@ -1,0 +1,469 @@
+{
+  "fecha": "2026-11-16T00:37:43.477Z",
+  "base": "http://localhost:3001",
+  "categorias": {
+    "390": {
+      "tiendas": {
+        "top": 167,
+        "tapa": 94,
+        "foco": true
+      },
+      "turnos": {
+        "top": 167,
+        "tapa": 94,
+        "foco": true
+      },
+      "gestion": {
+        "top": 167,
+        "tapa": 94,
+        "foco": true
+      },
+      "ia": {
+        "top": 167,
+        "tapa": 94,
+        "foco": true
+      },
+      "mant": {
+        "top": 167,
+        "tapa": 94,
+        "foco": true
+      },
+      "grandes": {
+        "top": 167,
+        "tapa": 94,
+        "foco": true
+      },
+      "webs": {
+        "top": 167,
+        "tapa": 94,
+        "foco": true
+      }
+    },
+    "1280": {
+      "tiendas": {
+        "top": 106,
+        "tapa": 94,
+        "foco": true
+      },
+      "turnos": {
+        "top": 106,
+        "tapa": 94,
+        "foco": true
+      },
+      "gestion": {
+        "top": 106,
+        "tapa": 94,
+        "foco": true
+      },
+      "ia": {
+        "top": 106,
+        "tapa": 94,
+        "foco": true
+      },
+      "mant": {
+        "top": 106,
+        "tapa": 94,
+        "foco": true
+      },
+      "grandes": {
+        "top": 106,
+        "tapa": 94,
+        "foco": true
+      },
+      "webs": {
+        "top": 106,
+        "tapa": 94,
+        "foco": true
+      }
+    }
+  },
+  "tarjetas": {
+    "390": {
+      "grandes": {
+        "badgesFuera": 0,
+        "titulos": [
+          1,
+          1,
+          2
+        ],
+        "precios": [
+          1,
+          1,
+          1
+        ],
+        "overflow": 0
+      },
+      "webs": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      },
+      "tiendas": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      },
+      "turnos": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      },
+      "gestion": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      },
+      "ia": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      },
+      "mant": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      }
+    },
+    "1024": {
+      "grandes": {
+        "badgesFuera": 0,
+        "titulos": [
+          1,
+          1,
+          2
+        ],
+        "precios": [
+          1,
+          1,
+          1
+        ],
+        "overflow": 0
+      },
+      "webs": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      },
+      "tiendas": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      },
+      "turnos": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      },
+      "gestion": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      },
+      "ia": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      },
+      "mant": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      }
+    },
+    "1280": {
+      "grandes": {
+        "badgesFuera": 0,
+        "titulos": [
+          1,
+          1,
+          1
+        ],
+        "precios": [
+          1,
+          1,
+          1
+        ],
+        "overflow": 0
+      },
+      "webs": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      },
+      "tiendas": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      },
+      "turnos": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      },
+      "gestion": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      },
+      "ia": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      },
+      "mant": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      }
+    },
+    "1536": {
+      "grandes": {
+        "badgesFuera": 0,
+        "titulos": [
+          1,
+          1,
+          1
+        ],
+        "precios": [
+          1,
+          1,
+          1
+        ],
+        "overflow": 0
+      },
+      "webs": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      },
+      "tiendas": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      },
+      "turnos": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      },
+      "gestion": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      },
+      "ia": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      },
+      "mant": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      }
+    },
+    "1920": {
+      "grandes": {
+        "badgesFuera": 0,
+        "titulos": [
+          1,
+          1,
+          1
+        ],
+        "precios": [
+          1,
+          1,
+          1
+        ],
+        "overflow": 0
+      },
+      "webs": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      },
+      "tiendas": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      },
+      "turnos": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      },
+      "gestion": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      },
+      "ia": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      },
+      "mant": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      }
+    },
+    "2560": {
+      "grandes": {
+        "badgesFuera": 0,
+        "titulos": [
+          1,
+          1,
+          1
+        ],
+        "precios": [
+          1,
+          1,
+          1
+        ],
+        "overflow": 0
+      },
+      "webs": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      },
+      "tiendas": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      },
+      "turnos": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      },
+      "gestion": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      },
+      "ia": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      },
+      "mant": {
+        "badgesFuera": 0,
+        "titulos": [],
+        "precios": [],
+        "overflow": 0
+      }
+    }
+  },
+  "columna": {
+    "1024x720": {
+      "pieAbajo": 703,
+      "panelScrollea": false,
+      "listaScrollea": true,
+      "flotante": false
+    },
+    "1024x900": {
+      "pieAbajo": 883,
+      "panelScrollea": false,
+      "listaScrollea": true,
+      "flotante": false
+    },
+    "1024x1300": {
+      "pieAbajo": 1283,
+      "panelScrollea": false,
+      "listaScrollea": true,
+      "flotante": false
+    },
+    "1280x720": {
+      "pieAbajo": 703,
+      "panelScrollea": false,
+      "listaScrollea": true,
+      "flotante": false
+    },
+    "1280x900": {
+      "pieAbajo": 883,
+      "panelScrollea": false,
+      "listaScrollea": true,
+      "flotante": false
+    },
+    "1280x1300": {
+      "pieAbajo": 1283,
+      "panelScrollea": false,
+      "listaScrollea": true,
+      "flotante": false
+    },
+    "1536x720": {
+      "pieAbajo": 703,
+      "panelScrollea": false,
+      "listaScrollea": true,
+      "flotante": false
+    },
+    "1536x900": {
+      "pieAbajo": 883,
+      "panelScrollea": false,
+      "listaScrollea": true,
+      "flotante": false
+    },
+    "1536x1300": {
+      "pieAbajo": 1283,
+      "panelScrollea": false,
+      "listaScrollea": true,
+      "flotante": false
+    },
+    "2560x720": {
+      "pieAbajo": 703,
+      "panelScrollea": false,
+      "listaScrollea": true,
+      "flotante": false
+    },
+    "2560x900": {
+      "pieAbajo": 883,
+      "panelScrollea": false,
+      "listaScrollea": true,
+      "flotante": false
+    },
+    "2560x1300": {
+      "pieAbajo": 1283,
+      "panelScrollea": false,
+      "listaScrollea": true,
+      "flotante": false
+    }
+  },
+  "fallas": []
+}

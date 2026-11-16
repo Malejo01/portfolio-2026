@@ -314,7 +314,17 @@ npm run db:migrate  # las aplica Mauro, con DATABASE_URL
   compartirlo. "Mandale tu armado a Mauro" manda **solo ids** a
   `/api/contacto` (variante `armado`), que escribe el resumen y hace el
   único insert. Sin JS: cada categoría en un `<details>`, "Pedí tu demo"
-  por plan y WhatsApp en lugar del carrito. Las soluciones
+  por plan y WhatsApp en lugar del carrito.
+  **P2.1:** en la copy es **"kit"** ("Tu kit", "Agregar al kit", "Mandale
+  tu kit a Mauro"); el código sigue diciendo `armado` (archivos, evento,
+  `?a=`, analytics, variante de `/api/contacto`) y el glosario prohíbe
+  "armado" en la copy. Desde 760 px la columna derecha es un panel fijo de
+  3 zonas con pestañas "Tu kit" | "Malejo": solo el cuerpo scrollea, el pie
+  (estimado y botón) queda fijo, y el chat se monta adentro con un portal
+  (`#malejo-panel`, `useHostPanel` en el widget); en Soluciones no hay
+  flotante. Cambiar de categoría vuelve al título (`sol-titulo-<cat>`).
+  "Proyectos a medida" es una línea de tiempo (`GrandesLinea`). Verificá con
+  `docs/agencia/verificacion/p2-1/verificar.js` además del de P2. Las soluciones
   (`/servicios/[slug]`, copy en `content/agencia/servicios.ts`) comparten
   plantilla y su botón principal es "Armalo con esto". "El código es tuyo" solo en webs, tiendas, turnos y
   mantenimiento: nunca en gestión, IA ni proyectos a medida.
@@ -385,9 +395,14 @@ npm run db:migrate  # las aplica Mauro, con DATABASE_URL
     `sugerir_respuestas` (2–3 botones; silenciosa, no entra al historial),
     y desde P2 `sugerir_armado` (1–3 ítems con "Agregar al armado"; **nunca
     agrega sola**: el clic es de la persona, D5).
-  - **Modo armado (P2):** en `/soluciones` (`chat/modo.ts`) el prompt sigue
-    las reglas de "Modo armado" (cacheadas) y el bloque sin caché lleva
-    "Armado actual" (`lineaArmadoActual`: nombres, rango, pagos y seña). El
+  - **Embudo (P2.1), en todas las páginas:** entender (≤ 3 preguntas) →
+    `sugerir_armado` para el kit → "Mandale tu kit a Mauro" y la
+    videollamada → recién ahí la demo. `pedir_demo` solo si la piden
+    explícitamente (antes, una sugerencia en una línea) o si el kit ya se
+    mandó (`marcarKitEnviado()`; el widget manda `kitEnviado`).
+  - **Modo kit (P2):** en `/soluciones` (`chat/modo.ts`) el prompt sigue
+    las reglas de "Modo kit" (cacheadas) y el bloque sin caché lleva
+    "Kit actual" (`lineaArmadoActual`: nombres, rango, pagos y seña). El
     widget manda el armado con cada pedido, como la ficha; la ficha suma
     `armadoIds` y el WhatsApp lleva el link al armado.
   - **Bienvenida (P2, D9):** el saludo es una burbuja con las 6 opciones
@@ -447,9 +462,9 @@ npm run db:migrate  # las aplica Mauro, con DATABASE_URL
   - **Pruebas sin clave:** `lib/agencia/chat/mock-anthropic.ts` imita la API
     con SSE; se apunta el SDK con `ANTHROPIC_BASE_URL` (lo usan
     `route.test.ts` y `evals/evals.test.ts`). **Evals reales:**
-    `npm run eval:chat` corre los 48 casos de `lib/agencia/chat/evals/casos.ts`
+    `npm run eval:chat` corre los 50 casos de `lib/agencia/chat/evals/casos.ts`
     contra `/api/chat` y escribe `docs/agencia/evals/<fecha>.md`; objetivo
-    44 de 48 (`objetivo()`: 22 de 24 proporcional). Gasta tokens: necesita
+    46 de 50 (`objetivo()`: 22 de 24 proporcional). Gasta tokens: necesita
     la clave en el servidor. Contra un preview protegido de Vercel y sin
     `CHAT_TEST_TOKEN`: `EVAL_COOKIE` (la cookie de un link de acceso) y
     `EVAL_PAUSA_MS=31000` con `--paralelo 1` (ver `scripts/eval-chat.ts`).

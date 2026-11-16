@@ -32,6 +32,12 @@ export interface Estilo {
    * (no hay cookie `malejo-theme`). Sin esto, oscuro: el de siempre.
    */
   temaDeEntrada?: "claro" | "oscuro";
+  /**
+   * Las fuentes propias del estilo, como las pide `document.fonts.load()`.
+   * Van sin precarga y con `display: optional`: el selector las descarga
+   * antes de cambiar de estilo, así no se ve la de respaldo.
+   */
+  fuentes?: string[];
   /** La frase del hero (va en el ejemplo, no reemplaza al H1). */
   fraseHero: string;
   /** El ejemplo visual del hero. Tech no tiene: su hero es el de siempre. */
@@ -69,6 +75,7 @@ export const estilos: Estilo[] = [
     etiquetaCategoria: "Web institucional",
     disponible: true,
     temaDeEntrada: "claro",
+    fuentes: ['600 1em "Source Serif 4"'],
     fraseHero: "Así se vería tu web institucional",
     ejemploHero: {
       etiqueta: "Así se vería tu web institucional",

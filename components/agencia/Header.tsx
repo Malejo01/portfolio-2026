@@ -55,6 +55,7 @@ export function Header() {
             copy={estiloCopy}
             estilos={estilos.map(({ id, nombre, descripcion, etiquetaCategoria, disponible }) => ({ id, nombre, descripcion, etiquetaCategoria, disponible }))}
             temas={configArranque(estilos, ESTILO_ORIGINAL, DIBUJO_ORIGINAL).estilos}
+            fuentesPor={Object.fromEntries(estilos.filter((e) => e.fuentes).map((e) => [e.id, e.fuentes!]))}
             personajes={personajes()}
           />
 

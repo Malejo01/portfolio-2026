@@ -147,9 +147,15 @@ export function siguienteDeBolsa(actual: string, azar: () => number = Math.rando
  * eligió tema, el tema de entrada del estilo. Si nunca eligió dibujo, saca
  * el siguiente de la bolsa. Todo en una sola View Transition.
  */
-export function elegirEstilo(id: string, temaDeEntrada: "light" | "dark" | "", cookie: string) {
+export async function elegirEstilo(id: string, temaDeEntrada: "light" | "dark" | "", cookie: string, fuentes: string[] = []) {
   const d = document.documentElement;
   if (id === estiloActual()) return;
+  // Las fuentes del estilo van con `display: optional`: si se pidieran recién
+  // al pintarlo, esta vista quedaría con la de respaldo. Se descargan antes
+  // (con un tope de 1,5 s, por si la red no ayuda).
+  if (fuentes.length && document.fonts) {
+    await Promise.race([Promise.all(fuentes.map((f) => document.fonts.load(f))).catch(() => {}), new Promise((r) => setTimeout(r, 1500))]);
+  }
   let dib: string | null = null;
   if (!dibujoElegido()) {
     const bolsa = siguienteDeBolsa(dibujoActual());

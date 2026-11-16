@@ -44,12 +44,15 @@ export function EstiloSelector({
   copy,
   estilos,
   temas,
+  fuentesPor,
   personajes,
 }: {
   copy: typeof EstiloCopy;
   estilos: EstiloLigero[];
   /** id → tema de entrada ("light" | "dark" | ""), de `configArranque`. */
   temas: Record<string, string>;
+  /** id → fuentes del estilo, para descargarlas antes de cambiar. */
+  fuentesPor: Record<string, string[]>;
   personajes: Personaje[];
 }) {
   const ref = useRef<HTMLDialogElement>(null);
@@ -76,7 +79,7 @@ export function EstiloSelector({
 
   const elegir = (id: string) => {
     if (id === estilo) return;
-    elegirEstilo(id, (temas[id] ?? "") as "light" | "dark" | "", AGENCIA_THEME_COOKIE);
+    void elegirEstilo(id, (temas[id] ?? "") as "light" | "dark" | "", AGENCIA_THEME_COOKIE, fuentesPor[id]);
     track("estilo_cambiado", { id });
   };
 

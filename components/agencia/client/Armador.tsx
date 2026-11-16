@@ -273,7 +273,6 @@ export function Armador({
       vista={vista}
       setVista={setVista}
       extrasSlot={extrasSlot}
-      senaSlot={senaSlot}
       compartido={compartido}
       turnstileSiteKey={turnstileSiteKey}
       onAyuda={() => {
@@ -564,7 +563,6 @@ function CarritoCuerpo({
   vista,
   setVista,
   extrasSlot,
-  senaSlot,
   compartido,
   turnstileSiteKey,
   onAyuda,
@@ -575,7 +573,6 @@ function CarritoCuerpo({
   vista: Vista;
   setVista: (v: Vista) => void;
   extrasSlot: React.ReactNode;
-  senaSlot: React.ReactNode;
   compartido: boolean;
   turnstileSiteKey?: string;
   onAyuda: () => void;
@@ -587,7 +584,6 @@ function CarritoCuerpo({
   const origen = (id: string) => armado.items.find((i) => i.id === id)?.origen;
   const combo = c.combosAplicados.map((id) => getCombo(id)).find(Boolean);
   const nombres = c.items.map((i) => i.nombre).join(" + ");
-  const linea = lineaDePagos(e.pagos?.total);
 
   const textoWhatsApp = [
     copy.whatsapp.intro,

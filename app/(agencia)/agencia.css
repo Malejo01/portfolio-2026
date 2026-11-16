@@ -57,6 +57,68 @@
   /* Sombra hundida del selector de pago y del campo del chat (referencia.html `.seg`). */
   --inset: inset 0 2px 6px rgba(0, 0, 0, 0.25);
 
+  /* ── Tanda P3-1: tokens que cada estilo redefine (estilos.css) ──────
+     Tech/IA es este archivo tal cual: los valores de abajo reproducen el
+     sitio de P2 al píxel. Ningún componente ramifica por estilo en JS. */
+  /* Tope de todos los radios de las utilidades (`rounded-14`, `rounded-xl`…):
+     Institucional lo baja a 4 px. Las clases de forma usan los suyos. */
+  --r-max: 999px;
+  --r-card: 22px;
+  --r-card-big: 28px;
+  --r-btn: 16px;
+  --r-btn-sm: 14px;
+  --r-ibtn: 14px;
+  --r-ic: 12px;
+  --r-tag: 8px;
+  --r-chip: 10px;
+  /* Tipografía de titulares, etiquetas y botones. Las familias van en
+     `body` (más abajo): las variables de next/font viven ahí, y un token
+     declarado en `<html>` las resolvería vacías. */
+  --peso-titulo: 800;
+  --tracking-titulo: -0.02em;
+  --peso-etiqueta: 500;
+  --tracking-etiqueta: 0.08em;
+  --peso-boton: 700;
+  /* Color de los titulares (Institucional los separa del texto). */
+  --titulo: var(--text);
+  /* Botón secundario: borde y texto. */
+  --btn-s-borde: var(--border-2);
+  --btn-s-texto: var(--text);
+  /* Los 3 tonos (tarjetas de categorías, pasos, opciones de Malejo). En
+     Tech los tres son el naranja de texto sobre su fondo de ícono. */
+  --tono-1: var(--acc-text);
+  --tono-2: var(--acc-text);
+  --tono-3: var(--acc-text);
+  --tono-1-bg: var(--ic-bg);
+  --tono-2-bg: var(--ic-bg);
+  --tono-3-bg: var(--ic-bg);
+  /* Texto chico sobre el tinte de su tono (AA 4,5:1). En Tech, el mismo tono. */
+  --tono-1-texto: var(--tono-1);
+  --tono-2-texto: var(--tono-2);
+  --tono-3-texto: var(--tono-3);
+  /* Borde superior de color de las tarjetas con tono (0 en Tech). */
+  --tope: 0px;
+  /* Franja de 3 colores arriba de todo y en el pie (0 en Tech). */
+  --franja: 0px;
+  --franja-1: var(--acc);
+  --franja-2: var(--acc);
+  --franja-3: var(--acc);
+  /* Barra de arriba y pie oscuros (Institucional). En Tech, el pie de siempre. */
+  --pie-bg: transparent;
+  --pie-texto: var(--text);
+  --pie-muted: var(--muted);
+  --pie-borde: var(--border);
+  --pie-acc: var(--acc);
+  /* Etiquetas chicas grises, el isotipo y el botón de Malejo de la barra inferior. */
+  --etiqueta: var(--muted);
+  --marca: var(--acc);
+  --malejo-btn: var(--acc);
+  --malejo-btn-ink: var(--acc-ink);
+  /* Alto de la hoja de Malejo a media pantalla en el celular. */
+  --hoja-alto: max(55dvh, 432px);
+  /* Sombra del panel del selector de estilos y de la hoja del chat. */
+  --sombra-panel: var(--shadow-h);
+
   color-scheme: light;
 }
 
@@ -120,7 +182,41 @@
   --shadow-btn: var(--btn-shadow);
   --shadow-inset: var(--inset);
 
+  --color-titulo: var(--titulo);
+  --color-etiqueta: var(--etiqueta);
+  --color-marca: var(--marca);
+  --color-malejo-btn: var(--malejo-btn);
+  --color-malejo-btn-ink: var(--malejo-btn-ink);
+  --color-tono-1: var(--tono-1);
+  --color-tono-2: var(--tono-2);
+  --color-tono-3: var(--tono-3);
+  --color-tono-1-bg: var(--tono-1-bg);
+  --color-tono-2-bg: var(--tono-2-bg);
+  --color-tono-3-bg: var(--tono-3-bg);
+  --color-tono-1-texto: var(--tono-1-texto);
+  --color-tono-2-texto: var(--tono-2-texto);
+  --color-tono-3-texto: var(--tono-3-texto);
+
+  /* Tanda P3-1: los radios de las utilidades, con el tope del estilo. */
+  --radius-sm: min(0.25rem, var(--r-max));
+  --radius-md: min(0.375rem, var(--r-max));
+  --radius-lg: min(0.5rem, var(--r-max));
+  --radius-xl: min(0.75rem, var(--r-max));
+  --radius-2xl: min(1rem, var(--r-max));
+  --radius-3xl: min(1.5rem, var(--r-max));
+  --radius-7: min(7px, var(--r-max));
+  --radius-10: min(10px, var(--r-max));
+  --radius-11: min(11px, var(--r-max));
+  --radius-12: min(12px, var(--r-max));
+  --radius-13: min(13px, var(--r-max));
+  --radius-14: min(14px, var(--r-max));
+  --radius-16: min(16px, var(--r-max));
+  --radius-18: min(18px, var(--r-max));
+  --radius-22: min(22px, var(--r-max));
+  --radius-24: min(24px, var(--r-max));
+
   /* Las variables de next/font van en <body> (ver layout.tsx). */
+  --font-titulo: var(--fuente-titulo);
   --font-display: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, monospace;
@@ -142,6 +238,17 @@ html {
 
 body {
   @apply bg-bg font-sans text-text antialiased;
+  --fuente-titulo: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+  --fuente-etiqueta: var(--font-jetbrains), ui-monospace, monospace;
+  --fuente-boton: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Tanda P3-1: el link "Soluciones" del header se va en el celular angosto
+   cuando hay JS (la barra inferior ya lo tiene y entra el selector). */
+@media (max-width: 419px) {
+  html.js .sol-header {
+    display: none;
+  }
 }
 
 /* Foco visible (§9). */
@@ -205,14 +312,14 @@ html:not(.js) .js-only {
     border: 1px solid var(--border);
     border-top-color: var(--hl);
     box-shadow: var(--shadow);
-    border-radius: 22px;
+    border-radius: var(--r-card);
     transition:
       transform 0.2s ease,
       box-shadow 0.2s ease,
       border-color 0.2s ease;
   }
   .card-big {
-    border-radius: 28px;
+    border-radius: var(--r-card-big);
   }
   @media (hover: hover) {
     .lift:hover {
@@ -235,11 +342,11 @@ html:not(.js) .js-only {
     gap: 8px;
     height: 50px;
     padding: 0 24px;
-    border-radius: 16px;
+    border-radius: var(--r-btn);
     border: 0;
-    font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+    font-family: var(--fuente-boton);
     font-size: 15px;
-    font-weight: 700;
+    font-weight: var(--peso-boton);
     text-decoration: none;
     cursor: pointer;
     white-space: nowrap;
@@ -252,7 +359,7 @@ html:not(.js) .js-only {
     height: 42px;
     padding: 0 18px;
     font-size: 14px;
-    border-radius: 14px;
+    border-radius: var(--r-btn-sm);
   }
   .btn-p {
     background: var(--acc);
@@ -265,8 +372,8 @@ html:not(.js) .js-only {
   }
   .btn-s {
     background: transparent;
-    border: 1px solid var(--border-2);
-    color: var(--text);
+    border: 1px solid var(--btn-s-borde);
+    color: var(--btn-s-texto);
     font-weight: 600;
   }
   .btn-s:hover {
@@ -284,7 +391,7 @@ html:not(.js) .js-only {
     width: 44px;
     height: 44px;
     flex: none;
-    border-radius: 14px;
+    border-radius: var(--r-ibtn);
     border: 1px solid var(--border-2);
     background: var(--surf);
     color: var(--text);
@@ -293,10 +400,10 @@ html:not(.js) .js-only {
 
   /* Etiqueta mono (§3). `.lbl-o` = naranja de texto. */
   .lbl {
-    font-family: var(--font-jetbrains), ui-monospace, monospace;
+    font-family: var(--fuente-etiqueta);
     font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.08em;
+    font-weight: var(--peso-etiqueta);
+    letter-spacing: var(--tracking-etiqueta);
     text-transform: uppercase;
     color: var(--muted);
   }
@@ -306,9 +413,10 @@ html:not(.js) .js-only {
 
   /* Títulos Outfit 800. */
   .h {
-    font-family: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
-    font-weight: 800;
-    letter-spacing: -0.02em;
+    font-family: var(--fuente-titulo);
+    font-weight: var(--peso-titulo);
+    letter-spacing: var(--tracking-titulo);
+    color: var(--titulo);
     margin: 0;
   }
   .h2 {
@@ -329,7 +437,7 @@ html:not(.js) .js-only {
     letter-spacing: 0.06em;
     text-transform: uppercase;
     padding: 5px 9px;
-    border-radius: 8px;
+    border-radius: var(--r-tag);
     background: var(--surf-2);
     border: 1px solid var(--border);
     color: var(--muted);
@@ -348,7 +456,7 @@ html:not(.js) .js-only {
     width: 44px;
     height: 44px;
     flex: none;
-    border-radius: 12px;
+    border-radius: var(--r-ic);
     background: var(--ic-bg);
     color: var(--acc-text);
   }
@@ -376,7 +484,7 @@ html:not(.js) .js-only {
     gap: 6px;
     height: 32px;
     padding: 0 12px;
-    border-radius: 10px;
+    border-radius: var(--r-chip);
     border: 1px solid var(--border-2);
     background: transparent;
     color: var(--text);
@@ -408,18 +516,18 @@ html:not(.js) .js-only {
     color: var(--muted);
   }
   .prose-ag h2 {
-    font-family: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    color: var(--text);
+    font-family: var(--fuente-titulo);
+    font-weight: var(--peso-titulo);
+    letter-spacing: var(--tracking-titulo);
+    color: var(--titulo);
     font-size: 24px;
     line-height: 1.15;
     margin: 40px 0 12px;
   }
   .prose-ag h3 {
-    font-family: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+    font-family: var(--fuente-titulo);
     font-weight: 700;
-    color: var(--text);
+    color: var(--titulo);
     font-size: 19px;
     margin: 28px 0 8px;
   }
@@ -454,14 +562,22 @@ html:not(.js) .js-only {
     font-size: 0.9em;
     background: var(--surf-2);
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: min(6px, var(--r-max));
     padding: 1px 5px;
   }
   .prose-ag mark {
     background: var(--ic-bg);
     color: var(--user-text);
     padding: 0 4px;
-    border-radius: 4px;
+    border-radius: min(4px, var(--r-max));
+  }
+
+  /* Burbujas del chat (la de Malejo con la punta abajo a la izquierda). */
+  .burbuja-malejo {
+    border-radius: var(--r-btn) var(--r-btn) var(--r-btn) min(6px, var(--r-max));
+  }
+  .burbuja-yo {
+    border-radius: var(--r-btn) var(--r-btn) min(6px, var(--r-max)) var(--r-btn);
   }
 }
 
@@ -549,20 +665,6 @@ html:not(.js) .js-only {
   }
 }
 
-/* Sprite que respira 1 px cada 3 s. */
-@keyframes breathe {
-  0%,
-  100% {
-    transform: none;
-  }
-  50% {
-    transform: translateY(-1px);
-  }
-}
-.breathe {
-  animation: breathe 3s ease-in-out infinite;
-}
-
 @keyframes dots {
   0%,
   80%,
@@ -591,7 +693,6 @@ html:not(.js) .js-only {
   .tw-cur {
     display: none;
   }
-  .breathe,
   .typing-dot {
     animation: none;
   }
@@ -758,31 +859,146 @@ html.js .carrusel-slide:not([data-activa]) {
   overscroll-behavior: contain;
 }
 
-/* El sprite de Mauro de la primera pantalla: dos cuadros en loop lento.
-   Solo se anima a la vista (SpriteVivo) y sin movimiento reducido. */
-.sprite-saludo {
-  display: block;
+/* ============================================================
+   SPRITES (tanda P3-1): el personaje en 3 dibujos (`Sprite.tsx`)
+   Un solo mecanismo: tiras horizontales de 3 cuadros movidas con
+   `steps` (las @keyframes las genera `npm run sprites` en
+   `sprites-animaciones.css`). Sin cuadros intermedios ni fundidos.
+   ============================================================ */
+.sprite-caja {
+  display: inline-flex;
+  align-items: flex-end;
   flex: none;
-  width: 54px;
-  height: 123px;
-  background: url("/agencia/sprites/malejo-saludo.png") 0 0 / 108px 123px no-repeat;
+}
+.sprite {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  overflow: hidden;
+}
+.sprite img {
+  display: block;
+  max-width: none;
   image-rendering: pixelated;
 }
+.sprite-tira {
+  will-change: transform;
+}
+.tira-saludo,
+.tira-festejo {
+  display: none !important;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+/* El idle corre solo a la vista (SpritesVivos) y con JS. */
+html.js [data-sprite][data-visible]:not([data-anim]) .tira-idle {
+  animation: tira-idle var(--tira-idle-ms) step-end infinite;
+}
+/* Saludo y festejo: una vez, y después vuelve la pose de base. */
+[data-anim="saludo"] .tira-saludo,
+[data-anim="festejo"] .tira-festejo {
+  display: block !important;
+}
+[data-anim="saludo"] .tira-saludo {
+  animation: tira-saludo var(--tira-saludo-ms) step-end 1 forwards;
+}
+[data-anim="festejo"] .tira-festejo {
+  animation: tira-festejo var(--tira-festejo-ms) step-end 1 forwards;
+}
+[data-anim] .tira-idle,
+[data-anim] .sprite-quieta {
+  visibility: hidden;
+}
+/* Entre poses (ok ↔ pensando en el chat), un fundido corto. */
 @media (prefers-reduced-motion: no-preference) {
-  .sprite-saludo[data-visible] {
-    animation: sprite-saludo 5.2s step-end infinite;
+  .sprite-fundido .sprite {
+    animation: sprite-entra 0.18s ease-out;
   }
 }
-@keyframes sprite-saludo {
-  0%,
-  100% {
-    background-position: 0 0;
+@keyframes sprite-entra {
+  from {
+    opacity: 0;
   }
-  72% {
-    background-position: -54px 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sprite-tira,
+  [data-sprite] .tira-idle {
+    animation: none !important;
   }
-  90% {
-    background-position: 0 0;
+  [data-anim] .tira-saludo,
+  [data-anim] .tira-festejo {
+    display: none !important;
+  }
+  [data-anim] .tira-idle,
+  [data-anim] .sprite-quieta {
+    visibility: visible;
+  }
+}
+
+/* ============================================================
+   SELECTOR DE ESTILOS (tanda P3-1, EstiloSelector)
+   ============================================================ */
+.estilos-pestana {
+  position: fixed;
+  right: 0;
+  top: 50%;
+  z-index: 35;
+  transform: translateY(-50%);
+  align-items: center;
+  gap: 8px;
+  padding: 14px 7px;
+  writing-mode: vertical-rl;
+  border: 0;
+  border-radius: min(8px, var(--r-max)) 0 0 min(8px, var(--r-max));
+  background: var(--acc);
+  color: var(--acc-ink);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.estilos-pestana svg {
+  transform: rotate(90deg);
+}
+.estilos-dlg {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  max-width: none;
+  max-height: none;
+  overflow: visible;
+}
+.estilos-dlg::backdrop {
+  background: rgb(0 0 0 / 0.35);
+}
+.estilos-panel {
+  box-shadow: var(--sombra-panel);
+  max-height: calc(100dvh - 24px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+@media (min-width: 760px) {
+  .estilos-dlg {
+    position: fixed;
+    inset: 40px 48px auto auto;
+    width: 460px;
+  }
+  .estilos-panel {
+    max-height: calc(100dvh - 80px);
+  }
+}
+@media (max-width: 759px) {
+  .estilos-dlg {
+    position: fixed;
+    inset: auto 0 0 0;
+    width: 100%;
+  }
+  .estilos-panel {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    max-height: 88dvh;
   }
 }
 
@@ -803,5 +1019,5 @@ html.js .carrusel-slide:not([data-activa]) {
 }
 .scroll-fino::-webkit-scrollbar-thumb {
   background: var(--border-h);
-  border-radius: 6px;
+  border-radius: min(6px, var(--r-max));
 }

@@ -8,6 +8,11 @@ import { AbrirChat } from "./client/AbrirChat";
 import { MobileMenu } from "./client/MobileMenu";
 import { SectionSpy } from "./client/SectionSpy";
 import { ThemeTextToggle, ThemeToggle } from "./client/ThemeToggle";
+import { EstiloSelector } from "./client/EstiloSelector";
+import { DIBUJO_ORIGINAL, ESTILO_ORIGINAL, estiloCopy, estilos } from "@/content/agencia/estilos";
+import { configArranque } from "@/lib/agencia/estilo";
+import { LogoEstilo } from "./EstiloPiezas";
+import { personajes } from "@/lib/agencia/sprites";
 
 /**
  * Menú en píldora, sticky (DISENO.md §4, `01-menu-*.png`). Sin el botón
@@ -28,7 +33,7 @@ export function Header() {
     // El blur va en `::before` y no en el header: `backdrop-filter` vuelve al
     // elemento el bloque contenedor de sus hijos `fixed`, y el explorador de
     // celular quedaría recortado al alto del header.
-    <header className="sticky top-0 z-40 py-4 before:absolute before:inset-0 before:-z-10 before:bg-(--nav-bg) before:backdrop-blur-[12px]">
+    <header className="header-ag sticky top-0 z-40 py-4 before:absolute before:inset-0 before:-z-10 before:bg-(--nav-bg) before:backdrop-blur-[12px]">
       <a
         href="#contenido"
         className="btn btn-p btn-sm sr-only focus-visible:not-sr-only focus-visible:absolute focus-visible:left-4 focus-visible:top-3 focus-visible:z-50"
@@ -38,13 +43,20 @@ export function Header() {
       <div className="wrap">
         <nav
           aria-label={nav.ariaLabel}
-          className="card flex items-center gap-2 rounded-[18px] py-2 pl-3.5 pr-2 sm:gap-[18px] sm:pl-[22px]"
+          className="nav-pill card flex items-center gap-2 rounded-18 py-2 pl-3.5 pr-2 sm:gap-[18px] sm:pl-[22px]"
         >
           <Link href="/" aria-label={nav.home} className="inline-flex min-h-11 items-center gap-2.5 no-underline">
-            <MalejoMark size={30} className="text-acc" />
+            <MalejoMark size={30} className="text-marca" data-solo-estilo="tech" />
+            <LogoEstilo />
             {/* Debajo de 360 px no entra con "Soluciones" al lado: queda el logo y el nombre para lectores de pantalla. */}
             <span className="h text-[22px] max-[359px]:sr-only">{site.name}</span>
           </Link>
+          <EstiloSelector
+            copy={estiloCopy}
+            estilos={estilos.map(({ id, nombre, descripcion, etiquetaCategoria, disponible }) => ({ id, nombre, descripcion, etiquetaCategoria, disponible }))}
+            temas={configArranque(estilos, ESTILO_ORIGINAL, DIBUJO_ORIGINAL).estilos}
+            personajes={personajes()}
+          />
 
           <ul className="hidden flex-1 gap-1 lg:flex">
             {nav.links.map((l) => (
@@ -52,7 +64,7 @@ export function Header() {
                 <Link
                   href={l.href}
                   data-nav-section={l.section}
-                  className="inline-flex items-center gap-1.5 rounded-[14px] px-3.5 py-2 text-[15px] text-muted no-underline transition-colors hover:text-text aria-[current=true]:bg-ic-bg aria-[current=true]:text-acc-text"
+                  className="inline-flex items-center gap-1.5 rounded-14 px-3.5 py-2 text-[15px] text-muted no-underline transition-colors hover:text-text aria-[current=true]:bg-ic-bg aria-[current=true]:text-acc-text"
                 >
                   {l.label}
                 </Link>
@@ -69,7 +81,7 @@ export function Header() {
             <Link
               href={nav.soluciones.href}
               data-nav-section={nav.soluciones.section}
-              className="inline-flex min-h-11 items-center rounded-[14px] px-2.5 text-[15px] font-semibold text-text no-underline aria-[current=true]:bg-ic-bg aria-[current=true]:text-acc-text lg:hidden"
+              className="sol-header inline-flex min-h-11 items-center rounded-14 px-2.5 text-[15px] font-semibold text-text no-underline aria-[current=true]:bg-ic-bg aria-[current=true]:text-acc-text lg:hidden"
             >
               {nav.soluciones.label}
             </Link>

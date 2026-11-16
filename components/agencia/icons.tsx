@@ -24,7 +24,9 @@ export type IconName =
   | "share"
   | "up"
   | "expand"
-  | "phone";
+  | "phone"
+  | "paleta"
+  | "rotar";
 
 const PATHS: Record<IconName, React.ReactNode> = {
   web: (
@@ -106,6 +108,16 @@ const PATHS: Record<IconName, React.ReactNode> = {
   up: <path d="M6 15l6-6 6 6" />,
   expand: <path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7" />,
   phone: <path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1z" />,
+  /* Tanda P3-1: el selector de estilos y el cambio de dibujo. */
+  paleta: (
+    <>
+      <path d="M12 3a9 9 0 100 18c1 0 1.5-.8 1.5-1.6 0-1-.8-1.4-.8-2.2 0-1 .8-1.7 1.8-1.7H17a4 4 0 004-4c0-4.7-4-8.5-9-8.5z" />
+      <circle cx="7.5" cy="11" r="1" />
+      <circle cx="10" cy="7" r="1" />
+      <circle cx="15" cy="7.5" r="1" />
+    </>
+  ),
+  rotar: <path d="M4 12a8 8 0 0114-5.3L20 9M20 4v5h-5M20 12a8 8 0 01-14 5.3L4 15M4 20v-5h5" />,
 };
 
 const STROKE: Partial<Record<IconName, number>> = { check: 2.4, arrow: 2, close: 2, send: 2, up: 2.2 };

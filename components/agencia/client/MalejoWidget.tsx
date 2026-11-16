@@ -17,6 +17,10 @@ import { borrarSesion, guardarSesion, leerSesion } from "@/lib/agencia/chat/sesi
 import { mensajeWhatsApp } from "@/lib/agencia/chat/whatsapp";
 import { waLink } from "@/lib/agencia/config";
 import { fmt, fmtUsd } from "@/lib/agencia/format";
+import type { Pose } from "@/content/agencia/estilos";
+import { dibujoSiguiente, elegirDibujo } from "@/lib/agencia/estilo";
+import { reproducir } from "@/lib/agencia/sprite-anim";
+import { Sprite } from "../Sprite";
 import { vibrar } from "./AgregarBoton";
 import { useTurnstile } from "./turnstile";
 import { useArmado } from "./useArmado";
@@ -80,7 +84,8 @@ function conCard(m: Msg, card: Card): Msg {
  * Alto de la hoja a media pantalla: el 55 %, con un piso para que la
  * bienvenida con sus 6 opciones entre sin scroll en un celular bajo (360 × 740).
  */
-const MEDIA_HOJA = "max(55dvh, 432px)";
+/** Tanda P3-1: el alto lo pone el estilo (`--hoja-alto`; Institucional, 64 %). */
+const MEDIA_HOJA = "var(--hoja-alto)";
 
 const saludo = (id: number, copy: MalejoCopy): Msg => ({ id, role: "assistant", text: copy.greeting, cards: [], saludo: true });
 
@@ -199,6 +204,17 @@ export default function MalejoWidget({
     setFicha({});
     inputRef.current?.focus();
   }, [copy]);
+
+  // Tanda P3-1: al abrir el chat, Malejo saluda una vez (el flotante en
+  // escritorio y la cara del encabezado). Con movimiento reducido, nada.
+  const spriteFlotante = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const raf = requestAnimationFrame(() => {
+      void reproducir(spriteFlotante.current?.querySelector("[data-sprite]"), "saludo");
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [open]);
 
   const close = useCallback(() => {
     setOpen(false);
@@ -344,7 +360,10 @@ export default function MalejoWidget({
   // armado) y la última cotización mostrada (`lib/agencia/chat/whatsapp.ts`).
   const waHref = waLink(mensajeWhatsApp(ficha, ultimaQuote(msgs)));
 
-  const pose = open && busy ? "pensando" : "ok";
+  // Tanda P3-1: en espera, el idle; mientras escribe, pensando; con una
+  // tarjeta o sugerencia a la vista, ok.
+  const ultimo = msgs[msgs.length - 1];
+  const pose: Pose = open && busy ? "pensando" : open && ultimo?.role === "assistant" && ultimo.cards.length ? "ok" : "normal";
   const completa = celular && (grande || teclado);
 
   // El chat en sí: igual como flotante, como hoja en el celular o adentro de la columna de Soluciones.
@@ -431,9 +450,9 @@ export default function MalejoWidget({
             maxLength={2000}
             autoComplete="off"
             placeholder={copy.placeholder}
-            className="h-11 min-w-0 flex-1 rounded-[14px] border border-border bg-bg px-3.5 text-[16px] shadow-inset placeholder:text-muted focus:outline-none focus-visible:outline-2 focus-visible:outline-acc-text min-[760px]:text-[15px]"
+            className="h-11 min-w-0 flex-1 rounded-14 border border-border bg-bg px-3.5 text-[16px] shadow-inset placeholder:text-muted focus:outline-none focus-visible:outline-2 focus-visible:outline-acc-text min-[760px]:text-[15px]"
           />
-          <button type="submit" aria-label={copy.send} disabled={busy || !input.trim()} className="btn btn-p h-11 w-11 flex-none rounded-[14px] p-0 disabled:opacity-60">
+          <button type="submit" aria-label={copy.send} disabled={busy || !input.trim()} className="btn btn-p h-11 w-11 flex-none rounded-14 p-0 disabled:opacity-60">
             <Icon name="send" size={18} />
           </button>
         </form>
@@ -461,8 +480,8 @@ export default function MalejoWidget({
               exit={reduced ? { opacity: 0 } : celular ? { y: "100%" } : { opacity: 0, scale: 0.96 }}
               transition={celular && !reduced ? { type: "spring", stiffness: 420, damping: 38, mass: 0.9 } : { duration: 0.22, ease: "easeOut" }}
               style={{ transformOrigin: "100% 100%", ...(celular ? { height: completa ? "100dvh" : MEDIA_HOJA } : {}) }}
-              className={`card pointer-events-auto fixed inset-x-0 bottom-0 z-[75] flex flex-col overflow-hidden overscroll-contain min-[760px]:static min-[760px]:z-auto min-[760px]:mb-[18px] min-[760px]:h-[min(600px,calc(100vh-110px))] min-[760px]:w-[380px] min-[760px]:rounded-[24px] ${
-                completa ? "rounded-none" : "rounded-b-none rounded-t-[24px]"
+              className={`card pointer-events-auto fixed inset-x-0 bottom-0 z-[75] flex flex-col overflow-hidden overscroll-contain min-[760px]:static min-[760px]:z-auto min-[760px]:mb-[18px] min-[760px]:h-[min(600px,calc(100vh-110px))] min-[760px]:w-[380px] min-[760px]:rounded-24 ${
+                completa ? "rounded-none" : "rounded-b-none rounded-t-24"
               }`}
             >
               {cuerpo}
@@ -495,32 +514,41 @@ export default function MalejoWidget({
             setOpen(true);
             track("chat_abierto", { origen: "flotante" });
           }}
-          className={`breathe pointer-events-auto hidden flex-col items-center gap-1 rounded-lg ${modo === "armado" ? "" : "min-[760px]:flex"}`}
+          className={`pointer-events-auto hidden flex-col items-center gap-1 rounded-lg ${modo === "armado" ? "" : "min-[760px]:flex"}`}
         >
-          <span className="lbl rounded-[7px] bg-acc px-[7px] py-1 text-[10px] font-semibold text-acc-ink shadow-btn">{open ? copy.chipOpen : copy.chip}</span>
-          {/* eslint-disable-next-line @next/next/no-img-element -- pixel art chico, sin optimizar a propósito */}
-          <img src={`/agencia/sprites/malejo-${pose}.png`} alt="" width={54} height={123} className="pixel h-[123px] w-[54px]" />
+          <span className="lbl rounded-7 bg-acc px-[7px] py-1 text-[10px] font-semibold text-acc-ink shadow-btn">{open ? copy.chipOpen : copy.chip}</span>
+          <span key={pose} ref={spriteFlotante} className="sprite-fundido inline-flex">
+            <Sprite pose={pose} alto={120} alt="" animaciones={["saludo"]} />
+          </span>
         </button>
       </div>
     </LazyMotion>
   );
 }
 
-function Avatar({ size }: { size: 32 | 40 }) {
+/**
+ * La cara de Malejo: el sprite del dibujo activo recortado a la cabeza
+ * (tanda P3-1). En el encabezado es un botón que pasa al dibujo siguiente.
+ */
+function Avatar({ size, cambiar }: { size: 32 | 40; cambiar?: string }) {
+  const caja = `inline-flex flex-none items-start justify-center overflow-hidden bg-ic-bg pt-0.5 ${size === 40 ? "h-10 w-10 rounded-13" : "h-8 w-8 rounded-11"}`;
+  const sprite = <Sprite pose="ok" alto={size === 40 ? 88 : 70} alt="" />;
+  if (!cambiar) return <span className={caja} aria-hidden="true">{sprite}</span>;
   return (
-    <span
-      className={`inline-flex flex-none justify-center overflow-hidden bg-ic-bg ${size === 40 ? "h-10 w-10 rounded-[13px]" : "h-8 w-8 rounded-[11px]"}`}
-      aria-hidden="true"
+    <button
+      type="button"
+      data-avatar-malejo=""
+      className={caja}
+      aria-label={cambiar}
+      title={cambiar}
+      onClick={() => {
+        const sig = dibujoSiguiente();
+        elegirDibujo(sig);
+        track("personaje_cambiado", { dibujo: sig });
+      }}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element -- recorte del sprite */}
-      <img
-        src="/agencia/sprites/malejo-ok.png"
-        alt=""
-        width={size}
-        height={size === 40 ? 91 : 73}
-        className={`pixel mt-0.5 block max-w-none flex-none self-start ${size === 40 ? "h-[91px] w-10" : "h-[73px] w-8"}`}
-      />
-    </span>
+      {sprite}
+    </button>
   );
 }
 
@@ -547,7 +575,7 @@ function ChatHeader({
 }) {
   return (
     <div className="flex flex-none items-center gap-2.5 border-b border-border px-4 py-2 max-[379px]:py-1 min-[760px]:gap-3 min-[760px]:py-3">
-      <Avatar size={40} />
+      <Avatar size={40} cambiar={copy.header.cambiarDibujo} />
       <div className="min-w-0 flex-1">
         <div id="malejo-chat-title" className="h flex items-center gap-1.5 text-[17px]">
           {copy.header.name}
@@ -626,7 +654,7 @@ function Bienvenida({
   return (
     // Sin avatar al lado (ya está en el encabezado): la burbuja gana ancho y las opciones entran en la hoja.
     <div data-msg={id} className="flex">
-      <div className="min-w-0 flex-1 rounded-[16px_16px_16px_6px] border border-border bg-surf-2 px-3 py-2.5 text-sm leading-[1.45] max-[379px]:px-2.5 max-[379px]:py-2 max-[379px]:text-[13px]">
+      <div className="min-w-0 flex-1 burbuja-malejo border border-border bg-surf-2 px-3 py-2.5 text-sm leading-[1.45] max-[379px]:px-2.5 max-[379px]:py-2 max-[379px]:text-[13px]">
         <p className="m-0">{copy.greeting}</p>
         {opciones.length ? (
           <>
@@ -639,7 +667,7 @@ function Bienvenida({
               animate="visible"
               className="mt-2 grid grid-cols-2 gap-1.5 max-[339px]:grid-cols-1"
             >
-              {opciones.map((o) => (
+              {opciones.map((o, i) => (
                 <m.button
                   key={o.text}
                   type="button"
@@ -647,7 +675,7 @@ function Bienvenida({
                   variants={OPCION_VARIANTES}
                   aria-disabled={!activas || undefined}
                   onClick={() => activas && onOpcion(o.text)}
-                  className={`flex min-h-11 items-center gap-1.5 rounded-[12px] border border-border bg-surf px-2 py-1 text-left text-[14px] font-medium leading-[1.2] ${
+                  className={`opcion-tono tono-${[1, 2, 3, 3, 1, 2][i % 6]} flex min-h-11 items-center gap-1.5 rounded-12 border border-border bg-surf px-2 py-1 text-left text-[14px] font-medium leading-[1.2] ${
                     activas ? "hover:border-border-h" : "cursor-default opacity-50"
                   }`}
                 >
@@ -678,7 +706,7 @@ function MessageView({
 }) {
   if (msg.role === "user") {
     return (
-      <div data-msg={msg.id} className="max-w-[80%] self-end whitespace-pre-wrap rounded-[16px_16px_6px_16px] bg-ic-bg px-[13px] py-2.5 text-sm leading-[1.45] text-user-text">
+      <div data-msg={msg.id} className="max-w-[80%] self-end whitespace-pre-wrap burbuja-yo bg-ic-bg px-[13px] py-2.5 text-sm leading-[1.45] text-user-text">
         {msg.text}
       </div>
     );
@@ -695,7 +723,7 @@ function MessageView({
           s.t === "text" ? (
             <div
               key={i}
-              className="self-start whitespace-pre-wrap rounded-[16px_16px_16px_6px] border border-border bg-surf-2 px-[13px] py-2.5 text-sm leading-[1.45]"
+              className="self-start whitespace-pre-wrap burbuja-malejo border border-border bg-surf-2 px-[13px] py-2.5 text-sm leading-[1.45]"
             >
               {rich(s.text.trim())}
             </div>
@@ -735,7 +763,7 @@ function ArmadoCard({ card, copy, enSoluciones }: { card: Extract<Card, { kind: 
   const armado = useArmado();
   const esta = (id: string) => armado.items.some((i) => i.id === id) || armado.extras.includes(id);
   return (
-    <div className="card hi flex flex-col gap-2 rounded-[18px] p-3.5">
+    <div className="card hi flex flex-col gap-2 rounded-18 p-3.5">
       <span className="lbl lbl-o text-[10px]">{copy.armado.label}</span>
       <ul className="m-0 flex list-none flex-col p-0">
         {card.items.map((it) => (
@@ -786,7 +814,7 @@ function CardView({
 }) {
   if (card.kind === "quote") {
     return (
-      <div className="card hi flex flex-col gap-2 rounded-[18px] p-3.5">
+      <div className="card hi flex flex-col gap-2 rounded-18 p-3.5">
         <div className="flex justify-between">
           <span className="lbl lbl-o text-[10px]">{copy.quote.label}</span>
           <span className="lbl text-[10px]">{card.medio === "mp" ? copy.quote.mpLabel : copy.quote.listLabel}</span>
@@ -836,7 +864,7 @@ function CardView({
   if (card.kind === "compare") return <CompareCard card={card} copy={copy} />;
   if (card.kind === "proyectos") {
     return (
-      <div className="card flex flex-col gap-2 rounded-[18px] p-3.5">
+      <div className="card flex flex-col gap-2 rounded-18 p-3.5">
         <span className="lbl lbl-o text-[10px]">{copy.proyectos.label}</span>
         <ul className="m-0 flex list-none flex-col gap-2 p-0">
           {card.items.map((p) => (
@@ -856,7 +884,7 @@ function CardView({
   }
   if (card.kind === "demo") {
     return (
-      <div className="card hi flex flex-col gap-2 rounded-[18px] p-3.5">
+      <div className="card hi flex flex-col gap-2 rounded-18 p-3.5">
         <span className="lbl lbl-o text-[10px]">{copy.demo.label}</span>
         <Link href={card.demoHref} onClick={() => track("chat_clic", { destino: "demo" })} className="btn btn-p btn-sm w-full">
           {copy.demo.demo}
@@ -886,7 +914,7 @@ function CardView({
  */
 function CompareCard({ card, copy }: { card: Extract<Card, { kind: "compare" }>; copy: MalejoCopy }) {
   return (
-    <div className="card hi flex flex-col gap-2 rounded-[18px] p-3.5">
+    <div className="card hi flex flex-col gap-2 rounded-18 p-3.5">
       <div className="flex justify-between gap-2">
         <span className="lbl lbl-o text-[10px]">{copy.compare.label}</span>
         <span className="lbl text-[10px]">{card.medio === "mp" ? copy.quote.mpLabel : copy.quote.listLabel}</span>
@@ -987,14 +1015,14 @@ function ConsentCard({
 
   if (state === "saved") {
     return (
-      <div role="status" className="card rounded-[18px] p-3.5 text-sm">
+      <div role="status" className="card rounded-18 p-3.5 text-sm">
         {copy.consent.saved}
       </div>
     );
   }
 
   return (
-    <div className="card hi flex flex-col gap-2.5 rounded-[18px] p-3.5 text-sm">
+    <div className="card hi flex flex-col gap-2.5 rounded-18 p-3.5 text-sm">
       <span className="lbl lbl-o text-[10px]">{copy.consent.label}</span>
       <p className="m-0 text-[13px] text-muted">
         {card.payload.nombre} · {card.payload.whatsapp} · {card.payload.rubro}
@@ -1069,14 +1097,14 @@ function ContactFormCard({
 
   if (state === "saved") {
     return (
-      <div role="status" className="card rounded-[18px] p-3.5 text-sm">
+      <div role="status" className="card rounded-18 p-3.5 text-sm">
         {f.saved}
       </div>
     );
   }
-  const campo = "h-11 w-full rounded-[12px] border border-border-2 bg-bg px-3 text-[15px] text-text";
+  const campo = "h-11 w-full rounded-12 border border-border-2 bg-bg px-3 text-[15px] text-text";
   return (
-    <form onSubmit={enviar} className="card hi flex flex-col gap-2.5 rounded-[18px] p-3.5 text-sm">
+    <form onSubmit={enviar} className="card hi flex flex-col gap-2.5 rounded-18 p-3.5 text-sm">
       <span className="lbl lbl-o text-[10px]">{f.label}</span>
       <label className="flex flex-col gap-1">
         <span className="text-[13px] font-semibold">{f.nombre}</span>

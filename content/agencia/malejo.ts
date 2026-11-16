@@ -22,6 +22,8 @@ export const malejoCopy = {
     /** Celular: la hoja a media pantalla se agranda o se achica. */
     expandir: "Ver el chat en pantalla completa",
     achicar: "Volver a media pantalla",
+    /** Tanda P3-1: tocar el avatar pasa al dibujo siguiente de Mauro. */
+    cambiarDibujo: "Cambiar el dibujo de Malejo",
   },
   /** Tanda P2 (Fase 5 bis): la bienvenida es una burbuja con las opciones adentro. */
   greeting: "Hola, soy Malejo, el asistente de Mauro 👋 Contame qué necesitás en tu negocio y te ayudo a elegir.",

@@ -4,7 +4,8 @@ import { categories } from "@/content/agencia/pricing";
 import { WHATSAPP } from "@/lib/agencia/config";
 import { siteUrl } from "@/lib/links";
 import { Cta } from "./Cta";
-import { Hero } from "./Hero";
+import { HeroInstitucional } from "./estilos/institucional/Hero";
+import { HeroTech } from "./estilos/tech/Hero";
 import { Needs } from "./Needs";
 import { Steps } from "./Steps";
 import { Team } from "./Team";
@@ -47,7 +48,15 @@ export function HomePage() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd() }} />
-      <Hero />
+      {/*
+        Un hero por estilo (tanda P3-1): se renderizan los de los estilos
+        disponibles y `estilos.css` muestra el de `data-estilo` (sin JS, Tech).
+        El `id` va acá para que no se repita.
+      */}
+      <div id="inicio">
+        <HeroTech />
+        <HeroInstitucional />
+      </div>
       <Needs />
       <Steps />
       <Team />

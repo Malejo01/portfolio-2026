@@ -1,17 +1,22 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono, Outfit } from "next/font/google";
+import { Inter, JetBrains_Mono, Outfit, Source_Serif_4 } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { Footer } from "@/components/agencia/Footer";
 import { Header } from "@/components/agencia/Header";
+import { BarraEstilo } from "@/components/agencia/EstiloPiezas";
 import { BottomNav } from "@/components/agencia/client/BottomNav";
 import { MalejoLoader } from "@/components/agencia/client/MalejoLoader";
+import { SpritesVivos } from "@/components/agencia/client/SpritesVivos";
 import { WHATSAPP_TEXTO } from "@/content/agencia/home";
 import { waLink } from "@/lib/agencia/config";
 import { malejoCopy } from "@/content/agencia/malejo";
-import { AGENCIA_THEME_COOKIE } from "@/lib/agencia/theme";
+import { DIBUJO_ORIGINAL, ESTILO_ORIGINAL, estilos } from "@/content/agencia/estilos";
+import { configArranque, scriptDeArranque } from "@/lib/agencia/estilo";
 import { site } from "@/content/agencia/site";
 import { siteUrl } from "@/lib/links";
 import "./agencia.css";
+import "./estilos.css";
+import "./sprites-animaciones.css";
 
 /**
  * Tercer root layout del repo: el sitio de la agencia Malejo en la raíz del
@@ -49,27 +54,35 @@ const jetbrains = JetBrains_Mono({
   variable: "--font-jetbrains",
 });
 
+/**
+ * Tanda P3-1: los titulares y precios del estilo Institucional. Variable
+ * (mismo motivo que Outfit) y sin precarga: solo la descarga el navegador
+ * cuando el estilo activo la usa, así Tech/IA no paga por ella.
+ */
+const sourceSerif = Source_Serif_4({
+  subsets: ["latin"],
+  display: "swap",
+  preload: false,
+  variable: "--font-source-serif",
+});
+
 /** En `<body>`, no en `<html>`: mismo motivo que en `SiteDocument`. */
-const FONT_VARIABLES = `${outfit.variable} ${inter.variable} ${jetbrains.variable}`;
+const FONT_VARIABLES = `${outfit.variable} ${inter.variable} ${jetbrains.variable} ${sourceSerif.variable}`;
 
 /**
- * Antes del primer paint: marca `js` (contrato de `data-reveal`) y pone el
- * tema. Cookie `malejo-theme` si existe; si no, **oscuro** — la agencia no
- * sigue a `prefers-color-scheme` para el default (DISENO.md §2).
+ * Antes del primer paint: marca `js` (contrato de `data-reveal`), pone el
+ * estilo (`data-estilo`), el dibujo del personaje (`data-dibujo`) y el tema.
+ * Tema: cookie `malejo-theme` si existe; si no, el tema de entrada del estilo
+ * (Institucional arranca en claro) y, por defecto, **oscuro** — la agencia
+ * no sigue a `prefers-color-scheme` (DISENO.md §2). La lógica está en
+ * `lib/agencia/estilo.ts → arrancar`.
  *
  * Es el mismo patrón que `components/layout/SiteDocument.tsx`, con la misma
  * limitación documentada ahí: en un 404 el script no corre y el respaldo
  * vive en `components/agencia/client/theme.ts`. Ningún Server Component lee
- * la cookie: eso volvería dinámicas todas las rutas.
+ * la cookie ni el estilo: eso volvería dinámicas todas las rutas.
  */
-const bootScript = `(function(){try{
-var d=document.documentElement;
-d.classList.add('js');
-var m=document.cookie.match(/(?:^|; )${AGENCIA_THEME_COOKIE}=(dark|light)/);
-var dark=!m||m[1]==='dark';
-if(dark){d.classList.add('dark');}
-d.style.colorScheme=dark?'dark':'light';
-}catch(e){}})();`;
+const bootScript = scriptDeArranque(configArranque(estilos, ESTILO_ORIGINAL, DIBUJO_ORIGINAL));
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -105,11 +118,13 @@ export default function AgenciaRootLayout({ children }: { children: React.ReactN
         <script dangerouslySetInnerHTML={{ __html: bootScript }} />
       </head>
       <body className={FONT_VARIABLES}>
+        <BarraEstilo />
         <Header />
         <main id="contenido">{children}</main>
         <Footer />
         <BottomNav copy={site.bottomNav} whatsapp={waLink(WHATSAPP_TEXTO)} />
         <MalejoLoader copy={malejoCopy} turnstileSiteKey={process.env.TURNSTILE_SITE_KEY || undefined} />
+        <SpritesVivos />
         <Analytics />
       </body>
     </html>

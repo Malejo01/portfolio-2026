@@ -8,7 +8,7 @@ import type { site } from "@/content/agencia/site";
 import { abrirChat } from "@/lib/agencia/abrir-chat";
 import { agendaLink } from "@/lib/agencia/config";
 import { Icon } from "../icons";
-import { MalejoMark } from "../MalejoMark";
+import { Sprite } from "../Sprite";
 import { Hoja } from "./Hoja";
 
 /**
@@ -62,8 +62,9 @@ export function BottomNav({ copy, whatsapp }: { copy: Copy; whatsapp: string }) 
               }}
               className="-mt-4 flex min-w-0 flex-col items-center gap-0.5 text-[11px] font-semibold text-text"
             >
-              <span className="inline-flex h-14 w-14 items-center justify-center rounded-full border-4 border-bg bg-acc text-acc-ink shadow-btn">
-                <MalejoMark size={26} />
+              {/* Tanda P3-1: la cabeza del dibujo activo, sobre el color del botón de Malejo del estilo. */}
+              <span className="inline-flex h-14 w-14 items-start justify-center overflow-hidden rounded-full border-4 border-bg bg-malejo-btn pt-1 text-malejo-btn-ink shadow-btn">
+                <Sprite pose="ok" alto={104} alt="" />
               </span>
               {copy.malejo.label}
             </button>

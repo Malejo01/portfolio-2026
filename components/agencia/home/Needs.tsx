@@ -44,12 +44,12 @@ export function NeedTiles({ heading = "h3", destino = "precios" }: { heading?: "
         const href = destino === "precios" ? `/soluciones?cat=${s.category}` : `/servicios/${s.category}`;
         return (
           <RevealItem key={s.category} i={i} className="flex min-w-0">
-            <article className="card lift relative flex min-w-0 flex-1 flex-col gap-2 p-4 sm:gap-2.5 sm:p-5">
+            <article className={`card lift con-tono tono-${(i % 3) + 1} relative flex min-w-0 flex-1 flex-col gap-2 p-4 sm:gap-2.5 sm:p-5`}>
               <span className="ic h-9 w-9 sm:h-11 sm:w-11">
                 <Icon name={s.icon} size={20} />
               </span>
               <H className="h text-[17px] leading-[1.15] sm:text-[22px]">
-                <Link href={href} className="no-underline after:absolute after:inset-0 after:rounded-[22px] after:content-['']">
+                <Link href={href} className="no-underline after:absolute after:inset-0 after:rounded-22 after:content-['']">
                   {s.problema}
                 </Link>
               </H>
@@ -57,7 +57,7 @@ export function NeedTiles({ heading = "h3", destino = "precios" }: { heading?: "
                 {desde ? (
                   <span className="inline-flex flex-wrap items-baseline gap-x-1.5 text-[13px] text-muted sm:text-sm">
                     {needs.fromLabel} <strong className="text-[15px] text-text sm:text-base">{desde.monto}</strong>
-                    {desde.pagos ? <span className="text-acc-text">· {desde.pagos}</span> : null}
+                    {desde.pagos ? <span className="tono-texto">· {desde.pagos}</span> : null}
                   </span>
                 ) : null}
                 <AbrirChat href={wa} tema={s.tema} className="lnk relative z-10 -my-2 min-h-11 whitespace-normal text-[13px]">

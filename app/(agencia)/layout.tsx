@@ -106,9 +106,10 @@ const FONT_VARIABLES = `${outfit.variable} ${inter.variable} ${jetbrains.variabl
 /**
  * Antes del primer paint: marca `js` (contrato de `data-reveal`), pone el
  * estilo (`data-estilo`), el dibujo del personaje (`data-dibujo`) y el tema.
- * Tema: cookie `malejo-theme` si existe; si no, el tema de entrada del estilo
- * (Institucional arranca en claro) y, por defecto, **oscuro** — la agencia
- * no sigue a `prefers-color-scheme` (DISENO.md §2). La lógica está en
+ * Tema (tanda P3-4): **por estilo**, `localStorage["malejo-tema-<estilo>"]`;
+ * sin clave, el tema de entrada del estilo (Tech y Aula oscuro, Institucional
+ * y Tienda claro). La cookie vieja `malejo-theme` se migra una vez a Tech. La
+ * agencia no sigue a `prefers-color-scheme` (DISENO.md §2). La lógica está en
  * `lib/agencia/estilo.ts → arrancar`.
  *
  * Es el mismo patrón que `components/layout/SiteDocument.tsx`, con la misma

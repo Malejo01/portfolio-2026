@@ -223,7 +223,7 @@ export const legalDocs: Record<LegalDoc["slug"], LegalDoc> = {
       {
         heading: "7. Cookies y almacenamiento local",
         blocks: [
-          "El sitio guarda una sola cookie, `malejo-theme`, con tu preferencia de modo claro u oscuro. El chat de Malejo guarda la charla en el almacenamiento de sesión de tu navegador (solo en esa pestaña, se borra al cerrarla) para que no se pierda si recargás; nunca se manda a ningún servidor para guardarse. Ninguno de los dos identifica a nadie.",
+          "El sitio no guarda cookies propias. En el almacenamiento local de tu navegador guarda cómo preferís ver la página: el estilo, el dibujo del personaje, el modo claro u oscuro de cada estilo y si ya viste el recorrido de bienvenida. El chat de Malejo y tu kit se guardan en el almacenamiento de sesión (solo en esa pestaña, se borran al cerrarla) para que no se pierdan si recargás. Nada de eso se manda a ningún servidor para guardarse ni identifica a nadie.",
         ],
       },
     ],

@@ -362,13 +362,21 @@ npm run db:migrate  # las aplica Mauro, con DATABASE_URL
   como primer mensaje. Si nadie lo cancela (sin loader o el chunk falló),
   el link sigue a WhatsApp. Malejo es la acción principal del sitio;
   WhatsApp, la secundaria; "Pedí tu demo", el paso siguiente.
-- **Tema:** cookie `malejo-theme` (independiente de la del portfolio) y, sin
-  cookie, el **tema de entrada del estilo** (Institucional arranca en claro)
-  y si no, **oscuro** — no sigue a `prefers-color-scheme`. Mismo patrón que
-  el portfolio: script inline en el `<head>` del layout, respaldo para el 404
-  en `components/agencia/client/theme.ts`, ningún Server Component lee la cookie.
+- **Tema: por estilo (tanda P3-4).** Cada estilo arranca en **su** tema
+  (`temaDeEntrada`: Tech y Aula oscuro, Institucional y Tienda claro) y
+  recuerda solo lo que la persona cambie **dentro de ese estilo**, en
+  `localStorage["malejo-tema-<estilo>"]`; una clave de otro estilo no
+  cuenta. La lógica es una sola función pura, `resolverTema()`
+  (`lib/agencia/estilo.ts`, con tests en `estilo.test.ts`), que el script
+  inline recibe serializada junto a `arrancar()`; la usan también el
+  respaldo del 404 (`components/agencia/client/theme.ts`) y `elegirEstilo()`
+  (aplica el tema del estilo de destino dentro de la misma View
+  Transition). El toggle escribe la clave del estilo activo. La cookie vieja
+  `malejo-theme` se migra **una vez** a `malejo-tema-tech` y se borra; la del
+  portfolio (`theme`) es otra. No sigue a `prefers-color-scheme`. Ningún
+  Server Component lee el tema: las rutas siguen estáticas.
 - **Estilos de la web (P3-1).** `content/agencia/estilos.ts` es la fuente
-  única (hoy Tech/IA e Institucional; Aula y Tienda, "Próximamente"). El
+  única (Tech/IA, Institucional, Aula virtual y Tienda). El
   script inline (`lib/agencia/estilo.ts → arrancar`, el mismo que llama el
   respaldo del 404) pone `data-estilo` y `data-dibujo` en `<html>` desde
   `localStorage` (`malejo-estilo`, `malejo-dibujo`, `malejo-dibujo-bolsa`);

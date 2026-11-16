@@ -5,7 +5,6 @@ import { track } from "@vercel/analytics";
 import { useEffect, useId, useRef, useState } from "react";
 import type { selectorCopy as SelectorCopy } from "@/content/agencia/estilos";
 import { dibujoSiguiente, elegirDibujo, elegirEstilo } from "@/lib/agencia/estilo";
-import { AGENCIA_THEME_COOKIE } from "@/lib/agencia/theme";
 import { Icon } from "../icons";
 import { useEstilo } from "./useEstilo";
 
@@ -87,7 +86,7 @@ export function EstiloSelector({
 
   const elegir = (id: string) => {
     if (id === estilo) return;
-    void elegirEstilo(id, (temas[id] ?? "") as "light" | "dark" | "", AGENCIA_THEME_COOKIE, dibujosPor[id], fuentesPor[id], cssPor[id]);
+    void elegirEstilo(id, (temas[id] ?? "") as "light" | "dark" | "", dibujosPor[id], fuentesPor[id], cssPor[id]);
     track("estilo_cambiado", { id });
   };
 

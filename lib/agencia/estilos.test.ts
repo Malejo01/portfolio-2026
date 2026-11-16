@@ -92,6 +92,8 @@ const PARES: [string, string, number][] = [
   ["--ok-text", "--save-bg", 4.5],
   ["--malejo-btn-ink", "--malejo-btn", 3],
   ["--pie-texto", "--pie-bg", 4.5],
+  // P3-2: las pestañas del kit sobre el marco (madera en el pizarrón).
+  ["--text", "--marco", 4.5],
   ["--pie-muted", "--pie-bg", 4.5],
   // Los 3 tonos: precios y "Ingresar →" sobre la superficie y sobre su tinte.
   ...[1, 2, 3].flatMap((n) => [

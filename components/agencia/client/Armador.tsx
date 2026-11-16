@@ -415,11 +415,11 @@ export function Armador({
         */}
         <aside
           aria-label={copy.panel.label}
-          className={`card hi hidden min-w-0 flex-col overflow-hidden min-[760px]:sticky min-[760px]:top-[104px] min-[760px]:col-start-2 min-[760px]:row-span-2 min-[760px]:row-start-1 min-[760px]:flex min-[760px]:max-h-[calc(100dvh-120px)] lg:col-start-3 ${
+          className={`panel-madera card hi hidden min-w-0 flex-col overflow-hidden min-[760px]:sticky min-[760px]:top-[104px] min-[760px]:col-start-2 min-[760px]:row-span-2 min-[760px]:row-start-1 min-[760px]:flex min-[760px]:max-h-[calc(100dvh-120px)] lg:col-start-3 ${
             pestana === "malejo" ? "min-[760px]:h-[calc(100dvh-120px)]" : ""
           }`}
         >
-          <div role="tablist" aria-label={copy.panel.label} className="flex flex-none gap-1 border-b border-border p-1.5">
+          <div role="tablist" aria-label={copy.panel.label} className="pestanas-madera flex flex-none gap-1 border-b border-border p-1.5">
             {pestanas.map((t) => {
               const on = pestana === t.key;
               return (

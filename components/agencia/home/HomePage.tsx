@@ -4,6 +4,7 @@ import { categories } from "@/content/agencia/pricing";
 import { WHATSAPP } from "@/lib/agencia/config";
 import { siteUrl } from "@/lib/links";
 import { Cta } from "./Cta";
+import { HeroAula } from "./estilos/aula/Hero";
 import { HeroInstitucional } from "./estilos/institucional/Hero";
 import { HeroTech } from "./estilos/tech/Hero";
 import { Needs } from "./Needs";
@@ -56,6 +57,7 @@ export function HomePage() {
       <div id="inicio">
         <HeroTech />
         <HeroInstitucional />
+        <HeroAula />
       </div>
       <Needs />
       <Steps />

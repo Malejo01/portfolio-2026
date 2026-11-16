@@ -24,6 +24,8 @@ export interface Estilo {
   descripcion: string;
   /** Key de la categoría que representa (`precios.json → categorias`). */
   categoria: string;
+  /** El plan de esa categoría que representa, si es uno solo (Aula: la plataforma educativa). */
+  plan?: string;
   /** El nombre de esa categoría en la miniatura ("Web institucional"). */
   etiquetaCategoria: string;
   disponible: boolean;
@@ -32,6 +34,17 @@ export interface Estilo {
    * (no hay cookie `malejo-theme`). Sin esto, oscuro: el de siempre.
    */
   temaDeEntrada?: "claro" | "oscuro";
+  /**
+   * Tanda P3-2: el dibujo del personaje con el que se ve el estilo si la
+   * persona nunca eligió uno a mano. Sin esto, el shuffle bag de P3-1.
+   */
+  dibujoPorDefecto?: Dibujo;
+  /**
+   * Las fuentes propias del estilo, como las pide `document.fonts.load()`.
+   * Van sin precarga y con `display: optional`: el selector las descarga
+   * antes de cambiar de estilo, así no se ve la de respaldo.
+   */
+  fuentes?: string[];
   /** La frase del hero (va en el ejemplo, no reemplaza al H1). */
   fraseHero: string;
   /** El ejemplo visual del hero. Tech no tiene: su hero es el de siempre. */
@@ -69,6 +82,7 @@ export const estilos: Estilo[] = [
     etiquetaCategoria: "Web institucional",
     disponible: true,
     temaDeEntrada: "claro",
+    fuentes: ['600 1em "Source Serif 4"'],
     fraseHero: "Así se vería tu web institucional",
     ejemploHero: {
       etiqueta: "Así se vería tu web institucional",
@@ -86,10 +100,15 @@ export const estilos: Estilo[] = [
   {
     id: "aula",
     nombre: "Aula virtual",
-    descripcion: "Próximamente",
+    descripcion: "Pizarrón y tizas, para escuelas y profes.",
     categoria: "ia",
+    /** El plan que representa dentro de `ia`. */
+    plan: "plataforma-educativa-con-ia",
     etiquetaCategoria: "Plataformas educativas",
-    disponible: false,
+    disponible: true,
+    temaDeEntrada: "oscuro",
+    dibujoPorDefecto: "anime",
+    fuentes: ["700 1em Caveat", "400 1em Nunito"],
     fraseHero: "Así se vería tu aula virtual",
   },
   {
@@ -155,5 +174,37 @@ export const estiloCopy = {
     secondary: "Armar mi kit",
     /** Los chips en el celular, en una sola fila. */
     chipsCortos: ["Precios publicados", "Demo antes", "3 pagos"],
+  },
+  /** Tanda P3-2: el hero de Aula virtual y sus garabatos (decorativos). */
+  aula: {
+    label: "Mauro Lizárraga · profe de matemática y desarrollador",
+    labelCorto: "Mauro Lizárraga · profe y desarrollador",
+    garabatos: {
+      formula: "f(idea) = idea + IA",
+      mira: "¡mirá!",
+      clientes: "∑ clientes ✓",
+      demo: "demo en ≈ 72 h ★",
+      recomendado: "¡recomendado!",
+    },
+    ejemplo: {
+      etiqueta: "Así se vería tu aula virtual",
+      instituto: "Instituto del Sol · Aula virtual",
+      saludo: "Hola, Sofía",
+      curso: "Matemática I · Funciones",
+      avance: "Tu avance",
+      avanceDe: "2 de 3 clases",
+      /** Porcentaje de la barra de avance. */
+      avancePct: 66,
+      clases: [
+        { texto: "Clase 1 · ¿Qué es una función?", hecha: true },
+        { texto: "Clase 2 · Dominio e imagen", hecha: true },
+        { texto: "Clase 3 · Gráficos", hecha: false },
+      ],
+      clasesLabel: "Clases del curso",
+      hecha: "vista",
+      asistente: "Asistente con IA:",
+      pregunta: "“¿Me explicás de nuevo qué es el dominio?”",
+      link: "Así se vería tu aula virtual →",
+    },
   },
 };

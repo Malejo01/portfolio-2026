@@ -100,6 +100,13 @@
   --tope: 0px;
   /* Franja de 3 colores arriba de todo y en el pie (0 en Tech). */
   --franja: 0px;
+  --franja-pie: max(0px, calc(var(--franja) - 1px));
+  /* Borde de las tarjetas: Aula lo hace punteado de 2 px (P3-2). */
+  --borde-ancho: 1px;
+  --borde-estilo: solid;
+  /* Etiquetas chicas (.lbl): tamaño y mayúsculas. */
+  --lbl-tamano: 12px;
+  --lbl-mayus: uppercase;
   --franja-1: var(--acc);
   --franja-2: var(--acc);
   --franja-3: var(--acc);
@@ -109,6 +116,10 @@
   --pie-muted: var(--muted);
   --pie-borde: var(--border);
   --pie-acc: var(--acc);
+  /* El marco (Aula: madera o gris). Las pestañas del kit van sobre él. */
+  --marco: var(--border);
+  --marco-borde: var(--border-2);
+  --resaltador: transparent;
   /* Etiquetas chicas grises, el isotipo y el botón de Malejo de la barra inferior. */
   --etiqueta: var(--muted);
   --marca: var(--acc);
@@ -241,6 +252,9 @@ body {
   --fuente-titulo: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
   --fuente-etiqueta: var(--font-jetbrains), ui-monospace, monospace;
   --fuente-boton: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  /* P3-2: el texto de lectura (Aula lo pasa a Nunito). */
+  --fuente-cuerpo: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--fuente-cuerpo);
 }
 
 /* Tanda P3-1: el link "Soluciones" del header se va en el celular angosto
@@ -309,7 +323,7 @@ html:not(.js) .js-only {
 
   .card {
     background: var(--surf);
-    border: 1px solid var(--border);
+    border: var(--borde-ancho) var(--borde-estilo) var(--border);
     border-top-color: var(--hl);
     box-shadow: var(--shadow);
     border-radius: var(--r-card);
@@ -401,10 +415,10 @@ html:not(.js) .js-only {
   /* Etiqueta mono (§3). `.lbl-o` = naranja de texto. */
   .lbl {
     font-family: var(--fuente-etiqueta);
-    font-size: 12px;
+    font-size: var(--lbl-tamano);
     font-weight: var(--peso-etiqueta);
     letter-spacing: var(--tracking-etiqueta);
-    text-transform: uppercase;
+    text-transform: var(--lbl-mayus);
     color: var(--muted);
   }
   .lbl-o {
@@ -488,7 +502,7 @@ html:not(.js) .js-only {
     border: 1px solid var(--border-2);
     background: transparent;
     color: var(--text);
-    font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+    font-family: var(--fuente-cuerpo);
     font-size: 13px;
     font-weight: 500;
   }

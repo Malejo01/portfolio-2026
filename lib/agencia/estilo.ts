@@ -29,6 +29,8 @@ export interface ConfigArranque {
   original: string;
   dibujos: readonly string[];
   dibujoOriginal: string;
+  /** Estilos con dibujo propio (P3-2): si la persona nunca eligió uno, se ve ese. */
+  dibujoPor: Record<string, string>;
   cookie: string;
 }
 
@@ -59,6 +61,7 @@ export function arrancar(c: ConfigArranque) {
   d.classList.toggle("dark", dark);
   d.style.colorScheme = dark ? "dark" : "light";
   let dib = leer("malejo-dibujo");
+  if ((!dib || c.dibujos.indexOf(dib) < 0) && c.dibujoPor[est]) dib = c.dibujoPor[est];
   if (!dib || c.dibujos.indexOf(dib) < 0) {
     try {
       dib = JSON.parse(leer("malejo-dibujo-bolsa") || "{}").actual;
@@ -70,10 +73,19 @@ export function arrancar(c: ConfigArranque) {
   d.setAttribute("data-dibujo", dib);
 }
 
-export function configArranque(estilos: { id: string; disponible: boolean; temaDeEntrada?: "claro" | "oscuro" }[], original: string, dibujoOriginal: string): ConfigArranque {
+export function configArranque(
+  estilos: { id: string; disponible: boolean; temaDeEntrada?: "claro" | "oscuro"; dibujoPorDefecto?: string }[],
+  original: string,
+  dibujoOriginal: string,
+): ConfigArranque {
   const mapa: Record<string, string> = {};
-  for (const e of estilos) if (e.disponible) mapa[e.id] = e.temaDeEntrada === "claro" ? "light" : e.temaDeEntrada === "oscuro" ? "dark" : "";
-  return { estilos: mapa, original, dibujos: DIBUJOS, dibujoOriginal, cookie: AGENCIA_THEME_COOKIE };
+  const dibujoPor: Record<string, string> = {};
+  for (const e of estilos) {
+    if (!e.disponible) continue;
+    mapa[e.id] = e.temaDeEntrada === "claro" ? "light" : e.temaDeEntrada === "oscuro" ? "dark" : "";
+    if (e.dibujoPorDefecto) dibujoPor[e.id] = e.dibujoPorDefecto;
+  }
+  return { estilos: mapa, original, dibujos: DIBUJOS, dibujoOriginal, dibujoPor, cookie: AGENCIA_THEME_COOKIE };
 }
 
 /** El `<script>` del `<head>`: la función y su configuración, sin nada más. */
@@ -147,11 +159,19 @@ export function siguienteDeBolsa(actual: string, azar: () => number = Math.rando
  * eligió tema, el tema de entrada del estilo. Si nunca eligió dibujo, saca
  * el siguiente de la bolsa. Todo en una sola View Transition.
  */
-export function elegirEstilo(id: string, temaDeEntrada: "light" | "dark" | "", cookie: string) {
+export async function elegirEstilo(id: string, temaDeEntrada: "light" | "dark" | "", cookie: string, dibujoPorDefecto?: string, fuentes: string[] = []) {
   const d = document.documentElement;
   if (id === estiloActual()) return;
+  // Las fuentes del estilo van con `display: optional`: si se pidieran recién
+  // al pintarlo, esta vista quedaría con la de respaldo. Se descargan antes
+  // (con un tope de 1,5 s, por si la red no ayuda).
+  if (fuentes.length && document.fonts) {
+    await Promise.race([Promise.all(fuentes.map((f) => document.fonts.load(f))).catch(() => {}), new Promise((r) => setTimeout(r, 1500))]);
+  }
   let dib: string | null = null;
-  if (!dibujoElegido()) {
+  // Un dibujo elegido a mano manda; si no, el del estilo (Aula: anime) o el siguiente de la bolsa.
+  if (!dibujoElegido() && dibujoPorDefecto) dib = dibujoPorDefecto;
+  else if (!dibujoElegido()) {
     const bolsa = siguienteDeBolsa(dibujoActual());
     guardar(BOLSA_KEY, JSON.stringify(bolsa));
     dib = bolsa.actual;

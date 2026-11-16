@@ -22,7 +22,8 @@
    ============================================================ */
 html:not([data-estilo]) [data-solo-estilo]:not([data-solo-estilo~="tech"]),
 html[data-estilo="tech"] [data-solo-estilo]:not([data-solo-estilo~="tech"]),
-html[data-estilo="institucional"] [data-solo-estilo]:not([data-solo-estilo~="institucional"]) {
+html[data-estilo="institucional"] [data-solo-estilo]:not([data-solo-estilo~="institucional"]),
+html[data-estilo="aula"] [data-solo-estilo]:not([data-solo-estilo~="aula"]) {
   display: none !important;
 }
 html:not([data-dibujo]) [data-solo-dibujo]:not([data-solo-dibujo="16bit"]),
@@ -53,7 +54,7 @@ html[data-dibujo="anime"] [data-solo-dibujo]:not([data-solo-dibujo="anime"]) {
   );
 }
 .franja-pie {
-  height: calc(var(--franja) - 1px);
+  height: var(--franja-pie);
 }
 
 /* Tarjetas con tono: en Tech, el naranja de siempre. Los estilos con
@@ -125,10 +126,11 @@ html[data-dibujo="anime"] [data-solo-dibujo]:not([data-solo-dibujo="anime"]) {
   --m-1: #0b4f6c;
   --m-2: #dde2e7;
 }
+/* Aula: verde pizarrón con una línea amarilla y una rosa. */
 .mini-aula {
-  --m-bg: #f7f5ef;
-  --m-1: #e0948a;
-  --m-2: #e3e2dc;
+  --m-bg: #1e3a2c;
+  --m-1: #f6d365;
+  --m-2: #f4a7b9;
 }
 .mini-tienda {
   --m-bg: #fffaf5;
@@ -410,4 +412,349 @@ html[data-dibujo="anime"] [data-solo-dibujo]:not([data-solo-dibujo="anime"]) {
   inset: 0 0 auto;
   height: 4px;
   background: linear-gradient(90deg, var(--franja-1) 0 33.34%, var(--franja-2) 33.34% 66.67%, var(--franja-3) 66.67%);
+}
+
+/* ============================================================
+   AULA VIRTUAL · claro: pizarra blanca con fibrones
+   (docs/agencia/estilos/aula/ESPEC.md, tanda P3-2)
+   ============================================================ */
+[data-estilo="aula"] {
+  --bg: #f7f8f5;
+  --surf: #ffffff;
+  --surf-2: #f7f8f5;
+  --border: #9aa8a0;
+  --border-2: #9aa8a0;
+  --border-h: #6f7d75;
+  --hl: #9aa8a0;
+  --text: #1f2a24;
+  --muted: #46524b;
+  --titulo: #1f2a24;
+  --acc: #1f6f4a;
+  --acc-ink: #ffffff;
+  --acc-text: #1f6f4a;
+  --ic-bg: #e3f2ea;
+  --ok: #1f6f4a;
+  --ok-text: #1f6f4a;
+  --save-bg: #e3f2ea;
+  --user-text: #1f2a24;
+  --shadow: none;
+  --shadow-h: none;
+  --hi-b: #c2410c;
+  --hi-t: #c2410c;
+  --hi-s: none;
+  --mid-bg: #f7f8f5;
+  --mock-bg: #f7f8f5;
+  --nav-bg: rgba(247, 248, 245, 0.94);
+  --btn-shadow: none;
+  --btn-shadow-active: none;
+  --inset: none;
+
+  --r-max: 6px;
+  --r-card: 6px;
+  --r-card-big: 6px;
+  --r-btn: 6px;
+  --r-btn-sm: 6px;
+  --r-ibtn: 6px;
+  --r-ic: 6px;
+  --r-tag: 6px;
+  --r-chip: 6px;
+  --borde-ancho: 2px;
+  --borde-estilo: dashed;
+  --peso-titulo: 700;
+  --tracking-titulo: 0;
+  --peso-etiqueta: 700;
+  --tracking-etiqueta: 0;
+  --peso-boton: 800;
+  /* La cursiva nunca baja de 22 px (tanda P3-2, Fase 2.3). */
+  --lbl-tamano: 22px;
+  --lbl-mayus: none;
+  --btn-s-borde: #1f2a24;
+  --btn-s-texto: #1f2a24;
+
+  --tono-1: #1f6f4a;
+  --tono-2: #c2410c;
+  --tono-3: #1d5fa8;
+  --tono-1-bg: #e3f2ea;
+  --tono-2-bg: #fde8de;
+  --tono-3-bg: #e2ecf8;
+  /* El naranja da 4,4:1 sobre su tinte: para texto chico ahí, un 5 % más oscuro. */
+  --tono-2-texto: #b83d0b;
+  /* El marco: franja de 14 px arriba (gris en la pizarra blanca). */
+  --franja: 14px;
+  --franja-pie: 0px;
+  --franja-1: #b8c1c7;
+  --franja-2: #b8c1c7;
+  --franja-3: #b8c1c7;
+  --marco: #b8c1c7;
+  --marco-borde: #9aa4ab;
+  --etiqueta: #1d5fa8;
+  --marca: #1f6f4a;
+  --malejo-btn: #c2410c;
+  --malejo-btn-ink: #ffffff;
+  --resaltador: #ffe58a;
+  --sombra-panel: 0 24px 60px rgba(31, 42, 36, 0.18);
+}
+
+[data-estilo="aula"] body {
+  --fuente-titulo: var(--font-caveat), "Segoe Print", cursive;
+  --fuente-etiqueta: var(--font-caveat), "Segoe Print", cursive;
+  --fuente-boton: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+  --fuente-cuerpo: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ============================================================
+   AULA VIRTUAL · oscuro: pizarrón verde con marco de madera
+   ============================================================ */
+[data-estilo="aula"].dark {
+  --bg: #1e3a2c;
+  --surf: #1e3a2c;
+  --surf-2: #183024;
+  --border: rgba(242, 241, 234, 0.35);
+  --border-2: rgba(242, 241, 234, 0.35);
+  --border-h: rgba(242, 241, 234, 0.6);
+  --hl: rgba(242, 241, 234, 0.35);
+  --text: #f2f1ea;
+  --muted: #c9d3cb;
+  --titulo: #f2f1ea;
+  --acc: #f6d365;
+  --acc-ink: #1e3a2c;
+  --acc-text: #f6d365;
+  --ic-bg: #183024;
+  --ok: #9cd3f0;
+  --ok-text: #9cd3f0;
+  --save-bg: #183024;
+  --user-text: #f2f1ea;
+  --hi-b: #f6d365;
+  --hi-t: #f6d365;
+  --mid-bg: #183024;
+  --mock-bg: #183024;
+  --nav-bg: rgba(30, 58, 44, 0.94);
+  --btn-s-borde: #f2f1ea;
+  --btn-s-texto: #f2f1ea;
+
+  --tono-1: #f6d365;
+  --tono-2: #f4a7b9;
+  --tono-3: #9cd3f0;
+  --tono-1-bg: #183024;
+  --tono-2-bg: #183024;
+  --tono-3-bg: #183024;
+  --tono-1-texto: #f6d365;
+  --tono-2-texto: #f4a7b9;
+  --tono-3-texto: #9cd3f0;
+  --franja-1: #8b5e3c;
+  --franja-2: #8b5e3c;
+  --franja-3: #8b5e3c;
+  --marco: #8b5e3c;
+  --marco-borde: #6e4a2e;
+  --etiqueta: #9cd3f0;
+  --marca: #f6d365;
+  --malejo-btn: #f4a7b9;
+  --malejo-btn-ink: #1e3a2c;
+  --pie-bg: #16301f;
+  --pie-texto: #f2f1ea;
+  --pie-muted: #c9d3cb;
+  --pie-borde: rgba(242, 241, 234, 0.2);
+  --pie-acc: #f6d365;
+  --resaltador: rgba(246, 211, 101, 0.25);
+  --sombra-panel: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+/* La textura del pizarrón: dos manchas blancas muy suaves. */
+[data-estilo="aula"].dark body {
+  background:
+    radial-gradient(60% 40% at 20% 10%, rgb(255 255 255 / 0.05), transparent 70%),
+    radial-gradient(50% 40% at 85% 60%, rgb(255 255 255 / 0.04), transparent 70%),
+    var(--bg);
+  background-attachment: fixed;
+}
+
+/* ── Aula: composición que no es un color ─────────────────────────── */
+[data-estilo="aula"] .franja {
+  border-bottom: 3px solid var(--marco-borde);
+}
+/* El menú sin píldora, como Institucional pero sin borde abajo. */
+[data-estilo="aula"] .header-ag {
+  padding-block: 0;
+}
+[data-estilo="aula"] .header-ag .nav-pill {
+  border: 0;
+  background: transparent;
+  padding-inline: 0;
+  padding-block: 12px;
+}
+/* La cursiva nunca baja de 22 px: etiquetas y enlaces de texto. */
+[data-estilo="aula"] .lbl {
+  font-size: 22px;
+  line-height: 1.15;
+}
+[data-estilo="aula"] .lnk {
+  font-family: var(--fuente-titulo);
+  font-size: 22px;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+[data-estilo="aula"] .tag {
+  font-family: var(--fuente-cuerpo);
+}
+/* La "IA" del H1 con resaltador detrás. */
+.ia-resaltada {
+  background: linear-gradient(to bottom, transparent 55%, var(--resaltador) 55%);
+  padding-inline: 4px;
+}
+/* El marco de madera en los paneles del kit y de Malejo. */
+[data-estilo="aula"] .panel-madera {
+  border-top: 8px solid var(--marco);
+}
+/* La barra del kit del celular: amarilla (verde en la pizarra blanca). */
+[data-estilo="aula"] .barra-armado > button {
+  background: var(--acc);
+  border-color: var(--acc);
+  color: var(--acc-ink);
+  font-family: var(--fuente-titulo);
+}
+[data-estilo="aula"] .barra-armado > button :where(span, strong, svg) {
+  color: inherit;
+}
+[data-estilo="aula"] .barra-armado > button > span:last-child {
+  background: transparent;
+  border-color: currentColor;
+}
+/* Soluciones: casilleros dibujados en las categorías; la activa, tildada. */
+[data-estilo="aula"] .cat-tab {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px dashed var(--border);
+  border-radius: 0;
+  box-shadow: none;
+  color: var(--text);
+  font-family: var(--fuente-titulo);
+  font-size: 24px;
+  font-weight: 700;
+}
+[data-estilo="aula"] .cat-tab > svg {
+  display: none;
+}
+[data-estilo="aula"] .cat-tab::before {
+  content: "";
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid currentColor;
+  border-radius: 2px;
+}
+[data-estilo="aula"] .cat-tab[aria-selected="true"] {
+  background: transparent;
+  color: var(--acc-text);
+}
+[data-estilo="aula"] .cat-tab[aria-selected="true"]::before {
+  content: "✓";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--fuente-cuerpo);
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1;
+}
+[data-estilo="aula"] .contador {
+  background: transparent;
+  color: var(--tono-2);
+  font-family: var(--fuente-titulo);
+  font-size: 22px;
+}
+[data-estilo="aula"] .contador::before {
+  content: "(";
+}
+[data-estilo="aula"] .contador::after {
+  content: ")";
+}
+/* El recomendado: el sello se vuelve el óvalo rosa con "¡recomendado!" (garabato). */
+[data-estilo="aula"] .sello-rec {
+  display: none;
+}
+/* Malejo: el saludo en cursiva y las opciones punteadas de los 3 colores. */
+[data-estilo="aula"] .saludo-malejo {
+  font-family: var(--fuente-titulo);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+[data-estilo="aula"] .opcion-tono {
+  border: 2px dashed var(--t);
+  font-family: var(--fuente-titulo);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.05;
+}
+[data-estilo="aula"] .opcion-tono svg {
+  display: none;
+}
+/* Los pasos de "Cómo trabajo": "Paso 1" en cursiva grande del color del tono. */
+[data-estilo="aula"] .paso-num {
+  width: auto;
+  height: auto;
+  background: transparent;
+  font-family: var(--fuente-titulo);
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--t);
+}
+[data-estilo="aula"] article.con-tono .h {
+  color: var(--t);
+}
+[data-estilo="aula"] .con-tono .ic {
+  background: transparent;
+}
+/* Garabatos: decorativos, nunca reciben clics. */
+.garabato {
+  pointer-events: none;
+}
+
+/* La mancha de borrador detrás del hero (solo en el pizarrón). */
+.mancha-borrador {
+  display: none;
+}
+[data-estilo="aula"].dark .mancha-borrador {
+  display: block;
+  position: absolute;
+  inset: -40px 10% 20% -5%;
+  background: radial-gradient(50% 50% at 40% 45%, rgb(255 255 255 / 0.06), transparent 70%);
+  pointer-events: none;
+}
+/* El selector rápido de personaje en cursiva. */
+[data-estilo="aula"] .personaje-rapido > span,
+[data-estilo="aula"] .personaje-rapido button {
+  font-family: var(--fuente-titulo);
+  font-size: 22px;
+  text-transform: lowercase;
+}
+[data-estilo="aula"] .personaje-rapido > span {
+  font-size: 24px;
+  color: var(--text);
+}
+[data-estilo="aula"] .personaje-rapido button {
+  border: 2px dashed var(--border);
+  background: transparent;
+}
+[data-estilo="aula"] .personaje-rapido button[aria-pressed="true"] {
+  border-style: solid;
+  border-color: var(--acc-text);
+  color: var(--acc-text);
+}
+/* Las pestañas "Tu kit | Malejo" sobre la madera. */
+[data-estilo="aula"] .pestanas-madera {
+  background: var(--marco);
+  border-bottom-color: var(--marco-borde);
+}
+[data-estilo="aula"] .pestanas-madera [role="tab"] {
+  font-family: var(--fuente-titulo);
+  font-size: 24px;
+  color: var(--text);
+}
+[data-estilo="aula"] .pestanas-madera [role="tab"][aria-selected="true"] {
+  background: var(--surf);
+  color: var(--text);
+}
+[data-estilo="aula"] .panel-madera.card {
+  border-top: 0;
 }

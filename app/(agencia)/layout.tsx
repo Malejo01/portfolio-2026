@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono, Outfit, Source_Serif_4 } from "next/font/google";
+import { Caveat, Inter, JetBrains_Mono, Nunito, Outfit, Source_Serif_4 } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { Footer } from "@/components/agencia/Footer";
 import { Header } from "@/components/agencia/Header";
@@ -72,8 +72,26 @@ const sourceSerif = Source_Serif_4({
   variable: "--font-source-serif",
 });
 
+/**
+ * Tanda P3-2: Aula virtual. Caveat (la cursiva de tiza) y Nunito (lectura y
+ * botones). Variables, sin precarga y `optional`: mismo motivo que Source Serif.
+ */
+const caveat = Caveat({
+  subsets: ["latin"],
+  display: "optional",
+  preload: false,
+  variable: "--font-caveat",
+});
+
+const nunito = Nunito({
+  subsets: ["latin"],
+  display: "optional",
+  preload: false,
+  variable: "--font-nunito",
+});
+
 /** En `<body>`, no en `<html>`: mismo motivo que en `SiteDocument`. */
-const FONT_VARIABLES = `${outfit.variable} ${inter.variable} ${jetbrains.variable} ${sourceSerif.variable}`;
+const FONT_VARIABLES = `${outfit.variable} ${inter.variable} ${jetbrains.variable} ${sourceSerif.variable} ${caveat.variable} ${nunito.variable}`;
 
 /**
  * Antes del primer paint: marca `js` (contrato de `data-reveal`), pone el

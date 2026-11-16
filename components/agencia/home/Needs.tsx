@@ -7,6 +7,9 @@ import { desdeDeCategoria, fmt } from "@/lib/agencia/pricing";
 import { Icon } from "../icons";
 import { AbrirChat } from "../client/AbrirChat";
 import { RevealGroup, RevealItem } from "../client/Reveal";
+import { Garabato } from "../client/Garabato";
+import { estiloCopy } from "@/content/agencia/estilos";
+import { SUBRAYADO } from "./garabatos";
 
 /**
  * "Desde $177.000 · 3 × $59.000": el menor pago único de la categoría con
@@ -104,8 +107,17 @@ export function Needs() {
         título asoma arriba del pliegue en celular y era el LCP; arrancar en
         `opacity: 0` hasta hidratar lo demoraba. Las baldosas sí entran.
       */}
-      <span className="lbl lbl-o">{needs.label}</span>
-      <h2 className="h h2">{needs.title}</h2>
+      <div className="relative">
+        <span className="lbl lbl-o">{needs.label}</span>
+        <h2 className="h h2">{needs.title}</h2>
+        {/* Tanda P3-2: los garabatos de Aula virtual (solo en ese estilo). */}
+        <span data-solo-estilo="aula" className="block h-4 w-[min(320px,80%)] text-tono-1">
+          <Garabato trazos={[SUBRAYADO]} viewBox="0 0 320 16" ancho={4} className="h-4 w-full" />
+        </span>
+        <span data-solo-estilo="aula" aria-hidden="true" className="garabato absolute -top-1 right-0 hidden -rotate-6 font-titulo text-[30px] text-tono-2 lg:block">
+          {estiloCopy.aula.garabatos.clientes}
+        </span>
+      </div>
       <NeedTiles />
       <NeedLinks />
     </section>

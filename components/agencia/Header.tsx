@@ -49,12 +49,20 @@ export function Header() {
             <MalejoMark size={30} className="text-marca" data-solo-estilo="tech" />
             <LogoEstilo />
             {/* Debajo de 360 px no entra con "Soluciones" al lado: queda el logo y el nombre para lectores de pantalla. */}
-            <span className="h text-[22px] max-[359px]:sr-only">{site.name}</span>
+            <span className="h text-[22px] max-[359px]:sr-only">
+              {site.name}
+              {/* Aula virtual: "Malejo." con el punto de tiza rosa. */}
+              <span data-solo-estilo="aula" aria-hidden="true" className="text-tono-2">
+                .
+              </span>
+            </span>
           </Link>
           <EstiloSelector
             copy={estiloCopy}
             estilos={estilos.map(({ id, nombre, descripcion, etiquetaCategoria, disponible }) => ({ id, nombre, descripcion, etiquetaCategoria, disponible }))}
             temas={configArranque(estilos, ESTILO_ORIGINAL, DIBUJO_ORIGINAL).estilos}
+            dibujosPor={configArranque(estilos, ESTILO_ORIGINAL, DIBUJO_ORIGINAL).dibujoPor}
+            fuentesPor={Object.fromEntries(estilos.filter((e) => e.fuentes).map((e) => [e.id, e.fuentes!]))}
             personajes={personajes()}
           />
 

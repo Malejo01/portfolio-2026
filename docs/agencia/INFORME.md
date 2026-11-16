@@ -1005,12 +1005,65 @@ Home y `/soluciones` a 390 y 1280 px en claro y oscuro (a 390 con Malejo abierto
 Se mergean en orden. Al mergear uno y borrar su rama, GitHub pasa la base del siguiente a `main`. Correcciones hechas en una rama anterior después de pasar a la siguiente (con `git merge` hacia adelante, sin rebase): en P3-1, el selector descarga la fuente del estilo antes de cambiar y se corrigió su informe de rendimiento.
 
 **Pendiente:**
-- **Decidir el costo de rendimiento de la home** con cuatro estilos (ver arriba de todo en P3-3). La primera visita (Tech) cumple; con caché tibia, los estilos no originales quedan 60 a 170 ms arriba de `main`.
+- ~~Decidir el costo de rendimiento de la home~~ (decidido por Mauro el 16-11: se acepta; reglas nuevas en `CLAUDE.md` y en P3-3.1).
 - Medir con PageSpeed Insights en el preview (en este contenedor el LCP absoluto no es representativo).
-- Tienda: la franja de ícono arriba de cada plan, el "TU PEDIDO A MAURO" del ticket y el cierre como banda verde quedaron afuera (decisiones 5 y 6 de P3-3).
+- Tienda: la franja de ícono arriba de cada plan y el "TU PEDIDO A MAURO" del ticket quedaron afuera (hechos en P3-3.1); el cierre como banda verde sigue pendiente (decisión 6 de P3-3).
 - Accesorios por estilo, los otros cuatro estilos del plan y los easter eggs: tandas siguientes.
 
 **Capturas para mirar** (cada carpeta tiene `lado-a-lado-*.png` con la pantalla aprobada al lado):
 - `docs/agencia/verificacion/p3-1/`: heroes de Tech e Institucional a 390 y 1280 px en claro y oscuro, Soluciones, el selector, la home sin JS y `dibujos-y-poses.png`.
 - `docs/agencia/verificacion/p3-2/`: Aula a 390 y 1280 px en claro y oscuro, home y Soluciones (a 390, con Malejo).
 - `docs/agencia/verificacion/p3-3/`: Tienda a 390 y 1280 px en claro y oscuro, home y Soluciones (a 390, con Malejo).
+
+# Tanda P3-3.1 · Cierre del sprint P3 (detalles de Tienda, personajes superpuestos y medición real)
+
+Rama `p3-3-1-cierre` desde `main` (`d14cfc1`), PR contra `main`. `npm run lint`, `npm test` (239) y `npm run build` en verde, con la misma tabla de rutas que `main`.
+
+## Qué se hizo
+1. **Personajes superpuestos.** `verificacion/p3-3-1/superposicion.js` mide los 4 estilos × 768, 1024, 1280, 1440 y 1920 px × claro y oscuro, en la home con el chat cerrado, el aire entre el personaje del hero (el rectángulo que se ve, recortado por su recuadro) y el botón flotante de Malejo. Con la página arriba de todo, que es el peor caso: al bajar, el hero sube y se aleja del botón. En `main` chocaban **Tienda** (1024, 1280 y 1440 px: −59, −78 y 2 px de aire) y **Aula** (1024 y 1280 px: −67 y −47 px). Tech e Institucional tenían 60 px o más. En los dos estilos el personaje pasa a la **esquina inferior izquierda del ejemplo**, apoyado en su borde y asomando hacia el hueco entre columnas (abajo a la izquierda están el link "Así se vería…" y el selector rápido, así que no cuelga por debajo del ejemplo). Ahora hay 335 px de aire o más en todos los casos, y el script también comprueba que el personaje no tape texto, enlaces ni botones del hero. El botón del chat no se tocó.
+2. **Franja con el ícono del plan (Tienda).** `precios.json` suma el campo opcional `icono` (`qr`, `whatsapp` y `bolsa` en los tres planes de `tiendas`; sin él, el ícono de la categoría). `PlanCard` lleva arriba una franja de 96 px con el ícono de 46 px sobre el tinte de la tarjeta. El tinte sale de la posición del plan en su categoría (1.º tomate, 2.º verde, 3.º ocre, como la referencia). La franja se muestra solo por token (`--plan-franja`: `flex` en `tienda.css`, `none` en lo común), es decorativa (`aria-hidden`) y "El más pedido" queda encima. Íconos nuevos en `icons.tsx`: `qr` y `bolsa`, con el trazo de `F-soluciones.html`.
+3. **"Tu pedido a Mauro" (Tienda).** Arriba del primer ítem de Tu kit, en Fredoka de 14 px, mayúsculas por CSS, espaciado 0,1em y centrado. Se muestra por token (`--kit-titulo`). En los demás estilos es `display: none`, así que los lectores no lo leen. La copy va en `content/agencia/soluciones.ts → carrito.tituloTicket`.
+4. **Speed Insights.** `@vercel/speed-insights` 2.0.0 con `<SpeedInsights />` **solo en el layout de la agencia**. La CSP report-only ya permitía su script y su endpoint (`/_vercel/speed-insights/*`, mismo origen; en desarrollo, `va.vercel-scripts.com`, que ya estaba): solo se actualizó el comentario de `headers.ts`. Se instaló con `--legacy-peer-deps` por un conflicto de peers opcionales (SvelteKit) que no afecta al sitio; `npm ci` y `npm install` con el lockfile nuevo instalan sin errores.
+5. **La regla del presupuesto** de Mauro quedó en `CLAUDE.md`, en "Sitio de la agencia".
+
+## Verificación
+- **Sin cambios en los otros estilos.** `verificacion/p3-3-1/capturas.js` saca capturas deterministas de página completa: movimiento reducido, entradas forzadas a su estado final, videos en su póster, el flotante oculto y el resaltado del menú limpio. Toma la home y `/soluciones` en los 4 estilos, a 390 y 1280 px, en claro y oscuro. `comparar.py` las compara píxel a píxel contra `main`; el resultado está en `comparacion-con-main.txt`:
+  - **Tech e Institucional:** las 16 capturas idénticas;
+  - **Aula:** idéntica salvo la home a 1280 px, donde solo cambia el personaje que se movió (`diff-1280-home-aula-oscuro.png`);
+  - **Tienda:** cambian la home a 1280 px (el personaje) y `/soluciones` (la franja y el título).
+
+  Antes, dos corridas del mismo build de `main` dieron como mucho 43 píxeles de ruido de antialias en un caso.
+- **Tienda**, con `verificacion/p3-3/verificar.js` sobre este build: todo en orden, con la franja incluida. Sin overflow, contraste AA, el ejemplo sin nada tabulable y ninguna etiqueta de precio más ancha que su tarjeta ("Desde $747.000" incluida). Capturas de `/soluciones` a 390 (con la hoja del kit abierta) y 1280 px en los dos modos, al lado de `F-soluciones.html` y `F-soluciones-celular.html`.
+- **Superposición:** sin choques en los 4 estilos, los 5 anchos y los 2 temas (`superposicion.json`).
+
+## Presupuesto (`verificacion/p3-3-1/presupuesto.txt`, contra `main` construida al lado)
+| Regla | Medición | Resultado |
+|---|---|---|
+| Primera visita (Tech): LCP como mucho +10 % frente a `main` | Lighthouse con throttling real, 4 corridas: `main` 1,96 s, rama 2,06 s | **+5 %** ✅ |
+| Estilo elegido: como mucho +200 ms, con caché tibia | CPU 4× y red lenta, 5 corridas. Frente a `main` en el mismo estilo: Tech +32 ms, Institucional 0, Aula −36 ms, Tienda −28 ms. Frente a `main` en Tech (424 ms): Institucional +88 ms, Aula +96 ms, Tienda +96 ms | ✅ |
+| TBT ≤ 250 ms | Lighthouse simulado, medianas: home 178 ms (`main` 245), `/soluciones` 231 ms (`main` 213), `/soluciones` en Tienda 133 ms | ✅ |
+| CLS ≤ 0,05 | 0 en todas las corridas | ✅ |
+
+## Pasos manuales para Mauro
+1. **Activar Speed Insights** en el panel de Vercel (proyecto → Speed Insights → Enable). Sin eso, `<SpeedInsights />` no manda datos.
+2. Mirar el **LCP p75 en celular** en Speed Insights cuando junte datos. La arquitectura de los heroes se revisa solo si pasa de 2,5 s.
+
+## Cierre del sprint P3
+**En producción** (PR #10, #11 y #12 mergeados el 16-11, más esta tanda cuando se mergee):
+- el sistema de estilos con Tech/IA (siempre el de entrada), Institucional, Aula virtual y Tienda, cada uno con su hero, su piel en todo el sitio, su tema de entrada y su hoja de CSS que se carga solo si está activo;
+- el selector de estilos y el selector rápido de personaje;
+- el personaje en 3 dibujos × 3 poses, con idle, saludo y festejo;
+- en Tienda, `EtiquetaPrecio`, el ejemplo «Almacén Doña Rosa», la franja de los planes y el título del ticket;
+- PageSpeed en celular después del merge: 100, LCP 1,1 s;
+- Speed Insights listo para medir datos reales.
+
+**Pendiente:**
+- Activar Speed Insights (paso manual 1).
+- **Garabatos de Aula con movimiento reducido:** el subrayado de un título que todavía no entró a la vista se dibuja al entrar, en vez de estar dibujado desde el principio. Pasa porque `useReducedMotion()` da `null` en el primer render. Es de P3-2; esta tanda no toca Aula.
+- **Tienda:** el cierre "¿Lo charlamos?" sigue como la tarjeta del sistema y no como la banda verde de la referencia (decisión 6 de P3-3).
+- Los otros cuatro estilos del plan (Personal, Gastronomía, Turismo, Salud), los accesorios por estilo y los easter eggs: tandas siguientes.
+
+**Capturas para mirar** (`docs/agencia/verificacion/p3-3-1/`):
+- `lado-a-lado-1280-soluciones-{claro,oscuro}.png` y `lado-a-lado-390-soluciones-{claro,oscuro}.png`: Tienda al lado de la referencia, con la franja y el título;
+- `diff-1280-home-aula-oscuro.png` y `diff-1280-home-tienda-claro.png`: lo único que cambió en la home, en rojo;
+- `superposicion.json` y `comparacion-con-main.txt`.

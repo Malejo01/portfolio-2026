@@ -423,6 +423,19 @@ npm run db:migrate  # las aplica Mauro, con DATABASE_URL
   reproducen una vez con `reproducir()` (`lib/agencia/sprite-anim.ts`).
   Verificá con `docs/agencia/verificacion/p3-1/verificar.js` y
   `animaciones.py`.
+- **Presupuesto de rendimiento (Mauro, 16-11, tanda P3-3.1).** Se acepta el
+  costo de traer los heroes de los cuatro estilos en la home. Reglas:
+  - la **primera visita (Tech)** puede subir el LCP como mucho un **+10 %**
+    frente a `main`;
+  - un **estilo elegido**, como mucho **+200 ms** en absoluto, medido con
+    caché tibia (a un estilo se llega por el selector, que ya descargó su
+    hoja y sus fuentes);
+  - la arquitectura de los heroes se revisa **solo si el LCP p75 en
+    celular, en datos reales de Speed Insights, pasa de 2,5 s**.
+  TBT ≤ 250 ms y CLS ≤ 0,05 siguen igual. `<SpeedInsights />` va solo en el
+  layout de la agencia (no en el portfolio) y manda datos desde que se
+  activa Speed Insights en el panel de Vercel. PageSpeed en producción
+  después de P3 (16-11, celular): 100, LCP 1,1 s.
 - **Rutas estáticas:** todo `○`/`●` salvo los catch-all y `/api/*`. `?plan=`
   y `?cat=` se leen en el cliente para no volver dinámicas `/demo` ni la home.
 - **404:** `app/(agencia)/[...notFound]` atrapa toda URL de la raíz sin ruta;

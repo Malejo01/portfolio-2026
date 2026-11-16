@@ -177,3 +177,33 @@ html[data-dibujo="anime"] [data-solo-dibujo]:not([data-solo-dibujo="anime"]) {
 .mancha-borrador {
   display: none;
 }
+
+/* ============================================================
+   TANDA P3-3.1 · piezas que solo muestra Tienda, por token
+   ============================================================ */
+:root {
+  /* La franja con el ícono arriba de cada plan (`PlanCard`). */
+  --plan-franja: none;
+  /* El título del ticket "Tu pedido a Mauro" en la columna del kit. */
+  --kit-titulo: none;
+}
+.plan-franja {
+  display: var(--plan-franja);
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  height: 96px;
+  margin: -26px -26px 0;
+  border-radius: calc(var(--r-card) - 2px) calc(var(--r-card) - 2px) 0 0;
+  background: var(--t-bg);
+  color: var(--t);
+}
+.kit-titulo {
+  display: var(--kit-titulo);
+  font-family: var(--fuente-titulo);
+  font-size: 14px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--muted);
+}

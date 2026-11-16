@@ -48,6 +48,8 @@ export const solucionesCopy = {
   /** El carrito (D2, D3). */
   carrito: {
     label: "Tu kit",
+    /** Tanda P3-3.1: el título del ticket en Tienda (mayúsculas por CSS). */
+    tituloTicket: "Tu pedido a Mauro",
     vacio: "Todavía no agregaste nada. Elegí una categoría o tocá \"Ayudame a elegir\".",
     desde: "desde",
     porMes: "por mes",

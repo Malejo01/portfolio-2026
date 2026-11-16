@@ -1,0 +1,32 @@
+✗ 1280-home-aula-claro.png: 12184 píxeles distintos, caja (658, 375, 1220, 672)
+✗ 1280-home-aula-oscuro.png: 12184 píxeles distintos, caja (658, 375, 1220, 672)
+✓ 1280-home-institucional-claro.png: idéntica
+✓ 1280-home-institucional-oscuro.png: idéntica
+✓ 1280-home-tech-claro.png: idéntica
+✓ 1280-home-tech-oscuro.png: idéntica
+✗ 1280-home-tienda-claro.png: 8334 píxeles distintos, caja (638, 625, 1244, 771)
+✗ 1280-home-tienda-oscuro.png: 8334 píxeles distintos, caja (638, 625, 1244, 771)
+✓ 1280-soluciones-aula-claro.png: idéntica
+✓ 1280-soluciones-aula-oscuro.png: idéntica
+✓ 1280-soluciones-institucional-claro.png: idéntica
+✓ 1280-soluciones-institucional-oscuro.png: idéntica
+✓ 1280-soluciones-tech-claro.png: idéntica
+✓ 1280-soluciones-tech-oscuro.png: idéntica
+✗ 1280-soluciones-tienda-claro.png: tamaño (1280, 3261) → (1280, 3433)
+✗ 1280-soluciones-tienda-oscuro.png: tamaño (1280, 3261) → (1280, 3433)
+✓ 390-home-aula-claro.png: idéntica
+✓ 390-home-aula-oscuro.png: idéntica
+✓ 390-home-institucional-claro.png: idéntica
+✓ 390-home-institucional-oscuro.png: idéntica
+✓ 390-home-tech-claro.png: idéntica
+✓ 390-home-tech-oscuro.png: idéntica
+✓ 390-home-tienda-claro.png: idéntica
+✓ 390-home-tienda-oscuro.png: idéntica
+✓ 390-soluciones-aula-claro.png: idéntica
+✓ 390-soluciones-aula-oscuro.png: idéntica
+✓ 390-soluciones-institucional-claro.png: idéntica
+✓ 390-soluciones-institucional-oscuro.png: idéntica
+✓ 390-soluciones-tech-claro.png: idéntica
+✓ 390-soluciones-tech-oscuro.png: idéntica
+✗ 390-soluciones-tienda-claro.png: tamaño (390, 3142) → (390, 3228)
+✗ 390-soluciones-tienda-oscuro.png: tamaño (390, 3142) → (390, 3228)

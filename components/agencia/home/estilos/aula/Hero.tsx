@@ -91,7 +91,7 @@ export function HeroAula() {
           <span className="font-titulo text-[26px] leading-tight text-tono-2">{a.ejemplo.etiqueta}</span>
           <div className="relative">
             <Pizarron />
-            <span className="pointer-events-none absolute -bottom-[118px] -right-2.5 hidden lg:block">
+            <span className="pointer-events-none absolute -bottom-1 -left-14 hidden lg:block">
               <Sprite alto={186} alt={estiloCopy.alt.normal} saludoAlEntrar />
             </span>
           </div>

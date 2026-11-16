@@ -661,6 +661,8 @@ function CarritoCuerpo({
         </p>
       ) : null}
 
+      {/* Tanda P3-3.1: el título del ticket. Solo en Tienda, por token (`--kit-titulo`); en los demás, `display: none`. */}
+      <p className="kit-titulo m-0">{k.tituloTicket}</p>
       <ul className="m-0 flex list-none flex-col p-0">
         {c.items.map((i) => (
           <li key={i.id} className="flex items-start justify-between gap-3 border-b border-border py-2.5 first:pt-0">

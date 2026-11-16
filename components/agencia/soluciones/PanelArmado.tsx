@@ -3,7 +3,7 @@ import { home } from "@/content/agencia/home";
 import { combos, planesDe, type Category, type Plan } from "@/content/agencia/pricing";
 import { solucionesCopy as copy } from "@/content/agencia/soluciones";
 import { Carrusel } from "../client/Carrusel";
-import { ComboCard, GrandesSteps, PlanCard, PlanFila } from "../PlanCard";
+import { ComboCard, GrandesLinea, PlanCard, PlanFila } from "../PlanCard";
 
 const { pricing } = home;
 
@@ -40,7 +40,7 @@ export function PanelArmado({ category }: { category: Category }) {
       <>
         {titulo}
         <p className="mb-0 mt-2 text-[15px] text-muted">{category.intro}</p>
-        <GrandesSteps plans={category.plans} />
+        <GrandesLinea plans={category.plans} />
         <Link href={`/servicios/${category.key}`} className="lnk mt-3 min-h-11">
           {pricing.masSobre}
         </Link>

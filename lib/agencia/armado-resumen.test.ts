@@ -4,7 +4,7 @@ import { resumenDeArmado } from "./armado-resumen";
 describe("resumen del armado para Mauro (tanda P2)", () => {
   it("nombres, estimado con rango y seña, escritos en el servidor", () => {
     const r = resumenDeArmado({ items: [{ id: "landing-profesional", origen: "persona" }, { id: "turnos-online", origen: "malejo" }], extras: [] });
-    expect(r).toBe("Armado: Combo Página + turnos · estimado $357.000–$411.000 · + $45.000 por mes · seña $50.000");
+    expect(r).toBe("Kit: Combo Página + turnos · estimado $357.000–$411.000 · + $45.000 por mes · seña $50.000");
   });
 
   it("suma la ficha y la nota recortadas", () => {

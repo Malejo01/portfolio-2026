@@ -549,7 +549,7 @@ export const casos: Caso[] = [
       },
       { nombre: "menciona los pagos", ok: texto(/pagos?|cuotas?/i) },
       { nombre: "no da un precio cerrado (sin tarjeta de cotización)", ok: (r) => quotes(r).length === 0 },
-      { nombre: "invita a mandar el armado a Mauro", ok: texto(/mand(a|á)le tu armado|mand(a|á)(le|selo)? (a Mauro|el armado)|tu armado a Mauro/i) },
+      { nombre: "invita a mandar el armado a Mauro", ok: texto(/mand(a|á)le tu kit|mand(a|á)(le|selo)? (a Mauro|el kit)|tu kit a Mauro|se lo mand(a|á)s a Mauro/i) },
     ],
   },
   {
@@ -560,7 +560,7 @@ export const casos: Caso[] = [
     maxPalabras: 90,
     checks: [
       { nombre: "sugirió con sugerir_armado", ok: (r) => hay(r, "armado") },
-      { nombre: "explica que se agrega con el botón", ok: (r) => /bot[óo]n|toc(á|a)|Agregar al armado/i.test(ultimo(r).texto) },
+      { nombre: "explica que se agrega con el botón", ok: (r) => /bot[óo]n|toc(á|a)|Agregar al kit/i.test(ultimo(r).texto) },
       { nombre: "no dice que lo agregó", ok: (r) => !/(ya )?(lo|te lo) agregu[ée]|listo,? (ya )?(est[áa] )?agregad/i.test(ultimo(r).texto) },
     ],
   },

@@ -51,7 +51,7 @@ export function mensajeWhatsApp(ficha?: Ficha, cotizacion?: QuoteCard | null, no
   if (plata) lineas.push(`• ${plata}`);
   add("Dudas", f.dudas.join("; "));
   // Tanda P2: el armado de Soluciones, como link que Mauro puede abrir.
-  if (raw.armadoIds?.length) add("Mi armado", `${siteUrl}/soluciones?a=${raw.armadoIds.join(",")}`);
+  if (raw.armadoIds?.length) add("Mi kit", `${siteUrl}/soluciones?a=${raw.armadoIds.join(",")}`);
   if (nota?.trim() && nota.trim() !== f.necesidad) add("Consulta", nota.trim());
 
   if (!lineas.length) return SALUDO;

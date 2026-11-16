@@ -68,7 +68,7 @@ export const home = {
     /** Abre la hoja de Malejo; sin JS, WhatsApp con el texto genérico. */
     primary: "💬 Hablar con Malejo",
     /** Va al armador. */
-    secondary: { label: "🧩 Armar mi solución", href: "/soluciones" },
+    secondary: { label: "🧩 Armar mi kit", href: "/soluciones" },
     /** §4.1: las tres garantías pasan a una fila de chips de 3 o 4 palabras. */
     chipsLabel: "Por qué es seguro",
     chips: ["Precios publicados", "Demo antes de pagar", "3 pagos sin interés"],
@@ -82,7 +82,7 @@ export const home = {
     ask: "Preguntale a Malejo",
     grandes: { label: "¿Algo más grande? Proyectos a medida →", href: "/servicios/grandes" },
     /** Tanda P2: el botón grande lleva al armador. */
-    precios: { label: "Armá lo que necesitás →", href: "/soluciones" },
+    precios: { label: "Armá tu kit →", href: "/soluciones" },
   },
 
   steps: {
@@ -90,14 +90,14 @@ export const home = {
     title: "Primero ves tu demo, después decidís",
     /** Tanda P2: el paso 2 abre el modal de la seña escalonada. */
     items: [
-      { title: "Armás lo que necesitás (solo o con Malejo)", body: "En Soluciones ves un estimado al instante." },
+      { title: "Armás tu kit (solo o con Malejo)", body: "En Soluciones ves un estimado al instante." },
       { title: "Lo charlamos y ves tu demo", body: "Videollamada gratis y demo con tu marca en 72 h. La seña se descuenta." },
       { title: "Pagás en 2 o 3 veces", body: "Sin interés, por transferencia." },
     ],
     /** El índice (desde 0) del paso que abre el modal de la seña. */
     pasoSena: 1,
     stepLabel: "Paso",
-    demo: { label: "Armá lo que necesitás →", href: "/soluciones" },
+    demo: { label: "Armá tu kit →", href: "/soluciones" },
     /** Modal "¿Cómo funciona la seña?" (§4.1). */
     sena: {
       trigger: "¿Cómo funciona la seña?",
@@ -166,7 +166,7 @@ export const home = {
     extras: {
       trigger: "Sumale extras",
       title: "Sumale extras",
-      lead: "Se suman a cualquier plan. Contale a Mauro cuáles querés cuando le mandes tu armado.",
+      lead: "Se suman a cualquier plan. Contale a Mauro cuáles querés cuando le mandes tu kit.",
       cotizador: { label: "Armá tu solución →", href: "/soluciones" },
     },
     /** Letra chica en una línea + el modal "Condiciones" (§4.3). */

@@ -79,11 +79,11 @@ const SOLUCIONES: Solucion[] = [
     label: "Ventas",
     problema: "Vender por WhatsApp o internet",
     title: "Vender por WhatsApp o por internet",
-    description: "Mostrá tus productos con precio y recibí los pedidos armados por WhatsApp, o cobrá online.",
+    description: "Mostrá tus productos con precio y recibí los pedidos listos por WhatsApp, o cobrá online.",
     paraQuien: "Para comercios que venden por WhatsApp o Instagram, bares y restós con carta, y negocios que quieren cobrar online.",
     metaTitle: "Catálogo online y tienda con Mercado Pago: precios",
     beneficios: [
-      "Los pedidos te llegan armados por WhatsApp",
+      "Los pedidos te llegan listos por WhatsApp",
       "Cargás y cambiás productos vos, desde el celular",
       "Sin comisiones por venta para mí",
     ],

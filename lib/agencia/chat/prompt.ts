@@ -101,13 +101,13 @@ En páginas web, catálogos, tiendas, turnos y mantenimiento, la página es del 
 # Proyectos a medida (grandes)
 Si no entra en el catálogo o es una app compleja (marketplace, tipo Uber, ERP, red social): no cotices ni des un "desde", no uses cotizar ni pedir_demo y no ofrezcas la demo de 72 horas. Proponé el camino charla gratis (20 min) → plan del proyecto por escrito (${planEscrito}, por adelantado) → etapas de 2 semanas con avance funcionando, cada una 50% al arrancarla y 50% al entregarla. Ofrecé la charla con derivar_whatsapp.
 
-# Modo armado (Soluciones)
-Cuando el bloque final dice que la persona está en modo armado, está en Soluciones armando lo que necesita su negocio, con un carrito al costado. Ahí:
+# Modo kit (Soluciones)
+Cuando el bloque final dice que la persona está en modo kit, está en Soluciones armando el kit que necesita su negocio, con su kit al costado. Ahí:
 - Hacé como mucho 3 preguntas antes de sugerir, de a una por turno y solo las que falten: el rubro, qué problema quiere resolver primero y por dónde le escriben hoy los clientes. Si ya lo sabés, sugerí.
-- Sugerí con sugerir_armado lo mínimo que resuelve el problema principal (1 o 2 ítems, como mucho 3). Si un combo cubre lo que pide, sugerí el combo. Nada entra al armado sin que la persona toque «Agregar al armado»: vos nunca agregás ni quitás nada, aunque te lo pida. Si te pide "agregalo vos", explicale en una frase que se agrega con ese botón.
-- No sumes por sumar. Si pide todo junto, ayudalo a priorizar: qué resolver primero y qué puede esperar. Si en "Armado actual" hay algo que no necesita para lo que contó, decíselo con amabilidad.
-- Precio del armado: hablá del estimado ("entre X y Y") y de los pagos que figuran en "Armado actual", tal cual. Nunca des un precio cerrado del armado ni uses cotizar para sumarlo: el precio final lo cierra Mauro en la charla.
-- Cierre: cuando el armado tiene sentido, invitá a tocar «Mandale tu armado a Mauro» (está en el carrito) y a agendar la videollamada gratis. La demo y su seña son el paso siguiente a esa charla: no ofrezcas pedir_demo antes.
+- Sugerí con sugerir_armado lo mínimo que resuelve el problema principal (1 o 2 ítems, como mucho 3). Si un combo cubre lo que pide, sugerí el combo. Nada entra al kit sin que la persona toque «Agregar al kit»: vos nunca agregás ni quitás nada, aunque te lo pida. Si te pide "agregalo vos", explicale en una frase que se agrega con ese botón.
+- No sumes por sumar. Si pide todo junto, ayudalo a priorizar: qué resolver primero y qué puede esperar. Si en "Kit actual" hay algo que no necesita para lo que contó, decíselo con amabilidad.
+- Precio del kit: hablá del estimado ("entre X y Y") y de los pagos que figuran en "Kit actual", tal cual. Nunca des un precio cerrado del kit ni uses cotizar para sumarlo: el precio final lo cierra Mauro en la charla.
+- Cierre: cuando el kit tiene sentido, invitá a tocar «Mandale tu kit a Mauro» (está en su kit) y a agendar la videollamada gratis. La demo y su seña son el paso siguiente a esa charla: no ofrezcas pedir_demo antes.
 - Si pregunta por gastos de uso (inteligencia artificial, WhatsApp): el auto, el taller y la nafta.
 
 # Cuándo derivar
@@ -158,12 +158,12 @@ export interface ContextoArmado {
 }
 
 /**
- * "Armado actual: …" (tanda P2): los nombres con sus ids, el estimado como
+ * "Kit actual: …" (tanda P2; P2.1 dice "kit"): los nombres con sus ids, el estimado como
  * rango, los pagos, lo mensual y la seña. Todo sale de `estimarArmado()`:
  * el modelo repite, no calcula.
  */
 export function lineaArmadoActual(armado: Armado | undefined): string {
-  if (!armado || (!armado.items.length && !armado.extras.length)) return "Armado actual: vacío (todavía no agregó nada).";
+  if (!armado || (!armado.items.length && !armado.extras.length)) return "Kit actual: vacío (todavía no agregó nada).";
   const e = estimarArmado(armado);
   const c = e.cotizacion;
   const partes = [
@@ -176,7 +176,7 @@ export function lineaArmadoActual(armado: Armado | undefined): string {
     lineaDeSena(e.sena),
   ].filter(Boolean);
   const sugeridos = armado.items.filter((i) => i.origen === "malejo").map((i) => i.id);
-  return `Armado actual: ${partes.join(" · ")}.${sugeridos.length ? ` Lo que agregó desde tus sugerencias: ${sugeridos.join(", ")}.` : ""}`;
+  return `Kit actual: ${partes.join(" · ")}.${sugeridos.length ? ` Lo que agregó desde tus sugerencias: ${sugeridos.join(", ")}.` : ""}`;
 }
 
 /**
@@ -186,9 +186,9 @@ export function lineaArmadoActual(armado: Armado | undefined): string {
 export function bloqueFicha(ficha: Ficha, pagina?: string | null, armado?: ContextoArmado): string {
   const modo =
     armado?.modo === "armado"
-      ? `\n\n# Modo armado\nEstá en Soluciones armando lo que necesita: seguí las reglas del modo armado.\n${lineaArmadoActual(armado.armado)}`
+      ? `\n\n# Modo kit\nEstá en Soluciones armando su kit: seguí las reglas del modo kit.\n${lineaArmadoActual(armado.armado)}`
       : armado?.armado && (armado.armado.items.length || armado.armado.extras.length)
-        ? `\n\n# Su armado en Soluciones\n${lineaArmadoActual(armado.armado)}`
+        ? `\n\n# Su kit en Soluciones\n${lineaArmadoActual(armado.armado)}`
         : "";
   const donde =
     (pagina

@@ -174,7 +174,7 @@ export const conocimiento: Conocimiento = {
   quienSoy:
     "Mauro Lizárraga, desarrollador en Salta, Argentina. Desde 2023 da clases de matemática a nivel terciario, donde también fue formador y evaluador docente. En 2025 trabajó como desarrollador en Accenture, armando sistemas internos y asistentes con IA para una multinacional. Se formó en IA aplicada con DataCamp y Anthropic Academy. Hoy construye proyectos propios: Qué Pinta Salta, AfinIA Jobs, Tuki y MaestrIA.",
   proceso:
-    `1) Armás lo que necesitás (en Soluciones, solo o con este chat) o me lo contás por WhatsApp. 2) Lo charlamos en una videollamada gratis y, si conviene, pagás la seña de la demo según el tamaño (${senaDesde}), que se descuenta del total. 3) Demo con tu marca en 72 horas hábiles. 4) La vemos juntos en 20 minutos y decidís sin compromiso. 5) Si contratás, pagás en 2 o 3 veces (ver pagos).`,
+    `1) Armás tu kit en Soluciones (solo o con este chat) o me lo contás por WhatsApp. 2) Lo charlamos en una videollamada gratis y, si conviene, pagás la seña de la demo según el tamaño (${senaDesde}), que se descuenta del total. 3) Demo con tu marca en 72 horas hábiles. 4) La vemos juntos en 20 minutos y decidís sin compromiso. 5) Si contratás, pagás en 2 o 3 veces (ver pagos).`,
   pagos: [
     "Por transferencia, al precio publicado, en 2 pagos sin interés: 50% al aprobar la demo y 50% al entregar.",
     `O en 3 pagos sin interés por transferencia (${calendarioTres}), solo si el total contratado es de hasta ${tope}. Arriba de ${tope}: 2 pagos o tarjeta.`,

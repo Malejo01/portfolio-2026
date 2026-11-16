@@ -5,7 +5,7 @@ import { estimarArmado, fmt } from "./pricing";
  * El resumen de un armado para Mauro (tanda P2, D3), escrito en el servidor
  * con los ids ya validados: el cliente nunca manda texto de precios.
  *
- *   Armado: Página para aparecer en Google + Agenda de turnos online · estimado $357.000–$411.000 · seña $50.000
+ *   Kit: Página para aparecer en Google + Agenda de turnos online · estimado $357.000–$411.000 · seña $50.000
  *   Ficha: Peluquería · Quiero que saquen turno solos
  *   Nota: Tengo dos sillones
  *
@@ -20,7 +20,7 @@ export function resumenDeArmado(armado: Armado, extra: { ficha?: { rubro?: strin
   const e = estimarArmado(armado);
   const c = e.cotizacion;
   const partes = [
-    `Armado: ${c.items.map((i) => i.nombre).join(" + ")}`,
+    `Kit: ${c.items.map((i) => i.nombre).join(" + ")}`,
     e.piso ? `estimado ${fmt(e.piso)}–${fmt(e.techo)}` : "",
     e.mensual ? `+ ${fmt(e.mensual)} por mes` : "",
     e.sena.tipo === "demo" ? `seña ${fmt(e.sena.monto)}` : e.sena.tipo === "plan-escrito" ? `plan escrito ${fmt(e.sena.monto)}` : "demo sin cargo",

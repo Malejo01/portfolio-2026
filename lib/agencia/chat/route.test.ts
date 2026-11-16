@@ -313,9 +313,9 @@ describe("/api/chat · modo armado (P2)", () => {
     });
     expect(evs[0]).toEqual({ type: "ficha", ficha: { armadoIds: ["landing-profesional", "turnos-online"] } });
     const [p] = mock.pedidos as { system: { text: string }[] }[];
-    expect(p.system[0].text).toContain("# Modo armado (Soluciones)");
-    expect(p.system[1].text).toContain("# Modo armado\nEstá en Soluciones");
-    expect(p.system[1].text).toContain("Armado actual: Combo Página + turnos [combo-negocio-con-turnos] · se aplica el combo solo · estimado entre $357.000 y $411.000");
+    expect(p.system[0].text).toContain("# Modo kit (Soluciones)");
+    expect(p.system[1].text).toContain("# Modo kit\nEstá en Soluciones");
+    expect(p.system[1].text).toContain("Kit actual: Combo Página + turnos [combo-negocio-con-turnos] · se aplica el combo solo · estimado entre $357.000 y $411.000");
     expect(p.system[1].text).toContain("Lo que agregó desde tus sugerencias: turnos-online.");
     expect(p.system[1].text).not.toContain("inventado");
   });
@@ -324,7 +324,7 @@ describe("/api/chat · modo armado (P2)", () => {
     mock.guion([{ bloques: [{ type: "text", text: "Hola" }], stop: "end_turn" }]);
     await chat({ ...user("hola"), pagina: "/" });
     const [p] = mock.pedidos as { system: { text: string }[] }[];
-    expect(p.system[1].text).not.toContain("# Modo armado");
+    expect(p.system[1].text).not.toContain("# Modo kit");
   });
 });
 

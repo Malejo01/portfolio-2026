@@ -34,6 +34,9 @@ const PROHIBIDOS: [nombre: string, re: RegExp][] = [
   ["cuota mensual", /cuotas? mensual(es)?/i],
   ["permanencia", /permanencia/i],
   ["tokens", /\btokens?\b/i],
+  // P2.1: Mauro eligió "kit". Los identificadores de código (armado.ts,
+  // sugerir_armado, armadoIds, el evento malejo:armado) no son copy y no se recorren.
+  ["armado", /\barmad(o|os|a|as|or|ores)\b/i],
 ];
 
 /** Claves que no son copy: ids, slugs, links y nombres de íconos. */

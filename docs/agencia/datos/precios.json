@@ -455,7 +455,7 @@
           "id": "sistema-a-medida",
           "name": "Sistema a tu medida",
           "paraQuien": "Tu forma de trabajar no entra en nada estándar.",
-          "enUnaLinea": "Tu negocio no entra en un sistema armado.",
+          "enUnaLinea": "Tu negocio no entra en un sistema estándar.",
           "impl": 897000,
           "from": true,
           "monthly": null,
@@ -598,7 +598,7 @@
           "id": "plataforma-educativa-con-ia",
           "name": "Aula virtual con IA",
           "paraQuien": "Institutos y docentes que quieren evaluaciones y seguimiento por alumno.",
-          "enUnaLinea": "Docentes y alumnos, con evaluaciones armadas con IA.",
+          "enUnaLinea": "Docentes y alumnos, con evaluaciones creadas con IA.",
           "impl": 897000,
           "from": true,
           "monthly": null,
@@ -607,7 +607,7 @@
           "rec": false,
           "items": [
             "Aulas con roles docente y alumno",
-            "Evaluaciones armadas desde tu programa",
+            "Evaluaciones creadas desde tu programa",
             "Seguimiento de cada alumno"
           ],
           "proof": "Como MaestrIA",

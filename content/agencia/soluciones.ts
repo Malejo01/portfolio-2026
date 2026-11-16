@@ -7,12 +7,12 @@
 export const solucionesCopy = {
   metaTitle: "Soluciones y precios: webs, sistemas y asistentes con IA",
   description:
-    "Armá lo que necesita tu negocio: páginas web, tiendas, turnos, sistemas y asistentes con IA, con precios publicados y un estimado al instante. El precio final lo cerramos en una charla.",
+    "Armá el kit que necesita tu negocio: páginas web, tiendas, turnos, sistemas y asistentes con IA, con precios publicados y un estimado al instante. El precio final lo cerramos en una charla.",
   breadcrumb: { inicio: "Inicio", soluciones: "Soluciones" },
 
   /** Encabezado con los dos caminos (D6). */
   label: "Soluciones",
-  title: "Armá lo que necesita tu negocio",
+  title: "Armá el kit que necesita tu negocio",
   lead: "Elegí lo que te sirve y mirá un estimado. El precio final lo cerramos en una charla.",
   yaSe: "Ya sé lo que quiero",
   /** Abre a Malejo sin tema: la bienvenida del modo armado trae sus opciones (Fase 5 bis). */
@@ -24,15 +24,15 @@ export const solucionesCopy = {
   /** "Estás viendo: Turnos y reservas". `{CAT}` = la categoría. */
   viendo: "Estás viendo: {CAT}",
   /** `{N}` = cuántos ítems de esa categoría hay en el armado. */
-  enArmado: "{N} en tu armado",
+  enArmado: "{N} en tu kit",
   /** Carrusel de celular: "Plan 2 de 3". */
   carrusel: { anterior: "Plan anterior", siguiente: "Plan siguiente", punto: "Plan {N} de {T}", puntos: "Elegí qué plan ver", combos: "Combos de esta categoría" },
 
   /** El botón de cada tarjeta en modo armado (D5: nada entra sin un clic). */
-  agregar: "Agregar al armado",
+  agregar: "Agregar al kit",
   /** En la fila de un extra. */
   agregarCorto: "Agregar",
-  agregado: "✓ Agregado",
+  agregado: "✓ En tu kit",
   quitar: "Quitar",
   /** Sin JS, cada plan lleva a la demo. */
   sinJsDemo: "Pedí tu demo",
@@ -47,7 +47,7 @@ export const solucionesCopy = {
 
   /** El carrito (D2, D3). */
   carrito: {
-    label: "Tu armado",
+    label: "Tu kit",
     vacio: "Todavía no agregaste nada. Elegí una categoría o tocá \"Ayudame a elegir\".",
     desde: "desde",
     porMes: "por mes",
@@ -56,7 +56,7 @@ export const solucionesCopy = {
     sugerido: "Sugerido por Malejo",
     quitar: "Quitar",
     /** `{NOMBRE}` = el ítem. */
-    quitarAria: "Quitar {NOMBRE} del armado",
+    quitarAria: "Quitar {NOMBRE} del kit",
     mensualLabel: "Por mes",
     anualLabel: "Por año",
     extras: "Sumale extras",
@@ -70,44 +70,44 @@ export const solucionesCopy = {
     /** `{AHORRO}` = la diferencia en pesos. */
     combo: "Se aplicó el combo: ahorrás {AHORRO}",
     ayuda: "¿No sabés qué elegir? Preguntale a Malejo",
-    ayudaTema: "Mirá mi armado y decime si me sirve",
+    ayudaTema: "Mirá mi kit y decime si me sirve",
     vaciar: "Vaciar",
-    vaciarPregunta: "¿Vaciar el armado?",
+    vaciarPregunta: "¿Vaciar el kit?",
     vaciarSi: "Sí, vaciar",
     vaciarNo: "No",
     compartir: "Compartir",
     copiado: "Link copiado",
     /** El texto de `navigator.share`. `{ITEMS}` = los nombres. */
-    compartirTitulo: "Mi armado en Malejo",
-    compartirTexto: "Mirá lo que armé en Malejo: {ITEMS}",
-    compartido: "Te compartieron este armado. Podés cambiarlo.",
-    enviar: "Mandale tu armado a Mauro",
+    compartirTitulo: "Mi kit en Malejo",
+    compartirTexto: "Mirá el kit que armé en Malejo: {ITEMS}",
+    compartido: "Te compartieron este kit. Podés cambiarlo.",
+    enviar: "Mandale tu kit a Mauro",
     /** Celular: la barra fija. `{N}` = cantidad, `{X}` = el piso. */
-    barra: "Tu armado · {N}",
+    barra: "Tu kit · {N}",
     barraDesde: "desde {X}",
-    abrir: "Ver tu armado",
+    abrir: "Ver tu kit",
     cerrar: "Cerrar",
     /** `{N}` = cantidad, para lectores de pantalla. */
-    cantidad: "{N} en tu armado",
+    cantidad: "{N} en tu kit",
   },
 
-  /** "Mandale tu armado a Mauro" (D3): el formulario dentro del carrito. */
+  /** "Mandale tu kit a Mauro" (D3): el formulario dentro del carrito. */
   form: {
-    titulo: "Mandale tu armado a Mauro",
+    titulo: "Mandale tu kit a Mauro",
     lead: "Te escribe por WhatsApp para charlarlo en una videollamada gratis. Ahí cierran el precio y, si conviene, la demo.",
     nombre: "Tu nombre",
     whatsapp: "Tu WhatsApp (con código de área)",
     rubro: "Rubro de tu negocio (opcional)",
     rubroPlaceholder: "Peluquería, ferretería, consultorio…",
     nota: "¿Algo más que quieras contarle? (opcional)",
-    consent: "Acepto que Mauro me contacte por WhatsApp por este armado",
+    consent: "Acepto que Mauro me contacte por WhatsApp por este kit",
     privacy: "Política de privacidad",
-    enviar: "Mandar mi armado",
+    enviar: "Mandar mi kit",
     enviando: "Enviando…",
-    volver: "Volver al armado",
+    volver: "Volver al kit",
     needCheck: "Marcá la casilla para que Mauro pueda escribirte.",
     invalid: "Revisá el nombre y el WhatsApp (con código de área).",
-    error: "No pude mandarlo ahora. Escribile por WhatsApp con tu armado.",
+    error: "No pude mandarlo ahora. Escribile por WhatsApp con tu kit.",
     errorWhatsapp: "Mandarlo por WhatsApp",
   },
 
@@ -122,7 +122,7 @@ export const solucionesCopy = {
 
   /** El texto de WhatsApp con el armado. `{ITEMS}`, `{X}`, `{Y}` y `{SENA}`. */
   whatsapp: {
-    intro: "Hola Mauro, armé esto en malejo.com.ar:",
+    intro: "Hola Mauro, armé este kit en malejo.com.ar:",
     estimado: "Estimado: entre {X} y {Y}",
   },
 

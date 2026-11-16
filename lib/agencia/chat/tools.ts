@@ -203,7 +203,7 @@ export const tools: Anthropic.Tool[] = [
   {
     name: "sugerir_armado",
     description:
-      "Muestra de 1 a 3 sugerencias para el armado de Soluciones, cada una con su precio, el porqué y un botón «Agregar al armado» que toca la persona. NO agrega nada: lo agrega la persona con el botón. Sugerí lo mínimo que resuelve el problema principal; si un combo cubre lo que pide, sugerí el combo. Fuera de Soluciones, la tarjeta lleva a Soluciones con lo sugerido. No sirve para proyectos a medida.",
+      "Muestra de 1 a 3 sugerencias para el kit de la persona (en Soluciones), cada una con su precio, el porqué y un botón «Agregar al kit» que toca la persona. NO agrega nada: lo agrega la persona con el botón. Sugerí lo mínimo que resuelve el problema principal; si un combo cubre lo que pide, sugerí el combo. Fuera de Soluciones, la tarjeta lleva a Soluciones con lo sugerido. No sirve para proyectos a medida.",
     eager_input_streaming: true,
     input_schema: {
       type: "object",
@@ -324,7 +324,7 @@ function conDedup(ctx: ToolContext, out: ToolOutcome): ToolOutcome {
   if (ctx.shown.has(firma) && out.card.kind === "armado") {
     return {
       content:
-        "Esa misma sugerencia YA está en pantalla, con su botón «Agregar al armado»: no la mostré de nuevo. Decile que la agregue tocando ese botón (vos no podés agregar nada) y seguí con el próximo paso.",
+        "Esa misma sugerencia YA está en pantalla, con su botón «Agregar al kit»: no la mostré de nuevo. Decile que la agregue tocando ese botón (vos no podés agregar nada) y seguí con el próximo paso.",
     };
   }
   if (ctx.shown.has(firma)) {
@@ -484,9 +484,9 @@ export function runTool(name: string, input: unknown, ctx: ToolContext): ToolOut
       const href = `/soluciones?a=${sugeridos.map((s) => s.id).join(",")}`;
       return conDedup(ctx, {
         content: [
-          `Mostré la sugerencia (${sugeridos.map((s) => s.nombre).join(" + ")}) con un botón «Agregar al armado» por ítem.`,
-          "Todavía NO está en el armado: lo agrega la persona con el botón. No digas que lo agregaste ni que aparece un botón.",
-          yaEsta.length ? `Ya estaban en su armado: ${yaEsta.join(", ")}.` : "",
+          `Mostré la sugerencia (${sugeridos.map((s) => s.nombre).join(" + ")}) con un botón «Agregar al kit» por ítem.`,
+          "Todavía NO está en su kit: lo agrega la persona con el botón. No digas que lo agregaste ni que aparece un botón.",
+          yaEsta.length ? `Ya estaban en su kit: ${yaEsta.join(", ")}.` : "",
           desconocidos.length ? `Ids que no existen (no los menciones): ${desconocidos.join(", ")}.` : "",
         ]
           .filter(Boolean)

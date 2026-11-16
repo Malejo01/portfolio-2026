@@ -281,7 +281,7 @@ describe("sugerir_armado (tanda P2, D5)", () => {
       ],
       href: "/soluciones?a=combo-negocio-con-turnos,blog",
     });
-    expect(out.content).toMatch(/NO está en el armado/);
+    expect(out.content).toMatch(/NO está en su kit/);
     expect(out.ficha).toBeUndefined();
   });
 
@@ -298,9 +298,9 @@ describe("sugerir_armado (tanda P2, D5)", () => {
     const ctx = nuevoContexto(1000, {}, [], { items: [{ id: "turnos-online", origen: "persona" }], extras: [] });
     const a = runTool("sugerir_armado", { items: [{ id: "turnos-online", porque: "x" }] }, ctx);
     expect(a.card?.kind).toBe("armado");
-    expect(a.content).toMatch(/Ya estaban en su armado: Agenda de turnos online/);
+    expect(a.content).toMatch(/Ya estaban en su kit: Agenda de turnos online/);
     const b = runTool("sugerir_armado", { items: [{ id: "turnos-online", porque: "otra razón" }] }, ctx);
     expect(b.card).toBeUndefined();
-    expect(b.content).toMatch(/Agregar al armado/);
+    expect(b.content).toMatch(/Agregar al kit/);
   });
 });

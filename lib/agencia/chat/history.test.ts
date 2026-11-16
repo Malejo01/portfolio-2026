@@ -57,7 +57,7 @@ describe("bienvenida (tanda P2, Fase 5 bis)", () => {
 
   it("la sugerencia del armado deja su línea y su firma", () => {
     const card = { kind: "armado" as const, items: [{ id: "turnos-online", tipo: "item" as const, nombre: "Agenda de turnos online", precio: "$177.000", porque: "x" }], href: "/soluciones?a=turnos-online" };
-    expect(armarHistorial([{ role: "assistant", text: "Te sugiero esto.", cards: [card] }])[0].content).toBe("Te sugiero esto.\n[Tarjeta mostrada · armado · turnos-online]");
+    expect(armarHistorial([{ role: "assistant", text: "Te sugiero esto.", cards: [card] }])[0].content).toBe("Te sugiero esto.\n[Tarjeta mostrada · kit · turnos-online]");
     expect(firmasMostradas([{ role: "assistant", text: "", cards: [card] }])).toEqual(["armado:turnos-online"]);
   });
 });

@@ -157,6 +157,6 @@ export function lineaTarjeta(card: Card): string {
       // Las respuestas sugeridas no son algo que la persona "vio": no van al historial.
       return "";
     case "armado":
-      return `[Tarjeta mostrada · armado · ${card.items.map((i) => i.id).join(",")}]`;
+      return `[Tarjeta mostrada · kit · ${card.items.map((i) => i.id).join(",")}]`;
   }
 }

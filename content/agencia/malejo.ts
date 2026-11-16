@@ -83,8 +83,8 @@ export const malejoCopy = {
   /** Tanda P2: la tarjeta de `sugerir_armado`. Nada entra sin el clic (D5). */
   armado: {
     label: "Mi sugerencia",
-    agregar: "Agregar al armado",
-    agregado: "✓ En tu armado",
+    agregar: "Agregar al kit",
+    agregado: "✓ En tu kit",
     abrir: "Abrir en Soluciones",
   },
   form: {

@@ -10,7 +10,8 @@
     "test": "vitest run",
     "eval:chat": "tsx scripts/eval-chat.ts",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:migrate": "drizzle-kit migrate",
+    "sprites": "python3 scripts/sprites/limpiar.py && python3 scripts/sprites/animar.py"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.6.0",

@@ -1,0 +1,36 @@
+/* Generado por scripts/sprites/animar.py (npm run sprites). No editar a mano:
+   los tiempos salen de SECUENCIAS y van también en public/agencia/sprites/sprites.json. */
+
+/* idle: 4210 ms · 0:450, 1:450, 1:450, 0:450, 0:900, 2:110, 0:1400 */
+@keyframes tira-idle {
+  0% { transform: translateX(0.0000%); }
+  10.689% { transform: translateX(-33.3333%); }
+  32.067% { transform: translateX(0.0000%); }
+  64.133% { transform: translateX(-66.6667%); }
+  66.746% { transform: translateX(0.0000%); }
+  100% { transform: translateX(0.0000%); }
+}
+:root { --tira-idle-ms: 4210ms; }
+
+/* saludo: 2100 ms · 0:300, 1:220, 2:220, 1:220, 2:220, 1:220, 0:700 */
+@keyframes tira-saludo {
+  0% { transform: translateX(0.0000%); }
+  14.286% { transform: translateX(-33.3333%); }
+  24.762% { transform: translateX(-66.6667%); }
+  35.238% { transform: translateX(-33.3333%); }
+  45.714% { transform: translateX(-66.6667%); }
+  56.19% { transform: translateX(-33.3333%); }
+  66.667% { transform: translateX(0.0000%); }
+  100% { transform: translateX(0.0000%); }
+}
+:root { --tira-saludo-ms: 2100ms; }
+
+/* festejo: 1870 ms · 0:250, 1:120, 2:900, 0:600 */
+@keyframes tira-festejo {
+  0% { transform: translateX(0.0000%); }
+  13.369% { transform: translateX(-33.3333%); }
+  19.786% { transform: translateX(-66.6667%); }
+  67.914% { transform: translateX(0.0000%); }
+  100% { transform: translateX(0.0000%); }
+}
+:root { --tira-festejo-ms: 1870ms; }

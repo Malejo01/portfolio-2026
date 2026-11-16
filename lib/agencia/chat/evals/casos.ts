@@ -75,7 +75,13 @@ export const casos: Caso[] = [
     titulo: "Peluquería con turnos → Mercado Pago → avanzar",
     turnos: ["Tengo una peluquería y quiero que mis clientas saquen turno solas", "¿y con Mercado Pago?", "dale, quiero avanzar"],
     checks: [
-      { nombre: "cotiza turnos o el combo", ok: (r) => quotes(r).some((q) => q.ids.some((id) => /turnos/.test(id))) },
+      // P2.1: el camino es la sugerencia para el kit; cotizar sigue valiendo.
+      {
+        nombre: "cotiza o sugiere turnos o el combo",
+        ok: (r) =>
+          quotes(r).some((q) => q.ids.some((id) => /turnos/.test(id))) ||
+          de(todasCards(r), "armado").some((c) => c.items.some((i) => /turnos/.test(i.id))),
+      },
       { nombre: "MP con cuotas mencionadas", ok: (r) => /cuota/i.test(r.turnos[1].texto) || quotes(r).some((q) => q.medio === "mp") },
       // P2.1: al avanzar, el camino es el kit (sugerencia y "mandale tu kit a Mauro"); la demo, si la pide.
       {

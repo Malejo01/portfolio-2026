@@ -102,6 +102,7 @@ describe("system prompt", () => {
     expect(base).toMatch(/\(1\) entender, con como mucho 3 preguntas; \(2\) sugerir con sugerir_armado/);
     expect(base).toMatch(/pedir_demo SOLO si la persona pide la demo explícitamente/);
     expect(base).toContain("¿Se lo mandás a Mauro así te arma la propuesta?");
+    expect(base).toMatch(/Nunca le digas que toque «Agregar al kit» si en esta charla no salió una tarjeta de sugerir_armado/);
     expect(base).not.toMatch(/\barmado\b(?!\])/i);
     expect(bloqueFicha({}, null, { modo: null, enviado: true })).toContain("Ya le mandó su kit a Mauro");
     expect(bloqueFicha({}, null, { modo: null })).not.toContain("Ya le mandó su kit");

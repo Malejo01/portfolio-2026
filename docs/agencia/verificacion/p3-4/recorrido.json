@@ -1,0 +1,2202 @@
+{
+  "base": "http://localhost:3001",
+  "fallas": [],
+  "resultados": [
+    {
+      "clave": "tech-claro-360",
+      "estilo": "tech",
+      "tema": "light",
+      "ancho": 360,
+      "pasos": [
+        {
+          "paso": "1 de 3",
+          "titulo": "Hablá con Malejo",
+          "objetivo": "malejo",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(10, 11, 15, 0.55)",
+          "contraste": {
+            "contador": 6.9,
+            "titulo": 18.55,
+            "texto": 6.9,
+            "saltar": 5.99,
+            "siguiente": 6.31
+          },
+          "aa": true
+        },
+        {
+          "paso": "2 de 3",
+          "titulo": "Armá tu kit",
+          "objetivo": "kit",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(10, 11, 15, 0.55)",
+          "contraste": {
+            "contador": 6.9,
+            "titulo": 18.55,
+            "texto": 6.9,
+            "saltar": 5.99,
+            "siguiente": 6.31
+          },
+          "aa": true
+        },
+        {
+          "paso": "3 de 3",
+          "titulo": "Probá otro estilo",
+          "objetivo": "estilos",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "¡Listo!",
+          "velo": "rgba(10, 11, 15, 0.55)",
+          "contraste": {
+            "contador": 6.9,
+            "titulo": 18.55,
+            "texto": 6.9,
+            "saltar": 5.99,
+            "siguiente": 6.31
+          },
+          "aa": true
+        }
+      ],
+      "marcaAlTerminar": "visto",
+      "reaparece": false,
+      "tabDentro": true,
+      "escCierra": true,
+      "focoVuelve": true,
+      "marcaTrasEnlace": "visto"
+    },
+    {
+      "clave": "tech-claro-390",
+      "estilo": "tech",
+      "tema": "light",
+      "ancho": 390,
+      "pasos": [
+        {
+          "paso": "1 de 3",
+          "titulo": "Hablá con Malejo",
+          "objetivo": "malejo",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(10, 11, 15, 0.55)",
+          "contraste": {
+            "contador": 6.9,
+            "titulo": 18.55,
+            "texto": 6.9,
+            "saltar": 5.99,
+            "siguiente": 6.31
+          },
+          "aa": true
+        },
+        {
+          "paso": "2 de 3",
+          "titulo": "Armá tu kit",
+          "objetivo": "kit",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(10, 11, 15, 0.55)",
+          "contraste": {
+            "contador": 6.9,
+            "titulo": 18.55,
+            "texto": 6.9,
+            "saltar": 5.99,
+            "siguiente": 6.31
+          },
+          "aa": true
+        },
+        {
+          "paso": "3 de 3",
+          "titulo": "Probá otro estilo",
+          "objetivo": "estilos",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "¡Listo!",
+          "velo": "rgba(10, 11, 15, 0.55)",
+          "contraste": {
+            "contador": 6.9,
+            "titulo": 18.55,
+            "texto": 6.9,
+            "saltar": 5.99,
+            "siguiente": 6.31
+          },
+          "aa": true
+        }
+      ],
+      "marcaAlTerminar": "visto",
+      "reaparece": false,
+      "tabDentro": true,
+      "escCierra": true,
+      "focoVuelve": true,
+      "marcaTrasEnlace": "visto"
+    },
+    {
+      "clave": "tech-claro-768",
+      "estilo": "tech",
+      "tema": "light",
+      "ancho": 768,
+      "pasos": [
+        {
+          "paso": "1 de 3",
+          "titulo": "Hablá con Malejo",
+          "objetivo": "malejo",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(10, 11, 15, 0.55)",
+          "contraste": {
+            "contador": 6.9,
+            "titulo": 18.55,
+            "texto": 6.9,
+            "saltar": 5.99,
+            "siguiente": 6.31
+          },
+          "aa": true
+        },
+        {
+          "paso": "2 de 3",
+          "titulo": "Armá tu kit",
+          "objetivo": "kit",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(10, 11, 15, 0.55)",
+          "contraste": {
+            "contador": 6.9,
+            "titulo": 18.55,
+            "texto": 6.9,
+            "saltar": 5.99,
+            "siguiente": 6.31
+          },
+          "aa": true
+        },
+        {
+          "paso": "3 de 3",
+          "titulo": "Probá otro estilo",
+          "objetivo": "estilos",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "¡Listo!",
+          "velo": "rgba(10, 11, 15, 0.55)",
+          "contraste": {
+            "contador": 6.9,
+            "titulo": 18.55,
+            "texto": 6.9,
+            "saltar": 5.99,
+            "siguiente": 6.31
+          },
+          "aa": true
+        }
+      ],
+      "marcaAlTerminar": "visto",
+      "reaparece": false,
+      "tabDentro": true,
+      "escCierra": true,
+      "focoVuelve": true,
+      "marcaTrasEnlace": "visto"
+    },
+    {
+      "clave": "tech-claro-1280",
+      "estilo": "tech",
+      "tema": "light",
+      "ancho": 1280,
+      "pasos": [
+        {
+          "paso": "1 de 3",
+          "titulo": "Hablá con Malejo",
+          "objetivo": "malejo",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(10, 11, 15, 0.55)",
+          "contraste": {
+            "contador": 6.9,
+            "titulo": 18.55,
+            "texto": 6.9,
+            "saltar": 5.99,
+            "siguiente": 6.31
+          },
+          "aa": true
+        },
+        {
+          "paso": "2 de 3",
+          "titulo": "Armá tu kit",
+          "objetivo": "kit",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(10, 11, 15, 0.55)",
+          "contraste": {
+            "contador": 6.9,
+            "titulo": 18.55,
+            "texto": 6.9,
+            "saltar": 5.99,
+            "siguiente": 6.31
+          },
+          "aa": true
+        },
+        {
+          "paso": "3 de 3",
+          "titulo": "Probá otro estilo",
+          "objetivo": "estilos",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "¡Listo!",
+          "velo": "rgba(10, 11, 15, 0.55)",
+          "contraste": {
+            "contador": 6.9,
+            "titulo": 18.55,
+            "texto": 6.9,
+            "saltar": 5.99,
+            "siguiente": 6.31
+          },
+          "aa": true
+        }
+      ],
+      "marcaAlTerminar": "visto",
+      "reaparece": false,
+      "tabDentro": true,
+      "escCierra": true,
+      "focoVuelve": true,
+      "marcaTrasEnlace": "visto"
+    },
+    {
+      "clave": "tech-oscuro-360",
+      "estilo": "tech",
+      "tema": "dark",
+      "ancho": 360,
+      "pasos": [
+        {
+          "paso": "1 de 3",
+          "titulo": "Hablá con Malejo",
+          "objetivo": "malejo",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 7.53,
+            "titulo": 15.75,
+            "texto": 7.53,
+            "saltar": 7.93,
+            "siguiente": 6.31
+          },
+          "aa": true
+        },
+        {
+          "paso": "2 de 3",
+          "titulo": "Armá tu kit",
+          "objetivo": "kit",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 7.53,
+            "titulo": 15.75,
+            "texto": 7.53,
+            "saltar": 7.93,
+            "siguiente": 6.31
+          },
+          "aa": true
+        },
+        {
+          "paso": "3 de 3",
+          "titulo": "Probá otro estilo",
+          "objetivo": "estilos",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "¡Listo!",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 7.53,
+            "titulo": 15.75,
+            "texto": 7.53,
+            "saltar": 7.93,
+            "siguiente": 6.31
+          },
+          "aa": true
+        }
+      ],
+      "marcaAlTerminar": "visto",
+      "reaparece": false,
+      "tabDentro": true,
+      "escCierra": true,
+      "focoVuelve": true,
+      "marcaTrasEnlace": "visto"
+    },
+    {
+      "clave": "tech-oscuro-390",
+      "estilo": "tech",
+      "tema": "dark",
+      "ancho": 390,
+      "pasos": [
+        {
+          "paso": "1 de 3",
+          "titulo": "Hablá con Malejo",
+          "objetivo": "malejo",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 7.53,
+            "titulo": 15.75,
+            "texto": 7.53,
+            "saltar": 7.93,
+            "siguiente": 6.31
+          },
+          "aa": true
+        },
+        {
+          "paso": "2 de 3",
+          "titulo": "Armá tu kit",
+          "objetivo": "kit",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 7.53,
+            "titulo": 15.75,
+            "texto": 7.53,
+            "saltar": 7.93,
+            "siguiente": 6.31
+          },
+          "aa": true
+        },
+        {
+          "paso": "3 de 3",
+          "titulo": "Probá otro estilo",
+          "objetivo": "estilos",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "¡Listo!",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 7.53,
+            "titulo": 15.75,
+            "texto": 7.53,
+            "saltar": 7.93,
+            "siguiente": 6.31
+          },
+          "aa": true
+        }
+      ],
+      "marcaAlTerminar": "visto",
+      "reaparece": false,
+      "tabDentro": true,
+      "escCierra": true,
+      "focoVuelve": true,
+      "marcaTrasEnlace": "visto"
+    },
+    {
+      "clave": "tech-oscuro-768",
+      "estilo": "tech",
+      "tema": "dark",
+      "ancho": 768,
+      "pasos": [
+        {
+          "paso": "1 de 3",
+          "titulo": "Hablá con Malejo",
+          "objetivo": "malejo",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 7.53,
+            "titulo": 15.75,
+            "texto": 7.53,
+            "saltar": 7.93,
+            "siguiente": 6.31
+          },
+          "aa": true
+        },
+        {
+          "paso": "2 de 3",
+          "titulo": "Armá tu kit",
+          "objetivo": "kit",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 7.53,
+            "titulo": 15.75,
+            "texto": 7.53,
+            "saltar": 7.93,
+            "siguiente": 6.31
+          },
+          "aa": true
+        },
+        {
+          "paso": "3 de 3",
+          "titulo": "Probá otro estilo",
+          "objetivo": "estilos",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "¡Listo!",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 7.53,
+            "titulo": 15.75,
+            "texto": 7.53,
+            "saltar": 7.93,
+            "siguiente": 6.31
+          },
+          "aa": true
+        }
+      ],
+      "marcaAlTerminar": "visto",
+      "reaparece": false,
+      "tabDentro": true,
+      "escCierra": true,
+      "focoVuelve": true,
+      "marcaTrasEnlace": "visto"
+    },
+    {
+      "clave": "tech-oscuro-1280",
+      "estilo": "tech",
+      "tema": "dark",
+      "ancho": 1280,
+      "pasos": [
+        {
+          "paso": "1 de 3",
+          "titulo": "Hablá con Malejo",
+          "objetivo": "malejo",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 7.53,
+            "titulo": 15.75,
+            "texto": 7.53,
+            "saltar": 7.93,
+            "siguiente": 6.31
+          },
+          "aa": true
+        },
+        {
+          "paso": "2 de 3",
+          "titulo": "Armá tu kit",
+          "objetivo": "kit",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 7.53,
+            "titulo": 15.75,
+            "texto": 7.53,
+            "saltar": 7.93,
+            "siguiente": 6.31
+          },
+          "aa": true
+        },
+        {
+          "paso": "3 de 3",
+          "titulo": "Probá otro estilo",
+          "objetivo": "estilos",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "¡Listo!",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 7.53,
+            "titulo": 15.75,
+            "texto": 7.53,
+            "saltar": 7.93,
+            "siguiente": 6.31
+          },
+          "aa": true
+        }
+      ],
+      "marcaAlTerminar": "visto",
+      "reaparece": false,
+      "tabDentro": true,
+      "escCierra": true,
+      "focoVuelve": true,
+      "marcaTrasEnlace": "visto"
+    },
+    {
+      "clave": "institucional-claro-360",
+      "estilo": "institucional",
+      "tema": "light",
+      "ancho": 360,
+      "pasos": [
+        {
+          "paso": "1 de 3",
+          "titulo": "Hablá con Malejo",
+          "objetivo": "malejo",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(16, 42, 58, 0.55)",
+          "contraste": {
+            "contador": 9.48,
+            "titulo": 14.85,
+            "texto": 9.48,
+            "saltar": 8.94,
+            "siguiente": 8.94
+          },
+          "aa": true
+        },
+        {
+          "paso": "2 de 3",
+          "titulo": "Armá tu kit",
+          "objetivo": "kit",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(16, 42, 58, 0.55)",
+          "contraste": {
+            "contador": 9.48,
+            "titulo": 14.85,
+            "texto": 9.48,
+            "saltar": 8.94,
+            "siguiente": 8.94
+          },
+          "aa": true
+        },
+        {
+          "paso": "3 de 3",
+          "titulo": "Probá otro estilo",
+          "objetivo": "estilos",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "¡Listo!",
+          "velo": "rgba(16, 42, 58, 0.55)",
+          "contraste": {
+            "contador": 9.48,
+            "titulo": 14.85,
+            "texto": 9.48,
+            "saltar": 8.94,
+            "siguiente": 8.94
+          },
+          "aa": true
+        }
+      ],
+      "marcaAlTerminar": "visto",
+      "reaparece": false,
+      "tabDentro": true,
+      "escCierra": true,
+      "focoVuelve": true,
+      "marcaTrasEnlace": "visto"
+    },
+    {
+      "clave": "institucional-claro-390",
+      "estilo": "institucional",
+      "tema": "light",
+      "ancho": 390,
+      "pasos": [
+        {
+          "paso": "1 de 3",
+          "titulo": "Hablá con Malejo",
+          "objetivo": "malejo",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(16, 42, 58, 0.55)",
+          "contraste": {
+            "contador": 9.48,
+            "titulo": 14.85,
+            "texto": 9.48,
+            "saltar": 8.94,
+            "siguiente": 8.94
+          },
+          "aa": true
+        },
+        {
+          "paso": "2 de 3",
+          "titulo": "Armá tu kit",
+          "objetivo": "kit",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(16, 42, 58, 0.55)",
+          "contraste": {
+            "contador": 9.48,
+            "titulo": 14.85,
+            "texto": 9.48,
+            "saltar": 8.94,
+            "siguiente": 8.94
+          },
+          "aa": true
+        },
+        {
+          "paso": "3 de 3",
+          "titulo": "Probá otro estilo",
+          "objetivo": "estilos",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "¡Listo!",
+          "velo": "rgba(16, 42, 58, 0.55)",
+          "contraste": {
+            "contador": 9.48,
+            "titulo": 14.85,
+            "texto": 9.48,
+            "saltar": 8.94,
+            "siguiente": 8.94
+          },
+          "aa": true
+        }
+      ],
+      "marcaAlTerminar": "visto",
+      "reaparece": false,
+      "tabDentro": true,
+      "escCierra": true,
+      "focoVuelve": true,
+      "marcaTrasEnlace": "visto"
+    },
+    {
+      "clave": "institucional-claro-768",
+      "estilo": "institucional",
+      "tema": "light",
+      "ancho": 768,
+      "pasos": [
+        {
+          "paso": "1 de 3",
+          "titulo": "Hablá con Malejo",
+          "objetivo": "malejo",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(16, 42, 58, 0.55)",
+          "contraste": {
+            "contador": 9.48,
+            "titulo": 14.85,
+            "texto": 9.48,
+            "saltar": 8.94,
+            "siguiente": 8.94
+          },
+          "aa": true
+        },
+        {
+          "paso": "2 de 3",
+          "titulo": "Armá tu kit",
+          "objetivo": "kit",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(16, 42, 58, 0.55)",
+          "contraste": {
+            "contador": 9.48,
+            "titulo": 14.85,
+            "texto": 9.48,
+            "saltar": 8.94,
+            "siguiente": 8.94
+          },
+          "aa": true
+        },
+        {
+          "paso": "3 de 3",
+          "titulo": "Probá otro estilo",
+          "objetivo": "estilos",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "¡Listo!",
+          "velo": "rgba(16, 42, 58, 0.55)",
+          "contraste": {
+            "contador": 9.48,
+            "titulo": 14.85,
+            "texto": 9.48,
+            "saltar": 8.94,
+            "siguiente": 8.94
+          },
+          "aa": true
+        }
+      ],
+      "marcaAlTerminar": "visto",
+      "reaparece": false,
+      "tabDentro": true,
+      "escCierra": true,
+      "focoVuelve": true,
+      "marcaTrasEnlace": "visto"
+    },
+    {
+      "clave": "institucional-claro-1280",
+      "estilo": "institucional",
+      "tema": "light",
+      "ancho": 1280,
+      "pasos": [
+        {
+          "paso": "1 de 3",
+          "titulo": "Hablá con Malejo",
+          "objetivo": "malejo",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(16, 42, 58, 0.55)",
+          "contraste": {
+            "contador": 9.48,
+            "titulo": 14.85,
+            "texto": 9.48,
+            "saltar": 8.94,
+            "siguiente": 8.94
+          },
+          "aa": true
+        },
+        {
+          "paso": "2 de 3",
+          "titulo": "Armá tu kit",
+          "objetivo": "kit",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(16, 42, 58, 0.55)",
+          "contraste": {
+            "contador": 9.48,
+            "titulo": 14.85,
+            "texto": 9.48,
+            "saltar": 8.94,
+            "siguiente": 8.94
+          },
+          "aa": true
+        },
+        {
+          "paso": "3 de 3",
+          "titulo": "Probá otro estilo",
+          "objetivo": "estilos",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "¡Listo!",
+          "velo": "rgba(16, 42, 58, 0.55)",
+          "contraste": {
+            "contador": 9.48,
+            "titulo": 14.85,
+            "texto": 9.48,
+            "saltar": 8.94,
+            "siguiente": 8.94
+          },
+          "aa": true
+        }
+      ],
+      "marcaAlTerminar": "visto",
+      "reaparece": false,
+      "tabDentro": true,
+      "escCierra": true,
+      "focoVuelve": true,
+      "marcaTrasEnlace": "visto"
+    },
+    {
+      "clave": "institucional-oscuro-360",
+      "estilo": "institucional",
+      "tema": "dark",
+      "ancho": 360,
+      "pasos": [
+        {
+          "paso": "1 de 3",
+          "titulo": "Hablá con Malejo",
+          "objetivo": "malejo",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 7.74,
+            "titulo": 13.59,
+            "texto": 7.74,
+            "saltar": 6.96,
+            "siguiente": 8.94
+          },
+          "aa": true
+        },
+        {
+          "paso": "2 de 3",
+          "titulo": "Armá tu kit",
+          "objetivo": "kit",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 7.74,
+            "titulo": 13.59,
+            "texto": 7.74,
+            "saltar": 6.96,
+            "siguiente": 8.94
+          },
+          "aa": true
+        },
+        {
+          "paso": "3 de 3",
+          "titulo": "Probá otro estilo",
+          "objetivo": "estilos",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "¡Listo!",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 7.74,
+            "titulo": 13.59,
+            "texto": 7.74,
+            "saltar": 6.96,
+            "siguiente": 8.94
+          },
+          "aa": true
+        }
+      ],
+      "marcaAlTerminar": "visto",
+      "reaparece": false,
+      "tabDentro": true,
+      "escCierra": true,
+      "focoVuelve": true,
+      "marcaTrasEnlace": "visto"
+    },
+    {
+      "clave": "institucional-oscuro-390",
+      "estilo": "institucional",
+      "tema": "dark",
+      "ancho": 390,
+      "pasos": [
+        {
+          "paso": "1 de 3",
+          "titulo": "Hablá con Malejo",
+          "objetivo": "malejo",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 7.74,
+            "titulo": 13.59,
+            "texto": 7.74,
+            "saltar": 6.96,
+            "siguiente": 8.94
+          },
+          "aa": true
+        },
+        {
+          "paso": "2 de 3",
+          "titulo": "Armá tu kit",
+          "objetivo": "kit",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 7.74,
+            "titulo": 13.59,
+            "texto": 7.74,
+            "saltar": 6.96,
+            "siguiente": 8.94
+          },
+          "aa": true
+        },
+        {
+          "paso": "3 de 3",
+          "titulo": "Probá otro estilo",
+          "objetivo": "estilos",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "¡Listo!",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 7.74,
+            "titulo": 13.59,
+            "texto": 7.74,
+            "saltar": 6.96,
+            "siguiente": 8.94
+          },
+          "aa": true
+        }
+      ],
+      "marcaAlTerminar": "visto",
+      "reaparece": false,
+      "tabDentro": true,
+      "escCierra": true,
+      "focoVuelve": true,
+      "marcaTrasEnlace": "visto"
+    },
+    {
+      "clave": "institucional-oscuro-768",
+      "estilo": "institucional",
+      "tema": "dark",
+      "ancho": 768,
+      "pasos": [
+        {
+          "paso": "1 de 3",
+          "titulo": "Hablá con Malejo",
+          "objetivo": "malejo",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 7.74,
+            "titulo": 13.59,
+            "texto": 7.74,
+            "saltar": 6.96,
+            "siguiente": 8.94
+          },
+          "aa": true
+        },
+        {
+          "paso": "2 de 3",
+          "titulo": "Armá tu kit",
+          "objetivo": "kit",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 7.74,
+            "titulo": 13.59,
+            "texto": 7.74,
+            "saltar": 6.96,
+            "siguiente": 8.94
+          },
+          "aa": true
+        },
+        {
+          "paso": "3 de 3",
+          "titulo": "Probá otro estilo",
+          "objetivo": "estilos",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "¡Listo!",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 7.74,
+            "titulo": 13.59,
+            "texto": 7.74,
+            "saltar": 6.96,
+            "siguiente": 8.94
+          },
+          "aa": true
+        }
+      ],
+      "marcaAlTerminar": "visto",
+      "reaparece": false,
+      "tabDentro": true,
+      "escCierra": true,
+      "focoVuelve": true,
+      "marcaTrasEnlace": "visto"
+    },
+    {
+      "clave": "institucional-oscuro-1280",
+      "estilo": "institucional",
+      "tema": "dark",
+      "ancho": 1280,
+      "pasos": [
+        {
+          "paso": "1 de 3",
+          "titulo": "Hablá con Malejo",
+          "objetivo": "malejo",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 7.74,
+            "titulo": 13.59,
+            "texto": 7.74,
+            "saltar": 6.96,
+            "siguiente": 8.94
+          },
+          "aa": true
+        },
+        {
+          "paso": "2 de 3",
+          "titulo": "Armá tu kit",
+          "objetivo": "kit",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 7.74,
+            "titulo": 13.59,
+            "texto": 7.74,
+            "saltar": 6.96,
+            "siguiente": 8.94
+          },
+          "aa": true
+        },
+        {
+          "paso": "3 de 3",
+          "titulo": "Probá otro estilo",
+          "objetivo": "estilos",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "¡Listo!",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 7.74,
+            "titulo": 13.59,
+            "texto": 7.74,
+            "saltar": 6.96,
+            "siguiente": 8.94
+          },
+          "aa": true
+        }
+      ],
+      "marcaAlTerminar": "visto",
+      "reaparece": false,
+      "tabDentro": true,
+      "escCierra": true,
+      "focoVuelve": true,
+      "marcaTrasEnlace": "visto"
+    },
+    {
+      "clave": "aula-claro-360",
+      "estilo": "aula",
+      "tema": "light",
+      "ancho": 360,
+      "pasos": [
+        {
+          "paso": "1 de 3",
+          "titulo": "Hablá con Malejo",
+          "objetivo": "malejo",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(31, 42, 36, 0.55)",
+          "contraste": {
+            "contador": 8.17,
+            "titulo": 14.84,
+            "texto": 8.17,
+            "saltar": 6.12,
+            "siguiente": 6.12
+          },
+          "aa": true
+        },
+        {
+          "paso": "2 de 3",
+          "titulo": "Armá tu kit",
+          "objetivo": "kit",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(31, 42, 36, 0.55)",
+          "contraste": {
+            "contador": 8.17,
+            "titulo": 14.84,
+            "texto": 8.17,
+            "saltar": 6.12,
+            "siguiente": 6.12
+          },
+          "aa": true
+        },
+        {
+          "paso": "3 de 3",
+          "titulo": "Probá otro estilo",
+          "objetivo": "estilos",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "¡Listo!",
+          "velo": "rgba(31, 42, 36, 0.55)",
+          "contraste": {
+            "contador": 8.17,
+            "titulo": 14.84,
+            "texto": 8.17,
+            "saltar": 6.12,
+            "siguiente": 6.12
+          },
+          "aa": true
+        }
+      ],
+      "marcaAlTerminar": "visto",
+      "reaparece": false,
+      "tabDentro": true,
+      "escCierra": true,
+      "focoVuelve": true,
+      "marcaTrasEnlace": "visto"
+    },
+    {
+      "clave": "aula-claro-390",
+      "estilo": "aula",
+      "tema": "light",
+      "ancho": 390,
+      "pasos": [
+        {
+          "paso": "1 de 3",
+          "titulo": "Hablá con Malejo",
+          "objetivo": "malejo",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(31, 42, 36, 0.55)",
+          "contraste": {
+            "contador": 8.17,
+            "titulo": 14.84,
+            "texto": 8.17,
+            "saltar": 6.12,
+            "siguiente": 6.12
+          },
+          "aa": true
+        },
+        {
+          "paso": "2 de 3",
+          "titulo": "Armá tu kit",
+          "objetivo": "kit",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(31, 42, 36, 0.55)",
+          "contraste": {
+            "contador": 8.17,
+            "titulo": 14.84,
+            "texto": 8.17,
+            "saltar": 6.12,
+            "siguiente": 6.12
+          },
+          "aa": true
+        },
+        {
+          "paso": "3 de 3",
+          "titulo": "Probá otro estilo",
+          "objetivo": "estilos",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "¡Listo!",
+          "velo": "rgba(31, 42, 36, 0.55)",
+          "contraste": {
+            "contador": 8.17,
+            "titulo": 14.84,
+            "texto": 8.17,
+            "saltar": 6.12,
+            "siguiente": 6.12
+          },
+          "aa": true
+        }
+      ],
+      "marcaAlTerminar": "visto",
+      "reaparece": false,
+      "tabDentro": true,
+      "escCierra": true,
+      "focoVuelve": true,
+      "marcaTrasEnlace": "visto"
+    },
+    {
+      "clave": "aula-claro-768",
+      "estilo": "aula",
+      "tema": "light",
+      "ancho": 768,
+      "pasos": [
+        {
+          "paso": "1 de 3",
+          "titulo": "Hablá con Malejo",
+          "objetivo": "malejo",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(31, 42, 36, 0.55)",
+          "contraste": {
+            "contador": 8.17,
+            "titulo": 14.84,
+            "texto": 8.17,
+            "saltar": 6.12,
+            "siguiente": 6.12
+          },
+          "aa": true
+        },
+        {
+          "paso": "2 de 3",
+          "titulo": "Armá tu kit",
+          "objetivo": "kit",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(31, 42, 36, 0.55)",
+          "contraste": {
+            "contador": 8.17,
+            "titulo": 14.84,
+            "texto": 8.17,
+            "saltar": 6.12,
+            "siguiente": 6.12
+          },
+          "aa": true
+        },
+        {
+          "paso": "3 de 3",
+          "titulo": "Probá otro estilo",
+          "objetivo": "estilos",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "¡Listo!",
+          "velo": "rgba(31, 42, 36, 0.55)",
+          "contraste": {
+            "contador": 8.17,
+            "titulo": 14.84,
+            "texto": 8.17,
+            "saltar": 6.12,
+            "siguiente": 6.12
+          },
+          "aa": true
+        }
+      ],
+      "marcaAlTerminar": "visto",
+      "reaparece": false,
+      "tabDentro": true,
+      "escCierra": true,
+      "focoVuelve": true,
+      "marcaTrasEnlace": "visto"
+    },
+    {
+      "clave": "aula-claro-1280",
+      "estilo": "aula",
+      "tema": "light",
+      "ancho": 1280,
+      "pasos": [
+        {
+          "paso": "1 de 3",
+          "titulo": "Hablá con Malejo",
+          "objetivo": "malejo",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(31, 42, 36, 0.55)",
+          "contraste": {
+            "contador": 8.17,
+            "titulo": 14.84,
+            "texto": 8.17,
+            "saltar": 6.12,
+            "siguiente": 6.12
+          },
+          "aa": true
+        },
+        {
+          "paso": "2 de 3",
+          "titulo": "Armá tu kit",
+          "objetivo": "kit",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(31, 42, 36, 0.55)",
+          "contraste": {
+            "contador": 8.17,
+            "titulo": 14.84,
+            "texto": 8.17,
+            "saltar": 6.12,
+            "siguiente": 6.12
+          },
+          "aa": true
+        },
+        {
+          "paso": "3 de 3",
+          "titulo": "Probá otro estilo",
+          "objetivo": "estilos",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "¡Listo!",
+          "velo": "rgba(31, 42, 36, 0.55)",
+          "contraste": {
+            "contador": 8.17,
+            "titulo": 14.84,
+            "texto": 8.17,
+            "saltar": 6.12,
+            "siguiente": 6.12
+          },
+          "aa": true
+        }
+      ],
+      "marcaAlTerminar": "visto",
+      "reaparece": false,
+      "tabDentro": true,
+      "escCierra": true,
+      "focoVuelve": true,
+      "marcaTrasEnlace": "visto"
+    },
+    {
+      "clave": "aula-oscuro-360",
+      "estilo": "aula",
+      "tema": "dark",
+      "ancho": 360,
+      "pasos": [
+        {
+          "paso": "1 de 3",
+          "titulo": "Hablá con Malejo",
+          "objetivo": "malejo",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 8.05,
+            "titulo": 10.93,
+            "texto": 8.05,
+            "saltar": 8.5,
+            "siguiente": 8.5
+          },
+          "aa": true
+        },
+        {
+          "paso": "2 de 3",
+          "titulo": "Armá tu kit",
+          "objetivo": "kit",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 8.05,
+            "titulo": 10.93,
+            "texto": 8.05,
+            "saltar": 8.5,
+            "siguiente": 8.5
+          },
+          "aa": true
+        },
+        {
+          "paso": "3 de 3",
+          "titulo": "Probá otro estilo",
+          "objetivo": "estilos",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "¡Listo!",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 8.05,
+            "titulo": 10.93,
+            "texto": 8.05,
+            "saltar": 8.5,
+            "siguiente": 8.5
+          },
+          "aa": true
+        }
+      ],
+      "marcaAlTerminar": "visto",
+      "reaparece": false,
+      "tabDentro": true,
+      "escCierra": true,
+      "focoVuelve": true,
+      "marcaTrasEnlace": "visto"
+    },
+    {
+      "clave": "aula-oscuro-390",
+      "estilo": "aula",
+      "tema": "dark",
+      "ancho": 390,
+      "pasos": [
+        {
+          "paso": "1 de 3",
+          "titulo": "Hablá con Malejo",
+          "objetivo": "malejo",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 8.05,
+            "titulo": 10.93,
+            "texto": 8.05,
+            "saltar": 8.5,
+            "siguiente": 8.5
+          },
+          "aa": true
+        },
+        {
+          "paso": "2 de 3",
+          "titulo": "Armá tu kit",
+          "objetivo": "kit",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 8.05,
+            "titulo": 10.93,
+            "texto": 8.05,
+            "saltar": 8.5,
+            "siguiente": 8.5
+          },
+          "aa": true
+        },
+        {
+          "paso": "3 de 3",
+          "titulo": "Probá otro estilo",
+          "objetivo": "estilos",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "¡Listo!",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 8.05,
+            "titulo": 10.93,
+            "texto": 8.05,
+            "saltar": 8.5,
+            "siguiente": 8.5
+          },
+          "aa": true
+        }
+      ],
+      "marcaAlTerminar": "visto",
+      "reaparece": false,
+      "tabDentro": true,
+      "escCierra": true,
+      "focoVuelve": true,
+      "marcaTrasEnlace": "visto"
+    },
+    {
+      "clave": "aula-oscuro-768",
+      "estilo": "aula",
+      "tema": "dark",
+      "ancho": 768,
+      "pasos": [
+        {
+          "paso": "1 de 3",
+          "titulo": "Hablá con Malejo",
+          "objetivo": "malejo",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 8.05,
+            "titulo": 10.93,
+            "texto": 8.05,
+            "saltar": 8.5,
+            "siguiente": 8.5
+          },
+          "aa": true
+        },
+        {
+          "paso": "2 de 3",
+          "titulo": "Armá tu kit",
+          "objetivo": "kit",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 8.05,
+            "titulo": 10.93,
+            "texto": 8.05,
+            "saltar": 8.5,
+            "siguiente": 8.5
+          },
+          "aa": true
+        },
+        {
+          "paso": "3 de 3",
+          "titulo": "Probá otro estilo",
+          "objetivo": "estilos",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "¡Listo!",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 8.05,
+            "titulo": 10.93,
+            "texto": 8.05,
+            "saltar": 8.5,
+            "siguiente": 8.5
+          },
+          "aa": true
+        }
+      ],
+      "marcaAlTerminar": "visto",
+      "reaparece": false,
+      "tabDentro": true,
+      "escCierra": true,
+      "focoVuelve": true,
+      "marcaTrasEnlace": "visto"
+    },
+    {
+      "clave": "aula-oscuro-1280",
+      "estilo": "aula",
+      "tema": "dark",
+      "ancho": 1280,
+      "pasos": [
+        {
+          "paso": "1 de 3",
+          "titulo": "Hablá con Malejo",
+          "objetivo": "malejo",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 8.05,
+            "titulo": 10.93,
+            "texto": 8.05,
+            "saltar": 8.5,
+            "siguiente": 8.5
+          },
+          "aa": true
+        },
+        {
+          "paso": "2 de 3",
+          "titulo": "Armá tu kit",
+          "objetivo": "kit",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 8.05,
+            "titulo": 10.93,
+            "texto": 8.05,
+            "saltar": 8.5,
+            "siguiente": 8.5
+          },
+          "aa": true
+        },
+        {
+          "paso": "3 de 3",
+          "titulo": "Probá otro estilo",
+          "objetivo": "estilos",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "¡Listo!",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 8.05,
+            "titulo": 10.93,
+            "texto": 8.05,
+            "saltar": 8.5,
+            "siguiente": 8.5
+          },
+          "aa": true
+        }
+      ],
+      "marcaAlTerminar": "visto",
+      "reaparece": false,
+      "tabDentro": true,
+      "escCierra": true,
+      "focoVuelve": true,
+      "marcaTrasEnlace": "visto"
+    },
+    {
+      "clave": "tienda-claro-360",
+      "estilo": "tienda",
+      "tema": "light",
+      "ancho": 360,
+      "pasos": [
+        {
+          "paso": "1 de 3",
+          "titulo": "Hablá con Malejo",
+          "objetivo": "malejo",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(43, 33, 24, 0.55)",
+          "contraste": {
+            "contador": 8.48,
+            "titulo": 15.75,
+            "texto": 8.48,
+            "saltar": 5.85,
+            "siguiente": 5.18
+          },
+          "aa": true
+        },
+        {
+          "paso": "2 de 3",
+          "titulo": "Armá tu kit",
+          "objetivo": "kit",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(43, 33, 24, 0.55)",
+          "contraste": {
+            "contador": 8.48,
+            "titulo": 15.75,
+            "texto": 8.48,
+            "saltar": 5.85,
+            "siguiente": 5.18
+          },
+          "aa": true
+        },
+        {
+          "paso": "3 de 3",
+          "titulo": "Probá otro estilo",
+          "objetivo": "estilos",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "¡Listo!",
+          "velo": "rgba(43, 33, 24, 0.55)",
+          "contraste": {
+            "contador": 8.48,
+            "titulo": 15.75,
+            "texto": 8.48,
+            "saltar": 5.85,
+            "siguiente": 5.18
+          },
+          "aa": true
+        }
+      ],
+      "marcaAlTerminar": "visto",
+      "reaparece": false,
+      "tabDentro": true,
+      "escCierra": true,
+      "focoVuelve": true,
+      "marcaTrasEnlace": "visto"
+    },
+    {
+      "clave": "tienda-claro-390",
+      "estilo": "tienda",
+      "tema": "light",
+      "ancho": 390,
+      "pasos": [
+        {
+          "paso": "1 de 3",
+          "titulo": "Hablá con Malejo",
+          "objetivo": "malejo",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(43, 33, 24, 0.55)",
+          "contraste": {
+            "contador": 8.48,
+            "titulo": 15.75,
+            "texto": 8.48,
+            "saltar": 5.85,
+            "siguiente": 5.18
+          },
+          "aa": true
+        },
+        {
+          "paso": "2 de 3",
+          "titulo": "Armá tu kit",
+          "objetivo": "kit",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(43, 33, 24, 0.55)",
+          "contraste": {
+            "contador": 8.48,
+            "titulo": 15.75,
+            "texto": 8.48,
+            "saltar": 5.85,
+            "siguiente": 5.18
+          },
+          "aa": true
+        },
+        {
+          "paso": "3 de 3",
+          "titulo": "Probá otro estilo",
+          "objetivo": "estilos",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "¡Listo!",
+          "velo": "rgba(43, 33, 24, 0.55)",
+          "contraste": {
+            "contador": 8.48,
+            "titulo": 15.75,
+            "texto": 8.48,
+            "saltar": 5.85,
+            "siguiente": 5.18
+          },
+          "aa": true
+        }
+      ],
+      "marcaAlTerminar": "visto",
+      "reaparece": false,
+      "tabDentro": true,
+      "escCierra": true,
+      "focoVuelve": true,
+      "marcaTrasEnlace": "visto"
+    },
+    {
+      "clave": "tienda-claro-768",
+      "estilo": "tienda",
+      "tema": "light",
+      "ancho": 768,
+      "pasos": [
+        {
+          "paso": "1 de 3",
+          "titulo": "Hablá con Malejo",
+          "objetivo": "malejo",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(43, 33, 24, 0.55)",
+          "contraste": {
+            "contador": 8.48,
+            "titulo": 15.75,
+            "texto": 8.48,
+            "saltar": 5.85,
+            "siguiente": 5.18
+          },
+          "aa": true
+        },
+        {
+          "paso": "2 de 3",
+          "titulo": "Armá tu kit",
+          "objetivo": "kit",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(43, 33, 24, 0.55)",
+          "contraste": {
+            "contador": 8.48,
+            "titulo": 15.75,
+            "texto": 8.48,
+            "saltar": 5.85,
+            "siguiente": 5.18
+          },
+          "aa": true
+        },
+        {
+          "paso": "3 de 3",
+          "titulo": "Probá otro estilo",
+          "objetivo": "estilos",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "¡Listo!",
+          "velo": "rgba(43, 33, 24, 0.55)",
+          "contraste": {
+            "contador": 8.48,
+            "titulo": 15.75,
+            "texto": 8.48,
+            "saltar": 5.85,
+            "siguiente": 5.18
+          },
+          "aa": true
+        }
+      ],
+      "marcaAlTerminar": "visto",
+      "reaparece": false,
+      "tabDentro": true,
+      "escCierra": true,
+      "focoVuelve": true,
+      "marcaTrasEnlace": "visto"
+    },
+    {
+      "clave": "tienda-claro-1280",
+      "estilo": "tienda",
+      "tema": "light",
+      "ancho": 1280,
+      "pasos": [
+        {
+          "paso": "1 de 3",
+          "titulo": "Hablá con Malejo",
+          "objetivo": "malejo",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(43, 33, 24, 0.55)",
+          "contraste": {
+            "contador": 8.48,
+            "titulo": 15.75,
+            "texto": 8.48,
+            "saltar": 5.85,
+            "siguiente": 5.18
+          },
+          "aa": true
+        },
+        {
+          "paso": "2 de 3",
+          "titulo": "Armá tu kit",
+          "objetivo": "kit",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(43, 33, 24, 0.55)",
+          "contraste": {
+            "contador": 8.48,
+            "titulo": 15.75,
+            "texto": 8.48,
+            "saltar": 5.85,
+            "siguiente": 5.18
+          },
+          "aa": true
+        },
+        {
+          "paso": "3 de 3",
+          "titulo": "Probá otro estilo",
+          "objetivo": "estilos",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "¡Listo!",
+          "velo": "rgba(43, 33, 24, 0.55)",
+          "contraste": {
+            "contador": 8.48,
+            "titulo": 15.75,
+            "texto": 8.48,
+            "saltar": 5.85,
+            "siguiente": 5.18
+          },
+          "aa": true
+        }
+      ],
+      "marcaAlTerminar": "visto",
+      "reaparece": false,
+      "tabDentro": true,
+      "escCierra": true,
+      "focoVuelve": true,
+      "marcaTrasEnlace": "visto"
+    },
+    {
+      "clave": "tienda-oscuro-360",
+      "estilo": "tienda",
+      "tema": "dark",
+      "ancho": 360,
+      "pasos": [
+        {
+          "paso": "1 de 3",
+          "titulo": "Hablá con Malejo",
+          "objetivo": "malejo",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 8.28,
+            "titulo": 13.35,
+            "texto": 8.28,
+            "saltar": 6.48,
+            "siguiente": 5.18
+          },
+          "aa": true
+        },
+        {
+          "paso": "2 de 3",
+          "titulo": "Armá tu kit",
+          "objetivo": "kit",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 8.28,
+            "titulo": 13.35,
+            "texto": 8.28,
+            "saltar": 6.48,
+            "siguiente": 5.18
+          },
+          "aa": true
+        },
+        {
+          "paso": "3 de 3",
+          "titulo": "Probá otro estilo",
+          "objetivo": "estilos",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "¡Listo!",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 8.28,
+            "titulo": 13.35,
+            "texto": 8.28,
+            "saltar": 6.48,
+            "siguiente": 5.18
+          },
+          "aa": true
+        }
+      ],
+      "marcaAlTerminar": "visto",
+      "reaparece": false,
+      "tabDentro": true,
+      "escCierra": true,
+      "focoVuelve": true,
+      "marcaTrasEnlace": "visto"
+    },
+    {
+      "clave": "tienda-oscuro-390",
+      "estilo": "tienda",
+      "tema": "dark",
+      "ancho": 390,
+      "pasos": [
+        {
+          "paso": "1 de 3",
+          "titulo": "Hablá con Malejo",
+          "objetivo": "malejo",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 8.28,
+            "titulo": 13.35,
+            "texto": 8.28,
+            "saltar": 6.48,
+            "siguiente": 5.18
+          },
+          "aa": true
+        },
+        {
+          "paso": "2 de 3",
+          "titulo": "Armá tu kit",
+          "objetivo": "kit",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 8.28,
+            "titulo": 13.35,
+            "texto": 8.28,
+            "saltar": 6.48,
+            "siguiente": 5.18
+          },
+          "aa": true
+        },
+        {
+          "paso": "3 de 3",
+          "titulo": "Probá otro estilo",
+          "objetivo": "estilos",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "¡Listo!",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 8.28,
+            "titulo": 13.35,
+            "texto": 8.28,
+            "saltar": 6.48,
+            "siguiente": 5.18
+          },
+          "aa": true
+        }
+      ],
+      "marcaAlTerminar": "visto",
+      "reaparece": false,
+      "tabDentro": true,
+      "escCierra": true,
+      "focoVuelve": true,
+      "marcaTrasEnlace": "visto"
+    },
+    {
+      "clave": "tienda-oscuro-768",
+      "estilo": "tienda",
+      "tema": "dark",
+      "ancho": 768,
+      "pasos": [
+        {
+          "paso": "1 de 3",
+          "titulo": "Hablá con Malejo",
+          "objetivo": "malejo",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 8.28,
+            "titulo": 13.35,
+            "texto": 8.28,
+            "saltar": 6.48,
+            "siguiente": 5.18
+          },
+          "aa": true
+        },
+        {
+          "paso": "2 de 3",
+          "titulo": "Armá tu kit",
+          "objetivo": "kit",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 8.28,
+            "titulo": 13.35,
+            "texto": 8.28,
+            "saltar": 6.48,
+            "siguiente": 5.18
+          },
+          "aa": true
+        },
+        {
+          "paso": "3 de 3",
+          "titulo": "Probá otro estilo",
+          "objetivo": "estilos",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "¡Listo!",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 8.28,
+            "titulo": 13.35,
+            "texto": 8.28,
+            "saltar": 6.48,
+            "siguiente": 5.18
+          },
+          "aa": true
+        }
+      ],
+      "marcaAlTerminar": "visto",
+      "reaparece": false,
+      "tabDentro": true,
+      "escCierra": true,
+      "focoVuelve": true,
+      "marcaTrasEnlace": "visto"
+    },
+    {
+      "clave": "tienda-oscuro-1280",
+      "estilo": "tienda",
+      "tema": "dark",
+      "ancho": 1280,
+      "pasos": [
+        {
+          "paso": "1 de 3",
+          "titulo": "Hablá con Malejo",
+          "objetivo": "malejo",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 8.28,
+            "titulo": 13.35,
+            "texto": 8.28,
+            "saltar": 6.48,
+            "siguiente": 5.18
+          },
+          "aa": true
+        },
+        {
+          "paso": "2 de 3",
+          "titulo": "Armá tu kit",
+          "objetivo": "kit",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "Siguiente",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 8.28,
+            "titulo": 13.35,
+            "texto": 8.28,
+            "saltar": 6.48,
+            "siguiente": 5.18
+          },
+          "aa": true
+        },
+        {
+          "paso": "3 de 3",
+          "titulo": "Probá otro estilo",
+          "objetivo": "estilos",
+          "entero": true,
+          "tapaHueco": false,
+          "tapaBarra": false,
+          "foco": "¡Listo!",
+          "velo": "rgba(0, 0, 0, 0.7)",
+          "contraste": {
+            "contador": 8.28,
+            "titulo": 13.35,
+            "texto": 8.28,
+            "saltar": 6.48,
+            "siguiente": 5.18
+          },
+          "aa": true
+        }
+      ],
+      "marcaAlTerminar": "visto",
+      "reaparece": false,
+      "tabDentro": true,
+      "escCierra": true,
+      "focoVuelve": true,
+      "marcaTrasEnlace": "visto"
+    },
+    {
+      "clave": "chat-primero-360",
+      "sale": false,
+      "marca": "saltado"
+    },
+    {
+      "clave": "chat-primero-390",
+      "sale": false,
+      "marca": "saltado"
+    },
+    {
+      "clave": "chat-primero-768",
+      "sale": false,
+      "marca": "saltado"
+    },
+    {
+      "clave": "chat-primero-1280",
+      "sale": false,
+      "marca": "saltado"
+    }
+  ]
+}

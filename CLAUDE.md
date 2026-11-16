@@ -342,7 +342,8 @@ npm run db:migrate  # las aplica Mauro, con DATABASE_URL
   Contacto; reemplaza a la burbuja del chat en el celular). Desde P3-1:
   `EstiloSelector` (con `PersonajeRapido` y `PersonajeCiclo`), el hook
   `useEstilo` y `SpritesVivos` (una sola isla para todos los sprites).
-  Desde P3-2: `Garabato`. FAQ y "Ver otras opciones" son `<details>`,
+  Desde P3-2: `Garabato`. Desde P3-4: `RecorridoLoader`, `Recorrido`
+  (cargado con `next/dynamic`, `ssr: false`) y `ComoUsar`. FAQ y "Ver otras opciones" son `<details>`,
   sin JS. `PlanCard`, `PlanDetalle` e `InfoPagos` son Server Components.
 - **Modales (P1):** `PlanDialog` es un `<dialog>` nativo con `showModal()`;
   el contenido llega como `children` del servidor. Sin JS, "Ver qué
@@ -440,6 +441,24 @@ npm run db:migrate  # las aplica Mauro, con DATABASE_URL
   inferior (56 px), "Soy Mauro" del hero de Tech (con el idle y el saludo) y
   el retrato del equipo. No recortes un `Sprite` de cuerpo entero con
   `overflow-hidden`: usá `CaraMalejo`.
+- **Recorrido de bienvenida (P3-4).** 3 pasos (Malejo, el kit, los
+  estilos) con la copy en `content/agencia/recorrido.ts`. Los objetivos son
+  los elementos reales con `data-recorrido="malejo|kit|estilos"`: gana el
+  visible con menor `data-recorrido-prioridad` (barra inferior 1,
+  encabezado 2, hero 3; entre 760 y 1023 px el de Malejo es el del hero,
+  porque ahí no hay botón en el encabezado ni barra inferior) y si no hay
+  ninguno, el paso se saltea. `RecorridoLoader` (en el layout, liviano)
+  decide sin bajar la isla: solo en la home, sin `malejo-recorrido`, 4 s
+  después de que el hero esté a la vista y con `requestIdleCallback`; si
+  antes se abre el chat (`malejo:abrir` o `malejo:chat-abierto`), se toca un
+  objetivo o se scrollea más allá del hero, marca "saltado". "¿Cómo uso la
+  página?" (`ComoUsar`: pie, menú del celular y panel de estilos,
+  `.js-only`) dispara `malejo:recorrido` y lo abre siempre, sin tocar la
+  marca. El velo es `--recorrido-velo` (por estilo, claro y oscuro) como
+  sombra del hueco; una capa transparente encima de todo hace que nada se
+  toque. Si agregás un botón principal, decidí si es objetivo; si cambiás
+  el encabezado, la barra inferior o los heroes, corré
+  `docs/agencia/verificacion/p3-4/recorrido.js`.
 - **Presupuesto de rendimiento (Mauro, 16-11, tanda P3-3.1).** Se acepta el
   costo de traer los heroes de los cuatro estilos en la home. Reglas:
   - la **primera visita (Tech)** puede subir el LCP como mucho un **+10 %**

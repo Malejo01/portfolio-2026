@@ -1067,3 +1067,69 @@ Rama `p3-3-1-cierre` desde `main` (`d14cfc1`), PR contra `main`. `npm run lint`,
 - `lado-a-lado-1280-soluciones-{claro,oscuro}.png` y `lado-a-lado-390-soluciones-{claro,oscuro}.png`: Tienda al lado de la referencia, con la franja y el título;
 - `diff-1280-home-aula-oscuro.png` y `diff-1280-home-tienda-claro.png`: lo único que cambió en la home, en rojo;
 - `superposicion.json` y `comparacion-con-main.txt`.
+
+# Tanda P3-4 · Recorrido de bienvenida, tema por estilo y caras del personaje
+
+Rama `p3-4-recorrido` desde `main` (`60f3910`), PR contra `main`. El pedido está en `docs/agencia/tanda-p3-4-recorrido-y-ajustes.md`. `npm run lint`, `npm test` (__TESTS__) y `npm run build` están en verde, con la misma tabla de rutas que `main`: todo `○`/`●` salvo los catch-all y `/api/*`.
+
+## Qué se hizo
+1. **Tema por estilo.**
+   - Cada estilo arranca en su tema: Tech oscuro, Institucional claro, Aula oscuro y Tienda claro (`temaDeEntrada` en `estilos.ts`).
+   - Recuerda solo lo que se cambie dentro de ese estilo, en `localStorage["malejo-tema-<estilo>"]`; la clave de otro estilo no cuenta.
+   - La lógica es una sola función pura, `resolverTema()` (`lib/agencia/estilo.ts`). El script inline la recibe serializada y la usan también el respaldo del 404 y `elegirEstilo()`, que aplica el tema del destino dentro de la misma View Transition.
+   - El toggle escribe la clave del estilo activo y ya no escribe la cookie.
+   - La cookie vieja `malejo-theme` pasa una sola vez a `malejo-tema-tech` y se borra. La del portfolio (`theme`) no se toca.
+   - 10 tests nuevos en `estilo.test.ts`: la función sola, `arrancar()` con un `document` simulado y el script serializado.
+2. **Caras.**
+   - `scripts/sprites/config.json` suma la caja `cara` de cada dibujo en el lienzo fuente, con las medidas del pedido, y `limpiar.py` la traduce al lienzo recortado en `sprites.json`. Los negativos son aire.
+   - `<CaraMalejo tamano alto? forma pose? />` escala cada dibujo para que su cara llene el recuadro. Tiene el mismo marcado que `Sprite` (3 dibujos, `lazy`, `width`/`height` explícitos), así que el idle y `reproducir()` siguen andando.
+   - Reemplaza al avatar del chat (40 y 32 px) y al botón de Malejo de la barra inferior (56 px).
+   - **Auditoría de los `overflow-hidden` que recortaban un `Sprite`:**
+     - el "Soy Mauro" del hero de Tech (56 × 64) pasa a `CaraMalejo` y sigue saludando al entrar;
+     - el retrato de "Quién te va a atender" (80 × 96 y 96 × 112) también pasa a `CaraMalejo`;
+     - los recuadros "Soy Mauro" de Institucional, Aula y Tienda en el celular (48–56 × 76) muestran el cuerpo entero apoyado por los pies: no son recortes y quedan igual;
+     - el `overflow-hidden` del ejemplo de Institucional, del panel del kit y de la hoja del chat no contiene sprites recortados.
+3. **Recorrido de bienvenida.**
+   - **Pasos:** 3 (Hablá con Malejo, Armá tu kit, Probá otro estilo), con la copy en `content/agencia/recorrido.ts`.
+   - **Objetivos:** los elementos reales con `data-recorrido`. Gana el visible con menor `data-recorrido-prioridad`: la barra inferior en el celular, el encabezado en escritorio y el hero entre 760 y 1023 px.
+   - **Cuándo sale solo:** en la home, la primera vez, 4 s después de que el hero esté a la vista y con `requestIdleCallback`. No sale (y queda "saltado") si antes se abre el chat, se toca uno de los 3 botones, se abre el selector o se scrollea más allá del hero. Al terminar queda "visto" y al saltar, "saltado".
+   - **"¿Cómo uso la página?":** está en el pie, en el menú del celular y al final del panel de estilos. Lo abre siempre, en cualquier página, sin tocar la marca, y es `.js-only`.
+   - **Velo:** el token `--recorrido-velo`, por estilo y en claro y oscuro, es la sombra del hueco. El hueco deja 8 px de margen, toma el radio del objetivo y lleva un borde del color de acción. Una capa transparente encima de todo impide tocar la página, también el objetivo.
+   - **Globito:** usa la tarjeta del estilo y `Sprite pose="ok"` de 72 px; en el paso 1 Malejo saluda una vez.
+     - En escritorio va del lado con más espacio.
+     - En el celular va arriba o abajo, a todo el ancho y sin pisar la barra inferior.
+     - Se recalcula al girar, redimensionar y hacer scroll, y lleva el objetivo a la vista si hace falta.
+     - Entre pasos se desliza 0,25 s; con movimiento reducido no hay transición.
+   - **Accesibilidad:** `role="dialog"` con `aria-labelledby` y `aria-describedby`. El foco va a "Siguiente" y Tab no sale del globito. Esc salta y devuelve el foco. Una región `aria-live="polite"` anuncia "Paso 2 de 3: Armá tu kit".
+   - **Rendimiento:** `RecorridoLoader` es liviano y va en el layout. `Recorrido` se baja con `next/dynamic` (`ssr: false`) recién cuando se abre.
+   - **Analytics:** `recorrido_inicio` `{origen}`, `recorrido_paso` `{paso}` y `recorrido_fin` `{completo, paso}`.
+
+## Verificación (`docs/agencia/verificacion/p3-4/`)
+- **Tema** (`tema.js`, perfiles limpios como en incógnito): 22 de 22.
+  - Institucional claro, Aula oscuro y Tienda claro, eligiéndolos y al recargar.
+  - Institucional pasado a oscuro → Tech → vuelta: Institucional sigue oscuro y Tech no cambió. Al revés, Tech en claro no toca a Institucional.
+  - Con la cookie vieja oscura: Tech oscuro e Institucional claro. Con la clara: Tech claro. En los dos casos la cookie se migra y se borra.
+  - El 404 respeta todo esto, también en la primera visita con la cookie vieja.
+- **Caras** (`caras.js`, `caras-lamina.py`): `cara-<dibujo>-<recorte>.png` y `caras-comparacion.png`, al lado de `caras-hoy-vs-propuesta.png`. Coincide con la propuesta.
+- **Recorrido** (`recorrido.js`): 4 estilos × claro/oscuro × 360/390/768/1280, sin ninguna falla (`recorrido.json`).
+  - Sale solo y los 3 pasos encuentran su objetivo, comprobado con lo que hay debajo del hueco.
+  - El globito queda entero en la vista, sin tocar el hueco ni la barra inferior.
+  - El foco está en "Siguiente".
+  - El contraste mínimo de los textos del globito es 5,18 (Tienda); el resto va de 5,99 a 8,94.
+  - Al terminar queda "visto" y al recargar no reaparece.
+  - El enlace lo reabre sin tocar la marca, Tab no sale y Esc cierra y devuelve el foco al enlace.
+  - Con el chat abierto antes, no sale en ningún ancho (marca "saltado").
+  - Capturas: `recorrido-<estilo>-<tema>-<ancho>-<paso>.png` (el paso 1 en todas; los 3 pasos a 390 y 1280 px en el tema de entrada de cada estilo).
+
+## Presupuesto (`verificacion/p3-4/presupuesto.txt`, contra `main` construida al lado)
+__PRESUPUESTO__
+
+## Decisiones
+- **El velo es una sombra**, no un SVG con máscara. Una `box-shadow` de 200vmax alrededor del hueco anima posición, tamaño y radio con Framer sin recalcular un trazado, y el color sale de un token por estilo. Las invariantes del portfolio no aplican a la agencia, que ya usa sombras.
+- **Entre 760 y 1023 px el paso 1 señala el "Hablar con Malejo" del hero.** En ese ancho el botón del encabezado está oculto (`lg:inline-flex`) y no hay barra inferior. Es lo único visible, y el recorrido solo sale en la home, donde el hero está.
+- **Si un objetivo desaparece entre pasos** (por ejemplo, al girar el teléfono), ese paso se saltea al tocar "Siguiente". El contador sigue contando sobre los pasos que tenían objetivo al abrir.
+- **El recorrido no sale si `localStorage` falla** (modo privado estricto): sin dónde guardar la marca, saldría en cada visita. El enlace lo abre igual.
+
+## Pasos manuales para Mauro
+1. **Revisar el texto legal.** La sección 7 de Privacidad ("Cookies y almacenamiento local") decía que el sitio guardaba la cookie `malejo-theme`, y eso ya no es así. Ahora dice que las páginas de Malejo no guardan cookies propias (la sección /portfolio guarda dos, idioma y tema) y enumera qué queda en el almacenamiento local (estilo, dibujo, tema de cada estilo y si se vio el recorrido) y en el de sesión (el chat y el kit). La fecha de actualización de Privacidad pasó al 16 de noviembre de 2026.
+2. En Vercel Analytics, los eventos nuevos (`recorrido_inicio`, `recorrido_paso`, `recorrido_fin`) aparecen solos. Sirven para ver cuánta gente lo termina y en qué paso lo salta.

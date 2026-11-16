@@ -36,6 +36,8 @@ export interface LegalDoc {
 const UPDATED = "8 de noviembre de 2026";
 /** Tanda P1: los términos cambiaron las formas de pago. */
 const UPDATED_TERMINOS = "11 de noviembre de 2026";
+/** Tanda P3-4: el almacenamiento local (estilo, dibujo, tema por estilo, recorrido). */
+const UPDATED_PRIVACIDAD = "16 de noviembre de 2026";
 
 export const legalDocs: Record<LegalDoc["slug"], LegalDoc> = {
   terminos: {
@@ -167,7 +169,7 @@ export const legalDocs: Record<LegalDoc["slug"], LegalDoc> = {
     label: "Legal",
     title: "Privacidad y datos personales",
     description: "Qué datos guardo, para qué, cuánto tiempo y cómo ejercer tus derechos según la Ley 25.326.",
-    updated: UPDATED,
+    updated: UPDATED_PRIVACIDAD,
     intro:
       "Esta política explica cómo trato tus datos personales según la Ley 25.326 de Protección de los Datos Personales de la República Argentina.",
     sections: [
@@ -223,7 +225,7 @@ export const legalDocs: Record<LegalDoc["slug"], LegalDoc> = {
       {
         heading: "7. Cookies y almacenamiento local",
         blocks: [
-          "El sitio no guarda cookies propias. En el almacenamiento local de tu navegador guarda cómo preferís ver la página: el estilo, el dibujo del personaje, el modo claro u oscuro de cada estilo y si ya viste el recorrido de bienvenida. El chat de Malejo y tu kit se guardan en el almacenamiento de sesión (solo en esa pestaña, se borran al cerrarla) para que no se pierdan si recargás. Nada de eso se manda a ningún servidor para guardarse ni identifica a nadie.",
+          "Las páginas de Malejo no guardan cookies propias (la sección /portfolio guarda dos, con el idioma y el modo claro u oscuro). En el almacenamiento local de tu navegador guarda cómo preferís ver la página: el estilo, el dibujo del personaje, el modo claro u oscuro de cada estilo y si ya viste el recorrido de bienvenida. El chat de Malejo y tu kit se guardan en el almacenamiento de sesión (solo en esa pestaña, se borran al cerrarla) para que no se pierdan si recargás. Nada de eso se manda a ningún servidor para guardarse ni identifica a nadie.",
         ],
       },
     ],

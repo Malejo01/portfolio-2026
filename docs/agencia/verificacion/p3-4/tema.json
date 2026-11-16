@@ -1,0 +1,368 @@
+{
+  "base": "http://localhost:3001",
+  "fallas": [],
+  "casos": [
+    {
+      "nombre": "sin nada: Tech oscuro",
+      "ok": true,
+      "obtenido": {
+        "estilo": "tech",
+        "tema": "oscuro",
+        "claves": {},
+        "cookie": null
+      },
+      "esperado": {
+        "estilo": "tech",
+        "tema": "oscuro"
+      }
+    },
+    {
+      "nombre": "selector: Institucional claro",
+      "ok": true,
+      "obtenido": {
+        "estilo": "institucional",
+        "tema": "claro",
+        "claves": {},
+        "cookie": null
+      },
+      "esperado": {
+        "estilo": "institucional",
+        "tema": "claro",
+        "claves": {}
+      }
+    },
+    {
+      "nombre": "recarga: Institucional claro",
+      "ok": true,
+      "obtenido": {
+        "estilo": "institucional",
+        "tema": "claro",
+        "claves": {},
+        "cookie": null
+      },
+      "esperado": {
+        "estilo": "institucional",
+        "tema": "claro"
+      }
+    },
+    {
+      "nombre": "selector: Aula virtual oscuro",
+      "ok": true,
+      "obtenido": {
+        "estilo": "aula",
+        "tema": "oscuro",
+        "claves": {},
+        "cookie": null
+      },
+      "esperado": {
+        "estilo": "aula",
+        "tema": "oscuro",
+        "claves": {}
+      }
+    },
+    {
+      "nombre": "recarga: Aula virtual oscuro",
+      "ok": true,
+      "obtenido": {
+        "estilo": "aula",
+        "tema": "oscuro",
+        "claves": {},
+        "cookie": null
+      },
+      "esperado": {
+        "estilo": "aula",
+        "tema": "oscuro"
+      }
+    },
+    {
+      "nombre": "selector: Tienda claro",
+      "ok": true,
+      "obtenido": {
+        "estilo": "tienda",
+        "tema": "claro",
+        "claves": {},
+        "cookie": null
+      },
+      "esperado": {
+        "estilo": "tienda",
+        "tema": "claro",
+        "claves": {}
+      }
+    },
+    {
+      "nombre": "recarga: Tienda claro",
+      "ok": true,
+      "obtenido": {
+        "estilo": "tienda",
+        "tema": "claro",
+        "claves": {},
+        "cookie": null
+      },
+      "esperado": {
+        "estilo": "tienda",
+        "tema": "claro"
+      }
+    },
+    {
+      "nombre": "selector: Tech / IA oscuro",
+      "ok": true,
+      "obtenido": {
+        "estilo": "tech",
+        "tema": "oscuro",
+        "claves": {},
+        "cookie": null
+      },
+      "esperado": {
+        "estilo": "tech",
+        "tema": "oscuro",
+        "claves": {}
+      }
+    },
+    {
+      "nombre": "recarga: Tech / IA oscuro",
+      "ok": true,
+      "obtenido": {
+        "estilo": "tech",
+        "tema": "oscuro",
+        "claves": {},
+        "cookie": null
+      },
+      "esperado": {
+        "estilo": "tech",
+        "tema": "oscuro"
+      }
+    },
+    {
+      "nombre": "Institucional → oscuro",
+      "ok": true,
+      "obtenido": {
+        "estilo": "institucional",
+        "tema": "oscuro",
+        "claves": {
+          "malejo-tema-institucional": "dark"
+        },
+        "cookie": null
+      },
+      "esperado": {
+        "estilo": "institucional",
+        "tema": "oscuro",
+        "claves": {
+          "malejo-tema-institucional": "dark"
+        }
+      }
+    },
+    {
+      "nombre": "→ Tech: sigue oscuro (su entrada)",
+      "ok": true,
+      "obtenido": {
+        "estilo": "tech",
+        "tema": "oscuro",
+        "claves": {
+          "malejo-tema-institucional": "dark"
+        },
+        "cookie": null
+      },
+      "esperado": {
+        "estilo": "tech",
+        "tema": "oscuro"
+      }
+    },
+    {
+      "nombre": "→ Institucional: sigue oscuro",
+      "ok": true,
+      "obtenido": {
+        "estilo": "institucional",
+        "tema": "oscuro",
+        "claves": {
+          "malejo-tema-institucional": "dark"
+        },
+        "cookie": null
+      },
+      "esperado": {
+        "estilo": "institucional",
+        "tema": "oscuro"
+      }
+    },
+    {
+      "nombre": "Tech → claro no toca a Institucional",
+      "ok": true,
+      "obtenido": {
+        "estilo": "institucional",
+        "tema": "oscuro",
+        "claves": {
+          "malejo-tema-institucional": "dark",
+          "malejo-tema-tech": "light"
+        },
+        "cookie": null
+      },
+      "esperado": {
+        "estilo": "institucional",
+        "tema": "oscuro",
+        "claves": {
+          "malejo-tema-institucional": "dark",
+          "malejo-tema-tech": "light"
+        }
+      }
+    },
+    {
+      "nombre": "Tech recuerda claro",
+      "ok": true,
+      "obtenido": {
+        "estilo": "tech",
+        "tema": "claro",
+        "claves": {
+          "malejo-tema-institucional": "dark",
+          "malejo-tema-tech": "light"
+        },
+        "cookie": null
+      },
+      "esperado": {
+        "estilo": "tech",
+        "tema": "claro"
+      }
+    },
+    {
+      "nombre": "404: Institucional oscuro",
+      "ok": true,
+      "obtenido": {
+        "estilo": "institucional",
+        "tema": "oscuro",
+        "claves": {
+          "malejo-tema-institucional": "dark",
+          "malejo-tema-tech": "light"
+        },
+        "cookie": null
+      },
+      "esperado": {
+        "estilo": "institucional",
+        "tema": "oscuro"
+      }
+    },
+    {
+      "nombre": "404: Tech claro",
+      "ok": true,
+      "obtenido": {
+        "estilo": "tech",
+        "tema": "claro",
+        "claves": {
+          "malejo-tema-institucional": "dark",
+          "malejo-tema-tech": "light"
+        },
+        "cookie": null
+      },
+      "esperado": {
+        "estilo": "tech",
+        "tema": "claro"
+      }
+    },
+    {
+      "nombre": "404: Tienda claro (nada guardado)",
+      "ok": true,
+      "obtenido": {
+        "estilo": "tienda",
+        "tema": "claro",
+        "claves": {
+          "malejo-tema-institucional": "dark",
+          "malejo-tema-tech": "light"
+        },
+        "cookie": null
+      },
+      "esperado": {
+        "estilo": "tienda",
+        "tema": "claro"
+      }
+    },
+    {
+      "nombre": "cookie vieja oscuro: Tech oscuro, migrada y borrada",
+      "ok": true,
+      "obtenido": {
+        "estilo": "tech",
+        "tema": "oscuro",
+        "claves": {
+          "malejo-tema-tech": "dark"
+        },
+        "cookie": null
+      },
+      "esperado": {
+        "estilo": "tech",
+        "tema": "oscuro",
+        "claves": {
+          "malejo-tema-tech": "dark"
+        },
+        "cookie": null
+      }
+    },
+    {
+      "nombre": "cookie vieja oscuro: Institucional claro",
+      "ok": true,
+      "obtenido": {
+        "estilo": "institucional",
+        "tema": "claro",
+        "claves": {
+          "malejo-tema-tech": "dark"
+        },
+        "cookie": null
+      },
+      "esperado": {
+        "estilo": "institucional",
+        "tema": "claro"
+      }
+    },
+    {
+      "nombre": "cookie vieja claro: Tech claro, migrada y borrada",
+      "ok": true,
+      "obtenido": {
+        "estilo": "tech",
+        "tema": "claro",
+        "claves": {
+          "malejo-tema-tech": "light"
+        },
+        "cookie": null
+      },
+      "esperado": {
+        "estilo": "tech",
+        "tema": "claro",
+        "claves": {
+          "malejo-tema-tech": "light"
+        },
+        "cookie": null
+      }
+    },
+    {
+      "nombre": "cookie vieja claro: Institucional claro",
+      "ok": true,
+      "obtenido": {
+        "estilo": "institucional",
+        "tema": "claro",
+        "claves": {
+          "malejo-tema-tech": "light"
+        },
+        "cookie": null
+      },
+      "esperado": {
+        "estilo": "institucional",
+        "tema": "claro"
+      }
+    },
+    {
+      "nombre": "404 con la cookie vieja clara: Tech claro, migrada",
+      "ok": true,
+      "obtenido": {
+        "estilo": "tech",
+        "tema": "claro",
+        "claves": {
+          "malejo-tema-tech": "light"
+        },
+        "cookie": null
+      },
+      "esperado": {
+        "estilo": "tech",
+        "tema": "claro",
+        "claves": {
+          "malejo-tema-tech": "light"
+        },
+        "cookie": null
+      }
+    }
+  ]
+}
